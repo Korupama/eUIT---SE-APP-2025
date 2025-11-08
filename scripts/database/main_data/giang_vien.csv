@@ -1,0 +1,244 @@
+﻿ma_giang_vien,ho_ten,khoa_bo_mon,ngay_sinh,noi_sinh,cccd,ngay_cap_cccd,noi_cap_cccd,dan_toc,ton_giao,so_dien_thoai,dia_chi_thuong_tru,tinh_thanh_pho,phuong_xa
+80001,Nguyễn Minh Nam,HTTT,1970-12-09,Tỉnh Lạng Sơn,048170181960,1991-02-26,Công an tỉnh Bình Dương,Tày,Phật giáo,0901338908,"734 đường Cách Mạng Tháng 8, Xã Ba Sơn",Tỉnh Lạng Sơn,Xã Ba Sơn
+80002,Ngô Thị Trang,HTTT,1970-03-23,Tp Hải Phòng,024070235116,1989-08-11,Công an tỉnh Đồng Nai,Kinh,Hòa Hảo,0835594078,"997 đường Điện Biên Phủ, Phường Hoà Bình",Tp Hải Phòng,Phường Hoà Bình
+80003,Lê Thị Chi,HTTT,1988-04-23,Tỉnh An Giang,092088413164,2013-02-16,Công an TP. Hồ Chí Minh,Nùng,Tin Lành,0375255341,"651 đường Lê Lợi, Xã Long Thạnh",Tỉnh An Giang,Xã Long Thạnh
+80004,Hoàng Hữu Nam,HTTT,1984-07-09,Tỉnh Lâm Đồng,027184030564,2004-02-10,Công an tỉnh Long An,Hoa,Tin Lành,0943953767,"272 đường Lê Lợi, Phường Tiến Thành",Tỉnh Lâm Đồng,Phường Tiến Thành
+80005,Hồ Thị Uyên,HTTT,1988-07-19,Tỉnh Nghệ An,092088287101,2011-10-14,Cục CS ĐKQL cư trú và DLQG về dân cư,Nùng,Không,0842691669,"542 đường Hai Bà Trưng, Xã Tiên Đồng",Tỉnh Nghệ An,Xã Tiên Đồng
+80006,Đặng Thị Hằng,HTTT,1990-06-04,Tỉnh Tây Ninh,048090704828,2014-06-17,Công an tỉnh Đồng Nai,Kinh,Hòa Hảo,0834893252,"977 đường Cách Mạng Tháng 8, Phường Long An",Tỉnh Tây Ninh,Phường Long An
+80007,Phạm Minh Thu,HTTT,1970-02-12,Tỉnh Đồng Tháp,092070039117,1994-01-08,Công an tỉnh Long An,Tày,Phật giáo,0948227824,"894 đường Cách Mạng Tháng 8, Xã Đồng Sơn",Tỉnh Đồng Tháp,Xã Đồng Sơn
+80008,Lê Quang Thịnh,HTTT,1979-07-22,Tỉnh An Giang,040179713315,1998-03-15,Cục CS ĐKQL cư trú và DLQG về dân cư,Kinh,Công giáo,0909839301,"235 đường Nguyễn Trãi, Xã Hòn Đất",Tỉnh An Giang,Xã Hòn Đất
+80009,Ngô Văn Lâm,HTTT,1978-11-16,Thành phố Hà Nội,048178997376,1997-06-20,Công an tỉnh Đồng Nai,Kinh,Cao Đài,0811165667,"690 đường Nguyễn Trãi, Xã Thanh Trì",Thành phố Hà Nội,Xã Thanh Trì
+80010,Phạm Hữu Thịnh,HTTT,1977-04-07,Tỉnh Lào Cai,048177624731,1997-02-12,Công an tỉnh Bình Dương,Tày,Phật giáo,0378108013,"417 đường Điện Biên Phủ, Phường Cam Đường",Tỉnh Lào Cai,Phường Cam Đường
+80011,Phạm Quang Quang,HTTT,1975-07-01,Tỉnh Lạng Sơn,033175468723,1994-01-17,Công an TP. Hồ Chí Minh,Nùng,Hòa Hảo,0323098050,"599 đường Điện Biên Phủ, Xã Mẫu Sơn",Tỉnh Lạng Sơn,Xã Mẫu Sơn
+80012,Đỗ Văn Đạt,HTTT,1986-02-28,Tỉnh Lào Cai,058186136193,2007-01-27,Công an tỉnh Bình Dương,Hoa,Công giáo,0919169985,"210 đường Hai Bà Trưng, Xã Lâm Thượng",Tỉnh Lào Cai,Xã Lâm Thượng
+80013,Huỳnh Minh Đạt,HTTT,1990-05-15,Tỉnh Hưng Yên,001190799118,2011-07-21,Công an tỉnh Đồng Nai,Nùng,Tin Lành,0818425135,"162 đường Điện Biên Phủ, Xã Trà Giang",Tỉnh Hưng Yên,Xã Trà Giang
+80014,Phan Văn Hiếu,HTTT,1987-05-22,Tỉnh An Giang,024187118244,2006-05-30,Cục CS ĐKQL cư trú và DLQG về dân cư,Khmer,Không,0815348740,"650 đường Điện Biên Phủ, Xã Hòn Nghệ",Tỉnh An Giang,Xã Hòn Nghệ
+80015,Huỳnh Thị Hồng,HTTT,1974-11-09,Tp Cần Thơ,040074680112,1996-04-19,Công an TP. Hồ Chí Minh,Khmer,Phật giáo,0915982620,"374 đường Nguyễn Trãi, Phường Hưng Phú",Tp Cần Thơ,Phường Hưng Phú
+80016,Nguyễn Đức Thọ,HTTT,1981-09-28,Tỉnh Đồng Tháp,048181322602,2005-01-02,Công an tỉnh Đồng Nai,Tày,Công giáo,0336342160,"228 đường Lê Lợi, Xã Phú Hựu",Tỉnh Đồng Tháp,Xã Phú Hựu
+80017,Hồ Văn Trung,HTTT,1977-01-22,Tỉnh Gia Lai,027177414586,1996-04-06,Công an tỉnh Đồng Nai,Khmer,Tin Lành,0330142940,"611 đường Điện Biên Phủ, Xã Kon Gang",Tỉnh Gia Lai,Xã Kon Gang
+80018,Hồ Thị Thanh,HTTT,1989-09-04,Tỉnh Vĩnh Long,092089406088,2011-01-12,Công an tỉnh Đồng Nai,Mường,Cao Đài,0815615951,"520 đường Hai Bà Trưng, Xã Hưng Mỹ",Tỉnh Vĩnh Long,Xã Hưng Mỹ
+80019,Phan Thị Xuân,HTTT,1979-09-05,Tỉnh Thanh Hóa,031079299468,2002-11-17,Công an tỉnh Long An,Mường,Phật giáo,0904436995,"453 đường Điện Biên Phủ, Xã Hoằng Hóa",Tỉnh Thanh Hóa,Xã Hoằng Hóa
+80020,Đặng Thị Ly,HTTT,1975-11-03,Tỉnh Đồng Tháp,058075513433,1998-06-22,Công an tỉnh Bình Dương,Hoa,Tin Lành,0840037917,"908 đường Cách Mạng Tháng 8, Phường Sa Đéc",Tỉnh Đồng Tháp,Phường Sa Đéc
+80021,Nguyễn Thu Anh,HTTT,1982-04-05,Tỉnh Tây Ninh,079082632870,2003-10-21,Công an tỉnh Long An,Nùng,Tin Lành,0821727889,"973 đường Điện Biên Phủ, Xã Mỹ Thạnh",Tỉnh Tây Ninh,Xã Mỹ Thạnh
+80022,Phạm Thu Kim,HTTT,1987-08-06,Tỉnh Hà Tĩnh,033087434873,2011-08-22,Công an tỉnh Bình Dương,Hoa,Phật giáo,0887143455,"83 đường Lê Lợi, Xã Thạch Khê",Tỉnh Hà Tĩnh,Xã Thạch Khê
+80023,Nguyễn Đức Vinh,KHMT,1976-02-14,Tỉnh Thanh Hóa,040176760366,1998-10-22,Công an tỉnh Bình Dương,Nùng,Phật giáo,0909670546,"552 đường Cách Mạng Tháng 8, Xã Yên Phú",Tỉnh Thanh Hóa,Xã Yên Phú
+80024,Trần Văn Yên,KHMT,1978-07-16,Thành phố Hà Nội,027178627298,2001-09-14,Công an tỉnh Đồng Nai,Khmer,Cao Đài,0906990162,"187 đường Nguyễn Trãi, Xã Hồng Vân",Thành phố Hà Nội,Xã Hồng Vân
+80025,Phạm Quang Sơn,KHMT,1984-06-11,Tp Hồ Chí Minh,031184417080,2009-05-25,Cục CS ĐKQL cư trú và DLQG về dân cư,Hoa,Cao Đài,0343100330,"157 đường Lê Lợi, Phường Tân Sơn Nhì",Tp Hồ Chí Minh,Phường Tân Sơn Nhì
+80026,Lê Quang Khang,KHMT,1984-12-09,Tỉnh Đồng Tháp,058184912419,2005-08-25,Cục CS ĐKQL cư trú và DLQG về dân cư,Mường,Hòa Hảo,0904966319,"105 đường Hai Bà Trưng, Xã Đốc Binh Kiều",Tỉnh Đồng Tháp,Xã Đốc Binh Kiều
+80027,Lê Quang Đạt,KHMT,1981-09-14,Tỉnh Hà Tĩnh,040181506716,2005-09-22,Công an tỉnh Long An,Tày,Cao Đài,0347262849,"794 đường Điện Biên Phủ, Phường Hà Huy Tập",Tỉnh Hà Tĩnh,Phường Hà Huy Tập
+80028,Hoàng Minh Hà,KHMT,1980-04-27,Tỉnh Sơn La,024080737996,2001-03-16,Công an tỉnh Đồng Nai,Nùng,Tin Lành,0330752735,"349 đường Hai Bà Trưng, Xã Mường Hung",Tỉnh Sơn La,Xã Mường Hung
+80029,Nguyễn Minh Tùng,KHMT,1986-04-03,Tỉnh Thanh Hóa,033186837770,2009-07-19,Công an tỉnh Long An,Khmer,Cao Đài,0944363495,"567 đường Cách Mạng Tháng 8, Xã Thọ Phú",Tỉnh Thanh Hóa,Xã Thọ Phú
+80030,Võ Thị Thu,KHMT,1981-12-15,Tp Hải Phòng,024081313518,2003-02-12,Công an tỉnh Đồng Nai,Khmer,Phật giáo,0853374989,"103 đường Lê Lợi, Xã Chí Minh",Tp Hải Phòng,Xã Chí Minh
+80031,Phạm Hữu Hiếu,KHMT,1979-01-23,Tỉnh Đồng Tháp,024179008427,1999-02-12,Cục CS ĐKQL cư trú và DLQG về dân cư,Khmer,Cao Đài,0830947775,"989 đường Nguyễn Trãi, Phường Đạo Thạnh",Tỉnh Đồng Tháp,Phường Đạo Thạnh
+80032,Phạm Văn Hùng,KHMT,1982-08-03,Tỉnh Đồng Tháp,048182941318,2005-07-16,Công an tỉnh Long An,Tày,Công giáo,0369993867,"305 đường Cách Mạng Tháng 8, Xã Tháp Mười",Tỉnh Đồng Tháp,Xã Tháp Mười
+80033,Ngô Văn Minh,KHMT,1989-12-04,Tỉnh Khánh Hòa,024189123281,2010-07-05,Cục CS ĐKQL cư trú và DLQG về dân cư,Mường,Cao Đài,0850679740,"296 đường Hai Bà Trưng, Xã Nam Khánh Vĩnh",Tỉnh Khánh Hòa,Xã Nam Khánh Vĩnh
+80034,Hồ Văn Thắng,KHMT,1978-11-19,Tỉnh Tuyên Quang,079178832421,2002-02-15,Công an tỉnh Đồng Nai,Mường,Cao Đài,0912499471,"706 đường Hai Bà Trưng, Xã Đồng Yên",Tỉnh Tuyên Quang,Xã Đồng Yên
+80035,Trần Thị Hằng,KHMT,1984-02-20,Tỉnh Lâm Đồng,027084940139,2005-03-30,Công an tỉnh Bình Dương,Tày,Tin Lành,0904902787,"186 đường Cách Mạng Tháng 8, Xã Krông Nô",Tỉnh Lâm Đồng,Xã Krông Nô
+80036,Nguyễn Quang Việt,KHMT,1985-06-14,Tỉnh Quảng Ninh,079185256746,2009-03-17,Công an tỉnh Bình Dương,Mường,Hòa Hảo,0917154516,"845 đường Nguyễn Trãi, Xã Lương Minh",Tỉnh Quảng Ninh,Xã Lương Minh
+80037,Đỗ Thị Vũ,KHMT,1971-04-17,Tỉnh Lâm Đồng,033071703482,1992-10-05,Cục CS ĐKQL cư trú và DLQG về dân cư,Nùng,Cao Đài,0327710932,"565 đường Nguyễn Trãi, Xã Di Linh",Tỉnh Lâm Đồng,Xã Di Linh
+80038,Đặng Văn Hạnh,KHMT,1973-08-04,Tỉnh Lâm Đồng,024173846773,1992-05-11,Công an tỉnh Đồng Nai,Khmer,Hòa Hảo,0378263982,"283 đường Điện Biên Phủ, Phường Xuân Hương - Đà Lạt",Tỉnh Lâm Đồng,Phường Xuân Hương - Đà Lạt
+80039,Nguyễn Hữu Hùng,KHMT,1979-12-10,Tỉnh Thanh Hóa,033179875588,2002-07-14,Công an tỉnh Bình Dương,Mường,Cao Đài,0357533963,"45 đường Hai Bà Trưng, Xã Nam Xuân",Tỉnh Thanh Hóa,Xã Nam Xuân
+80040,Trần Thị Hoa,KHMT,1990-03-16,Tp Hải Phòng,040090951718,2011-12-27,Công an tỉnh Đồng Nai,Mường,Không,0370262174,"639 đường Điện Biên Phủ, Xã Vĩnh Thịnh",Tp Hải Phòng,Xã Vĩnh Thịnh
+80041,Phạm Minh Lệ,KTMT,1980-11-23,Tỉnh Sơn La,040080091343,1999-05-26,Công an tỉnh Đồng Nai,Khmer,Công giáo,0946117240,"333 đường Nguyễn Trãi, Phường Vân Sơn",Tỉnh Sơn La,Phường Vân Sơn
+80042,Ngô Thị Thanh,KTMT,1974-04-17,Tỉnh Đắk Lắk,048074221969,1995-02-21,Công an tỉnh Long An,Tày,Công giáo,0827923747,"683 đường Nguyễn Trãi, Xã Sơn Thành",Tỉnh Đắk Lắk,Xã Sơn Thành
+80043,Hoàng Minh Thắng,KTMT,1972-08-12,Tỉnh Ninh Bình,024172743671,1995-01-15,Cục CS ĐKQL cư trú và DLQG về dân cư,Nùng,Tin Lành,0826959440,"282 đường Nguyễn Trãi, Phường Vị Khê",Tỉnh Ninh Bình,Phường Vị Khê
+80044,Nguyễn Minh Tuyết,KTMT,1979-04-20,Tỉnh Gia Lai,092079394210,2000-12-13,Công an TP. Hồ Chí Minh,Hoa,Phật giáo,0327095214,"766 đường Điện Biên Phủ, Phường Hoài Nhơn Tây",Tỉnh Gia Lai,Phường Hoài Nhơn Tây
+80045,Trần Minh Lan,KTMT,1986-09-09,Tỉnh Hưng Yên,024086745171,2007-08-23,Công an tỉnh Đồng Nai,Tày,Công giáo,0843685160,"550 đường Nguyễn Trãi, Xã Nguyễn Văn Linh",Tỉnh Hưng Yên,Xã Nguyễn Văn Linh
+80046,Trần Thu Nhung,KTMT,1990-06-04,Tỉnh Nghệ An,033090098593,2011-10-28,Công an tỉnh Long An,Kinh,Phật giáo,0947461200,"505 đường Nguyễn Trãi, Xã Văn Hiến",Tỉnh Nghệ An,Xã Văn Hiến
+80047,Phạm Hữu Tùng,KTMT,1982-08-12,Tỉnh Quảng Ninh,058182261796,2001-09-17,Công an tỉnh Đồng Nai,Nùng,Tin Lành,0880537735,"703 đường Hai Bà Trưng, Phường Tuần Châu",Tỉnh Quảng Ninh,Phường Tuần Châu
+80048,Vũ Văn Toàn,KTMT,1982-05-07,Tỉnh Lai Châu,079182390053,2002-12-12,Công an tỉnh Đồng Nai,Nùng,Không,0849318393,"337 đường Lê Lợi, Xã Mường Khoa",Tỉnh Lai Châu,Xã Mường Khoa
+80049,Đỗ Văn Hải,KTMT,1974-09-09,Tỉnh An Giang,001174205395,1993-05-22,Công an tỉnh Long An,Khmer,Hòa Hảo,0902402681,"488 đường Điện Biên Phủ, Xã Tân An",Tỉnh An Giang,Xã Tân An
+80050,Lê Văn Huy,KTMT,1984-09-08,Tp Hải Phòng,024184700766,2003-05-31,Công an tỉnh Long An,Nùng,Tin Lành,0837711592,"130 đường Hai Bà Trưng, Phường Thuỷ Nguyên",Tp Hải Phòng,Phường Thuỷ Nguyên
+80051,Đặng Thị Huệ,KTMT,1982-10-17,Thành phố Hà Nội,040082961183,2001-11-05,Công an tỉnh Đồng Nai,Khmer,Tin Lành,0367365766,"321 đường Điện Biên Phủ, Xã Minh Châu",Thành phố Hà Nội,Xã Minh Châu
+80052,Lê Thị Hà,KTMT,1974-11-16,Tỉnh Đắk Lắk,079074161528,1997-08-09,Công an tỉnh Đồng Nai,Khmer,Hòa Hảo,0919885165,"889 đường Nguyễn Trãi, Xã Ea Na",Tỉnh Đắk Lắk,Xã Ea Na
+80053,Phan Thị Hương,KTMT,1973-10-17,Tỉnh Cao Bằng,033073315851,1992-01-28,Công an tỉnh Đồng Nai,Kinh,Phật giáo,0889368998,"624 đường Hai Bà Trưng, Xã Hạnh Phúc",Tỉnh Cao Bằng,Xã Hạnh Phúc
+80054,Huỳnh Thị Hương,KTMT,1980-06-01,Thành phố Hà Nội,058080612018,2002-01-15,Cục CS ĐKQL cư trú và DLQG về dân cư,Nùng,Không,0816675254,"796 đường Cách Mạng Tháng 8, Phường Tây Tựu",Thành phố Hà Nội,Phường Tây Tựu
+80055,Huỳnh Văn Sơn,MMTTT,1975-10-02,Tp Hồ Chí Minh,033175679764,1999-03-13,Công an tỉnh Bình Dương,Kinh,Phật giáo,0818156149,"540 đường Hai Bà Trưng, Phường Thủ Đức",Tp Hồ Chí Minh,Phường Thủ Đức
+80056,Ngô Văn Hiếu,MMTTT,1970-04-10,Tỉnh Đắk Lắk,024170451076,1989-01-25,Công an tỉnh Bình Dương,Tày,Không,0852683885,"407 đường Nguyễn Trãi, Phường Hòa Hiệp",Tỉnh Đắk Lắk,Phường Hòa Hiệp
+80057,Hoàng Quang Tùng,MMTTT,1980-10-14,Tỉnh Gia Lai,024180160529,2003-04-07,Công an tỉnh Đồng Nai,Tày,Công giáo,0375161369,"537 đường Nguyễn Trãi, Phường Hội Phú",Tỉnh Gia Lai,Phường Hội Phú
+80058,Trần Hữu Hải,MMTTT,1980-03-03,Tp Hải Phòng,040180835523,2000-02-22,Công an tỉnh Long An,Tày,Hòa Hảo,0832432921,"975 đường Điện Biên Phủ, Xã Yết Kiêu",Tp Hải Phòng,Xã Yết Kiêu
+80059,Hoàng Thùy Thúy,MMTTT,1988-11-21,Tỉnh Thanh Hóa,027088271774,2011-12-12,Cục CS ĐKQL cư trú và DLQG về dân cư,Khmer,Công giáo,0889058147,"39 đường Nguyễn Trãi, Xã Đồng Tiến",Tỉnh Thanh Hóa,Xã Đồng Tiến
+80060,Phạm Quang Toàn,MMTTT,1989-10-17,Tỉnh Tây Ninh,058189807935,2013-06-09,Công an tỉnh Bình Dương,Kinh,Phật giáo,0388207151,"662 đường Lê Lợi, Xã Phước Thạnh",Tỉnh Tây Ninh,Xã Phước Thạnh
+80061,Huỳnh Thị Uyên,MMTTT,1986-09-20,Tỉnh Thanh Hóa,027086466590,2011-06-19,Công an tỉnh Long An,Khmer,Không,0331518644,"895 đường Lê Lợi, Xã Văn Nho",Tỉnh Thanh Hóa,Xã Văn Nho
+80062,Hoàng Quang Hiếu,MMTTT,1981-05-21,Tỉnh Phú Thọ,058181148652,2001-05-24,Công an TP. Hồ Chí Minh,Khmer,Cao Đài,0391685054,"974 đường Lê Lợi, Xã Minh Hòa",Tỉnh Phú Thọ,Xã Minh Hòa
+80063,Phạm Minh Giang,MMTTT,1974-03-03,Tỉnh Lạng Sơn,040174880592,1996-10-05,Công an tỉnh Đồng Nai,Tày,Hòa Hảo,0352229270,"374 đường Lê Lợi, Xã Vũ Lăng",Tỉnh Lạng Sơn,Xã Vũ Lăng
+80064,Đặng Thị Kim,MMTTT,1977-09-08,Tỉnh Gia Lai,092077597746,1996-04-04,Cục CS ĐKQL cư trú và DLQG về dân cư,Khmer,Hòa Hảo,0398623924,"657 đường Điện Biên Phủ, Xã Ya Ma",Tỉnh Gia Lai,Xã Ya Ma
+80065,Bùi Văn Sơn,MMTTT,1979-02-25,Tp Hải Phòng,033179826137,2001-06-20,Công an tỉnh Đồng Nai,Hoa,Không,0340606853,"84 đường Hai Bà Trưng, Xã Cẩm Giang",Tp Hải Phòng,Xã Cẩm Giang
+80066,Đặng Văn Hiếu,MMTTT,1990-06-26,Tỉnh Nghệ An,001190472779,2014-05-22,Công an tỉnh Đồng Nai,Khmer,Phật giáo,0901043289,"434 đường Nguyễn Trãi, Xã Đại Đồng",Tỉnh Nghệ An,Xã Đại Đồng
+80067,Phạm Đức Đạt,MMTTT,1971-04-14,Tp Đà Nẵng,079171798089,1995-09-02,Cục CS ĐKQL cư trú và DLQG về dân cư,Mường,Tin Lành,0822460953,"427 đường Lê Lợi, Xã Quế Sơn",Tp Đà Nẵng,Xã Quế Sơn
+80068,Trần Thùy Ly,KTTT,1972-09-18,Tỉnh Hưng Yên,040072067065,1994-06-06,Công an tỉnh Đồng Nai,Khmer,Hòa Hảo,0880515319,"137 đường Nguyễn Trãi, Phường Trần Lãm",Tỉnh Hưng Yên,Phường Trần Lãm
+80069,Đỗ Văn Hiếu,KTTT,1984-12-16,Tỉnh Ninh Bình,079184704303,2003-05-10,Cục CS ĐKQL cư trú và DLQG về dân cư,Khmer,Công giáo,0915486874,"772 đường Lê Lợi, Xã Lý Nhân",Tỉnh Ninh Bình,Xã Lý Nhân
+80070,Đỗ Thị Hằng,KTTT,1978-02-26,Tỉnh Bắc Ninh,031078765277,1998-03-02,Cục CS ĐKQL cư trú và DLQG về dân cư,Khmer,Không,0348416169,"559 đường Hai Bà Trưng, Xã Hợp Thịnh",Tỉnh Bắc Ninh,Xã Hợp Thịnh
+80071,Hoàng Thùy Hằng,KTTT,1979-05-15,Tỉnh Sơn La,048079757059,1997-09-14,Cục CS ĐKQL cư trú và DLQG về dân cư,Mường,Cao Đài,0364016582,"147 đường Cách Mạng Tháng 8, Xã Mường Lạn",Tỉnh Sơn La,Xã Mường Lạn
+80072,Lê Quang Xuân,KTTT,1972-04-25,Tỉnh Đồng Tháp,031172909275,1993-10-29,Cục CS ĐKQL cư trú và DLQG về dân cư,Hoa,Không,0347192856,"666 đường Hai Bà Trưng, Xã Tân Thạnh",Tỉnh Đồng Tháp,Xã Tân Thạnh
+80073,Hoàng Hữu Hải,KTTT,1985-09-13,Tỉnh Đồng Nai,024185473947,2007-04-10,Công an tỉnh Long An,Mường,Không,0811217271,"684 đường Hai Bà Trưng, Xã An Phước",Tỉnh Đồng Nai,Xã An Phước
+80074,Lê Thu Linh,KTTT,1979-03-23,Tỉnh Tây Ninh,027079831323,1998-08-31,Công an tỉnh Bình Dương,Kinh,Công giáo,0380589578,"627 đường Nguyễn Trãi, Xã Tân Lân",Tỉnh Tây Ninh,Xã Tân Lân
+80075,Ngô Thị Thanh,KTTT,1986-07-25,Tỉnh Lâm Đồng,079086251778,2005-03-03,Công an tỉnh Đồng Nai,Nùng,Phật giáo,0342892268,"852 đường Nguyễn Trãi, Xã Quảng Hoà",Tỉnh Lâm Đồng,Xã Quảng Hoà
+80076,Dương Văn Vương,KTTT,1975-06-23,Tỉnh Quảng Ninh,040175414384,1999-12-22,Công an tỉnh Long An,Mường,Hòa Hảo,0844981829,"158 đường Lê Lợi, Phường Hạ Long",Tỉnh Quảng Ninh,Phường Hạ Long
+80077,Lê Minh Bích,KTTT,1988-01-27,Tỉnh Đắk Lắk,079088094396,2009-05-24,Công an TP. Hồ Chí Minh,Mường,Không,0907844736,"465 đường Nguyễn Trãi, Xã Krông Á",Tỉnh Đắk Lắk,Xã Krông Á
+80078,Phan Thị Trang,KTTT,1983-08-15,Tỉnh Đồng Tháp,058083255562,2004-08-09,Cục CS ĐKQL cư trú và DLQG về dân cư,Hoa,Không,0348815371,"461 đường Lê Lợi, Phường Mỹ Phước Tây",Tỉnh Đồng Tháp,Phường Mỹ Phước Tây
+80079,Vũ Thị Lan,CNPM,1982-10-14,Tỉnh Vĩnh Long,027082953278,2005-11-24,Công an tỉnh Đồng Nai,Hoa,Hòa Hảo,0377470168,"990 đường Lê Lợi, Xã Càng Long",Tỉnh Vĩnh Long,Xã Càng Long
+80080,Hoàng Đức Thành,CNPM,1971-05-16,Tỉnh Đồng Nai,040171016245,1993-06-03,Công an tỉnh Long An,Kinh,Cao Đài,0355060983,"567 đường Hai Bà Trưng, Phường Biên Hoà",Tỉnh Đồng Nai,Phường Biên Hoà
+80081,Hoàng Thùy Vũ,CNPM,1987-05-27,Tỉnh Hưng Yên,079087216558,2005-11-23,Công an tỉnh Bình Dương,Mường,Công giáo,0342398680,"40 đường Lê Lợi, Xã Quỳnh An",Tỉnh Hưng Yên,Xã Quỳnh An
+80082,Hoàng Thị Thúy,CNPM,1974-10-17,Tỉnh Tuyên Quang,058074526949,1992-12-19,Công an tỉnh Bình Dương,Mường,Không,0338887947,"378 đường Hai Bà Trưng, Xã Minh Quang",Tỉnh Tuyên Quang,Xã Minh Quang
+80083,Nguyễn Thùy Phương,CNPM,1990-01-20,Tp Cần Thơ,058090930972,2010-03-07,Công an TP. Hồ Chí Minh,Khmer,Cao Đài,0399623091,"20 đường Điện Biên Phủ, Phường Long Tuyền",Tp Cần Thơ,Phường Long Tuyền
+80084,Hoàng Thu Vũ,CNPM,1976-07-17,Tỉnh Tây Ninh,033076028385,2000-08-27,Công an TP. Hồ Chí Minh,Nùng,Cao Đài,0388652785,"363 đường Hai Bà Trưng, Xã Đức Hoà",Tỉnh Tây Ninh,Xã Đức Hoà
+80085,Dương Văn Tuấn,CNPM,1978-09-10,Tỉnh Tây Ninh,024178375758,1998-04-27,Cục CS ĐKQL cư trú và DLQG về dân cư,Khmer,Tin Lành,0884198665,"298 đường Nguyễn Trãi, Xã Phước Lý",Tỉnh Tây Ninh,Xã Phước Lý
+80086,Phạm Thu Kim,CNPM,1984-11-09,Tỉnh Thanh Hóa,092084384842,2005-06-15,Công an tỉnh Bình Dương,Tày,Công giáo,0839933083,"54 đường Nguyễn Trãi, Phường Ngọc Sơn",Tỉnh Thanh Hóa,Phường Ngọc Sơn
+80087,Bùi Văn Tùng,CNPM,1974-01-18,Tỉnh An Giang,033174734540,1992-06-10,Công an tỉnh Đồng Nai,Tày,Phật giáo,0949380262,"857 đường Điện Biên Phủ, Xã Bình Thạnh Đông",Tỉnh An Giang,Xã Bình Thạnh Đông
+80088,Phan Văn Vinh,PĐTĐH,1970-05-19,Tỉnh Đồng Tháp,024170788728,1990-06-15,Công an TP. Hồ Chí Minh,Khmer,Hòa Hảo,0374315274,"15 đường Hai Bà Trưng, Xã Mỹ Đức Tây",Tỉnh Đồng Tháp,Xã Mỹ Đức Tây
+80089,Trần Đức Hoàn,PĐTĐH,1989-11-13,Tp Hồ Chí Minh,027189161227,2011-07-21,Cục CS ĐKQL cư trú và DLQG về dân cư,Mường,Hòa Hảo,0333046374,"310 đường Cách Mạng Tháng 8, Phường Nhiêu Lộc",Tp Hồ Chí Minh,Phường Nhiêu Lộc
+80090,Vũ Thị Diệu,PĐTĐH,1990-06-23,Tỉnh Khánh Hòa,079090742684,2010-03-07,Công an tỉnh Long An,Khmer,Cao Đài,0834593327,"466 đường Cách Mạng Tháng 8, Xã Cà Ná",Tỉnh Khánh Hòa,Xã Cà Ná
+80091,Phan Thị Oanh,PĐTĐH,1987-11-27,Tỉnh Hưng Yên,058087187851,2007-09-26,Công an TP. Hồ Chí Minh,Tày,Không,0830883982,"336 đường Cách Mạng Tháng 8, Xã Tiên Tiến",Tỉnh Hưng Yên,Xã Tiên Tiến
+80092,Nguyễn Minh Diệu,PĐTĐH,1972-09-15,Tp Cần Thơ,033072286790,1991-07-07,Cục CS ĐKQL cư trú và DLQG về dân cư,Khmer,Tin Lành,0374064039,"47 đường Điện Biên Phủ, Xã Đông Phước",Tp Cần Thơ,Xã Đông Phước
+80093,Phạm Minh Tùng,BMTL,1972-08-02,Tỉnh Sơn La,048172265676,1994-12-24,Cục CS ĐKQL cư trú và DLQG về dân cư,Mường,Phật giáo,0351825128,"542 đường Lê Lợi, Xã Chiềng Sại",Tỉnh Sơn La,Xã Chiềng Sại
+80094,Phạm Hữu Thắng,BMTL,1979-08-22,Tỉnh Gia Lai,040179633752,1999-12-09,Công an tỉnh Bình Dương,Nùng,Không,0883106903,"69 đường Nguyễn Trãi, Xã Vĩnh Sơn",Tỉnh Gia Lai,Xã Vĩnh Sơn
+80095,Hoàng Quang Thịnh,TTNN,1977-12-02,Tp Đà Nẵng,092177830284,1997-07-06,Công an tỉnh Đồng Nai,Hoa,Cao Đài,0829599534,"677 đường Cách Mạng Tháng 8, Phường Tam Kỳ",Tp Đà Nẵng,Phường Tam Kỳ
+80096,Phạm Minh Linh,TTNN,1971-09-19,Tp Hải Phòng,031071870568,1995-01-05,Công an TP. Hồ Chí Minh,Khmer,Tin Lành,0336624628,"247 đường Lê Lợi, Xã Tân Kỳ",Tp Hải Phòng,Xã Tân Kỳ
+80101,Nguyễn Minh Nam,HTTT,1970-12-09,Tỉnh Lạng Sơn,048170181960,1991-02-26,Công an tỉnh Bình Dương,Tày,Phật giáo,0901338908,"734 đường Cách Mạng Tháng 8, Xã Ba Sơn",Tỉnh Lạng Sơn,Xã Ba Sơn
+80102,Ngô Thị Trang,HTTT,1970-03-23,Tp Hải Phòng,024070235116,1989-08-11,Công an tỉnh Đồng Nai,Kinh,Hòa Hảo,0835594078,"997 đường Điện Biên Phủ, Phường Hoà Bình",Tp Hải Phòng,Phường Hoà Bình
+80103,Lê Thị Chi,HTTT,1988-04-23,Tỉnh An Giang,092088413164,2013-02-16,Công an TP. Hồ Chí Minh,Nùng,Tin Lành,0375255341,"651 đường Lê Lợi, Xã Long Thạnh",Tỉnh An Giang,Xã Long Thạnh
+80104,Hoàng Hữu Nam,HTTT,1984-07-09,Tỉnh Lâm Đồng,027184030564,2004-02-10,Công an tỉnh Long An,Hoa,Tin Lành,0943953767,"272 đường Lê Lợi, Phường Tiến Thành",Tỉnh Lâm Đồng,Phường Tiến Thành
+80105,Hồ Thị Uyên,HTTT,1988-07-19,Tỉnh Nghệ An,092088287101,2011-10-14,Cục CS ĐKQL cư trú và DLQG về dân cư,Nùng,Không,0842691669,"542 đường Hai Bà Trưng, Xã Tiên Đồng",Tỉnh Nghệ An,Xã Tiên Đồng
+80106,Đặng Thị Hằng,HTTT,1990-06-04,Tỉnh Tây Ninh,048090704828,2014-06-17,Công an tỉnh Đồng Nai,Kinh,Hòa Hảo,0834893252,"977 đường Cách Mạng Tháng 8, Phường Long An",Tỉnh Tây Ninh,Phường Long An
+80107,Phạm Minh Thu,HTTT,1970-02-12,Tỉnh Đồng Tháp,092070039117,1994-01-08,Công an tỉnh Long An,Tày,Phật giáo,0948227824,"894 đường Cách Mạng Tháng 8, Xã Đồng Sơn",Tỉnh Đồng Tháp,Xã Đồng Sơn
+80108,Lê Quang Thịnh,HTTT,1979-07-22,Tỉnh An Giang,040179713315,1998-03-15,Cục CS ĐKQL cư trú và DLQG về dân cư,Kinh,Công giáo,0909839301,"235 đường Nguyễn Trãi, Xã Hòn Đất",Tỉnh An Giang,Xã Hòn Đất
+80109,Ngô Văn Lâm,HTTT,1978-11-16,Thành phố Hà Nội,048178997376,1997-06-20,Công an tỉnh Đồng Nai,Kinh,Cao Đài,0811165667,"690 đường Nguyễn Trãi, Xã Thanh Trì",Thành phố Hà Nội,Xã Thanh Trì
+80110,Phạm Hữu Thịnh,HTTT,1977-04-07,Tỉnh Lào Cai,048177624731,1997-02-12,Công an tỉnh Bình Dương,Tày,Phật giáo,0378108013,"417 đường Điện Biên Phủ, Phường Cam Đường",Tỉnh Lào Cai,Phường Cam Đường
+80111,Phạm Quang Quang,HTTT,1975-07-01,Tỉnh Lạng Sơn,033175468723,1994-01-17,Công an TP. Hồ Chí Minh,Nùng,Hòa Hảo,0323098050,"599 đường Điện Biên Phủ, Xã Mẫu Sơn",Tỉnh Lạng Sơn,Xã Mẫu Sơn
+80112,Đỗ Văn Đạt,HTTT,1986-02-28,Tỉnh Lào Cai,058186136193,2007-01-27,Công an tỉnh Bình Dương,Hoa,Công giáo,0919169985,"210 đường Hai Bà Trưng, Xã Lâm Thượng",Tỉnh Lào Cai,Xã Lâm Thượng
+80113,Huỳnh Minh Đạt,HTTT,1990-05-15,Tỉnh Hưng Yên,001190799118,2011-07-21,Công an tỉnh Đồng Nai,Nùng,Tin Lành,0818425135,"162 đường Điện Biên Phủ, Xã Trà Giang",Tỉnh Hưng Yên,Xã Trà Giang
+80114,Phan Văn Hiếu,HTTT,1987-05-22,Tỉnh An Giang,024187118244,2006-05-30,Cục CS ĐKQL cư trú và DLQG về dân cư,Khmer,Không,0815348740,"650 đường Điện Biên Phủ, Xã Hòn Nghệ",Tỉnh An Giang,Xã Hòn Nghệ
+80115,Huỳnh Thị Hồng,HTTT,1974-11-09,Tp Cần Thơ,040074680112,1996-04-19,Công an TP. Hồ Chí Minh,Khmer,Phật giáo,0915982620,"374 đường Nguyễn Trãi, Phường Hưng Phú",Tp Cần Thơ,Phường Hưng Phú
+80116,Nguyễn Đức Thọ,HTTT,1981-09-28,Tỉnh Đồng Tháp,048181322602,2005-01-02,Công an tỉnh Đồng Nai,Tày,Công giáo,0336342160,"228 đường Lê Lợi, Xã Phú Hựu",Tỉnh Đồng Tháp,Xã Phú Hựu
+80117,Hồ Văn Trung,HTTT,1977-01-22,Tỉnh Gia Lai,027177414586,1996-04-06,Công an tỉnh Đồng Nai,Khmer,Tin Lành,0330142940,"611 đường Điện Biên Phủ, Xã Kon Gang",Tỉnh Gia Lai,Xã Kon Gang
+80118,Hồ Thị Thanh,HTTT,1989-09-04,Tỉnh Vĩnh Long,092089406088,2011-01-12,Công an tỉnh Đồng Nai,Mường,Cao Đài,0815615951,"520 đường Hai Bà Trưng, Xã Hưng Mỹ",Tỉnh Vĩnh Long,Xã Hưng Mỹ
+80119,Phan Thị Xuân,HTTT,1979-09-05,Tỉnh Thanh Hóa,031079299468,2002-11-17,Công an tỉnh Long An,Mường,Phật giáo,0904436995,"453 đường Điện Biên Phủ, Xã Hoằng Hóa",Tỉnh Thanh Hóa,Xã Hoằng Hóa
+80120,Đặng Thị Ly,HTTT,1975-11-03,Tỉnh Đồng Tháp,058075513433,1998-06-22,Công an tỉnh Bình Dương,Hoa,Tin Lành,0840037917,"908 đường Cách Mạng Tháng 8, Phường Sa Đéc",Tỉnh Đồng Tháp,Phường Sa Đéc
+80121,Nguyễn Thu Anh,HTTT,1982-04-05,Tỉnh Tây Ninh,079082632870,2003-10-21,Công an tỉnh Long An,Nùng,Tin Lành,0821727889,"973 đường Điện Biên Phủ, Xã Mỹ Thạnh",Tỉnh Tây Ninh,Xã Mỹ Thạnh
+80122,Phạm Thu Kim,HTTT,1987-08-06,Tỉnh Hà Tĩnh,033087434873,2011-08-22,Công an tỉnh Bình Dương,Hoa,Phật giáo,0887143455,"83 đường Lê Lợi, Xã Thạch Khê",Tỉnh Hà Tĩnh,Xã Thạch Khê
+80123,Nguyễn Đức Vinh,HTTT,1976-02-14,Tỉnh Thanh Hóa,040176760366,1998-10-22,Công an tỉnh Bình Dương,Nùng,Phật giáo,0909670546,"552 đường Cách Mạng Tháng 8, Xã Yên Phú",Tỉnh Thanh Hóa,Xã Yên Phú
+80124,Trần Văn Yên,HTTT,1978-07-16,Thành phố Hà Nội,027178627298,2001-09-14,Công an tỉnh Đồng Nai,Khmer,Cao Đài,0906990162,"187 đường Nguyễn Trãi, Xã Hồng Vân",Thành phố Hà Nội,Xã Hồng Vân
+80125,Phạm Quang Sơn,HTTT,1984-06-11,Tp Hồ Chí Minh,031184417080,2009-05-25,Cục CS ĐKQL cư trú và DLQG về dân cư,Hoa,Cao Đài,0343100330,"157 đường Lê Lợi, Phường Tân Sơn Nhì",Tp Hồ Chí Minh,Phường Tân Sơn Nhì
+80126,Lê Quang Khang,HTTT,1984-12-09,Tỉnh Đồng Tháp,058184912419,2005-08-25,Cục CS ĐKQL cư trú và DLQG về dân cư,Mường,Hòa Hảo,0904966319,"105 đường Hai Bà Trưng, Xã Đốc Binh Kiều",Tỉnh Đồng Tháp,Xã Đốc Binh Kiều
+80127,Lê Quang Đạt,HTTT,1981-09-14,Tỉnh Hà Tĩnh,040181506716,2005-09-22,Công an tỉnh Long An,Tày,Cao Đài,0347262849,"794 đường Điện Biên Phủ, Phường Hà Huy Tập",Tỉnh Hà Tĩnh,Phường Hà Huy Tập
+80128,Hoàng Minh Hà,HTTT,1980-04-27,Tỉnh Sơn La,024080737996,2001-03-16,Công an tỉnh Đồng Nai,Nùng,Tin Lành,0330752735,"349 đường Hai Bà Trưng, Xã Mường Hung",Tỉnh Sơn La,Xã Mường Hung
+80129,Nguyễn Minh Tùng,HTTT,1986-04-03,Tỉnh Thanh Hóa,033186837770,2009-07-19,Công an tỉnh Long An,Khmer,Cao Đài,0944363495,"567 đường Cách Mạng Tháng 8, Xã Thọ Phú",Tỉnh Thanh Hóa,Xã Thọ Phú
+80130,Võ Thị Thu,HTTT,1981-12-15,Tp Hải Phòng,024081313518,2003-02-12,Công an tỉnh Đồng Nai,Khmer,Phật giáo,0853374989,"103 đường Lê Lợi, Xã Chí Minh",Tp Hải Phòng,Xã Chí Minh
+80131,Phạm Hữu Hiếu,HTTT,1979-01-23,Tỉnh Đồng Tháp,024179008427,1999-02-12,Cục CS ĐKQL cư trú và DLQG về dân cư,Khmer,Cao Đài,0830947775,"989 đường Nguyễn Trãi, Phường Đạo Thạnh",Tỉnh Đồng Tháp,Phường Đạo Thạnh
+80132,Phạm Văn Hùng,HTTT,1982-08-03,Tỉnh Đồng Tháp,048182941318,2005-07-16,Công an tỉnh Long An,Tày,Công giáo,0369993867,"305 đường Cách Mạng Tháng 8, Xã Tháp Mười",Tỉnh Đồng Tháp,Xã Tháp Mười
+80133,Ngô Văn Minh,HTTT,1989-12-04,Tỉnh Khánh Hòa,024189123281,2010-07-05,Cục CS ĐKQL cư trú và DLQG về dân cư,Mường,Cao Đài,0850679740,"296 đường Hai Bà Trưng, Xã Nam Khánh Vĩnh",Tỉnh Khánh Hòa,Xã Nam Khánh Vĩnh
+80134,Hồ Văn Thắng,KHMT,1978-11-19,Tỉnh Tuyên Quang,079178832421,2002-02-15,Công an tỉnh Đồng Nai,Mường,Cao Đài,0912499471,"706 đường Hai Bà Trưng, Xã Đồng Yên",Tỉnh Tuyên Quang,Xã Đồng Yên
+80135,Trần Thị Hằng,KHMT,1984-02-20,Tỉnh Lâm Đồng,027084940139,2005-03-30,Công an tỉnh Bình Dương,Tày,Tin Lành,0904902787,"186 đường Cách Mạng Tháng 8, Xã Krông Nô",Tỉnh Lâm Đồng,Xã Krông Nô
+80136,Nguyễn Quang Việt,KHMT,1985-06-14,Tỉnh Quảng Ninh,079185256746,2009-03-17,Công an tỉnh Bình Dương,Mường,Hòa Hảo,0917154516,"845 đường Nguyễn Trãi, Xã Lương Minh",Tỉnh Quảng Ninh,Xã Lương Minh
+80137,Đỗ Thị Vũ,KHMT,1971-04-17,Tỉnh Lâm Đồng,033071703482,1992-10-05,Cục CS ĐKQL cư trú và DLQG về dân cư,Nùng,Cao Đài,0327710932,"565 đường Nguyễn Trãi, Xã Di Linh",Tỉnh Lâm Đồng,Xã Di Linh
+80138,Đặng Văn Hạnh,KHMT,1973-08-04,Tỉnh Lâm Đồng,024173846773,1992-05-11,Công an tỉnh Đồng Nai,Khmer,Hòa Hảo,0378263982,"283 đường Điện Biên Phủ, Phường Xuân Hương - Đà Lạt",Tỉnh Lâm Đồng,Phường Xuân Hương - Đà Lạt
+80139,Nguyễn Hữu Hùng,KHMT,1979-12-10,Tỉnh Thanh Hóa,033179875588,2002-07-14,Công an tỉnh Bình Dương,Mường,Cao Đài,0357533963,"45 đường Hai Bà Trưng, Xã Nam Xuân",Tỉnh Thanh Hóa,Xã Nam Xuân
+80140,Trần Thị Hoa,KHMT,1990-03-16,Tp Hải Phòng,040090951718,2011-12-27,Công an tỉnh Đồng Nai,Mường,Không,0370262174,"639 đường Điện Biên Phủ, Xã Vĩnh Thịnh",Tp Hải Phòng,Xã Vĩnh Thịnh
+80141,Phạm Minh Lệ,KHMT,1980-11-23,Tỉnh Sơn La,040080091343,1999-05-26,Công an tỉnh Đồng Nai,Khmer,Công giáo,0946117240,"333 đường Nguyễn Trãi, Phường Vân Sơn",Tỉnh Sơn La,Phường Vân Sơn
+80142,Ngô Thị Thanh,KHMT,1974-04-17,Tỉnh Đắk Lắk,048074221969,1995-02-21,Công an tỉnh Long An,Tày,Công giáo,0827923747,"683 đường Nguyễn Trãi, Xã Sơn Thành",Tỉnh Đắk Lắk,Xã Sơn Thành
+80143,Hoàng Minh Thắng,KHMT,1972-08-12,Tỉnh Ninh Bình,024172743671,1995-01-15,Cục CS ĐKQL cư trú và DLQG về dân cư,Nùng,Tin Lành,0826959440,"282 đường Nguyễn Trãi, Phường Vị Khê",Tỉnh Ninh Bình,Phường Vị Khê
+80144,Nguyễn Minh Tuyết,KHMT,1979-04-20,Tỉnh Gia Lai,092079394210,2000-12-13,Công an TP. Hồ Chí Minh,Hoa,Phật giáo,0327095214,"766 đường Điện Biên Phủ, Phường Hoài Nhơn Tây",Tỉnh Gia Lai,Phường Hoài Nhơn Tây
+80145,Trần Minh Lan,KHMT,1986-09-09,Tỉnh Hưng Yên,024086745171,2007-08-23,Công an tỉnh Đồng Nai,Tày,Công giáo,0843685160,"550 đường Nguyễn Trãi, Xã Nguyễn Văn Linh",Tỉnh Hưng Yên,Xã Nguyễn Văn Linh
+80146,Trần Thu Nhung,KHMT,1990-06-04,Tỉnh Nghệ An,033090098593,2011-10-28,Công an tỉnh Long An,Kinh,Phật giáo,0947461200,"505 đường Nguyễn Trãi, Xã Văn Hiến",Tỉnh Nghệ An,Xã Văn Hiến
+80147,Phạm Hữu Tùng,KHMT,1982-08-12,Tỉnh Quảng Ninh,058182261796,2001-09-17,Công an tỉnh Đồng Nai,Nùng,Tin Lành,0880537735,"703 đường Hai Bà Trưng, Phường Tuần Châu",Tỉnh Quảng Ninh,Phường Tuần Châu
+80148,Vũ Văn Toàn,KHMT,1982-05-07,Tỉnh Lai Châu,079182390053,2002-12-12,Công an tỉnh Đồng Nai,Nùng,Không,0849318393,"337 đường Lê Lợi, Xã Mường Khoa",Tỉnh Lai Châu,Xã Mường Khoa
+80149,Đỗ Văn Hải,KHMT,1974-09-09,Tỉnh An Giang,001174205395,1993-05-22,Công an tỉnh Long An,Khmer,Hòa Hảo,0902402681,"488 đường Điện Biên Phủ, Xã Tân An",Tỉnh An Giang,Xã Tân An
+80150,Lê Văn Huy,KHMT,1984-09-08,Tp Hải Phòng,024184700766,2003-05-31,Công an tỉnh Long An,Nùng,Tin Lành,0837711592,"130 đường Hai Bà Trưng, Phường Thuỷ Nguyên",Tp Hải Phòng,Phường Thuỷ Nguyên
+80151,Đặng Thị Huệ,KHMT,1982-10-17,Thành phố Hà Nội,040082961183,2001-11-05,Công an tỉnh Đồng Nai,Khmer,Tin Lành,0367365766,"321 đường Điện Biên Phủ, Xã Minh Châu",Thành phố Hà Nội,Xã Minh Châu
+80152,Lê Thị Hà,KHMT,1974-11-16,Tỉnh Đắk Lắk,079074161528,1997-08-09,Công an tỉnh Đồng Nai,Khmer,Hòa Hảo,0919885165,"889 đường Nguyễn Trãi, Xã Ea Na",Tỉnh Đắk Lắk,Xã Ea Na
+80153,Phan Thị Hương,KHMT,1973-10-17,Tỉnh Cao Bằng,033073315851,1992-01-28,Công an tỉnh Đồng Nai,Kinh,Phật giáo,0889368998,"624 đường Hai Bà Trưng, Xã Hạnh Phúc",Tỉnh Cao Bằng,Xã Hạnh Phúc
+80154,Huỳnh Thị Hương,KHMT,1980-06-01,Thành phố Hà Nội,058080612018,2002-01-15,Cục CS ĐKQL cư trú và DLQG về dân cư,Nùng,Không,0816675254,"796 đường Cách Mạng Tháng 8, Phường Tây Tựu",Thành phố Hà Nội,Phường Tây Tựu
+80155,Huỳnh Văn Sơn,KHMT,1975-10-02,Tp Hồ Chí Minh,033175679764,1999-03-13,Công an tỉnh Bình Dương,Kinh,Phật giáo,0818156149,"540 đường Hai Bà Trưng, Phường Thủ Đức",Tp Hồ Chí Minh,Phường Thủ Đức
+80156,Ngô Văn Hiếu,KHMT,1970-04-10,Tỉnh Đắk Lắk,024170451076,1989-01-25,Công an tỉnh Bình Dương,Tày,Không,0852683885,"407 đường Nguyễn Trãi, Phường Hòa Hiệp",Tỉnh Đắk Lắk,Phường Hòa Hiệp
+80157,Hoàng Quang Tùng,KHMT,1980-10-14,Tỉnh Gia Lai,024180160529,2003-04-07,Công an tỉnh Đồng Nai,Tày,Công giáo,0375161369,"537 đường Nguyễn Trãi, Phường Hội Phú",Tỉnh Gia Lai,Phường Hội Phú
+80158,Trần Hữu Hải,KHMT,1980-03-03,Tp Hải Phòng,040180835523,2000-02-22,Công an tỉnh Long An,Tày,Hòa Hảo,0832432921,"975 đường Điện Biên Phủ, Xã Yết Kiêu",Tp Hải Phòng,Xã Yết Kiêu
+80159,Hoàng Thùy Thúy,KHMT,1988-11-21,Tỉnh Thanh Hóa,027088271774,2011-12-12,Cục CS ĐKQL cư trú và DLQG về dân cư,Khmer,Công giáo,0889058147,"39 đường Nguyễn Trãi, Xã Đồng Tiến",Tỉnh Thanh Hóa,Xã Đồng Tiến
+80160,Phạm Quang Toàn,KHMT,1989-10-17,Tỉnh Tây Ninh,058189807935,2013-06-09,Công an tỉnh Bình Dương,Kinh,Phật giáo,0388207151,"662 đường Lê Lợi, Xã Phước Thạnh",Tỉnh Tây Ninh,Xã Phước Thạnh
+80161,Huỳnh Thị Uyên,KTMT,1986-09-20,Tỉnh Thanh Hóa,027086466590,2011-06-19,Công an tỉnh Long An,Khmer,Không,0331518644,"895 đường Lê Lợi, Xã Văn Nho",Tỉnh Thanh Hóa,Xã Văn Nho
+80162,Hoàng Quang Hiếu,KTMT,1981-05-21,Tỉnh Phú Thọ,058181148652,2001-05-24,Công an TP. Hồ Chí Minh,Khmer,Cao Đài,0391685054,"974 đường Lê Lợi, Xã Minh Hòa",Tỉnh Phú Thọ,Xã Minh Hòa
+80163,Phạm Minh Giang,KTMT,1974-03-03,Tỉnh Lạng Sơn,040174880592,1996-10-05,Công an tỉnh Đồng Nai,Tày,Hòa Hảo,0352229270,"374 đường Lê Lợi, Xã Vũ Lăng",Tỉnh Lạng Sơn,Xã Vũ Lăng
+80164,Đặng Thị Kim,KTMT,1977-09-08,Tỉnh Gia Lai,092077597746,1996-04-04,Cục CS ĐKQL cư trú và DLQG về dân cư,Khmer,Hòa Hảo,0398623924,"657 đường Điện Biên Phủ, Xã Ya Ma",Tỉnh Gia Lai,Xã Ya Ma
+80165,Bùi Văn Sơn,KTMT,1979-02-25,Tp Hải Phòng,033179826137,2001-06-20,Công an tỉnh Đồng Nai,Hoa,Không,0340606853,"84 đường Hai Bà Trưng, Xã Cẩm Giang",Tp Hải Phòng,Xã Cẩm Giang
+80166,Đặng Văn Hiếu,KTMT,1990-06-26,Tỉnh Nghệ An,001190472779,2014-05-22,Công an tỉnh Đồng Nai,Khmer,Phật giáo,0901043289,"434 đường Nguyễn Trãi, Xã Đại Đồng",Tỉnh Nghệ An,Xã Đại Đồng
+80167,Phạm Đức Đạt,KTMT,1971-04-14,Tp Đà Nẵng,079171798089,1995-09-02,Cục CS ĐKQL cư trú và DLQG về dân cư,Mường,Tin Lành,0822460953,"427 đường Lê Lợi, Xã Quế Sơn",Tp Đà Nẵng,Xã Quế Sơn
+80168,Trần Thùy Ly,KTMT,1972-09-18,Tỉnh Hưng Yên,040072067065,1994-06-06,Công an tỉnh Đồng Nai,Khmer,Hòa Hảo,0880515319,"137 đường Nguyễn Trãi, Phường Trần Lãm",Tỉnh Hưng Yên,Phường Trần Lãm
+80169,Đỗ Văn Hiếu,KTMT,1984-12-16,Tỉnh Ninh Bình,079184704303,2003-05-10,Cục CS ĐKQL cư trú và DLQG về dân cư,Khmer,Công giáo,0915486874,"772 đường Lê Lợi, Xã Lý Nhân",Tỉnh Ninh Bình,Xã Lý Nhân
+80170,Đỗ Thị Hằng,KTMT,1978-02-26,Tỉnh Bắc Ninh,031078765277,1998-03-02,Cục CS ĐKQL cư trú và DLQG về dân cư,Khmer,Không,0348416169,"559 đường Hai Bà Trưng, Xã Hợp Thịnh",Tỉnh Bắc Ninh,Xã Hợp Thịnh
+80171,Hoàng Thùy Hằng,KTMT,1979-05-15,Tỉnh Sơn La,048079757059,1997-09-14,Cục CS ĐKQL cư trú và DLQG về dân cư,Mường,Cao Đài,0364016582,"147 đường Cách Mạng Tháng 8, Xã Mường Lạn",Tỉnh Sơn La,Xã Mường Lạn
+80172,Lê Quang Xuân,KTMT,1972-04-25,Tỉnh Đồng Tháp,031172909275,1993-10-29,Cục CS ĐKQL cư trú và DLQG về dân cư,Hoa,Không,0347192856,"666 đường Hai Bà Trưng, Xã Tân Thạnh",Tỉnh Đồng Tháp,Xã Tân Thạnh
+80173,Hoàng Hữu Hải,KTMT,1985-09-13,Tỉnh Đồng Nai,024185473947,2007-04-10,Công an tỉnh Long An,Mường,Không,0811217271,"684 đường Hai Bà Trưng, Xã An Phước",Tỉnh Đồng Nai,Xã An Phước
+80174,Lê Thu Linh,KTMT,1979-03-23,Tỉnh Tây Ninh,027079831323,1998-08-31,Công an tỉnh Bình Dương,Kinh,Công giáo,0380589578,"627 đường Nguyễn Trãi, Xã Tân Lân",Tỉnh Tây Ninh,Xã Tân Lân
+80175,Ngô Thị Thanh,KTMT,1986-07-25,Tỉnh Lâm Đồng,079086251778,2005-03-03,Công an tỉnh Đồng Nai,Nùng,Phật giáo,0342892268,"852 đường Nguyễn Trãi, Xã Quảng Hoà",Tỉnh Lâm Đồng,Xã Quảng Hoà
+80176,Dương Văn Vương,KTMT,1975-06-23,Tỉnh Quảng Ninh,040175414384,1999-12-22,Công an tỉnh Long An,Mường,Hòa Hảo,0844981829,"158 đường Lê Lợi, Phường Hạ Long",Tỉnh Quảng Ninh,Phường Hạ Long
+80177,Lê Minh Bích,KTMT,1988-01-27,Tỉnh Đắk Lắk,079088094396,2009-05-24,Công an TP. Hồ Chí Minh,Mường,Không,0907844736,"465 đường Nguyễn Trãi, Xã Krông Á",Tỉnh Đắk Lắk,Xã Krông Á
+80178,Phan Thị Trang,KTMT,1983-08-15,Tỉnh Đồng Tháp,058083255562,2004-08-09,Cục CS ĐKQL cư trú và DLQG về dân cư,Hoa,Không,0348815371,"461 đường Lê Lợi, Phường Mỹ Phước Tây",Tỉnh Đồng Tháp,Phường Mỹ Phước Tây
+80179,Vũ Thị Lan,KTMT,1982-10-14,Tỉnh Vĩnh Long,027082953278,2005-11-24,Công an tỉnh Đồng Nai,Hoa,Hòa Hảo,0377470168,"990 đường Lê Lợi, Xã Càng Long",Tỉnh Vĩnh Long,Xã Càng Long
+80180,Hoàng Đức Thành,KTMT,1971-05-16,Tỉnh Đồng Nai,040171016245,1993-06-03,Công an tỉnh Long An,Kinh,Cao Đài,0355060983,"567 đường Hai Bà Trưng, Phường Biên Hoà",Tỉnh Đồng Nai,Phường Biên Hoà
+80181,Hoàng Thùy Vũ,KTMT,1987-05-27,Tỉnh Hưng Yên,079087216558,2005-11-23,Công an tỉnh Bình Dương,Mường,Công giáo,0342398680,"40 đường Lê Lợi, Xã Quỳnh An",Tỉnh Hưng Yên,Xã Quỳnh An
+80182,Hoàng Thị Thúy,MMTTT,1974-10-17,Tỉnh Tuyên Quang,058074526949,1992-12-19,Công an tỉnh Bình Dương,Mường,Không,0338887947,"378 đường Hai Bà Trưng, Xã Minh Quang",Tỉnh Tuyên Quang,Xã Minh Quang
+80183,Nguyễn Thùy Phương,MMTTT,1990-01-20,Tp Cần Thơ,058090930972,2010-03-07,Công an TP. Hồ Chí Minh,Khmer,Cao Đài,0399623091,"20 đường Điện Biên Phủ, Phường Long Tuyền",Tp Cần Thơ,Phường Long Tuyền
+80184,Hoàng Thu Vũ,MMTTT,1976-07-17,Tỉnh Tây Ninh,033076028385,2000-08-27,Công an TP. Hồ Chí Minh,Nùng,Cao Đài,0388652785,"363 đường Hai Bà Trưng, Xã Đức Hoà",Tỉnh Tây Ninh,Xã Đức Hoà
+80185,Dương Văn Tuấn,MMTTT,1978-09-10,Tỉnh Tây Ninh,024178375758,1998-04-27,Cục CS ĐKQL cư trú và DLQG về dân cư,Khmer,Tin Lành,0884198665,"298 đường Nguyễn Trãi, Xã Phước Lý",Tỉnh Tây Ninh,Xã Phước Lý
+80186,Phạm Thu Kim,MMTTT,1984-11-09,Tỉnh Thanh Hóa,092084384842,2005-06-15,Công an tỉnh Bình Dương,Tày,Công giáo,0839933083,"54 đường Nguyễn Trãi, Phường Ngọc Sơn",Tỉnh Thanh Hóa,Phường Ngọc Sơn
+80187,Bùi Văn Tùng,MMTTT,1974-01-18,Tỉnh An Giang,033174734540,1992-06-10,Công an tỉnh Đồng Nai,Tày,Phật giáo,0949380262,"857 đường Điện Biên Phủ, Xã Bình Thạnh Đông",Tỉnh An Giang,Xã Bình Thạnh Đông
+80188,Phan Văn Vinh,MMTTT,1970-05-19,Tỉnh Đồng Tháp,024170788728,1990-06-15,Công an TP. Hồ Chí Minh,Khmer,Hòa Hảo,0374315274,"15 đường Hai Bà Trưng, Xã Mỹ Đức Tây",Tỉnh Đồng Tháp,Xã Mỹ Đức Tây
+80189,Trần Đức Hoàn,MMTTT,1989-11-13,Tp Hồ Chí Minh,027189161227,2011-07-21,Cục CS ĐKQL cư trú và DLQG về dân cư,Mường,Hòa Hảo,0333046374,"310 đường Cách Mạng Tháng 8, Phường Nhiêu Lộc",Tp Hồ Chí Minh,Phường Nhiêu Lộc
+80190,Vũ Thị Diệu,MMTTT,1990-06-23,Tỉnh Khánh Hòa,079090742684,2010-03-07,Công an tỉnh Long An,Khmer,Cao Đài,0834593327,"466 đường Cách Mạng Tháng 8, Xã Cà Ná",Tỉnh Khánh Hòa,Xã Cà Ná
+80191,Phan Thị Oanh,MMTTT,1987-11-27,Tỉnh Hưng Yên,058087187851,2007-09-26,Công an TP. Hồ Chí Minh,Tày,Không,0830883982,"336 đường Cách Mạng Tháng 8, Xã Tiên Tiến",Tỉnh Hưng Yên,Xã Tiên Tiến
+80192,Nguyễn Minh Diệu,MMTTT,1972-09-15,Tp Cần Thơ,033072286790,1991-07-07,Cục CS ĐKQL cư trú và DLQG về dân cư,Khmer,Tin Lành,0374064039,"47 đường Điện Biên Phủ, Xã Đông Phước",Tp Cần Thơ,Xã Đông Phước
+80193,Phạm Minh Tùng,MMTTT,1972-08-02,Tỉnh Sơn La,048172265676,1994-12-24,Cục CS ĐKQL cư trú và DLQG về dân cư,Mường,Phật giáo,0351825128,"542 đường Lê Lợi, Xã Chiềng Sại",Tỉnh Sơn La,Xã Chiềng Sại
+80194,Phạm Hữu Thắng,MMTTT,1979-08-22,Tỉnh Gia Lai,040179633752,1999-12-09,Công an tỉnh Bình Dương,Nùng,Không,0883106903,"69 đường Nguyễn Trãi, Xã Vĩnh Sơn",Tỉnh Gia Lai,Xã Vĩnh Sơn
+80195,Hoàng Quang Thịnh,MMTTT,1977-12-02,Tp Đà Nẵng,092177830284,1997-07-06,Công an tỉnh Đồng Nai,Hoa,Cao Đài,0829599534,"677 đường Cách Mạng Tháng 8, Phường Tam Kỳ",Tp Đà Nẵng,Phường Tam Kỳ
+80196,Phạm Minh Linh,MMTTT,1971-09-19,Tp Hải Phòng,031071870568,1995-01-05,Công an TP. Hồ Chí Minh,Khmer,Tin Lành,0336624628,"247 đường Lê Lợi, Xã Tân Kỳ",Tp Hải Phòng,Xã Tân Kỳ
+80197,Ngô Thị Như,MMTTT,1971-09-14,Thành phố Hà Nội,040071263435,1993-12-01,Cục CS ĐKQL cư trú và DLQG về dân cư,Nùng,Không,0947518304,"690 đường Cách Mạng Tháng 8, Phường Xuân Đỉnh",Thành phố Hà Nội,Phường Xuân Đỉnh
+80198,Hoàng Hữu Minh,MMTTT,1988-12-22,Tỉnh Gia Lai,033188354033,2010-07-27,Công an tỉnh Long An,Tày,Cao Đài,0837393638,"795 đường Hai Bà Trưng, Xã Vĩnh Thịnh",Tỉnh Gia Lai,Xã Vĩnh Thịnh
+80199,Trần Thùy Lệ,MMTTT,1979-05-12,Tỉnh Thái Nguyên,033079175355,2003-11-24,Công an TP. Hồ Chí Minh,Khmer,Phật giáo,0360932048,"594 đường Điện Biên Phủ, Xã Phúc Lộc",Tỉnh Thái Nguyên,Xã Phúc Lộc
+80200,Trần Minh Oanh,MMTTT,1977-07-19,Tỉnh Bắc Ninh,033077854777,1996-03-11,Cục CS ĐKQL cư trú và DLQG về dân cư,Kinh,Tin Lành,0855228728,"537 đường Nguyễn Trãi, Xã Tân Dĩnh",Tỉnh Bắc Ninh,Xã Tân Dĩnh
+80201,Dương Văn Đạt,KTTT,1983-03-27,Tp Hồ Chí Minh,048183038750,2001-05-29,Cục CS ĐKQL cư trú và DLQG về dân cư,Nùng,Công giáo,0387008860,"543 đường Hai Bà Trưng, Xã Phú Giáo",Tp Hồ Chí Minh,Xã Phú Giáo
+80202,Trần Thùy Hương,KTTT,1975-02-04,Tỉnh Thái Nguyên,092075398454,1996-06-11,Cục CS ĐKQL cư trú và DLQG về dân cư,Mường,Tin Lành,0351567933,"701 đường Nguyễn Trãi, Phường Phan Đình Phùng",Tỉnh Thái Nguyên,Phường Phan Đình Phùng
+80203,Hoàng Hữu Hưng,KTTT,1982-07-13,Tp Đà Nẵng,001182021765,2001-01-14,Công an tỉnh Long An,Mường,Công giáo,0838033974,"947 đường Nguyễn Trãi, Xã Tam Xuân",Tp Đà Nẵng,Xã Tam Xuân
+80204,Ngô Văn Phúc,KTTT,1975-06-01,Tỉnh Ninh Bình,048175614293,1994-01-01,Công an tỉnh Đồng Nai,Hoa,Không,0358562185,"101 đường Điện Biên Phủ, Phường Đồng Văn",Tỉnh Ninh Bình,Phường Đồng Văn
+80205,Võ Thị Hồng,KTTT,1980-01-21,Tỉnh Thái Nguyên,033080358662,1999-10-09,Công an tỉnh Đồng Nai,Mường,Cao Đài,0351943114,"390 đường Lê Lợi, Xã Xuân Dương",Tỉnh Thái Nguyên,Xã Xuân Dương
+80206,Đặng Thị Hồng,KTTT,1973-02-01,Tỉnh Lâm Đồng,027073412126,1995-01-16,Công an tỉnh Đồng Nai,Nùng,Hòa Hảo,0378886101,"568 đường Nguyễn Trãi, Xã Đam Rông 1",Tỉnh Lâm Đồng,Xã Đam Rông 1
+80207,Hồ Thị Hà,KTTT,1970-05-14,Thành phố Hà Nội,040070398262,1993-03-24,Cục CS ĐKQL cư trú và DLQG về dân cư,Khmer,Cao Đài,0844447212,"283 đường Điện Biên Phủ, Xã Yên Xuân",Thành phố Hà Nội,Xã Yên Xuân
+80208,Nguyễn Thu Lệ,KTTT,1978-04-24,Thành phố Hà Nội,058078937124,2001-02-15,Công an tỉnh Đồng Nai,Hoa,Công giáo,0906596575,"836 đường Cách Mạng Tháng 8, Phường Hồng Hà",Thành phố Hà Nội,Phường Hồng Hà
+80209,Hoàng Quang Việt,KTTT,1985-06-06,Tỉnh Quảng Ninh,024185793564,2009-08-02,Công an tỉnh Bình Dương,Mường,Phật giáo,0355193982,"28 đường Điện Biên Phủ, Xã Hoành Mô",Tỉnh Quảng Ninh,Xã Hoành Mô
+80210,Nguyễn Thùy Hoa,KTTT,1972-07-22,Tỉnh Ninh Bình,024072342661,1996-08-21,Công an tỉnh Long An,Mường,Hòa Hảo,0379796886,"38 đường Hai Bà Trưng, Xã Nho Quan",Tỉnh Ninh Bình,Xã Nho Quan
+80211,Trần Quang Khang,KTTT,1973-04-22,Tỉnh Ninh Bình,058173096561,1997-09-29,Công an tỉnh Bình Dương,Khmer,Cao Đài,0901438889,"227 đường Điện Biên Phủ, Xã Vụ Bản",Tỉnh Ninh Bình,Xã Vụ Bản
+80212,Phan Văn Thành,KTTT,1981-01-16,Thành phố Hà Nội,031181112545,2004-02-08,Cục CS ĐKQL cư trú và DLQG về dân cư,Khmer,Không,0373875717,"327 đường Nguyễn Trãi, Xã Phù Đổng",Thành phố Hà Nội,Xã Phù Đổng
+80213,Bùi Văn Phong,KTTT,1980-11-04,Tỉnh Thanh Hóa,040180282586,2005-09-19,Công an tỉnh Bình Dương,Tày,Hòa Hảo,0373622660,"905 đường Lê Lợi, Xã Kim Tân",Tỉnh Thanh Hóa,Xã Kim Tân
+80214,Phan Thị Quyên,KTTT,1970-12-07,Tỉnh Tuyên Quang,079070918255,1993-04-11,Công an tỉnh Đồng Nai,Nùng,Không,0817147859,"626 đường Điện Biên Phủ, Xã Tân Trào",Tỉnh Tuyên Quang,Xã Tân Trào
+80215,Trần Minh Thu,KTTT,1984-10-06,Tỉnh Lạng Sơn,058084912513,2009-06-09,Công an TP. Hồ Chí Minh,Tày,Cao Đài,0321252866,"142 đường Cách Mạng Tháng 8, Xã Quốc Việt",Tỉnh Lạng Sơn,Xã Quốc Việt
+80216,Hoàng Minh Linh,KTTT,1990-09-23,Tỉnh An Giang,040090274225,2013-01-07,Công an tỉnh Bình Dương,Nùng,Tin Lành,0379050723,"987 đường Cách Mạng Tháng 8, Xã Khánh Bình",Tỉnh An Giang,Xã Khánh Bình
+80217,Trần Minh Hồng,CNPM,1985-07-23,Tp Cần Thơ,033085219034,2009-02-05,Cục CS ĐKQL cư trú và DLQG về dân cư,Kinh,Hòa Hảo,0914384279,"563 đường Cách Mạng Tháng 8, Xã Thới Lai",Tp Cần Thơ,Xã Thới Lai
+80218,Trần Minh Chi,CNPM,1987-06-18,Tp Hải Phòng,033087836134,2007-10-20,Công an tỉnh Long An,Mường,Công giáo,0917451713,"831 đường Cách Mạng Tháng 8, Xã An Quang",Tp Hải Phòng,Xã An Quang
+80219,Nguyễn Minh Nga,CNPM,1975-10-05,Tỉnh Lâm Đồng,092075095849,1995-04-08,Công an TP. Hồ Chí Minh,Kinh,Công giáo,0855449481,"986 đường Điện Biên Phủ, Xã Tân Hà - Lâm Hà",Tỉnh Lâm Đồng,Xã Tân Hà - Lâm Hà
+80220,Huỳnh Minh Phong,CNPM,1977-03-23,Tỉnh Cà Mau,031177729466,2000-09-07,Cục CS ĐKQL cư trú và DLQG về dân cư,Kinh,Tin Lành,0371168457,"336 đường Cách Mạng Tháng 8, Phường Lý Văn Lâm",Tỉnh Cà Mau,Phường Lý Văn Lâm
+80221,Đỗ Thị Giang,CNPM,1990-11-23,Tỉnh An Giang,040090636374,2012-09-25,Công an tỉnh Bình Dương,Kinh,Không,0334589297,"916 đường Nguyễn Trãi, Xã Bình Mỹ",Tỉnh An Giang,Xã Bình Mỹ
+80222,Phạm Đức An,CNPM,1973-03-15,Tỉnh Tây Ninh,031173324241,1993-10-25,Cục CS ĐKQL cư trú và DLQG về dân cư,Mường,Không,0344152064,"440 đường Nguyễn Trãi, Xã Cần Đước",Tỉnh Tây Ninh,Xã Cần Đước
+80223,Dương Văn Huy,CNPM,1985-02-05,Tỉnh Thanh Hóa,033185005162,2007-03-17,Công an TP. Hồ Chí Minh,Hoa,Cao Đài,0381361115,"903 đường Hai Bà Trưng, Xã Ngọc Lặc",Tỉnh Thanh Hóa,Xã Ngọc Lặc
+80224,Nguyễn Văn Thọ,CNPM,1972-09-19,Thành phố Hà Nội,048172753269,1994-08-24,Công an TP. Hồ Chí Minh,Khmer,Phật giáo,0373112196,"987 đường Điện Biên Phủ, Xã Đan Phượng",Thành phố Hà Nội,Xã Đan Phượng
+80225,Lê Thùy Tú,CNPM,1990-02-08,Tỉnh Quảng Ninh,058090940438,2009-05-10,Cục CS ĐKQL cư trú và DLQG về dân cư,Mường,Hòa Hảo,0393640376,"247 đường Điện Biên Phủ, Phường Móng Cái 1",Tỉnh Quảng Ninh,Phường Móng Cái 1
+80226,Phạm Quang Lộc,CNPM,1981-06-05,Tỉnh Thanh Hóa,031181582710,2002-08-17,Công an tỉnh Bình Dương,Tày,Cao Đài,0940430068,"644 đường Cách Mạng Tháng 8, Xã Nhi Sơn",Tỉnh Thanh Hóa,Xã Nhi Sơn
+80227,Đặng Văn Sơn,CNPM,1990-09-18,Tp Hồ Chí Minh,079190418328,2011-06-11,Công an tỉnh Long An,Kinh,Cao Đài,0336914630,"89 đường Điện Biên Phủ, Phường Tân Phước",Tp Hồ Chí Minh,Phường Tân Phước
+80228,Đỗ Văn Hải,CNPM,1979-11-24,Tỉnh Đồng Nai,001179202758,2001-08-22,Cục CS ĐKQL cư trú và DLQG về dân cư,Khmer,Hòa Hảo,0394252410,"827 đường Điện Biên Phủ, Phường Chơn Thành",Tỉnh Đồng Nai,Phường Chơn Thành
+80229,Nguyễn Thùy Huệ,CNPM,1988-11-03,Tỉnh Tuyên Quang,040088507925,2007-04-28,Công an tỉnh Bình Dương,Hoa,Không,0854191380,"880 đường Nguyễn Trãi, Xã Tùng Vài",Tỉnh Tuyên Quang,Xã Tùng Vài
+80230,Hoàng Minh Chi,CNPM,1982-03-06,Tp Đà Nẵng,040082635365,2002-09-01,Cục CS ĐKQL cư trú và DLQG về dân cư,Kinh,Cao Đài,0881951802,"824 đường Cách Mạng Tháng 8, Xã Trà Leng",Tp Đà Nẵng,Xã Trà Leng
+80231,Lê Thị Như,PĐTĐH,1979-05-11,Tỉnh Thanh Hóa,033079053494,1999-01-12,Công an tỉnh Long An,Kinh,Phật giáo,0827597383,"7 đường Điện Biên Phủ, Xã Hoằng Châu",Tỉnh Thanh Hóa,Xã Hoằng Châu
+80232,Bùi Thị Anh,PĐTĐH,1990-12-01,Tỉnh Lạng Sơn,031090413836,2013-07-14,Cục CS ĐKQL cư trú và DLQG về dân cư,Tày,Tin Lành,0380241038,"718 đường Hai Bà Trưng, Xã Tân Thành",Tỉnh Lạng Sơn,Xã Tân Thành
+80233,Hoàng Quang Đạt,PĐTĐH,1986-03-21,Tỉnh Cao Bằng,058186906234,2005-01-15,Cục CS ĐKQL cư trú và DLQG về dân cư,Hoa,Hòa Hảo,0885655743,"967 đường Lê Lợi, Xã Bảo Lạc",Tỉnh Cao Bằng,Xã Bảo Lạc
+80234,Phạm Đức Việt,PĐTĐH,1973-03-15,Tỉnh Vĩnh Long,031173185374,1993-08-07,Công an TP. Hồ Chí Minh,Hoa,Không,0374112490,"856 đường Hai Bà Trưng, Xã Hưng Nhượng",Tỉnh Vĩnh Long,Xã Hưng Nhượng
+80235,Trần Thu Thu,PĐTĐH,1982-09-02,Tỉnh Tuyên Quang,024082206788,2003-02-24,Cục CS ĐKQL cư trú và DLQG về dân cư,Tày,Công giáo,0821712100,"134 đường Lê Lợi, Xã Tân Thanh",Tỉnh Tuyên Quang,Xã Tân Thanh
+80236,Phan Thị Hồng,PĐTĐH,1972-01-03,Tỉnh Tây Ninh,048072151070,1991-12-06,Công an tỉnh Đồng Nai,Hoa,Công giáo,0859667066,"363 đường Lê Lợi, Phường Long Hoa",Tỉnh Tây Ninh,Phường Long Hoa
+80237,Hoàng Thùy Vũ,PĐTĐH,1974-01-20,Tỉnh Quảng Trị,092074476870,1998-02-19,Công an tỉnh Đồng Nai,Tày,Tin Lành,0944626383,"814 đường Nguyễn Trãi, Xã Mỹ Thủy",Tỉnh Quảng Trị,Xã Mỹ Thủy
+80238,Hoàng Minh Thanh,PĐTĐH,1987-08-12,Tỉnh Cà Mau,040087564205,2008-03-17,Công an TP. Hồ Chí Minh,Kinh,Phật giáo,0820407859,"998 đường Lê Lợi, Phường Lý Văn Lâm",Tỉnh Cà Mau,Phường Lý Văn Lâm
+80239,Hoàng Thu Nhung,BMTL,1987-12-02,Tỉnh Phú Thọ,058087652239,2012-03-21,Công an tỉnh Đồng Nai,Tày,Hòa Hảo,0335905992,"972 đường Lê Lợi, Xã Xuân Lãng",Tỉnh Phú Thọ,Xã Xuân Lãng
+80240,Phạm Văn Nam,BMTL,1985-01-03,Tỉnh Nghệ An,058185308705,2009-07-28,Công an tỉnh Đồng Nai,Kinh,Hòa Hảo,0812525002,"722 đường Lê Lợi, Xã Tân An",Tỉnh Nghệ An,Xã Tân An
+80241,Hoàng Quang Phúc,BMTL,1981-12-22,Tp Hồ Chí Minh,079181545226,2001-12-05,Công an tỉnh Đồng Nai,Mường,Tin Lành,0385289539,"388 đường Hai Bà Trưng, Xã Phước Hải",Tp Hồ Chí Minh,Xã Phước Hải
+80242,Hoàng Quang Lộc,BMTL,1975-12-01,Tỉnh Tuyên Quang,001175295939,1995-10-14,Công an tỉnh Đồng Nai,Mường,Tin Lành,0837251355,"652 đường Nguyễn Trãi, Xã Trường Sinh",Tỉnh Tuyên Quang,Xã Trường Sinh
+80243,Vũ Thị Giang,TTNN,1970-05-07,Tỉnh Thái Nguyên,027070410067,1989-06-21,Công an TP. Hồ Chí Minh,Nùng,Tin Lành,0362676586,"849 đường Điện Biên Phủ, Phường Tích Lương",Tỉnh Thái Nguyên,Phường Tích Lương
+80244,Lê Văn Thành,TTNN,1984-02-26,Tỉnh Nghệ An,001184541152,2007-07-22,Công an TP. Hồ Chí Minh,Tày,Tin Lành,0352181599,"722 đường Nguyễn Trãi, Xã Tiền Phong",Tỉnh Nghệ An,Xã Tiền Phong
+80245,Bùi Thị Nga,TTNN,1975-01-04,Tỉnh Thái Nguyên,092075688444,1993-08-10,Công an tỉnh Đồng Nai,Tày,Không,0821069872,"370 đường Nguyễn Trãi, Xã Đồng Hỷ",Tỉnh Thái Nguyên,Xã Đồng Hỷ
+80246,Phan Thị Lan,TTNN,1976-02-01,Tỉnh Hà Tĩnh,024076171467,1998-03-20,Công an tỉnh Bình Dương,Kinh,Công giáo,0384186256,"192 đường Điện Biên Phủ, Xã Kỳ Hoa",Tỉnh Hà Tĩnh,Xã Kỳ Hoa
+*, NULL, NULL, 2000-01-01, NULL, NULL, 2000-01-01, NULL, NULL, NULL, 0000000000, NULL, NULL, NULL

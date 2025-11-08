@@ -1,0 +1,963 @@
+﻿Mã MH;Tên MH (Tiếng Việt);Tên MH (Tiếng Anh);Còn mở lớp;Đơn vị quản lý chuyên môn;Loại MH;Số TCLT;Số TCTH
+ACCT3603;Hệ thống thông tin kế toán;Accounting Information systems;Có;HTTT;CN;3;0
+ACCT5123;Hoạch định nguồn lực doanh nghiệp;Enterprise Resource Planning;Có;HTTT;CSN;3;0
+ADENG1;Tiếng Anh tăng cường 1;Intensive English 1;Có;HTTT;ĐC;0;0
+ADENG2;Tiếng Anh tăng cường 2;Intensive English 2;Có;HTTT;ĐC;0;0
+ADENG3;Tiếng Anh tăng cường 3;Intensive English 3;Có;HTTT;ĐC;0;0
+ADENG4;Tiếng Anh tăng cường 4;Intensive English 4;Có;HTTT;ĐC;0;0
+AI001;Giới thiệu ngành Trí tuệ nhân tạo;"Introduction to AI programs";Có;KHMT;ĐC;1;0
+AI002;Tư duy Trí tuệ nhân tạo;Artificial Intelligence Thinking;Có;KHMT;ĐC;3;1
+AI301;Khởi nghiệp và sáng tạo;;Có;KHMT;CN;2;0
+AI302;Kỹ thuật viết báo cáo và trình bày;;Có;KHMT;CN;2;0
+AI503;Đồ án tốt nghiệp;Capstone Project;Có;KHMT;TN;6;0
+AI504;Đồ án tốt nghiệp tại doanh nghiệp;Industry Capstone Project;Có;KHMT;TN;10;0
+AI505;Khoá luận tốt nghiệp;Thesis;Có;KHMT;TN;10;0
+BCH058;Kỹ năng truyền thông giao tiếp;Communication techniques;Có;PĐTĐH;CN;1;1
+BOQC1;Nhập môn máy tính lượng tử;Basic of Quantum Computer;Có;BMTL;BT;0;0
+BUS1125;Khởi nghiệp kinh doanh;Entrepreneurship;Có;PĐTĐH;CN;2;1
+CE005;Giới thiệu ngành Kỹ Thuật Máy tính;Introduction to Computer Engineering;Có;KTMT;ĐC;1;0
+CE006;Giới thiệu ngành Thiết kế vi mạch;Introduction to IC Design program;Có;KTMT;ĐC;1;0
+CE103;Vi xử lý-vi điều khiển;Microprocessors and microcontrollers;Có;KTMT;CSN;3;1
+CE105;Xử lý tín hiệu số;Digital signal processing;Có;KTMT;CSN;3;1
+CE118;Thiết kế luận lý số;Digital logic design;Có;KTMT;CSN;3;1
+CE119;Thực hành Kiến trúc máy tính;Computer architecture laboratory;Có;KTMT;CSN;0;1
+CE121;Lý thuyết mạch điện;Theory of electrical circuits;Có;KTMT;CSN;3;1
+CE122;Phân tích mạch kỹ thuật;Engineering Circuit Analysis;Có;KTMT;CN;3;1
+CE124;Các thiết bị và mạch điện tử;Electronic devices and circuits;Có;KTMT;CSN;3;1
+CE125;Kỹ thuật phân tích mạch;Introduction to Circuit Analysis;Có;KTMT;CN;3;1
+CE126;Vật lý bán dẫn và ứng dụng;Semiconductor Physics and Applications;Có;KTMT;CN;3;1
+CE201;Đồ án 1;Project 1;Có;KTMT;ĐA;0;2
+CE206;Đồ án 2;Project 2;Có;KTMT;ĐA;0;2
+CE207;Đồ án Thiết kế vi mạch 1;Project of Integrated Circuit Design 1;Có;KTMT;CN;0;2
+CE208;Đồ án Thiết kế vi mạch 2;Project of Integrated Circuit Design 2;Có;KTMT;CN;0;2
+CE212;Điều khiển tự động;Automatic control;Có;KTMT;CN;3;1
+CE213;Thiết kế hệ thống số với HDL;Digital System Design with HDL;Có;KTMT;CSN;3;1
+CE222;Thiết kế vi mạch số;Digital IC design;Có;KTMT;CN;3;1
+CE224;Thiết kế hệ thống nhúng;Embedded System Design;Có;KTMT;CN;3;1
+CE226;Thiết kế VLSI;VLSI Design;Có;KTMT;CN;3;1
+CE232;Thiết kế hệ thống nhúng không dây;Wireless Embedded Systems Design;Có;KTMT;CN;3;1
+CE233;Kỹ thuật Robot;Robot principle and Design;Có;KTMT;CN;3;1
+CE3031;Công nghệ cảm biến;Sensor Technologies;Có;KTMT;CN;3;1
+CE304;Robot công nghiệp;Industrial Robotics;Có;KTMT;CNTC;3;1
+CE313;Xử lý song song và hệ thống phân tán;Parallel processing and distributed systems;Có;KTMT;CN;3;0
+CE315;Lập trình hệ thống với Java;System programming with Java;Có;KTMT;CN;2;1
+CE317;Điều khiển tự động nâng cao;Advanced automatic control;Có;KTMT;CN;3;0
+CE318;Trình biên dịch;Compiler;Có;KTMT;CNTC;3;1
+CE319;Logic mờ và ứng dụng;Fuzzy Logic and Its Applications;Có;KTMT;CNTC;3;1
+CE320;Logic mờ cho ứng dụng hệ thống nhúng;Fuzzy Logic and Applications;Có;KTMT;CN;3;1
+CE323;Kĩ thuật thiết kế mạch in;Printed circuit board design;Có;KTMT;CN;2;1
+CE331;Kỹ thuật chế tạo vi mạch;Integrated Circuit Fabrication;Có;KTMT;CNTC;3;1
+CE332;Thiết kế vi mạch hỗn hợp;Mixed Signal Integrated Circuit Design;Có;KTMT;CNTC;3;1
+CE333;Tiếng Anh chuyên ngành Kỹ thuật Máy tính;Technical English for Computer Engineering;Có;KTMT;CN;4;0
+CE334;Thiết kế vi mạch tương tự;Analog Integrated Circuit Design;Có;KTMT;CNTC;3;1
+CE335;Thiết kế dựa trên vi xử lý;Microprocessor-based Design;Có;KTMT;CNTC;3;1
+CE336;Tự động hóa thiết kế vi mạch;Electronic Design Automation;Có;KTMT;CNTC;3;1
+CE337;Tối ưu hóa dựa trên FPGA;FPGA-optimized Design;Có;KTMT;CNTC;3;1
+CE338;Hệ thống thời gian thực;Real-time Systems;Có;KTMT;CNTC;3;1
+CE339;Công nghệ IoT và Ứng dụng;IoT Technology and Its Applications;Có;KTMT;CN;3;1
+CE340;Trí tuệ nhân tạo cho hệ thống nhúng;Artificial Intelligence for Embedded System;Có;KTMT;CN;3;1
+CE341;Lập trình nhúng trên các thiết bị di động;Embedded Programming on Mobility Devices;Có;KTMT;CN;3;1
+CE342;Hệ thống thông minh;Smart System;Có;KTMT;CN;3;1
+CE343;Trí tuệ nhân tạo cho xe tự hành;Artificial Intelligence for Autonomous Vehicles;Có;KTMT;CN;3;1
+CE344;Trí tuệ nhân tạo cho IoT;Artificial Intelligence for IoT;Có;KTMT;CN;3;1
+CE345;Kiến trúc IoT: Giao thức mạng và bảo mật;IoT architecture: Network protocol and security;Có;KTMT;CN;3;1
+CE346;Thiết kế Antenna tích hợp cho thiết bị IoT;Antenna Design for IoT;Có;KTMT;CN;3;1
+CE347;Điều khiển thông minh cho robot;Robot intelligent control;Có;KTMT;CN;3;1
+CE348;Công nghệ cảm biến trong IoT;Sensor Technologies for IoT;Có;KTMT;CN;3;1
+CE349;Hệ thống nhúng trên SoC;Embedded system on SoC;Có;KTMT;CN;3;1
+CE350;Xử lý ảnh hướng ASIC;Image processing with ASIC;Có;KTMT;CN;3;1
+CE351;Thiết kế bộ tăng tốc phần cứng;Hardware accelerator design;Có;KTMT;CN;3;1
+CE352;Xử lý tín hiệu số trên FPGA;Digital signal processing on FPGA;Có;KTMT;CN;3;1
+CE353;Thiết kế vật lý vi mạch;Physical Design;Có;KTMT;CN;3;1
+CE405;Tương tác người máy;Human-computer interaction;Có;KTMT;CĐTN;3;0
+CE406;Tương tác người – Máy;Humans Computer Interaction;Có;KTMT;CNTC;3;1
+CE407;Đồ án chuyên ngành Hệ thống nhúng và Robot;Major Project on Embedded System and Robot Design;Có;KTMT;CĐTN;0;2
+CE408;Đồ án chuyên ngành Thiết kế vi mạch và phần cứng;Major Project on IC and Computer Hardware Design;Có;KTMT;CĐTN;0;2
+CE409;Kỹ thuật thiết kế kiểm tra;ASIC Verification Methodology;Có;KTMT;CN;3;1
+CE410;Kỹ thuật hệ thống máy tính;Computer System Engineering;Có;KTMT;CĐTN;3;1
+CE411;Chuyên đề hệ thống nhúng và robot;Embedded systems and robotics;Có;KTMT;CĐTN;3;1
+CE412;Đồ án chuyên ngành Hệ thống nhúng và IoT;Major Project on Embedded System and IoT Design;Có;KTMT;CN;0;2
+CE413;Đồ án chuyên ngành Robotics và AI;Major Project on Robotcis and AI;Có;KTMT;CN;0;2
+CE421;Chuyên đề thiết kế vi mạch và phần cứng;IC and hardware designs;Có;KTMT;CĐTN;3;1
+CE430;Lập trình hệ thống;System programming;Có;KTMT;CNTC;3;1
+CE432;Thiết kế vi mạch hướng ASIC;ASIC Design;Có;KTMT;CNTC;3;1
+CE433;Thiết kế hệ thống SoC;System-on-Chip (SoC) Design;Có;KTMT;CNTC;3;1
+CE434;Chuyên đề thiết kế hệ vi mạch 1;Seminar on IC Design 1;Có;KTMT;CNTC;3;1
+CE435;Chuyên đề thiết kế hệ vi mạch 2;Topics on IC and Hardware Design 2;Có;KTMT;CNTC;3;1
+CE436;Xử lý tín hiệu số và ứng dụng;Digital Signal Processing and Application;Có;KTMT;CNTC;3;1
+CE437;Chuyên đề thiết kế hệ thống nhúng 1;Topics on Embedded systems and robot 1;Có;KTMT;CNTC;3;1
+CE438;Chuyên đề thiết kế hệ thống nhúng 2;Topics on Embedded systems and robot 2;Có;KTMT;CNTC;3;1
+CE439;Lập trình song song và hệ phân tán;Parallel Programming & Distributed Systems;Có;KTMT;CNTC;3;1
+CE440;Hệ thống định vị với ứng dụng AI;Indoor-and-Outdoor Localization System with AI Applications;Có;KTMT;CN;3;1
+CE441;Chuyên đề thiết kế Robotics và AI 1;;Có;KTMT;CN;3;1
+CE442;Chuyên đề thiết kế Robotics và AI 2;;Có;KTMT;CN;3;1
+CE501;Thực tập doanh nghiệp;Internship;Có;KTMT;TTTN;0;3
+CE502;Thực tập doanh nghiệp;Internship;Có;KTMT;TTTN;2;0
+CE505;Khóa luận tốt nghiệp;Thesis;Có;KTMT;KLTN;10;0
+CE506;Luận văn chuyên sâu đặc thù;Thesis;Có;KTMT;CN;0;14
+CE507;Đồ án tốt nghiệp tại doanh nghiệp;Industry Capstone Project;Có;KTMT;TN;10;0
+CE508;Đồ án tốt nghiệp;Capstone Project;Có;KTMT;TN;0;6
+CE510;Chuyên đề tốt nghiệp định hướng Hệ thống nhúng và IoT;Special Project on Embedded System and IoT;Có;KTMT;CĐTN;3;1
+CE511;Chuyên đề tốt nghiệp định hướng Robotic và AI;Special Project on Robotic and AI;Có;KTMT;CĐTN;3;1
+CE512;Chuyên đề tốt nghiệp định hướng thiết kế vi mạch;Special Project on IC Design;Có;KTMT;TN;3;1
+CNBU001;Mạng máy tính;Networking;Có;MMTTT;CN;3;1
+CNBU002;Bảo mật;Security;Có;MMTTT;CN;3;1
+CNBU003;Dự án nghiên cứu;Computing Research Project;Có;MMTTT;CN;4;4
+CNBU004;Thiết kế và phát triển website;Website Design and Development;Có;MMTTT;CN;3;1
+CNBU005;Internet of Things;Internet of Things;Có;MMTTT;CN;3;1
+CNBU006;An toàn mạng máy tính;Network Security;Có;MMTTT;CN;3;1
+CNBU007;Pháp chứng kỹ thuật số;Forensics;Có;MMTTT;CN;3;1
+CNBU008;Quản lý an toàn thông tin;Information Security Management;Có;MMTTT;CN;3;1
+CNBU009;Thực tập;Internship;Có;MMTTT;TTTN;0;0
+CNBU101;Toán cho Tin học;Maths for Computing;Có;MMTTT;CN;40;25
+CNBU102;Công nghệ mạng máy tính;Networking Technologies;Có;MMTTT;CN;40;25
+CNBU103;Lập trình cho kỹ sư mạng máy tính;Programming for Network Engineers;Có;MMTTT;CN;40;25
+CNBU104;Hệ thống Servers;Server Systems;Có;MMTTT;CN;40;25
+CNBU105;Hệ thống mạng doanh nghiệp;Enterprise Network Systems;Có;MMTTT;CN;40;25
+CNBU106;Hoạt động an ninh mạng;Cyber Security Operations;Có;MMTTT;CN;40;25
+CNBU107;Dự án chuyên ngành;Enterprise Practice Project;Có;MMTTT;CN;40;25
+CNBU108;Hệ điều hành;Applied Operating Systems;Có;MMTTT;CN;44;25
+CNBU201;Công nghệ mạng không dây;Wireless Networking Technologies;Có;MMT;CN;40;25
+CNBU202;Hệ thống tường lửa nâng cao;Advanced Firewall Systems;Có;MMT;CN;40;25
+CNBU203;An toàn mạng máy tính;Network Security;Có;MMT;CN;40;25
+CNBU204;Ethical Hacking;Ethical Hacking;Có;MMT;CN;40;25
+CNBU205;Dự án cá nhân;Individual Honours Project;Có;MMT;CN;40;25
+CS005;Giới thiệu ngành Khoa học Máy tính;"Introduction to
+Computer Science programs";Có;KHMT;ĐC;1;0
+CS105;Đồ họa máy tính;Computer graphics;Có;KHMT;CSN;3;1
+CS106;Trí tuệ nhân tạo;Artificial intelligence;Có;KHMT;CSN;3;1
+CS110;Nhập môn công nghệ tri thức & máy học;Introduction to knowledge engineering and machine learning;Có;KHMT;CSN;3;1
+CS111;Nguyên lý và phương pháp lập trình;Principles and techniques of programming;Có;KHMT;CSN;3;1
+CS1113;Khoa học máy tính I;Computer science 1;Có;HTTT;ĐC;3;1
+CS112;Phân tích và thiết kế thuật toán;Design and analysis of algorithms;Có;KHMT;CSN;3;1
+CS113;Đồ họa máy tính và Xử lý ảnh;Computer Graphic and Digital Image Processing;Có;KHMT;CSN;3;1
+CS114;Máy học;Machine learning;Có;KHMT;CN;3;1
+CS115;Toán cho Khoa học máy tính;"Mathematics for Computer Science";Có;KHMT;CN;4;0
+CS116;Lập trình Python cho Máy học;Python for Machine Learning;Có;KHMT;CN;3;1
+CS117;Tư duy tính toán;Computational Thinking;Có;KHMT;CN;3;1
+CS211;Trí tuệ nhân tạo nâng cao;Advanced artificial intelligence;Có;KHMT;CN;3;1
+CS2133;Khoa học máy tính II;Computer science 2;Có;HTTT;ĐC;3;1
+CS2134;Khoa học máy tính;Computer Science;Có;HTTT;ĐC;3;1
+CS214;Biểu diễn tri thức và suy luận;Knowledge representation and reasoning;Có;KHMT;CN;3;1
+CS217;Các hệ cơ sở tri thức;Knowledge-based systems;Có;KHMT;CN;3;1
+CS221;Xử lý ngôn ngữ tự nhiên;Natural language processing;Có;KHMT;CN;3;1
+CS222;Xử lý ngôn ngữ tự nhiên nâng cao;Advanced natural language processing;Có;KHMT;CN;3;1
+CS226;Ngôn ngữ học máy tính;Computational linguistics;Có;KHMT;CN;4;0
+CS229;Ngữ nghĩa học tính toán;Computational Semantics;Có;KHMT;CN;3;1
+CS231;Nhập môn Thị giác máy tính;"Introduction to Computer Vision";Có;KHMT;CN;3;1
+CS232;Tính toán đa phương tiện;Introduction to Multimedia Computing;Có;KHMT;CN;3;1
+CS2433;Lập trình C/C++;C/C++ programming;Có;HTTT;CSN;3;1
+CS302;Seminar;Seminar;Có;KHMT;CN;3;0
+CS311;Kỹ thuật lập trình trí tuệ nhân tạo;Artificial intelligence programming techniques;Có;KHMT;CN;3;1
+CS312;Hệ thống đa tác tử;Multi-agent systems;Có;KHMT;CN;3;1
+CS313;Khai thác dữ liệu và ứng dụng;Data mining and applications;Có;KHMT;CN;3;1
+CS314;Lập trình symbolic trong trí tuệ nhân tạo;Symbolic programming in artificial intelligence;Có;KHMT;CN;3;1
+CS315;Máy học nâng cao;Advanced machine learning;Có;KHMT;CN;3;1
+CS316;Các hệ giải bài toán thông minh;Intelligent problem- solving systems;Có;KHMT;CN;3;1
+CS317;Phát triển và vận hành hệ thống máy học;Machine learning Operations;Có;KHMT;CN;3;1
+CS321;Ngôn ngữ học ngữ liệu;Corpus linguistics;Có;KHMT;CN;3;1
+CS323;Các hệ thống hỏi-đáp;Question-answering systems;Có;KHMT;CN;3;1
+CS324;Máy học trong xử lý ngôn ngữ tự nhiên;Machine learning in NLP;Có;KHMT;CN;3;1
+CS325;Dịch máy;Machine translation;Có;KHMT;CN;3;1
+CS326;Các kĩ thuật trong xử lý ngôn ngữ tự nhiên;Advanced techniques in natural language processing;Có;KHMT;CN;3;1
+CS331;Thị giác máy tính nâng cao;Advanced Computer Vision;Có;KHMT;CN;3;1
+CS332;Máy học trong Thị giác Máy tính;Machine Learning in Computer Vision;Có;KHMT;CN;3;1
+CS333;Đồ họa game;Computer Graphics in Game;Có;KHMT;CN;2;1
+CS335;Tìm Kiếm Ảnh và Video;Image and Video Search;Có;KHMT;CNTC;3;1
+CS336;Truy vấn thông tin đa phương tiện;Multimedia Information Retrieval;Có;KHMT;CN;3;1
+CS3363;Tổ chức ngôn ngữ lập trình;Organization of programming languages;Có;HTTT;ĐC;3;1
+CS337;Xử lý âm thanh và tiếng nói;Speech and Audio Signal Processing;Có;KHMT;CN;3;1
+CS3373;Lập trình hướng đối tượng nâng cao cho môi trường windows;Advanced object- oriented programming for Windows;Có;HTTT;CSN;3;1
+CS338;Nhận dạng;Pattern Recognition;Có;KHMT;CN;3;1
+CS339;Xử lý văn bản Y khoa;Natural language processing with health focus;Có;KHMT;CNTC;3;1
+CS3423;Cấu trúc tập tin;File structure;Có;HTTT;CSN;3;1
+CS3443;Hệ thống máy tính;Computer Systems;Có;HTTT;CSN;3;0
+CS3613;Cơ sở tính toán;Theoretical foundations of computing;Có;HTTT;CNCS;3;1
+CS3653;Toán rời rạc cho máy tính;Discrete Mathematics for computer;Có;HTTT;ĐC;3;0
+CS405;Logic mờ và ứng dụng;Fuzzy logic and applications;Có;KHMT;CĐTN;3;1
+CS406;Xử lý ảnh và ứng dụng;Image processing and applications;Có;KHMT;CĐTN;3;1
+CS409;Hệ suy diễn mờ;Fuzzy inference systems;Có;KHMT;CĐTN;3;1
+CS410;Mạng neural và thuật giải di truyền;Neural netwok and genetic algorithms;Có;KHMT;CĐTN;3;1
+CS412;Web ngữ nghĩa;Sematic web;Có;KHMT;CĐTN;3;1
+CS414;Lý thuyết automat và ứng dụng;Automata theory and applications;Có;KHMT;CĐTN;3;1
+CS4143;Đồ họa máy tính;Computer graphics;Có;HTTT;CNTC;3;0
+CS4153;Phát triển ứng dụng trên di động;Mobile Applications Development;Có;HTTT;CN;3;0
+CS419;Truy xuất thông tin;Information retrieval;Có;KHMT;CĐTN;3;1
+CS420;Các vấn đề chọn lọc trong Thị giác máy tính;Selected Topics in computer Vision;Có;KHMT;CĐTN;3;1
+CS4243;Thuật toán và tiến trình trong an toàn máy tính;Algorithms and processes in computer security;Có;HTTT;CSN;3;0
+CS4273;Nhập môn Công nghệ phần mềm;Software engineering;Có;HTTT;CNCS;3;1
+CS4283;Mạng máy tính;Computer network;Có;HTTT;ĐC;3;0
+CS431;Các kĩ thuật học sâu và ứng dụng;Deep Learning and Applications;Có;KHMT;CĐTN;2;1
+CS4323;Hệ điều hành;Design and Inplementation of Operating system;Có;HTTT;ĐC;3;0
+CS4343;Cấu trúc dữ liệu và giải thuật;Data structure and algorithm Analysis;Có;HTTT;ĐC;3;1
+CS4793;Trí tuệ nhân tạo;Artificial intelligence;Có;HTTT;CNCS;3;1
+CS5000;Luận văn;Thesis;Có;HTTT;KLTN;10;0
+CS5030;Thực tập tốt nghiệp;Internship;Có;HTTT;TTTN;3;0
+CS5031;Thực tập doanh nghiệp;Internship;Có;HTTT;TN;2;0
+CS505;Khoá luận tốt nghiệp;Thesis;Có;KHMT;KLTN;10;0
+CS511;Ngôn ngữ lập trình C#;C# programming language;Có;KHMT;CNTC;3;1
+CS519;Phương pháp luận nghiên cứu khoa học;Scientific research methodology;Có;KHMT;CNTC;3;0
+CS521;Toán rời rạc nâng cao;Advance Discerete Mathematics;Có;KHMT;CNTC;4;0
+CS522;Đại số máy tính;Computer algebra;Có;KHMT;CĐTN;3;1
+CS523;Cấu trúc dữ liệu và giải thuật nâng cao;Advanced data structures and algorithms;Có;KHMT;CNTC;3;1
+CS524;Một số ứng dụng của xử lý ngôn ngữ tự nhiên;Applied Natural Language Processing;Có;KHMT;CNTC;3;1
+CS525;Thị giác máy tính trong tương tác người – máy;Computer Vision in Human-Computer Interaction;Có;KHMT;CN;3;1
+CS526;Phát triển ứng dụng đa phương tiện trên thiết bị di động;Multimedia Mobile Applications;Có;KHMT;CNTC;3;1
+CS527;Thực tại ảo;Virtual Reality;Có;KHMT;CNTC;3;1
+CS528;Trực quan hóa thông tin;Information Visualization;Có;KHMT;CNTC;3;1
+CS529;Các vấn đề nghiên cứu và ứng dụng trong khoa học máy tính;Selected topics for researching and application in Computer Science;Có;KHMT;CNTC;4;0
+CS530;Đồ án chuyên ngành;Undergraduate Research Project;Có;KHMT;CNTC;3;0
+CS532;Thị giác máy tính trong tương tác người-máy;Computer Vision in Human-Computer Interaction;Có;KHMT;CN;3;1
+CS534;Lập trình Javascript và ứng dụng;Lập trình Javascript và ứng dụng;Có;KHMT;CNTC;3;1
+CS535;Tổng hợp tiếng nói;Speech Synthesis;Có;KHMT;CNTC;3;1
+CS5423;Nguyên lý các hệ cơ sở dữ liệu;Principle of database systems;Có;HTTT;CSN;3;1
+CS5433;Các hệ cơ sở dữ liệu phân tán;Distributed database systems;Có;HTTT;CSN;3;0
+CS551;Thực tập;Internship;Có;KHMT;TTTN;2;0
+CS553;Đồ án tốt nghiệp;Capstone Project;Có;KHMT;TN;6;0
+CS554;Đồ án tốt nghiệp tại doanh nghiệp;Industry Capstone Project;Có;KHMT;TN;10;0
+CSBU001;Lập trình;Programming;Có;KHMT;CN;3;1
+CSBU002;Mạng máy tính;Networking;Có;KHMT;CN;3;1
+CSBU003;Thực hành nghề nghiệp;Professional Practice;Có;KHMT;CN;4;0
+CSBU004;Toán cho Tin học;Maths for Computing;Có;KHMT;CN;3;1
+CSBU005;Bảo mật;Security;Có;KHMT;CN;3;1
+CSBU006;Quản lý dự án máy tính thành công;Managing a Successful Computing Project;Có;KHMT;CN;4;0
+CSBU007;Thiết kế và phát triển cơ sở dữ liệu;Database Design and Development;Có;KHMT;CN;3;1
+CSBU008;Kiến trúc máy tính;Computer Systems Architecture;Có;KHMT;CN;3;1
+CSBU009;Dự án nghiên cứu;Computing Research Project;Có;KHMT;CN;4;4
+CSBU010;Công nghệ kinh doanh thông minh;Business Intelligence;Có;KHMT;CN;3;1
+CSBU011;Toán rời rạc;Discrete Maths;Có;KHMT;CN;4;0
+CSBU012;Cấu trúc dữ liệu và giải thuật;Data Structures and Algorithms;Có;KHMT;CN;3;1
+CSBU013;Lập trình nâng cao;Advanced Programming;Có;KHMT;CN;3;1
+CSBU014;Máy học;Machine Learning;Có;KHMT;CN;3;1
+CSBU015;Điện toán đám mây;Cloud Computing;Có;KHMT;CN;3;1
+CSBU016;Thực tập;Internship;Có;KHMT;TTTN;0;0
+CSBU101;Lập trình máy tính;Computer Programming;Có;KHMT;CN;40;25
+CSBU102;Hệ thống máy tính;Computer Systems;Có;KHMT;CN;40;25
+CSBU103;Phát triển và thiết kế web;Website Design and Development;Có;KHMT;CN;40;25
+CSBU104;Cấu trúc dữ liệu và giải thuật;Data Structures and Algorithms;Có;KHMT;CN;40;25
+CSBU105;Mạng máy tính căn bản;Network Fundamentals;Có;KHMT;CN;40;25
+CSBU106;Đồ án đổi mới sáng tạo;Innovation Project;Có;KHMT;CN;48;32
+CSBU107;Lập trình hướng đối tượng;Object Oriented Programming;Có;KHMT;CN;40;25
+CSBU108;Hệ điều hành;Operating Systems;Có;KHMT;CN;40;25
+CSBU109;Phát triển ứng dụng web và cơ sở dữ liệu;Database and Web Application Development;Có;KHMT;CN;40;25
+CSBU110;Toán rời rạc và Lập trình khai báo;Discrete Mathematics and Declarative Programming;Có;KHMT;CN;40;25
+CSBU111;An ninh mạng;Cyber Security;Có;KHMT;CN;40;25
+CSBU112;Thiết kế phần mềm;Software Design;Có;KHMT;CN;40;25
+CSBU201;Thiết kế trải nghiệm người dùng;User Experience Design;Có;KHMT;CN;40;25
+CSBU202;Phát triển ứng dụng cho thiết bị di động và thiết bị đeo;Mobile and Wearable Application Development;Có;KHMT;CN;48;32
+CSBU203;Điện toán đám mây;Cloud Computing;Có;KHMT;CN;40;25
+CSBU204;Trí tuệ nhân tạo và Máy học;Artificial Intelligence and Machine Learning;Có;KHMT;CN;40;25
+CSBU205;Dự án cá nhân;Individual Honours Project;Có;KHMT;CN;48;32
+CU001;Văn hóa doanh nghiệp Nhật;Japanese corporate culture;Có;KTTT;CN;2;0
+DAI015;Thực hành văn bản Tiếng Việt;Vietnamese Practice;Có;PĐTĐH;CN;2;0
+DS005;Giới thiệu ngành Khoa học Dữ liệu;Introduction to Data Science;Có;KTTT;ĐC;1;0
+DS101;Thống kê và xác suất chuyên sâu;Advanced Statistic and Probabilistics;Có;KTTT;CN;2;1
+DS102;Học máy thống kê;Statistical Machine Learning;Có;KTTT;CN;3;1
+DS103;Thu thập và tiền xử lý dữ liệu;Getting and Cleaning Data;Có;KTTT;CN;3;1
+DS104;Tính toán song song & phân tán;Parallel and Distributed Computing;Có;KTTT;CN;3;1
+DS105;Phân tích và trực quan dữ liệu;Data Analytics and Visulization;Có;KTTT;CN;3;1
+DS106;Tối ưu hóa và ứng dụng;Optimization and Applications;Có;KTTT;CN;2;1
+DS107;Tư duy tính toán cho Khoa học dữ liệu;Computational Thinking for Data Science;Có;KTTT;CN;3;1
+DS108;Tiền xử lý và xây dựng bộ dữ liệu;Pre-processing and Constructing Dataset;Có;KTTT;CN;3;1
+DS111;Phân tích dữ liệu;Data Analysis;Có;KTTT;CSN;3;1
+DS200;Phân tích dữ liệu lớn;Big Data Analysis;Có;KTTT;CN;3;1
+DS201;Deep Learning trong khoa học dữ liệu;Deep Learning for Data Science;Có;KTTT;CN;3;1
+DS202;Đồ án khoa học dữ liệu và ứng dụng 1;Data science project and application 1;Có;KTTT;CN;0;2
+DS203;Đồ án khoa học dữ liệu và ứng dụng 2;Data science project and application 2;Có;KTTT;CN;0;2
+DS204;Đồ án khoa học dữ liệu và ứng dụng;Applied Project in data science;Có;KTTT;ĐA;0;2
+DS207;Đồ án;Project;Có;KTTT;CN;0;2
+DS300;Hệ khuyến nghị;Recommender Systems;Có;KTTT;CN;3;1
+DS301;Các giải thuật khai phá dữ liệu lớn;Mining of Massive Datasets;Có;KTTT;CN;3;1
+DS302;Phân tích thống kê đa biến;Multivariate Statistical Analysis;Có;KTTT;CN;2;1
+DS303;Thống kê Bayes;Bayesian Statictics;Có;KTTT;CN;2;1
+DS304;Thiết kế và phân tích thực nghiệm;Design and Analysis of Experiments;Có;KTTT;CN;3;0
+DS305;Phân tích dữ liệu chuỗi thời gian và ứng dụng;Applied Time Series Analysis;Có;KTTT;CN;2;1
+DS306;Phân tích dữ liệu lớn trong tài chính;Big Data Analytics in Finance;Có;KTTT;CN;3;0
+DS307;Phân tích dữ liệu truyền thông xã hội;Social Media Data Analytics;Có;KTTT;CN;3;0
+DS308;Mô hình đồ thị xác suất;Probabilistic Graphical Models;Có;KTTT;CN;3;1
+DS309;Thực tập doanh nghiệp;Internship;Có;KTTT;TTTN;2;0
+DS310;Xử lý ngôn ngữ tự nhiên cho Khoa học dữ liệu;Natural Language Processing for Data Science;Có;KTTT;CN;3;1
+DS311;Kỹ năng nghiên cứu và viết bài báo khoa học;Scientific research and writing skills;Có;KTTT;CN;3;0
+DS312;Xử lý ảnh y khoa;Medical Image Processing;Có;KTTT;CN;3;0
+DS313;Xử lý thông tin giọng nói;Speech Information Processing;Có;KTTT;CN;3;1
+DS314;Rút trích và truy vấn thông tin;Information Extraction and Retrieval;Có;KTTT;CN;3;1
+DS315;Phân tích Kho dữ liệu;Data Warehouse Analysis;Có;KTTT;CN;3;1
+DS316;Xây dựng ứng dụng thông minh;Intelligent Application;Có;KTTT;CN;3;1
+DS317;Khai phá dữ liệu trong doanh nghiệp;Data Mining for Enterprise;Có;KTTT;CN;3;1
+DS318;Đạo đức trong Trí tuệ nhân tạo và Khoa học dữ liệu;Ethics in Artificial Intelligence and Data Science;Có;KTTT;CN;3;0
+DS319;Mô hình ngôn ngữ lớn;Large Language Models;Có;KTTT;CN;3;1
+DS320;Học đa thể thức;Multimodal Learning;Có;KTTT;CN;3;1
+DS321;Khoa học dữ liệu cho An toàn thông tin;Data science for cyber security;Có;KTTT;CN;3;1
+DS322;Thiết kế hệ thống Học máy;Machine Learning Systems Design;Có;KTTT;CN;3;1
+DS323;Viết báo cáo kỹ thuật và thuyết trình;Technical Report Writing and Presentation;Có;KTTT;CN;3;0
+DS324;Khai thác dữ liệu ảnh số;Digital Image Data Mining;Có;KTTT;CN;3;1
+DS325;Thiết kế ứng dụng với dữ liệu chuyên sâu;Designing Data- intensive Applications;Có;KTTT;CN;3;1
+DS326;Khai phá dữ liệu đa phương tiện và ứng dụng;Multimedia Mining and Applications;Có;KTTT;CN;3;1
+DS327;Các mô hình nền tảng;Foundation Models;Có;KTTT;CN;3;1
+DS400;Chuyên đề tốt nghiệp Khoa học dữ liệu;Data Science Graduate Seminars;Có;KTTT;TN;4;0
+DS501;Đồ án tốt nghiệp;Capstone Project;Có;KTTT;ĐC;6;0
+DS502;Đồ án tốt nghiệp tại doanh nghiệp;Industry Capstone Project;Có;KTTT;TN;10;0
+DS505;Khóa luận tốt nghiệp;Thesis;Có;KTTT;KLTN;10;0
+DTH039;Đô thị học đại cương;Introduction to urban studies;Có;PĐTĐH;CN;3;0
+EC001;Kinh tế học đại cương;Principles of economics;Có;HTTT;CSN;4;0
+EC002;Quản trị doanh nghiệp;Business Management;Có;HTTT;CNTC;3;0
+EC003;Tiếp thị căn bản;Basic makerting;Có;HTTT;CN;3;0
+EC005;Giới thiệu ngành Thương mại Điện tử;Introduction to E- Commerce;Có;HTTT;ĐC;1;0
+EC101;Marketing căn bản;Basic marketing;Có;HTTT;CN;3;0
+EC201;Phân tích thiết kế quy trình nghiệp vụ doanh nghiệp;Business Process Modeling;Có;HTTT;CSN;3;1
+EC204;Marketing điện tử;E-Marketing;Có;HTTT;CN;2;1
+EC208;QuẢN trị dự án TMĐT;E-Commerce project management;Có;HTTT;CN;3;0
+EC213;Quản trị quan hệ khách hàng và nhà cung cấp;"Customer Relationship Management and Supplier Relationship Management";Có;HTTT;CN;2;1
+EC214;Nhập môn Quản trị chuỗi cung ứng;Introduction to Supply Chain Management;Có;HTTT;CNTC;3;0
+EC222;Thực tập doanh nghiệp;Internship;Có;HTTT;TTTN;2;0
+EC229;Pháp luật trong thương mại điện tử;Law in E-Commerce;Có;HTTT;CN;2;0
+EC232;Nguyên lý kế toán;Principle of accounting;Có;HTTT;CNTC;3;0
+EC304;Tối ưu hóa công cụ tìm kiếm trong Thương mại điện tử;Search engine optimization in E- Commerce;Có;HTTT;CN;3;0
+EC311;Tiếp thị trực tuyến;E-Marketing;Có;HTTT;CN;2;1
+EC312;Thiết kế hệ thống thương mại điện tử;E-Commerce System Design;Có;HTTT;CN;2;1
+EC331;Quản trị chiến lược kinh doanh điện tử;Electronic Strategic Business Management;Có;HTTT;CNTC;3;0
+EC332;Quản trị sản xuất;Production & Mananufacturing Management;Có;HTTT;CNTC;3;0
+EC333;Quản trị tài chính doanh nghiệp;Finance Management;Có;HTTT;CNTC;3;0
+EC334;Quản trị kênh phân phối;Distribution Chanel Management;Có;HTTT;CNTC;3;0
+EC335;An toàn và bảo mật thương mại điện tử;Safety and security in Electronic Commerce;Có;HTTT;CN;3;0
+EC336;Quản trị nhân lực;Human Resources;Có;HTTT;CNTC;3;0
+EC337;Hệ thống thanh toán trực tuyến;E-Payment System;Có;HTTT;CN;3;0
+EC338;Quản trị bán hàng;Sales Management;Có;HTTT;CNTC;3;0
+EC401;Khóa luận tốt nghiệp;Thesis;Có;HTTT;KLTN;10;0
+EC402;Phát triển ứng dụng thương mại di động;Mobile commerce application development;Có;HTTT;CN;3;1
+EC403;Thương mại xã hội;Social commerce;Có;HTTT;CN;3;0
+EC404;Đồ án tốt nghiệp;Capstone Project;Có;HTTT;TN;6;0
+EC405;Đồ án tốt nghiệp tại doanh nghiệp;Industry Capstone Project;Có;HTTT;TN;10;0
+EN001.CO;English for Communication 1;English for Communication 1;Có;HTTT;BT;0;0
+EN001.GE;General English;General English;Có;HTTT;BT;0;0
+EN002.CO;English for Communication 1;English for Communication 1;Có;HTTT;BT;0;0
+EN002.GE;General English;General English;Có;HTTT;BT;0;0
+ENG01;Anh văn 1;English 1;Có;TTNN;ĐC;4;0
+ENG02;Anh văn 2;English 2;Có;TTNN;ĐC;4;0
+ENG03;Anh văn 3;English 3;Có;TTNN;ĐC;4;0
+ENG04;Anh văn 4;English 4;Có;TTNN;ĐC;4;0
+ENG05;Anh văn 5;English 5;Có;TTNN;ĐC;4;0
+ENG06;Kỹ năng thuyết trình tiếng Anh;Effective Presentation;Có;TTNN;CN;4;0
+ENG07;Kỹ Năng Viết Luận;Academic Writing;Có;TTNN;CN;4;0
+ENGA1;Anh văn sơ cấp 1;Anh văn sơ cấp 1;Có;TTNN;BT;0;0
+ENGA2;Anh văn sơ cấp 2;Anh văn sơ cấp 2;Có;TTNN;BT;0;0
+ENGL1113;Tiếng Anh I;English Composition I;Có;HTTT;ĐC;3;0
+ENGL1213;Tiếng Anh II;English composition 2;Có;HTTT;ĐC;3;0
+GDH075;Tâm lý học giao tiếp;Communication psychology;Có;PĐTĐH;CN;1;1
+IE005;Giới thiệu ngành Công nghệ Thông tin;Introduction to Information Technology;Có;KTTT;ĐC;1;0
+IE101;Cơ sở hạ tầng công nghệ thông tin;Information technology Infrastructure;Có;KTTT;CSN;2;1
+IE102;Các công nghệ nền;Platform technologies;Có;KTTT;CSN;2;1
+IE103;Quản lý thông tin;Information management;Có;KTTT;CSN;3;1
+IE104;Internet và công nghệ Web;Internet and web technology;Có;KTTT;CSN;3;1
+IE105;Nhập môn bảo đảm và an ninh thông tin;Introduction to information assurance and security;Có;KTTT;CSN;3;1
+IE106;Thiết kế giao diện người dùng;User interface design;Có;KTTT;CSN;3;1
+IE108;Phân tích thiết kế phần mềm;Software Analysis and Design;Có;KTTT;CN;3;1
+IE201;Xử lý dữ liệu thống kê;Analysis of statistical data;Có;KTTT;CN;3;0
+IE203;Hệ thống quản trị qui trình nghiệp vụ;Bussiness process management systems;Có;KTTT;CĐTN;3;1
+IE204;Tối ưu hóa công cụ tìm kiếm;Search engine optimization;Có;KTTT;CĐTN;3;1
+IE205;Xử lý ảnh vệ tinh;Satellite image processing;Có;KTTT;CN;3;0
+IE206;Đồ án chuẩn bị tốt nghiệp;Preparing for the graduation project;Có;KTTT;ĐA;0;2
+IE207;Đồ án;Project;Có;KTTT;ĐA;0;2
+IE209;Công nghệ Java;Java Technology;Có;KTTT;CNTC;3;1
+IE212;Công nghệ Dữ liệu lớn;Big Data Technology;Có;KTTT;CN;3;1
+IE213;Kỹ thuật phát triển hệ thống Web;Web System Development Techniques;Có;KTTT;CN;3;1
+IE216;Các chủ đề toán học cho KHDL;Topics in Mathematics of Data Science;Có;KTTT;CNTC;3;0
+IE218;Xử lý dữ liệu lớn;Big Data Processing;Có;KTTT;CNTC;3;1
+IE221;Kỹ thuật lập trình Python;Python Programming Techniques;Có;KTTT;CN;3;1
+IE223;Phân tích dữ liệu bằng Python &R;Phân tích dữ liệu bằng Python &R;Có;KTTT;CN;3;1
+IE224;Phân tích dữ liệu;Data Analysis;Có;KTTT;CN;3;1
+IE225;Mạng kết nối;Interconnections Networks;Có;KTTT;CN;3;1
+IE226;Đồ họa và trực quan hóa máy tính;Computer Graphics and Visualization;Có;KTTT;CN;3;1
+IE227;Xử lý tín hiệu số cho mạng;Signal Processing over Networks;Có;KTTT;CN;3;1
+IE228;Human-Computer Interaction;Human-Computer Interaction;Có;KTTT;CN;3;1
+IE229;Artificial Intelligence;Artificial Intelligence;Có;KTTT;CN;3;1
+IE230;Viết báo cáo kỹ thuật bằng tiếng Nhật;Japanese technical writing;Có;KTTT;CN;0;2
+IE231;Quản trị doanh nghiệp công nghệ thông tin;Information technology enterprise management;Có;KTTT;CN;3;0
+IE232;Nhập môn trí tuệ nhân tạo;Introduction to Artificial Intelligence;Có;KTTT;CN;3;1
+IE233;Phân tích và mô hình mạng xã hội;Analysis and Modeling of Social Networks;Có;KTTT;CN;3;1
+IE301;Quản trị quan hệ khách hàng;Customer relationship management;Có;KTTT;CNTC;3;0
+IE302;Kiến trúc và tích hợp hệ thống;System integration and architecture;Có;KTTT;CNTC;3;0
+IE303;Công nghệ Java;Java technology;Có;KTTT;CĐTN;3;1
+IE304;Hệ thống định vị toàn cầu;Global positioning system;Có;KTTT;CNTC;3;0
+IE305;Tin học môi trường;Environmental informatics;Có;KTTT;CNTC;2;0
+IE307;Công nghệ lập trình đa nền tảng cho ứng dụng di động;Cross-Platform Mobile Development;Có;KTTT;CNTC;3;1
+IE309;Thực tập doanh nghiệp;Internship;Có;KTTT;TTTN;2;0
+IE310;Tư duy thiết kế;Design thinking;Có;KTTT;CN;3;0
+IE313;Phân tích và trực quan dữ liệu;Data Analysis and Visualization;Có;KTTT;CN;3;1
+IE400;Chuyên đề tốt nghiệp;Graduate Seminars;Có;KTTT;TN;4;0
+IE401;Tin-Sinh học;Bioinformatics;Có;KTTT;CĐTN;3;0
+IE402;Hệ thống thông tin địa lý 3 chiều;Three - dimentinal geographic information system;Có;KTTT;CĐTN;3;1
+IE403;Khai thác dữ liệu truyền thông xã hội;Social media mining;Có;KTTT;CĐTN;3;0
+IE405;Công nghệ phân tích dữ liệu lớn;Big data analysis Technologies;Có;KTTT;CĐTN;3;1
+IE406;Nhập môn ẩn thông tin và ứng dụng;Data hiding fundamentals and applications;Có;KTTT;TN;3;0
+IE501;Đồ án tốt nghiệp;Capstone Project;Có;KTTT;TN;6;0
+IE502;Đồ án tốt nghiệp tại doanh nghiệp;Industry Capstone Project;Có;KTTT;TN;10;0
+IE505;Khóa luận tốt nghiệp;Graduation thesis;Có;KTTT;KLTN;10;0
+IEM4733;Tái cấu trúc quy trình doanh nghiệp;Re-engineering Business Processes;Có;HTTT;CN;3;0
+IEM5723;Mô hình hóa dữ liệu, quy trình và đối tượng;Data, Process and Object Modeling;Có;HTTT;CSN;3;0
+INI01;Thực tập quốc tế;International Internship;Có;PĐTĐH;CN;2;0
+INT001;Tiếng Anh tổng quát (tạm gọi);General English;Có;HTTT;BT;0;0
+INT002;Toeic 1;Toeic 1;Có;HTTT;BT;0;0
+INT003;Tiếng Anh tổng quát 2 (tạm gọi);General English 2;Có;HTTT;BT;0;0
+INT004;Toeic 2;Toeic 2;Có;HTTT;BT;0;0
+INT005;Tiếng Anh giao tiếp (tạm gọi);Communication;Có;HTTT;ĐC;0;0
+INT006;Toeic 3;Toeic 3;Có;HTTT;ĐC;0;0
+IS005;Giới thiệu ngành Hệ thống Thông tin;Introduction to Information Systems discipline;Có;HTTT;ĐC;1;0
+IS105;Hệ quản trị cơ sở dữ liệu Oracle;Oracle database management system;Có;HTTT;CN;3;1
+IS201;Phân tích thiết kế hệ thống thông tin;Information system analysis and design;Có;HTTT;CSN;3;1
+IS207;Phát triển ứng dụng web;Web application development;Có;HTTT;CN;3;1
+IS208;Quản lý dự án công nghệ thông tin;Information-technology project management;Có;HTTT;CSN;3;1
+IS210;Hệ quản trị cơ sở dữ liệu;Database management systems;Có;HTTT;CSN;3;1
+IS211;Cơ sở dữ liệu phân tán;Distributed databases;Có;HTTT;CN;3;1
+IS212;Thực tập tốt nghiệp;Internship;Có;HTTT;TTTN;3;0
+IS215;Thiết kế hướng đối tượng với UML;Object-oriented analysis and design with UML;Có;HTTT;CSN;3;1
+IS216;Lập trình Java;Programming with Java;Có;HTTT;CSN;3;1
+IS217;Kho dữ liệu và OLAP;Data warehouse and OLAP;Có;HTTT;CN;3;0
+IS220;Xây dựng HTTT trên các framework;.Net Technology;Có;HTTT;CN;3;1
+IS232;Hệ thống thông tin kế toán;Accounting information systems;Có;HTTT;CN;4;0
+IS251;Nhập môn Hệ thống thông tin địa lý;Introduction to geographic information systems;Có;HTTT;CN;3;1
+IS252;Khai thác dữ liệu;Data mining;Có;HTTT;CN;3;1
+IS254;Hệ hỗ trợ quyết định;Decision Support System;Có;HTTT;CN;3;0
+IS311;Đồ án xây dựng hệ thống thông tin;Information system development;Có;HTTT;ĐA;3;0
+IS332;Hệ thống thông tin quản lý;Management information systems;Có;HTTT;CN;3;0
+IS334;Thương mại điện tử;E-commerce;Có;HTTT;CN;3;0
+IS335;An toàn và bảo mật hệ thống thông tin;Information systems security;Có;HTTT;CN;3;0
+IS336;Hoạch định nguồn lực doanh nghiệp;Enterprise resource planning;Có;HTTT;CSN;3;1
+IS339;Sinh tin học;Bioinformatics;Có;HTTT;CNTC;3;0
+IS340;Thị trường chứng khoán;Thị trường chứng khoán;Có;HTTT;CNTC;3;0
+IS341;Khởi nghiệp;Khởi nghiệp;Có;HTTT;CNTC;3;0
+IS342;Chính phủ điện tử;Chính phủ điện tử;Có;HTTT;CNTC;3;0
+IS344;Quản trị nguồn lực y tế;Healthcare Resource Management;Có;HTTT;CN;2;1
+IS345;AI trong y tế;AI in healthcare;Có;HTTT;CN;3;0
+IS346;Quản lý dự án công nghệ thông tin y tế;Healthcare Information Technology Project Management;Có;HTTT;CN;2;1
+IS347;Thống kê y học;Medical Statistics;Có;HTTT;CN;3;0
+IS348;Dịch tễ học;Epidemiology;Có;HTTT;CN;2;1
+IS349;Hệ thống y tế;Health system;Có;HTTT;CN;3;0
+IS351;Phân tích không gian;Spatial analysis;Có;HTTT;CN;3;1
+IS352;Hệ cơ sở dữ liệu không gian;Spatial database systems;Có;HTTT;CN;3;1
+IS353;Mạng xã hội;Social networks;Có;HTTT;CĐTN;3;0
+IS354;Công nghệ tài chính căn bản Fintech;Introduction to financial technology;Có;HTTT;CN;3;0
+IS355;Công nghệ Blockchain;Blockchain Technology;Có;HTTT;CN;3;1
+IS356;Agile IT với DevOps;;Có;HTTT;CN;3;0
+IS357;Kiến trúc hướng dịch vụ;Service Oriented Architecture;Có;HTTT;CN;3;0
+IS358;Kiểm soát nhiễm khuẩn bệnh viện;Hospital Infection control;Có;HTTT;CN;3;0
+IS360;Quản lý chăm sóc và điều trị;Care management and treatment;Có;HTTT;CN;3;0
+IS361;Quản lý chuỗi cung ứng dược và thiết bị y tế;Supply management of drug and medical equipments;Có;HTTT;CN;3;0
+IS362;Quản trị tài chính và bảo hiểm y tế;Hospital Financial Management and Health Insurance;Có;HTTT;CN;3;0
+IS363;Pháp luật trong lĩnh vực y tế;Law on Health and Medical;Có;HTTT;CN;2;0
+IS364;Mã tiêu chuẩn dùng chung trong y tế;Medical Coding;Có;HTTT;CN;3;0
+IS401;Khóa luận tốt nghiệp;Thesis;Có;HTTT;KLTN;10;0
+IS402;Điện toán đám mây;Cloud computing;Có;HTTT;CĐTN;3;0
+IS403;Phân tích dữ liệu kinh doanh;Data analysis in business;Có;HTTT;CN;3;0
+IS405;Dữ liệu lớn;Big data;Có;HTTT;CĐTN;3;1
+IS406;Điện toán đám mây và xử lý dữ liệu lớn;Cloud Computing and Big data;Có;HTTT;CN;3;0
+IS407;Đồ án tốt nghiệp;Capstone Project;Có;HTTT;CN;6;0
+IS502;Thực tập doanh nghiệp;Internship;Có;HTTT;TTTN;2;0
+IS503;Đồ án tốt nghiệp tại doanh nghiệp;Industry Capstone Project;Có;HTTT;CN;10;0
+IS505;Khóa luận tốt nghiệp;Thesis;Có;HTTT;KLTN;10;0
+IS6301;Phân tích thiết kế hệ thống thông tin nâng cao;Advanced Information system analysis and design;Có;HTTT;CN;4;3
+IT001;Nhập môn lập trình;Introduction to programming;Có;KHMT;ĐC;3;1
+IT002;Lập trình hướng đối tượng;Object-oriented programming;Có;CNPM;CSNN;3;1
+IT003;Cấu trúc dữ liệu và giải thuật;Data structures and algorithms;Có;KHMT;CSNN;3;1
+IT004;Cơ sở dữ liệu;Databases;Có;HTTT;CSNN;3;1
+IT005;Nhập môn mạng máy tính;"Introduction to computer networks";Có;MMTTT;CSNN;3;1
+IT006;Kiến trúc máy tính;Computer architecture;Có;KTMT;CSNN;3;0
+IT007;Hệ điều hành;Operating systems;Có;KTMT;CSNN;3;1
+IT008;Lập trình trực quan;Visual programming;Có;CNPM;CN;3;1
+IT009;Giới thiệu ngành;Introduction to IT disciplines;Có;PĐTĐH;CSNN;2;0
+IT010;Tổ chức và cấu trúc máy tính;Computer Organization and Architecture;Có;KTMT;CSN;2;0
+IT011;Nhập môn lập trình thi đấu;Introduction to Competitive Programming;Có;KHMT;ĐC;3;1
+IT012;Tổ chức và Cấu trúc Máy tính II;Computer Structure and Organization II;Có;KTMT;CSNN;3;1
+IT013;Cấu trúc dữ liệu cho lập trình thi đấu;Data structures and Algorithms for Competitive Programming;Có;KHMT;ĐC;3;1
+ITNT005;Communication;Communication;Có;HTTT;BT;0;0
+JAN01;Tiếng Nhật 1;Japanese 01;Có;PĐTĐH;NN;2;3
+JAN02;Tiếng Nhật 2;Japanese 02;Có;PĐTĐH;NN;2;3
+JAN03;Tiếng Nhật 3;Japanese 03;Có;PĐTĐH;NN;2;3
+JAN04;Tiếng Nhật 4;Japanese 04;Có;PĐTĐH;NN;2;3
+JAN05;Tiếng Nhật 5;Japanese 05;Có;PĐTĐH;NN;2;3
+JAN06;Tiếng Nhật 6;Japanese 06;Có;PĐTĐH;NN;1;2
+JAN07;Tiếng Nhật 7;Japanese 07;Có;PĐTĐH;NN;1;2
+JAN08;Tiếng Nhật 8;Japanese 08;Có;PĐTĐH;NN;1;2
+JANHU;Tiếng Nhật miễn phí do Huredee tài trợ;"Japanese language (sponsored by Huredee)";Có;PĐTĐH;ĐC;40;0
+MA003;Đại số tuyến tính;Linear algebra;Có;BMTL;ĐC;3;0
+MA004;Cấu trúc rời rạc;Discrete structures;Có;BMTL;ĐC;4;0
+MA005;Xác suất thống kê;Probability and statistics;Có;BMTL;ĐC;3;0
+MA006;Giải tích;Calculus;Có;BMTL;ĐC;4;0
+MATH2144;Giải tích I;Calculus I;Có;HTTT;ĐC;4;0
+MATH2153;Giải tích II;Calculus 2;Có;HTTT;ĐC;3;0
+MATH2154;Giải tích;Calculus;Có;HTTT;ĐC;4;0
+MATH3013;Đại số tuyến tính;Linear Algebra;Có;HTTT;ĐC;3;0
+ME001;Giáo dục quốc phòng;Military education;Có;PĐTĐH;ĐC;0;0
+MKTG4223;Quản trị chuỗi cung ứng;Supply Chain Management;Có;HTTT;CN;3;0
+MKTG5883;Khai phá dữ liệu và ứng dụng;Advanced Data Mining Applications;Có;HTTT;CN;3;1
+MM001;Kỹ năng truyền thông cho người làm CNTT;Communication Skills for IT Professionals;Có;PĐTĐH;CN;2;1
+MM002;Truyền thông Kỹ thuật số;Digital Communication;Có;PĐTĐH;CN;2;1
+MM003;Quản trị sự kiện;Event Management;Có;PĐTĐH;CN;2;1
+MM004;Nguyên lý thiết kế đồ hoạ;Principles of Graphic Design;Có;PĐTĐH;CN;0;2
+MM006;Tâm lý học đại cương;Introduction to psychology;Có;CNPM;ĐC;2;0
+MM101;Giới thiệu ngành Truyền thông đa phương tiện;Introduction to Multimedia;Có;CNPM;CSN;1;0
+MM103;Nhập môn nghệ thuật học;;Có;PĐTĐH;CN;3;1
+MM214;Chiến lược phát triển thương hiệu;;Có;PĐTĐH;CN;3;0
+MSIS207;Phát triển ứng dụng web;Web Applications Development;Có;HTTT;CN;3;1
+MSIS2433;Lập trình hướng đối tượng;Object Oriented Programming;Có;HTTT;CSN;3;0
+MSIS3033;Quản lý dự án hệ thống thông tin;Information systems project management;Có;HTTT;CSN;3;0
+MSIS3233;Management Science Methods;Management Science Methods;Có;HTTT;CN;3;0
+MSIS3242;Sofware Quality Management;Sofware Quality Management;Có;HTTT;CN;3;0
+MSIS3243;Managerial Decision Theory;Managerial Decision Theory;Có;HTTT;CN;3;0
+MSIS3303;Phân tích thiết kế hệ thống;System analysis and design;Có;HTTT;CN;3;1
+MSIS4013;Thiết kế, quản lý và quản trị hệ CSDL;Database system design, management and administration;Có;HTTT;CN;3;0
+MSIS402;Điện toán đám mây;Cloud Computing;Có;HTTT;CN;3;0
+MSIS405;Dữ liệu lớn;Big data;Có;HTTT;CN;3;0
+MSIS406;Dữ liệu lớn trên nền điện toán đám mây;Big Data in Cloud Computing;Có;HTTT;CN;3;1
+MSIS4133;Công nghệ thông tin trong thương mại điện tử;Information Technologies for e- commerce;Có;HTTT;CN;3;0
+MSIS4243;Control and Audit of Information Systems;Control and Audit of Information Systems;Có;HTTT;CN;3;0
+MSIS4263;Các ứng dụng thông minh và hỗ trợ ra quyết định;Decision-support and intelligence applications;Có;HTTT;CN;3;0
+MSIS4443;Các hệ thống mô phỏng trên máy tính;Computer based simulation systems;Có;HTTT;CN;3;0
+MSIS4523;Hệ truyền thông dữ liệu;Data communication systems;Có;HTTT;CN;3;0
+MSIS5723;Phân tích thiết kế hệ thống thông tin;System Analysis and Design;Có;HTTT;CN;3;1
+NHJP1;Tiếng Nhật Sơ cấp 1;Japanese for beginners 1;Có;PĐTĐH;BT;0;0
+NHJP2;Tiếng Nhật Sơ cấp 2;Japanese for beginners 2;Có;PĐTĐH;BT;0;0
+NNH050;Ngôn ngữ quảng cáo;The language of advertising;Có;PĐTĐH;CN;2;0
+NT005;Giới thiệu ngành Mạng máy tính và Truyền thông dữ liệu;Introduction to IT programs Computer Networks and Data communications;Có;MMTTT;ĐC;1;0
+NT015;Giới thiệu ngành An toàn Thông tin;Introduction to Information Security programs;Có;MMTTT;ĐC;1;0
+NT101;An toàn mạng máy tính;Network security;Có;MMTTT;CSN;3;1
+NT103;Hệ điều hành Linux;Linux operating systems;Có;MMTTT;CNTC;3;1
+NT104;Lý thuyết thông tin;Information theory;Có;MMTTT;CSN;3;0
+NT105;Truyền dữ liệu;Data communications;Có;MMTTT;CSN;3;1
+NT106;Lập trình mạng căn bản;Basic network programming;Có;MMTTT;CSN;2;1
+NT109;Lập trình ứng dụng mạng;Network-application programming;Có;MMTTT;CSN;2;1
+NT111;Thiết bị mạng và truyền thông ĐPT;Network appliances and multimedia communications;Có;MMTTT;CNTC;3;1
+NT113;Thiết kế Mạng;Network design;Có;MMTTT;CSN;2;1
+NT114;Đồ án chuyên ngành;Specialized project;Có;MMTTT;ĐA;0;2
+NT115;Thực tập doanh nghiệp;Internship;Có;MMTTT;TTTN;3;0
+NT117;Đồ án môn học Lập trình ứng dụng Mạng;Network-based application programming project;Có;MMTTT;ĐA;0;2
+NT118;Phát triển ứng dụng trên thiết bị di động;Mobile application development;Có;MMTTT;CSN;2;1
+NT121;Thiết bị mạng và truyền thông ĐPT;Network appliances and multimedia communications;Có;MMTTT;CĐTN;2;1
+NT131;Hệ thống nhúng Mạng không dây;Wireless Embedded Network Systems;Có;MMTTT;CSN;3;1
+NT132;Quản trị mạng và hệ thống;Networks and Systems Administration;Có;MMTTT;CSN;3;1
+NT133;An toàn kiến trúc hệ thống;System Architecture Security;Có;MMTTT;CN;2;1
+NT137;Kỹ thuật phân tích mã độc;Malware analysis techniques;Có;MMTTT;CN;2;1
+NT140;An toàn mạng;Network security;Có;MMTTT;CN;3;1
+NT201;Phân tích thiết kế hệ thống truyền thông và mạng;System analysis and design;Có;MMTTT;CNTC;3;0
+NT204;Hệ thống tìm kiếm, phát hiện và ngăn ngừa xâm nhập;Intrusion detection and prevention system;Có;MMTTT;CN;2;1
+NT205;Tấn công mạng;Network offences;Có;MMTTT;CNTC;2;1
+NT207;Quản lý rủi ro và an toàn thông tin trong doanh nghiệp;Risk management and information security in enterprise;Có;MMTTT;CN;2;1
+NT208;Lập trình ứng dụng Web;Web-Based Application Development;Có;MMTTT;CNTC;2;1
+NT209;Lập trình hệ thống;Computer System programming;Có;MMTTT;CSN;2;1
+NT210;Thương mại Điện tử và Triển khai ứng dụng;E-commerce and applications;Có;MMTTT;CĐTN;2;1
+NT211;An ninh nhân sự, định danh và chứng thực;"Identification, authentication and privacy security(personal information protection)";Có;MMTTT;CNTC;2;1
+NT212;An toàn dữ liệu, khôi phục thông tin sau sự cố;Data integrity and disaster recovery;Có;MMTTT;CNTC;2;1
+NT213;Bảo mật web và ứng dụng;Web and application security;Có;MMTTT;CN;2;1
+NT215;Thực tập doanh nghiệp;Internship;Có;MMTTT;TTTN;2;0
+NT216;Bảo mật hệ thống dữ liệu;Data System Security;Có;MMTTT;CNTC;2;1
+NT219;Mật mã học;Cryptography;Có;MMTTT;CN;2;1
+NT230;Cơ chế hoạt động của mã độc;Malware modus operandi;Có;MMTTT;CSN;2;1
+NT303;Công nghệ thoại IP;VoIP technology;Có;MMTTT;CN;2;1
+NT310;Pháp chứng mạng di động;Digital forensics;Có;MMTTT;CNTC;2;1
+NT311;Công nghệ tường lửa và bảo vệ mạng ngoại vi;Firewall technology and perimeter protection;Có;MMTTT;CNTC;2;1
+NT312;Bảo mật với smartcard và NFC;Smart card and NFC security;Có;MMTTT;CNTC;2;1
+NT330;An toàn mạng không dây và di động;Wireless network and mobile security;Có;MMTTT;CN;2;1
+NT331;Xây dựng chuẩn chính sách an toàn thông tin trong doanh nghiệp;Enterprise information security policy;Có;MMTTT;CN;2;1
+NT332;Xử lý tín hiệu trong truyền thông;Signal processing in communications;Có;MMTTT;CĐTN;3;1
+NT333;Tính toán lưới;Net computing;Có;MMTTT;CNTC;2;1
+NT334;Pháp chứng kỹ thuật số;Digital forensics;Có;MMTTT;CN;2;1
+NT402;Công nghệ mạng viễn thông;Communications technology;Có;MMTTT;CN;2;1
+NT405;Bảo mật Internet;Cyber Security;Có;MMTTT;CĐTN;2;1
+NT406;Đồ án tốt nghiệp;Graduation Project;Có;MMTTT;CĐTN;4;0
+NT504;Tiểu luận tốt nghiệp;Graduation project;Có;MMTTT;CĐTN;4;0
+NT505;Khóa luận tốt nghiệp;Thesis;Có;MMTTT;KLTN;10;0
+NT506;Đồ án tốt nghiệp tại doanh nghiệp;Industry Capstone Project;Có;MMT;TN;10;0
+NT508;Đồ án tốt nghiệp;Capstone Project;Có;MMT;TN;6;0
+NT521;Lập trình an toàn và khai thác lỗ hổng phần mềm;Secure Programming and Exploiting Vulnerabilities;Có;MMTTT;CNTC;3;1
+NT522;Phương pháp học máy trong an toàn thông tin;Machine learning for information security;Có;MMTTT;CNTC;2;1
+NT523;An toàn thông tin trong kỷ nguyên máy tính lượng tử;Cyber Security in the Quantum Era;Có;MMTTT;CNTC;2;1
+NT531;Đánh giá hiệu năng hệ thống mạng máy tính;"Modeling and performance evaluation of network andcomputer systems";Có;MMTTT;CN;2;1
+NT532;Công nghệ Internet of things hiện đại;Advanced Internet of Things Technologies;Có;MMTTT;CNTC;2;1
+NT533;Hệ tính toán phân bố;Distributed computing system;Có;MMTTT;CN;2;1
+NT534;An toàn mạng máy tính nâng cao;Advanced security network;Có;MMTTT;CSN;2;1
+NT535;Bảo mật Internet of things;Security and Privacy in Internet of Things;Có;MMTTT;CNTC;2;1
+NT536;Công nghệ truyền thông đa phương tiện;Multimedia Communication Technologies;Có;MMTTT;CN;2;1
+NT537;Truyền thông xã hội và kinh doanh;Social Media and Business Practices;Có;MMTTT;CN;3;0
+NT538;Giải thuật xử lý song song và phân bố;Algorithms in parallel and distributed computing;Có;MMTTT;CN;2;1
+NT539;AI ứng dụng trong mạng và truyền thông;Artificial Intelligence for Networking and Communications;Có;MMTTT;TN;3;1
+NT540;Mạng không dây thế hệ mới;Next-generation wireless networks;Có;MMTTT;CN;2;1
+NT541;Công nghệ mạng khả lập trình;Reprogramming network technologies;Có;MMTTT;CN;3;1
+NT542;Lập trình kịch bản tự động hóa cho quản trị và bảo mật mạng;Scripting for Administration, Automation and Security;Có;MMTTT;CN;2;1
+NT543;Tín hiệu và hệ thống thông tin;Signal and Communication System;Có;MMTTT;CN;2;1
+NT544;Ăng ten và truyền thông vô tuyến;Antena and telecommunication;Có;MMTTT;CN;3;1
+NT545;Thiết kế hệ thống viễn thông;Fundamental techniques in Telecomunication System Design;Có;MMTTT;CN;2;1
+NT546;Thiết kế và triển khai mạng tốc độ cao;Design and implementation high- speed networks;Có;MMTTT;CN;2;1
+NT547;Blockchain: Nền tảng, ứng dụng và bảo mật;Blockchain: Fundamentals, Applications and Security;Có;MMTTT;CN;2;1
+NT548;Công nghệ DevOps và ứng dụng;DevOps technology and its applications;Có;MMTTT;CĐTN;3;1
+PE231;Giáo dục thể chất 1;Physical education 1;Có;PĐTĐH;TC;0;0
+PE232;Giáo dục thể chất 2;Physical education 2;Có;PĐTĐH;TC;0;0
+PH001;Nhập môn điện tử;Introduction to electrical engineering;Có;BMTL;ĐC;3;0
+PH002;Nhập môn mạch số;Introduction to digital circuit;Có;KTMT;ĐC;3;1
+PHYS1114;Vật lý đại cương I;General physics 1;Có;HTTT;ĐC;4;0
+PHYS1214;Vật lý đại cương II;General physics 2;Có;HTTT;ĐC;4;0
+PHYS1215;Vật lý đại cương;General Physics;Có;HTTT;ĐC;3;0
+QTE111;Văn hóa giao tiếp;Intercultural Communication;Có;PĐTĐH;CN;2;0
+SC203;Phương pháp khoa học;Scientific research methodology;Có;HTTT;CNTC;3;0
+SE005;Giới thiệu ngành Kỹ thuật Phần mềm;Introduction to Software Engineering;Có;CNPM;ĐC;1;0
+SE100;Phương pháp Phát triển phần mềm hướng đối tượng;Object-oriented software development methodology;Có;CNPM;CSN;3;1
+SE101;Phương pháp mô hình hóa;Modeling methods;Có;CNPM;CSN;3;0
+SE102;Nhập môn phát triển game;Introduction to game development;Có;CNPM;CSN;2;1
+SE104;Nhập môn Công nghệ phần mềm;Software engineering;Có;CNPM;CSN;3;1
+SE106;Đặc tả hình thức;Formal specification;Có;CNPM;CSN;4;0
+SE109;Phát triển, vận hành, bảo trì phần mềm;Software development, deployment and maintenance;Có;CNPM;CSN;3;0
+SE111;Đồ án mã nguồn mở;Open source project;Có;CNPM;CSN;2;0
+SE112;Đồ án chuyên ngành;Specialized project;Có;CNPM;CSN;2;0
+SE113;Kiểm chứng phần mềm;Software Testing;Có;CNPM;CNTC;3;1
+SE114;Nhập môn ứng dụng di động;Mobile Application Overview;Có;CNPM;CSN;2;1
+SE121;Đồ án 1;Major Project 1;Có;CNPM;CSN;2;0
+SE122;Đồ án 2;Major Project 2;Có;CNPM;CSN;2;0
+SE214;Công nghệ phần mềm chuyên sâu;Advanced software engineering;Có;CNPM;CN;3;1
+SE215;Giao tiếp người máy;Human-computer interaction;Có;CNPM;CN;3;1
+SE220;Thiết kế Game;Introduction to game design;Có;CNPM;CN;3;0
+SE221;Lập trình game nâng cao;Advanced game programming;Có;CNPM;CN;3;1
+SE301;Phát triển phần mềm mã nguồn mở;Open-source software development;Có;CNPM;CN;3;0
+SE310;Công nghệ .NET;.Net technology;Có;CNPM;CNTC;3;1
+SE313;Một số thuật toán thông minh;Intelligent algorithms;Có;CNPM;CNTC;2;0
+SE320;Lập trình đồ họa 3 chiều với Direct3D;3D programming with Direct3D;Có;CNPM;CNTC;3;1
+SE325;Chuyên đề J2EE;J2EE;Có;CNPM;CNTC;3;1
+SE327;Phát triển và vận hành game;Games development;Có;CNPM;CNTC;3;0
+SE328;Lập trình TTNT trong Game;Artificial intelligence on game programming;Có;CNPM;CNTC;3;1
+SE329;Thiết kế 3D Game Engine;3D game engine design;Có;CNPM;CNTC;3;1
+SE330;Ngôn ngữ lập trình Java;Java programming language;Có;CNPM;CSN;3;1
+SE331;Chuyên đề E-commerce;E-commerce;Có;CNPM;CNTC;2;0
+SE332;Chuyên đề CSDL nâng cao;Advanced database;Có;CNPM;CN;2;0
+SE334;Các phương pháp lập trình;Programming paradigms;Có;CNPM;CN;2;1
+SE341;Công nghệ Web và ứng dụng;Web technology and applications;Có;CNPM;CN;2;0
+SE343;Công nghệ Portal;Portal technology;Có;CNPM;CNTC;3;0
+SE344;Lập trình game trong các thiết bị di động;Mobile game programming;Có;CNPM;CNTC;3;1
+SE346;Lập trình trên thiết bị di động;Mobile device application development;Có;CNPM;CN;3;1
+SE347;Công nghệ Web và ứng dụng;Web technology and applications;Có;CNPM;CNTC;3;1
+SE348;Chuyên đề M-commerce;M-commerce;Có;CNPM;ĐC;2;0
+SE350;Chuyên đề E-learning;E-learning;Có;CNPM;ĐC;2;0
+SE351;Xử lý song song;Parallel processing;Có;CNPM;CN;3;1
+SE352;Phát triển ứng dụng VR;VR App Development;Có;CNPM;CNTC;2;1
+SE354;Chuyên đề các quy trình phát triển phần mềm hiện đại;E-learning;Có;CNPM;CNTC;2;1
+SE355;Máy học và các công cụ;Machine learning and tools;Có;CNPM;CN;2;1
+SE356;Kiến trúc Phần mềm;Software Architecture;Có;CNPM;CNTC;3;1
+SE357;Kỹ thuật phân tích yêu cầu;Requirement Engineering;Có;CNPM;CNTC;2;1
+SE358;Quản lý dự án Phát triển Phần mềm;Software development project management;Có;CNPM;CN;3;1
+SE400;Seminar các vấn đề hiện đại của CNPM;Seminar on modern software engineering;Có;CNPM;CĐTN;4;0
+SE401;Mẫu thiết kế;Software design pattern;Có;CNPM;CĐTN;3;0
+SE403;Nguyên lý thiết kế thế giới ảo;Virtual-world design;Có;CNPM;CĐTN;4;0
+SE404;Chuyên đề E-Government;E-government;Có;CNPM;CĐTN;2;0
+SE405;Chuyên đề Mobile and Pervasive Computing;Mobile pervasive computing;Có;CNPM;CĐTN;3;0
+SE406;Mẫu thiết kế hướng đối tượng;Object Oriented Design Pattern;Có;CNPM;CĐTN;4;0
+SE407;Chuyên đề Pervasive and Mobile Computing;Pervasive Mobile Computing;Có;CNPM;CĐTN;4;0
+SE417;Đồ án môn học mã nguồn mở;Open Source Project;Có;CNPM;ĐA;2;0
+SE501;Thực tập tốt nghiệp;Internship;Có;CNPM;TTTN;2;0
+SE505;Khóa luận tốt nghiệp;Thesis;Có;CNPM;KLTN;10;0
+SE506;Đồ án tốt nghiệp tại doanh nghiệp;Industry Capstone Project;Có;CNPM;KLTN;10;0
+SE507;Đồ án tốt nghiệp;Capstone Project;Có;CNPM;ĐA;6;0
+SPCH2713;Kỹ năng giao tiếp;Introduction to Speech Communication;Có;HTTT;ĐC;2;0
+SPCH3723;Tiếng Anh chuyên ngành CNTT;English for computer science;Có;HTTT;ĐC;3;0
+SPCH3724;Kỹ năng giao tiếp;Communication skills;Có;HTTT;ĐC;3;0
+SS003;Tư tưởng Hồ Chí Minh;Ho Chi Minh’s Thoughts;Có;PĐTĐH;ĐC;2;0
+SS004;Kỹ năng nghề nghiệp;Professional skills;Có;PĐTĐH;ĐC;2;0
+SS006;Pháp luật đại cương;Introduction to law;Có;PĐTĐH;ĐC;2;0
+SS007;Triết học Mác – Lênin;Philosophy Marx - Lenin;Có;PĐTĐH;ĐC;3;0
+SS008;Kinh tế chính trị Mác – Lênin;Political economics of Marxism and Leninism;Có;PĐTĐH;ĐC;2;0
+SS009;Chủ nghĩa xã hội khoa học;Scientific socialism;Có;PĐTĐH;ĐC;2;0
+SS010;Lịch sử Đảng Cộng sản Việt Nam;History of Vietnamese communist party;Có;PĐTĐH;ĐC;2;0
+STAT3013;Phân tích thống kê;Intermediate Statistical Analysis;Có;HTTT;CS;3;0
+STAT4033;Thống kê;Statistics;Có;HTTT;ĐC;3;0
+THU086;Đào tạo năng lực thông tin;Information Literacy Training;Có;PĐTĐH;CN;2;0
+THU107;Truyền thông xã hội trong các tổ chức;Social Media in The Organization;Có;PĐTĐH;CN;2;0
+TLH025;Tâm lý học nhân cách;Psychology of Personality;Có;PĐTĐH;CN;3;0
+TOEIC450;TOEIC 450;TOEIC 450;Có;TTNN;ĐC;0;0
+CARC1;Kiến trúc máy tính;Computer Architecture;;KTMT;ĐC;3;0
+CE101;Lý thuyết mạch điện;Theory of electrical circuits;;KTMT;CSN;4;0
+CE102;Hệ thống số;Digital systems;;KTMT;CN;3;1
+CE104;Các thiết bị và mạch điện tử;Electronic devices and circuits;;KTMT;CSN;3;0
+CE106;Thiết kế vi mạch với HDL;Digital Circuit Design with HDL;;KTMT;CN;3;1
+CE107;Hệ thống nhúng;Embedded systems;;KTMT;CSN;3;1
+CE108;Hệ điều hành nâng cao;Advanced operating systems;;KTMT;CN;3;0
+CE109;Lập trình nhúng căn bản;"Introduction to embedded-system programming";;KTMT;CN;2;1
+CE110;Lập trình hệ thống với Java;System Programming with Java;;KTMT;CN;3;1
+CE111;Kiến trúc máy tính nâng cao;Advanced computer architecture;;KTMT;CĐTN;2;1
+CE112;Đồ án môn học thiết kế mạch;Circuit design project;;KTMT;ĐA;0;2
+CE113;Điều khiển tự động;Automatic Control;;KTMT;CN;3;0
+CE114;Lập trình trên thiết bị di động;Mobile device application development;;KTMT;CN;2;1
+CE115;Thiết kế mạng;Network design;;KTMT;CN;3;1
+CE116;Đồ án môn học ngành KTMT;Information engineering project;;KTMT;ĐA;0;2
+CE117;Thực hành điện- điện tử;Basic electrical and electronic laboratory;;KTMT;CSN;0;1
+CE202;An toàn mạng máy tính;Network security;;KTMT;CN;3;0
+CE203;Điều khiển tự động nâng cao;Advanced automatic control;;KTMT;CĐTN;3;0
+CE204;Thiết kế và lập trình Web;Web design and programming;;KTMT;CN;3;0
+CE205;Xử lý tín hiệu số;Digital signal processing;;KTMT;CN;3;1
+CE211;Lập trình nhúng căn bản;"Introduction to embedded-system programming";;KTMT;CN;3;1
+CE219;Tương tác người - máy;Human-computer interaction;;KTMT;CN;3;0
+CE221;Thiết kế vi mạch với HDL;Digital circuit design with HDL;;KTMT;CN;3;1
+CE301;Hệ thống chứng thực số;Digital identification systems;;KTMT;CN;3;0
+CE302;Thiết kế vi mạch;Circuits design;;KTMT;CN;2;1
+CE303;Robot công nghiệp;Industrial robotics;;KTMT;CN;3;0
+CE306;Thị giác máy tính;Computer vision;;KTMT;CN;3;0
+CE312;Hệ thống thời gian thực;Real-time systems;;KTMT;CN;3;0
+CE314;Trình biên dịch;Principles of compiler design;;KTMT;CN;3;0
+CE316;Logic mờ và ứng dụng;Fuzzy logic and applications;;KTMT;CN;3;0
+CE321;Kỹ thuật chế tạo vi mạch;Integrated circuit fabrication;;KTMT;CN;3;0
+CE322;Thiết kế vi mạch hỗn hợp;Mixed-signal integrated circuit design;;KTMT;CN;2;1
+CE324;Thiết kế vi mạch tương tự;Analog integrated circuit design;;KTMT;CN;2;1
+CE325;Thiết kế dựa trên vi xử lý;Microprocessor-based system design;;KTMT;CN;2;1
+CE326;Tự động hóa thiết kế vi mạch;Circuit-design automation;;KTMT;CN;2;1
+CE327;Tối ưu hóa dựa trên FPGA;FPGA-based optimization;;KTMT;CN;3;0
+CE401;Kỹ thuật hệ thống máy tính;Computer system engineering;;KTMT;CĐTN;3;0
+CE402;Các hệ điều hành nhúng;Embedded operating systems;;KTMT;CĐTN;3;1
+CE403;Thiết kế số;Digital design;;KTMT;CĐTN;3;1
+CE404;Kỹ thuật chế tạo vi mạch;Integrated Circuit Fabrication;;KTMT;CĐTN;3;0
+CM101;Quản lý giao tiếp;Communication management;;HTTT;ĐC;3;0
+CNET1;Mạng máy tính;Computer networks;;MMTTT;ĐC;3;1
+CS003;Máy học nâng cao;Advanced machine learning;;KHMT;CN;3;0
+CS004;Máy học trong xử lý ngôn ngữ tự nhiên;Machine learning in NLP;;KHMT;CN;3;0
+CS013;Máy học nâng cao;Advanced machine learning;;KHMT;CN;3;1
+CS014;Máy học trong xử lý ngôn ngữ tự nhiên;Machine learning in NLP;;KHMT;CN;3;1
+CS019;Chuyên đề ứng dụng Trí tuệ nhân tạo;Applied artificial intelligence;;KHMT;CN;4;0
+CS101;Nguyên lý và phương pháp lập trình;Principles and Techniques of Programming;;KHMT;CN;3;0
+CS102;Phân tích & thiết kế thuật toán;Design and analysis of algorithms;;KHMT;CN;3;0
+CS103;Cơ sở lập trình;Introduction to programming;;KHMT;CN;4;0
+CS104;Nhập môn công nghệ phần mềm;Software engineering;;KHMT;CN;3;0
+CS107;Các hệ cơ sở tri thức;Knowledge-Based Systems;;KHMT;CN;4;0
+CS108;Lý thuyết thông tin;Information theory;;KHMT;CN;3;0
+CS109;Máy học;Machine learning;;KHMT;CN;4;0
+CS210;Xử lý ngôn ngữ tự nhiên nâng cao;Advanced natural language processing;;KHMT;CN;4;0
+CS212;Xử lý ngôn ngữ tự nhiên;Natural Language Processing;;KHMT;CN;3;1
+CS213;Ngôn ngữ học máy tính;Computational linguistics;;;CN;4;0
+CS223;Máy học nâng cao;Advanced machine learning;;KHMT;CN;3;1
+CS224;Máy học xử lý ngôn ngữ tự nhiên;Machine learning in NLP;;KHMT;CN;3;1
+CS225;Lập trình symbolic trong trí tuệ nhân tạo;Symbolic Programming in Artificial Intelligence;;KHMT;CN;4;0
+CS227;Khai thác dữ liệu và ứng dụng;Data Mining and Applications;;KHMT;CN;3;1
+CS228;Máy học và ứng dụng;Machine learning and applications;;KHMT;CN;3;1
+CS233;Nhận dạng Thị giác;Visual Pattern Recognition;;KHMT;CN;3;1
+CS301;Chuyên đề nghiên cứu khoa học;Scientific Research Seminar;;KHMT;CN;4;0
+CS322;Biểu diễn tri thức và ứng dụng;Knowledge representation and applications;;KHMT;CN;4;0
+CS334;Lập trình tính toán hình thức;Programming for formal computing;;KHMT;CN;3;1
+CS351;Chuyên đề NCKH 1;Scientific Research 1;;KHMT;CN;4;0
+CS3513;Phương pháp số cho máy tính kỹ thuật số;Numerical methods for digital computers;;HTTT;CNTC;3;0
+CS352;Chuyên đề NCKH 2;Scientific Research 2;;KHMT;CN;4;0
+CS371;Seminar chuyên đề 1;Seminar 1;;KHMT;CN;2;0
+CS372;Seminar chuyên đề 2;Seminar 2;;KHMT;CN;2;0
+CS401;Công nghệ Java;Java technology;;KHMT;CĐTN;3;1
+CS402;Phân tích thiết kế HTTT quản lý;Management- information system analysis and design;;KHMT;CN;3;0
+CS403;Các dịch vụ web;Web services;;KHMT;CN;3;0
+CS404;Công nghệ đa tác tử (Muli- Agent);Multi-agent technology;;KHMT;CĐTN;4;0
+CS407;Các kỹ thuật trong xử lý NNTN;Advanced Techniques in Natural Language Processing;;KHMT;CĐTN;4;0
+CS408;Các hệ giải toán thông minh;Intelligent Problem- Solving Systems;;KHMT;CĐTN;4;0
+CS411;Dịch máy;Machine Translation;;KHMT;CĐTN;4;0
+CS415;Mã hóa thông tin;Encoding information;;KHMT;CĐTN;3;1
+CS417;Nhận dạng;Pattern recognition;;KHMT;CN;2;1
+CS418;Trực quan máy tính;Visual computing;;KHMT;CĐTN;3;1
+CS421;Khai thác dữ liệu đa phương tiện;Khai thác dữ liệu đa phương tiện;;KHMT;CĐTN;3;1
+CS4344;An ninh mạng;Cyber Security;;HTTT;CSN;3;0
+CS4883;Các vấn đề xã hội trong tính toán;Social issues in computing;;HTTT;CNTC;3;0
+CS501;Khóa luận tốt nghiệp;Thesis;;KHMT;KLTN;10;0
+CS502;Các công nghệ web và ứng dụng;Web technology and applications;;KHMT;CN;2;0
+CS503;Môn tốt nghiệp KHMT 2;Computer science;;KHMT;CN;3;0
+CS504;Công nghệ .NET;.Net technology;;KHMT;CN;3;1
+CS506;Chuyên đề J2EE;J2EE;;KHMT;CN;3;1
+CS507;Hệ điều hành Linux;Linux operating systems;;KHMT;CN;3;1
+CS508;Lập trình cơ sở dữ liệu;Database programming;;KHMT;CN;3;1
+CS510;Lý thuyết thông tin;Information theory;;KHMT;CN;3;0
+CS513;Ngôn ngữ lập trình Java;Java programming language;;KHMT;CN;3;1
+CS515;Phân tích thiết kế hệ thống thông tin;Information system analysis and design;;KHMT;CN;3;1
+CS516;Phân tích thiết kế hướng đối tượng với UML;Object-oriented analysis and design with UML;;KHMT;CN;3;1
+CS517;Quản lý dự án;Project management;;KHMT;CN;3;0
+CS518;Xây dựng phần mềm hướng đối tượng;Object-oriented software development;;KHMT;CN;3;1
+CS531;Đồ họa trong video game;Computer Graphics in Video Games;;KHMT;CN;3;1
+CSC01;Tin học đại cương;Introduction to informatics;;KHMT;CN;3;1
+CSC11;Khoa học máy tính I;Computer science I;;KHMT;CN;4;0
+CSC12;Khoa học máy tính II;Computer science II;;KHMT;CN;4;0
+CSC21;Tin học đại cương (TE);Introduction to informatics;;KHMT;CN;5;0
+CSKI1;Kỹ năng truyền thông làm việc nhóm;Teamwork and communication skills;;KHMT;CN;4;0
+DBSS1;Cơ sở dữ liệu;Database;;TTNN;ĐC;3;1
+DSAL1;Cấu trúc dữ liệu và giải thuật;Data Structures and Algorithms;;TTNN;ĐC;3;1
+DSAL2;Cấu trúc dữ liệu & giải thuật nâng cao;Advanced data structures and algorithms;;KHMT;ĐC;3;1
+EC202;Nhập môn quản trị chuỗi cung ứng;Supply Chain Management;;HTTT;CNTC;3;1
+EC203;Quản trị quan hệ khách hàng và nhà cung cấp;"Customer Relationship Management and Supplier Relationship Management";;HTTT;CN;3;1
+EC212;Thực tập doanh nghiệp;Industry Internship Program;;HTTT;TTTN;3;0
+EC219;Pháp luật trong thương mại điện tử;Law in E-Commerce;;HTTT;CN;3;0
+EC301;Tiếp thị trực tuyến (E- Marketing);E-Marketing;;HTTT;CN;3;1
+EC302;Thiết kế Hệ thống Thương mại điện tử;E-Commerce System Design;;HTTT;CN;3;1
+ECE02;Mạch số;Digital circuit;;BMTL;ĐC;3;1
+ECON3313;Kinh tế tiền tệ;Monetary economics;;HTTT;CNTC;3;0
+EN001;Anh văn 1;English 1;;BMAV;ĐC;4;0
+EN002;Anh văn 2;English 2;;BMAV;ĐC;4;0
+EN003;Anh văn 3;English 3;;BMAV;ĐC;4;0
+EN004;Anh văn 1;English 1;;BMAV;ĐC;4;0
+EN005;Anh văn 2;English 2;;BMAV;ĐC;4;0
+EN006;Anh văn 3;English 3;;BMAV;ĐC;4;0
+ENBT;Anh văn Bổ túc;English 0;;BMAV;BT;0;0
+ENG00;Anh văn 0;English 0;;TTNN;ĐC;0;0
+ENG11;Tiếng anh tăng cường I;Intensive English I;;TTNN;ĐC;0;0
+ENG12;Tiếng anh tăng cường II;Intensive English II;;TTNN;ĐC;0;0
+ENG13;Tiếng Anh I;English Composition I;;TTNN;ĐC;0;0
+ENG14;Tiếng Anh II;English Composition II;;TTNN;ĐC;0;0
+ENG15;Tiếng Anh chuyên ngành CNTT;English for computer science;;TTNN;ĐC;0;0
+ENGBT;Anh văn bổ túc;English 0;;TTNN;ĐC;0;0
+ENLS1;Nâng cao kỹ năng nghe, nói tiếng Anh 1;Nâng cao kỹ năng nghe, nói tiếng Anh 1;;TTNN;ĐC;0;0
+ENLS2;Nâng cao kỹ năng nghe, nói tiếng Anh 2;Nâng cao kỹ năng nghe, nói tiếng Anh 2;;TTNN;ĐC;0;0
+ENRW1;Nâng cao kỹ năng đọc, viết tiếng Anh 1;Nâng cao kỹ năng đọc, viết tiếng Anh 1;;TTNN;ĐC;0;0
+ENRW2;Nâng cao kỹ năng đọc, viết tiếng Anh 2;Nâng cao kỹ năng đọc, viết tiếng Anh 2;;TTNN;ĐC;0;0
+HCMT1;Tư tưởng Hồ Chí Minh;Ho Chi Minh's Ideology;;PĐTĐH;ĐC;2;0
+IE107;Thiết kế giao diện người dùng;Thiết kế giao diện người dùng;;KTTT;CSN;3;1
+IE202;Quản trị doanh nghiệp;Business management;;KTTT;CN;3;0
+IE208;Kiến trúc và tích hợp hệ thống;System Integration and Architecture;;KTTT;CNTC;3;0
+IE210;Hệ thống định vị toàn cầu (GPS);Global Positioning System;;KTTT;CNTC;3;0
+IE211;Tin học môi trường;Environmental Informatics;;KTTT;CNTC;2;0
+IE217;Máy học;Máy học;;KTTT;CNTC;3;1
+IE222;Phân tích dữ liệu bằng Python;Phân tích dữ liệu bằng Python;;KTTT;CN;3;1
+IE404;Khai phá truyền thông xã hội;Social Media Mining;;KTTT;CĐTN;3;0
+IS101;Thiết kế cơ sở dữ liệu;Database design;;HTTT;CN;3;1
+IS102;Các hệ cơ sở tri thức;Knowledge-based systems;;HTTT;CN;3;0
+IS103;Hệ quản trị cơ sở dữ liệu;Database Management Systems;;HTTT;CN;3;1
+IS104;Cơ sở dữ liệu phân tán;Distributed Databases;;HTTT;CN;3;1
+IS106;Khai thác dữ liệu;Data Mining;;HTTT;CN;3;1
+IS107;Hệ thống thông tin kế toán;Accounting Information Systems;;HTTT;CN;5;0
+IS202;Nhập môn công nghệ phần mềm;Software engineering;;HTTT;CN;3;1
+IS203;Lập trình cơ sở dữ liệu;Database programming;;HTTT;CN;3;1
+IS204;Nhập môn hệ thống thông tin địa lý;Introduction to Geographic Information Systems;;HTTT;CN;3;1
+IS205;PTTK hướng đối tượng với UML;Object-oriented Analysis and Design with UML;;HTTT;CN;3;1
+IS206;Lập trình ứng dụng Web với Java;Web application programming in Java;;HTTT;CN;3;1
+IS213;Đồ án xây dựng một hệ thống thông tin;Information system development;;HTTT;ĐA;3;0
+IS214;Thiết kế cơ sở dữ liệu;Database design;;HTTT;CN;3;1
+IS218;Kỹ năng tư vấn;Kỹ năng tư vấn;;HTTT;CNTC;2;0
+IS219;Pháp luật trong Thương mại điện tử;Pháp luật trong Thương mại điện tử;;HTTT;CNTC;3;0
+IS225;Khai thác dữ liệu và ứng dụng;Data mining and applications;;;CN;4;0
+IS253;Lập trình ứng dụng trên thiết bị di động;Mobile application programming;;HTTT;CN;2;1
+IS301;Thương mại điện tử;E-commerce;;HTTT;CN;3;0
+IS302;Phân tích không gian;Spatial analysis;;HTTT;CN;3;1
+IS303;Hệ cơ sở dữ liệu không gian;Spatial Database Systems;;HTTT;CN;3;1
+IS3033;Quản lý dự án hệ thống thông tin;IS-Project Management;;HTTT;CN;4;0
+IS304;Kho dữ liệu và OLAP;Data warehouse and OLAP;;HTTT;CN;3;1
+IS305;An toàn và bảo mật HTTT;Information systems security & protection;;HTTT;CN;3;0
+IS306;Hệ thống thông tin quản lý;Accounting information systems;;HTTT;CN;3;0
+IS3303;Phân tích thiết kế hệ thống;System Analysis and Design;;HTTT;CN;4;0
+IS337;Cơ sở dữ liệu nâng cao;Advanced databases;;HTTT;CN;3;1
+IS338;Dự báo kinh doanh;Markets analysis;;HTTT;CN;3;0
+IS343;Luật CNTT;Luật CNTT;;HTTT;CNTC;3;0
+IS4013;Thiết kế, quản lý và quản trị hệ CSDL;DBM design, management & administration;;HTTT;CN;3;0
+IS404;Kho dữ liệu và OLAP;Data Warehouse and OLAP;;HTTT;CĐTN;3;1
+IS4133;Công nghệ thông tin cho thương mại điện tử;Information Technologies for e- commerce;;HTTT;CN;3;0
+IS4263;Các ứng dụng thông minh và hỗ trợ ra quyết định;Decision Support and Busi.Intelligence Applications;;HTTT;CN;3;0
+IS4523;Hệ truyền thông dữ liệu;Data Communication Systems;;HTTT;CN;3;0
+IS501;Thực tập cuối khóa;Internship;;HTTT;TTTN;3;0
+IS5100;Thực tập cuối khóa;Internship;;HTTT;TT;4;0
+ITEM1;Nhập môn Quản trị doanh nghiệp;Initiation to Business Administration;;PĐTĐH;ĐC;2;0
+ITEW1;Nhập môn công tác kỹ sư;Introduction to Tasks of an Engineer;;TTNN;ĐC;2;0
+LIA01;Đại số tuyến tính;Linear Algebra;;BMTL;ĐC;3;0
+LIA11;Đại số tuyến tính;Linear Algebra;;BMTL;ĐC;3;0
+MA001;Giải tích 1;Calculus 1;;BMTL;ĐC;3;0
+MA002;Giải tích 2;Calculus 2;;BMTL;ĐC;3;0
+MAT01;Toán cao cấp A1;Advanced mathematics A1;;BMTL;ĐC;3;0
+MAT02;Toán cao cấp A2;Advanced mathematics A2;;BMTL;ĐC;4;0
+MAT04;Cấu trúc rời rạc;Discrete Structures;;BMTL;ĐC;4;0
+MAT11;Giải tích 1;Calculus 1;;BMTL;ĐC;4;0
+MAT12;Giải tích 2;Calculus 2;;BMTL;ĐC;3;0
+MAT14;Toán rời rạc cho máy tính;Discrete mathematics for computer;;BMTL;ĐC;3;0
+MAT21;Toán cao cấp A1 (TE);Advanced Mathematics A1;;BMTL;ĐC;4;0
+MAT22;Toán cao cấp A2 (TE);Advanced Mathematics A2;;BMTL;ĐC;4;0
+MAT23;Đại số tuyến tính;Linear Algebra;;BMTL;ĐC;4;0
+MAT24;Cấu trúc rời rạc (TE);Discrete structures;;BMTL;ĐC;4;0
+MEDU1;Giáo dục quốc phòng;Military Education;;GDQP;QP;0;0
+MLPE1;Kinh tế chính trị Mác-Lênin (TE);Marxism–Leninism political economy;;PĐTĐH;ĐC;5;0
+MLPE2;Kinh tế chính trị Mác-Lênin (TE1);Marxism–Leninism political economy;;PĐTĐH;ĐC;4;0
+MSIS4363;Các chủ đề nâng cao trong phát triển hệ thống;Advanced topics in systems development;;HTTT;CNTC;3;0
+MSIS4800;Hệ thống thông tin tính toán;Accounting information system;;HTTT;CNTC;3;0
+MSIS4801;Quản lý thông tin địa lý;Geospatial information management;;HTTT;CNTC;3;1
+NT102;Điện tử cho công nghệ thông tin;Electronics for information technology;;MMTTT;CSN;3;1
+NT107;Xử lý tín hiệu trong truyển thông;Signal Processing for Communications;;MMTTT;CN;3;1
+NT108;Mạng truyền thông và di động;Communication and mobile networks;;MMTTT;CN;3;0
+NT110;Tín hiệu và mạch;Signals and circuits;;MMTTT;CN;3;0
+NT112;Công nghệ mạng viễn thông;Communications technology;;MMTTT;CN;2;1
+NT116;Kỹ năng mềm;Soft skills;;MMTTT;CN;0;2
+NT119;Mật mã học;Cryptography;;MMTTT;CSN;3;1
+NT130;Cơ chế hoạt động của mã độc;Malware modus operandi;;MMTTT;CSN;3;1
+NT202;Đồ án môn Lập trình ứng dụng mạng;Project on Nerwork- Application Programming;;MMTTT;ĐA;0;2
+NT203;Đồ án chuyên ngành;Specialized Project;;MMTTT;ĐA;0;2
+NT206;Quản trị hệ thống mạng;Computer network administration;;MMTTT;CN;2;1
+NT301;Quản trị hệ thống mạng;Computer network administration;;MMTTT;CN;2;1
+NT302;Xây dựng chuẩn chính sách an toàn thông tin trong doanh nghiệp;Enterprise information security policy;;MMTTT;CN;2;1
+NT304;Ứng dụng truyền thông và an ninh thông tin;Applications of communications and information security;;MMTTT;CN;2;1
+NT305;Phát triển ứng dụng trên thiết bị di động;Mobile Application Development;;MMTTT;CN;2;1
+NT306;Kỹ thuật lập trình mạng trên Linux;Network programming techniques on Linux;;MMTTT;CN;3;0
+NT307;Xây dựng ứng dụng web;Web application development;;MMTTT;CN;2;1
+NT309;Lập trình trên Linux;Programming on Linux;;MMTTT;CN;2;1
+NT320;Công nghệ vệ tinh;Satelite technology;;MMTTT;CN;3;0
+NT321;Hệ thống tìm kiếm, phát hiện và ngăn ngừa xâm nhập;Intrusion Detection and Prevention System;;MMTTT;CN;2;1
+NT395;Phát triển ứng dụng trên thiết bị di động;Mobile application development;;MMTTT;CN;2;1
+NT401;An toàn mạng nâng cao;Advanced network security;;MMTTT;CN;2;1
+NT403;Tính toán lưới;Net Computing;;MMTTT;CN;2;1
+NT404;Khóa luận tốt nghiệp;Thesis;;MMTTT;KLTN;10;0
+NT407;Pháp chứng kỹ thuật số;Digital Forensics;;MMTTT;CN;2;1
+NT408;Bảo mật trên Internet;Cyber security;;MMTTT;CN;3;1
+NT501;Thực tập doanh nghiệp;Internship;;MMTTT;TTTN;3;0
+NT502;Thương mại Điện tử và Triển khai ứng dụng;E-commerce and applications;;MMTTT;CĐTN;2;1
+NT503;Bảo mật Internet;Cyber security;;MMTTT;CĐTN;2;1
+NT507;Xây dựng ứng dụng web;Web application development;;MMTTT;CĐTN;2;1
+NT509;Hệ thống đa tác tử di động thông minh;Intelligent mobile multi- agent systems;;MMTTT;CĐTN;2;1
+OOPT1;Lập trình hướng đối tượng;Object-Oriented Programming;;CNPM;ĐC;3;1
+OOPT2;Lập trình hướng đối tượng;Object-oriented programming;;CNPM;CSNN;4;1
+OSYS1;Hệ điều hành;Operating Systems;;MMTTT;ĐC;3;0
+OSYS2;Hệ điều hành;Operating systems;;MMTTT;ĐC;3;0
+PE001;Giáo dục thể chất 1;Physical education 1;;PĐTĐH;TC;0;0
+PE002;Giáo dục thể chất 2;Physical education 2;;PĐTĐH;TC;0;0
+PE003;Giáo dục thể chất 3;Physical education 3;;TTNN;TC;0;0
+PE012;Giáo dục thể chất;Physical education;;PĐTĐH;TC;0;0
+PEDU1;Giáo dục thể chất 1;Physical Education 1;;GDTC;TC;0;0
+PEDU2;Giáo dục thể chất 2;Physical Education 2;;PĐTĐH;TC;0;0
+PH003;Vật lý kỹ thuật;Technical physics;;BMTL;ĐC;4;0
+PHIL1;Những NLCB của chủ nghĩa Mác-Lênin;Fundamental Principles of Marxism-Leninism;;BMAV;ĐC;5;0
+PHIL2;Triết học Mác-Lênin;Marxist-Leninist philosophy;;PĐTĐH;ĐC;5;0
+PHY01;Vật lý đại cương A1;General physics A1;;BMTL;ĐC;3;0
+PHY02;Vật lý đại cương A2;General physics A2;;BMTL;ĐC;3;0
+PHY03;Vật lý đại cương A3;General physics A3;;BMTL;ĐC;2;0
+PHY11;General Physics 1;General Physics 1;;BMTL;ĐC;4;0
+PHY12;General Physics 2;General Physics 2;;BMTL;ĐC;4;0
+PHY22;Vật lý đại cương A2 (TE1);General physics A2;;BMTL;ĐC;4;0
+SE103;Các phương pháp lập trình;Programming Paradigms;;CNPM;CN;2;1
+SE105;Lập trình nhúng căn bản;Embedded-system Programming;;CNPM;CN;2;1
+SE107;Phân tích thiết kế hệ thống;System analysis and design;;CNPM;CN;3;1
+SE108;Kiểm chứng phần mềm;Software testing;;CNPM;CSN;2;1
+SE110;Phương pháp Phát triển phần mềm hướng đối tượng;"Phương pháp Phát triển phần mềm hướng đối tượng";;CNPM;CN;3;1
+SE207;Phân tích thiết kế hệ thống;System Analysis and Design;;CNPM;CN;3;1
+SE208;Kiểm chứng phần mềm;Software Testing;;CNPM;CN;2;1
+SE209;Phát triển, vận hành, bảo trì phần mềm;Software Development, Deployment and Maintenance;;CNPM;CN;3;0
+SE210;Quản lý dự án công nghệ thông tin;Information-Technology Project Management;;CNPM;CN;3;1
+SE211;Phát triển phần mềm hướng đối tượng;Object-oriented Software Development Methodology;;CNPM;CN;3;1
+SE212;Phát triển phần mềm mã nguồn mở;Open-source Software Development;;CNPM;CN;2;1
+SE213;Xử lý phân bố;Distributed Computing;;CNPM;CN;2;1
+SE311;Ngôn ngữ lập trình Java;Java Programming Language;;CNPM;CN;3;1
+SE312;Công nghệ .NET;.Net Technology;;CNPM;CN;3;1
+SE321;Lập trình trên thiết bị di động;Mobile Device Application Development;;CNPM;CN;4;0
+SE322;Công nghệ Web và ứng dụng;Web Technology and Applications;;CNPM;CN;2;0
+SE323;Thiết kế Game;Introduction to game design;;CNPM;CN;4;0
+SE324;Nhập môn lập trình 3D game;3D game engine design;;CNPM;CN;3;1
+SE326;Cơ sở dữ liệu nâng cao;Advanced Databases;;CNPM;CN;2;0
+SE333;Chuyên đề E-Government;E-Government;;CNPM;CN;2;0
+SE335;Công nghệ XML và ứng dụng;XML technology and applications;;CNPM;CN;3;1
+SE336;Phương pháp luận sáng tạo KH-CN;Scientific methodology and innovation;;CNPM;CN;2;0
+SE337;Các thuật toán thông minh;Intelligent Algorithms;;CNPM;CN;1;0
+SE338;Logic mờ;Fuzzy logic;;CNPM;CN;2;0
+SE339;Xử lý phân bổ;Distributed computing;;CNPM;CN;2;1
+SE340;Quản lý dự án công nghệ thông tin;Information-technology project management;;CNPM;CN;3;1
+SE342;Logic mờ;Fuzzy logic;;CNPM;CN;2;0
+SE345;Kỹ thuật lập trình nhúng;Embedded programming techniques;;CNPM;CN;3;1
+SE349;Nhập môn Quản trị doanh nghiệp;Introduction to business administration;;CNPM;CN;2;0
+SE402;Điện toán đám mây;Cloud computing;;CNPM;CĐTN;2;0
+SE418;Đồ án môn học chuyên ngành;Specialized Project;;CNPM;ĐA;3;0
+SMET1;Phương pháp NCKH trong tin học;Scientific Research Methodology in Informatics;;PĐTĐH;ĐC;2;0
+SMET2;Phương pháp luận sáng tạo KH-CN;Scientific Method and Innovation;;PĐTĐH;ĐC;2;0
+SOCI1;Chủ nghĩa xã hội khoa học;Scientific socialism;;PĐTĐH;ĐC;3;0
+SP3724;Kỹ năng giao tiếp;Communication Skills;;HTTT;ĐC;3;0
+SS001;Những nguyên lý cơ bản của chủ nghĩa Mác Lênin;Fundamental principles of Marxism-Leninism;;PĐTĐH;ĐC;5;0
+SS002;Đường lối cách mạng của Đảng CS Việt Nam;The revolutionary way of the communist party of Vietnam;;PĐTĐH;ĐC;3;0
+SS005;Phương pháp luận sáng tạo KH-CN;Scientific methodology and innovation;;PĐTĐH;ĐC;2;0
+SSKL1;Kỹ năng mềm;Soft skills;;PĐTĐH;ĐC;2;0
+STA01;Xác suất thống kê;Statistics;;BMAV;ĐC;3;0
+STAT11;Xác xuất thống kê;Statistics;;HTTT;ĐC;3;0
+VCPH1;Lịch sử Đảng CSVN;History of the Communist Party of Vietnam;;PĐTĐH;ĐC;3;0
+VCPL1;Đường lối cách mạng của Đảng CSVN;Revolution Directions of Vietnam Communist Party;;TTNN;ĐC;3;0
+WINP1;Lập trình trên Windows;Windows Programming;;CNPM;ĐC;3;1

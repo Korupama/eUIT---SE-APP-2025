@@ -1,0 +1,6 @@
+@eUIT.API_HostAddress = http://localhost:5128
+
+GET {{eUIT.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
