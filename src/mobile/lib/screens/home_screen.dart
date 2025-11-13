@@ -54,7 +54,7 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
                         left: 20,
                         right: 20,
                         top: 20,
-                        bottom: 96, // Space for custom bottom nav
+                        bottom: 84, // Updated from 88 to match new bottom nav height (68 + 16)
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,

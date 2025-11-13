@@ -59,7 +59,6 @@ class _MainScreenState extends State<MainScreen> {
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
         child: Container(
-          height: 80,
           decoration: BoxDecoration(
             color: isDark
                 ? AppTheme.darkBackground.withAlpha(249) // 0.98 opacity
@@ -83,10 +82,12 @@ class _MainScreenState extends State<MainScreen> {
             ],
           ),
           child: SafeArea(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                crossAxisAlignment: CrossAxisAlignment.center, // Changed from end to center
+                children: [
                 _NavItem(
                   iconData: Icons.apps_rounded,
                   label: loc.t('services'),
@@ -123,6 +124,7 @@ class _MainScreenState extends State<MainScreen> {
                   onTap: () => setState(() => _selectedIndex = 4),
                 ),
               ],
+            ),
             ),
           ),
         ),
@@ -163,8 +165,8 @@ class _NavItem extends StatelessWidget {
         child: InkWell(
           onTap: onTap,
           borderRadius: BorderRadius.circular(12),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8),
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 4), // Minimal padding
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -183,20 +185,20 @@ class _NavItem extends StatelessWidget {
                       builder: (context, color, child) {
                         return Icon(
                           iconData,
-                          size: 24,
+                          size: 20, // Further reduced from 22 to 20
                           color: color,
                         );
                       },
                     ),
                     if (isActive)
                       Positioned(
-                        top: -8,
+                        top: -5, // Adjusted from -6 to -5
                         left: 0,
                         right: 0,
                         child: Center(
                           child: Container(
-                            width: 4,
-                            height: 4,
+                            width: 3, // Reduced from 4 to 3
+                            height: 3, // Reduced from 4 to 3
                             decoration: BoxDecoration(
                               color: isDark
                                   ? Colors.blue.shade300
@@ -208,7 +210,7 @@ class _NavItem extends StatelessWidget {
                       ),
                   ],
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 2), // Keep at 2
                 // Label
                 TweenAnimationBuilder<Color?>(
                   duration: const Duration(milliseconds: 200),
@@ -222,9 +224,10 @@ class _NavItem extends StatelessWidget {
                     return Text(
                       label,
                       style: TextStyle(
-                        fontSize: 11,
+                        fontSize: 9, // Further reduced from 10 to 9
                         fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
                         color: color,
+                        height: 1.0, // Tighten line height
                       ),
                     );
                   },

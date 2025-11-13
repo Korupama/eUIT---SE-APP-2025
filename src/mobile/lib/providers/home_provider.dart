@@ -4,7 +4,7 @@ import '../models/notification_item.dart';
 import '../models/quick_action.dart';
 
 class HomeProvider extends ChangeNotifier {
-  bool _isLoading = false;
+  final bool _isLoading = false;
 
   HomeProvider() {
     _loadMock();

@@ -171,7 +171,7 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
                   opacity: _fadeAnimation,
                   child: Column(
                     children: [
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 16), // Reduced from 20
 
                       // Control buttons (Top Right)
                       Row(
@@ -189,12 +189,12 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
                         ],
                       ),
 
-                      const SizedBox(height: 60),
+                      const SizedBox(height: 40), // Reduced from 60
 
                       // Logo & Title
-                      _buildLogoSection(textColor, secondaryTextColor, loc),
+                      _buildLogoSection(textColor, secondaryTextColor, loc, isDark),
 
-                      const SizedBox(height: 60),
+                      const SizedBox(height: 40), // Reduced from 60
 
                       // Login Form
                       _buildLoginForm(
@@ -206,7 +206,7 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
                         loc: loc,
                       ),
 
-                      const SizedBox(height: 40),
+                      const SizedBox(height: 32), // Reduced from 40
                     ],
                   ),
                 ),
@@ -218,19 +218,19 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
     );
   }
 
-  Widget _buildLogoSection(Color textColor, Color secondaryTextColor, AppLocalizations loc) {
+  Widget _buildLogoSection(Color textColor, Color secondaryTextColor, AppLocalizations loc, bool isDark) {
     return Column(
       children: [
         Container(
-          width: 100,
-          height: 100,
+          width: 80, // Reduced from 100
+          height: 80, // Reduced from 100
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             color: Colors.white,
             boxShadow: AppTheme.glowShadow,
           ),
           child: Padding(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(16), // Reduced from 20
             child: SvgPicture.asset(
               'assets/icons/logo-uit.svg',
               colorFilter: const ColorFilter.mode(
@@ -240,15 +240,17 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
             ),
           ),
         ),
-        const SizedBox(height: 24),
+        const SizedBox(height: 20), // Reduced from 24
         Text(
           'UIT',
           style: AppTheme.headingLarge.copyWith(color: textColor),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 6), // Reduced from 8
         Text(
           loc.t('university_name'),
-          style: AppTheme.bodyMedium.copyWith(color: secondaryTextColor),
+          style: AppTheme.bodyMedium.copyWith(
+            color: isDark ? secondaryTextColor : Colors.black, // Black in light mode
+          ),
           textAlign: TextAlign.center,
         ),
       ],
@@ -264,7 +266,7 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
     required AppLocalizations loc,
   }) {
     return Container(
-      padding: const EdgeInsets.all(32),
+      padding: const EdgeInsets.all(28), // Reduced from 32
       decoration: BoxDecoration(
         color: cardColor.withAlpha(127),
         borderRadius: BorderRadius.circular(24),
@@ -281,14 +283,19 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
               style: AppTheme.headingMedium.copyWith(color: textColor),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: 28), // Reduced from 32
 
-            // Username Field
+            // Username Field with Enter key navigation
             ShakeWrapper(
               shake: _shakeUsername,
               child: TextFormField(
                 controller: _usernameController,
                 style: TextStyle(color: textColor),
+                textInputAction: TextInputAction.next, // Added for Enter key
+                onFieldSubmitted: (_) {
+                  // Move focus to password field when Enter is pressed
+                  FocusScope.of(context).nextFocus();
+                },
                 decoration: _buildInputDecoration(
                   label: loc.t('username'),
                   icon: Icons.person_outline,
@@ -303,15 +310,20 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
                 },
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 18), // Reduced from 20
 
-            // Password Field
+            // Password Field with Enter key to login
             ShakeWrapper(
               shake: _shakePassword,
               child: TextFormField(
                 controller: _passwordController,
                 obscureText: _obscurePassword,
                 style: TextStyle(color: textColor),
+                textInputAction: TextInputAction.done, // Added for Enter key
+                onFieldSubmitted: (_) {
+                  // Trigger login when Enter is pressed on password field
+                  _handleLogin();
+                },
                 decoration: _buildInputDecoration(
                   label: loc.t('password'),
                   icon: Icons.lock_outline,
@@ -338,7 +350,7 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
 
             // Error Message
             if (_errorMessage != null) ...[
-              const SizedBox(height: 12),
+              const SizedBox(height: 10), // Reduced from 12
               Text(
                 _errorMessage!,
                 style: TextStyle(
@@ -349,7 +361,7 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
               ),
             ],
 
-            const SizedBox(height: 24),
+            const SizedBox(height: 20), // Reduced from 24
 
             // Remember Me & Forgot Password
             Row(
@@ -391,7 +403,7 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
               ],
             ),
 
-            const SizedBox(height: 32),
+            const SizedBox(height: 28), // Reduced from 32
 
             // Login Button
             _buildLoginButton(textColor, loc),

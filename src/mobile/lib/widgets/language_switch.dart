@@ -31,18 +31,18 @@ class LanguageSwitch extends StatelessWidget {
         ),
         child: Stack(
           children: [
-            // Background flag - shows flag of CURRENT language on opposite side
+            // Background flag - VN flag doubled in size when Vietnamese is selected
             Positioned(
-              left: isVietnamese ? 34 : -4,
-              top: 6,
+              left: isVietnamese ? 23 : -4, // Adjusted position for larger VN flag
+              top: isVietnamese ? -2 : 6,    // Adjusted position for larger VN flag
               child: Opacity(
                 opacity: 0.4,
                 child: SvgPicture.asset(
                   isVietnamese
-                      ? 'assets/icons/vn-flag-circle.svg'  // When VN selected, show VN flag on EN side
-                      : 'assets/icons/en-flag-circle.svg',  // When EN selected, show EN flag on VN side
-                  width: 20,
-                  height: 20,
+                      ? 'assets/icons/vn-flag-circle.svg'  // VN flag DOUBLED (40x40)
+                      : 'assets/icons/en-flag-circle.svg',  // EN flag normal (20x20)
+                  width: isVietnamese ? 40 : 20,  // VN: 40px, EN: 20px
+                  height: isVietnamese ? 40 : 20, // VN: 40px, EN: 20px
                   fit: BoxFit.contain,
                 ),
               ),
