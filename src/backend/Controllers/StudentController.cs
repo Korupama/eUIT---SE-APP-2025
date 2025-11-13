@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using eUIT.API.Data;
 using eUIT.API.DTOs;
 using System.Security.Claims;
+using Npgsql;
 
 namespace eUIT.API.Controllers;
 
@@ -45,24 +46,26 @@ public class StudentsController : ControllerBase
         public int so_tin_chi_tich_luy { get; set; } = 0;
     }
 
+    private class TuitionInfo
+    {
+        public string hoc_ky { get; set; } = string.Empty;
+        public int so_tin_chi { get; set; }
+        public long hoc_phi { get; set; }
+        public long no_hoc_ky_truoc { get; set; }
+        public long da_dong { get; set; }
+        public long so_tien_con_lai { get; set; }
+    }
+
     // GET: api/students/nextclass
     [HttpGet("/nextclass")]
     public async Task<ActionResult<NextClassDto>> GetNextClass()
     {
-        var loggedInMssv = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        if (loggedInMssv == null)
-        {
-            return Forbid();
-        }
-
-        if (!int.TryParse(loggedInMssv, out int mssvInt))
-        {
-            return Forbid();
-        }
+        var (mssv, errorResult) = GetCurrentMssv();
+        if (errorResult != null) return errorResult;
 
         var NextClassResult = await
         _context.Database.SqlQuery<NextClassInfo>
-        ($"SELECT * FROM func_get_next_class({mssvInt})")
+        ($"SELECT * FROM func_get_next_class({mssv})")
         .FirstOrDefaultAsync();
 
         if (NextClassResult == null) return NoContent();
@@ -86,22 +89,12 @@ public class StudentsController : ControllerBase
     public async Task<ActionResult<StudentCardDto>> GetStudentCard()
     {
         // Bước 1: Xác định người dùng đang thực hiện yêu cầu từ Token
-        // Lấy mssv của người dùng đã đăng nhập từ claim trong JWT
-        var loggedInMssv = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        if (loggedInMssv == null)
-        {
-            return Forbid();
-        }
-
-        // Bước 2: Truy vấn thông tin sinh viên từ database ===
-        if (!int.TryParse(loggedInMssv, out int mssvInt))
-        {
-            return Forbid();
-        }
+        var (mssv, errorResult) = GetCurrentMssv();
+        if (errorResult != null) return errorResult;
 
         var student = await
             _context.Database.SqlQuery<CardInfoResult>(
-            $"SELECT * FROM func_get_student_card_info({mssvInt})")
+            $"SELECT * FROM func_get_student_card_info({mssv})")
             .FirstOrDefaultAsync();
 
         if (student == null)
@@ -139,18 +132,12 @@ public class StudentsController : ControllerBase
     [HttpGet("/quickgpa")]
     public async Task<ActionResult<QuickGpaDto>> GetQuickGpa()
     {
-        var loggedInMssv = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-        if (loggedInMssv == null) return Forbid();
-
-        if (!int.TryParse(loggedInMssv, out int mssvInt))
-        {
-            return Forbid();
-        }
+        var (mssv, errorResult) = GetCurrentMssv();
+        if (errorResult != null) return errorResult;
 
         var result = await
             _context.Database.SqlQuery<QuickGpa>(
-            $"SELECT * FROM func_calculate_gpa({mssvInt})")
+            $"SELECT * FROM func_calculate_gpa({mssv})")
             .FirstOrDefaultAsync();
 
         if (result == null)
@@ -165,5 +152,59 @@ public class StudentsController : ControllerBase
         };
 
         return Ok(gpaAndCredits);
+    }
+
+    /// <summary>
+    /// Retrieves tuition fee information for the currently authenticated student.
+    /// Can be filtered by academic year.
+    /// </summary>
+    /// <param name="filter_by_year">The academic year to filter by (e.g., "2023-2024"). If null, returns all tuition data.</param>
+    [HttpGet("tuition")]
+    public async Task<ActionResult<IEnumerable<TuitionDto>>> GetTuition([FromQuery] string? filter_by_year)
+    {
+        var (mssv, errorResult) = GetCurrentMssv();
+        if (errorResult != null) return errorResult;
+
+        // The database function func_get_student_tuition is expected to exist.
+        // It should accept mssv (student id) and an optional year filter.
+        // Use parameterized queries to prevent SQL injection.
+        var mssvParam = new NpgsqlParameter("p_mssv", mssv);
+        var yearParam = new NpgsqlParameter("p_year_filter", (object)filter_by_year ?? DBNull.Value);
+
+        var tuitionInfos = await _context.Database
+            .SqlQueryRaw<TuitionInfo>("SELECT * FROM func_get_student_tuition(@p_mssv, @p_year_filter)", mssvParam, yearParam)
+            .ToListAsync();
+
+        if (!tuitionInfos.Any())
+        {
+            return NotFound("Chưa phát sinh học phí");
+        }
+
+        var tuitionDtos = tuitionInfos.Select(t => new TuitionDto
+        {
+            HocKy = t.hoc_ky,
+            SoTinChi = t.so_tin_chi,
+            HocPhi = t.hoc_phi,
+            NoHocKyTruoc = t.no_hoc_ky_truoc,
+            DaDong = t.da_dong,
+            SoTienConLai = t.so_tien_con_lai
+        });
+
+        return Ok(tuitionDtos);
+    }
+    
+    private (int? mssv, ActionResult? errorResult) GetCurrentMssv()
+    {
+        var loggedInMssv = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (loggedInMssv == null)
+        {
+            return (null, Forbid());
+        }
+
+        if (!int.TryParse(loggedInMssv, out int mssvInt))
+        {
+            return (null, Forbid());
+        }
+        return (mssvInt, null);
     }
 }
