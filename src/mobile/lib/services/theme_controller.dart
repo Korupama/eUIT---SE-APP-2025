@@ -10,5 +10,10 @@ class ThemeController extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  void toggleTheme() {
+    _isDark = !_isDark;
+    notifyListeners();
+  }
 }
 

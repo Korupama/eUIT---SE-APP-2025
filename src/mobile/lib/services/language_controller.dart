@@ -14,4 +14,8 @@ class LanguageController extends ChangeNotifier {
     final isVi = _locale.languageCode.toLowerCase().startsWith('vi');
     setLocale(isVi ? const Locale('en') : const Locale('vi'));
   }
+
+  void toggleLanguage() {
+    toggle();
+  }
 }

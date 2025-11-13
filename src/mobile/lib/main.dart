@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
-import 'screens/login-screen.dart';
-import 'screens/home_screen.dart';
+import 'screens/modern_login_screen.dart';
 import 'screens/main_screen.dart';
 import 'services/theme_controller.dart';
 import 'services/language_controller.dart';
@@ -61,7 +60,7 @@ class MyApp extends StatelessWidget {
       ],
       supportedLocales: AppLocalizations.supportedLocales,
       routes: {
-        '/': (context) => const LoginScreen(),
+        '/': (context) => const ModernLoginScreen(),
         '/home': (context) => const MainScreen(),
       },
       initialRoute: '/',
