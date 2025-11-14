@@ -3,6 +3,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'screens/modern_login_screen.dart';
 import 'screens/main_screen.dart';
+import 'screens/chatbot.dart';
 import 'services/theme_controller.dart';
 import 'services/language_controller.dart';
 import 'providers/home_provider.dart';
@@ -16,6 +17,7 @@ void main() {
         ChangeNotifierProvider(create: (_) => ThemeController()),
         ChangeNotifierProvider(create: (_) => LanguageController()),
         ChangeNotifierProvider(create: (_) => HomeProvider()),
+        ChangeNotifierProvider(create: (_) => ChatbotProvider()),
       ],
       child: const MyApp(),
     ),
@@ -62,6 +64,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/': (context) => const ModernLoginScreen(),
         '/home': (context) => const MainScreen(),
+        '/chatbot': (context) => const ChatbotScreen(),
       },
       initialRoute: '/',
     );

@@ -6,6 +6,7 @@ import '../theme/app_theme.dart';
 import '../utils/app_localizations.dart';
 import '../widgets/animated_background.dart';
 import 'package:shimmer/shimmer.dart';
+import 'chatbot.dart';
 
 /// HomeScreen - Trang chủ Light Theme với bố cục mới
 class HomeScreen extends StatefulWidget {
@@ -18,6 +19,33 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMixin {
   @override
   bool get wantKeepAlive => true;
+
+  late ScrollController _scrollController;
+  bool _bubbleVisible = true;
+  double _lastOffset = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController = ScrollController();
+
+    _scrollController.addListener(() {
+      if (_scrollController.offset > _lastOffset) {
+        // scroll xuống → ẩn bubble
+        if (_bubbleVisible) setState(() => _bubbleVisible = false);
+      } else {
+        // scroll lên → hiện bubble
+        if (!_bubbleVisible) setState(() => _bubbleVisible = true);
+      }
+      _lastOffset = _scrollController.offset;
+    });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -47,6 +75,7 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
                     color: AppTheme.bluePrimary,
                     backgroundColor: isDark ? AppTheme.darkCard : Colors.white,
                     child: SingleChildScrollView(
+                      controller: _scrollController,
                       physics: const AlwaysScrollableScrollPhysics(
                         parent: BouncingScrollPhysics(),
                       ),
@@ -84,6 +113,59 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
                       ),
                     ),
                   ),
+          ),
+          // 🔥🔥 Chatbot Bubble Button (đã thêm vào đúng vị trí)
+          Positioned(
+              bottom: 90, // nằm trên bottom nav bar
+              right: 20,
+              child: AnimatedOpacity(
+                    duration: const Duration(milliseconds: 250),
+                    opacity: _bubbleVisible ? 1 : 0,
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const ChatbotScreen()),
+                        );
+                      },
+              child: Container(
+                    width: 62,
+                    height: 62,
+                    decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                    gradient: LinearGradient(
+                    colors: isDark
+                    ? [AppTheme.bluePrimary, AppTheme.blueLight]
+                        : [Colors.white, Colors.white70],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    ),
+                    boxShadow: [
+              BoxShadow(
+                    color: isDark
+                    ? AppTheme.bluePrimary.withOpacity(0.3)
+                        : Colors.black12,
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                    ),
+                    ],
+                    ),
+              child: ClipRRect(
+                    borderRadius: BorderRadius.circular(20),
+                    child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+              child: const Center(
+                    child: Icon(
+                    Icons.chat_bubble_outline_rounded,
+                    color: Colors.black,
+                    size: 28,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
           ),
         ],
       ),
