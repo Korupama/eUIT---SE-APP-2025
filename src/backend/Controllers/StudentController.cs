@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using eUIT.API.Data;
 using eUIT.API.DTOs;
 using System.Security.Claims;
+using HtmlAgilityPack;
 using Npgsql;
 
 namespace eUIT.API.Controllers;
@@ -260,6 +261,50 @@ public class StudentsController : ControllerBase
 
         var response = new ProgressTrackingDto { ProgressByGroup = progressByGroup };
         return Ok(response);
+    }
+
+    /// <summary>
+    /// Retrieves the academic year plan by scraping the university's website.
+    /// </summary>
+    /// <param name="download_image">This parameter is noted for future use but not implemented in the current logic.</param>
+    /// <returns>A dictionary of image descriptions and their corresponding URLs.</returns>
+    [AllowAnonymous] // Cho phép truy cập API này mà không cần đăng nhập
+    [HttpGet("/api/public/academic-plan")]
+    public async Task<ActionResult<Dictionary<string, string>>> GetAcademicPlan([FromQuery] bool download_image = false)
+    {
+        try
+        {
+            const string url = "https://student.uit.edu.vn/bieu-do-ke-hoach-dao-tao";
+            var web = new HtmlWeb();
+            var htmlDoc = await web.LoadFromWebAsync(url);
+
+            var result = new Dictionary<string, string>();
+
+            var imgNodes = htmlDoc.DocumentNode.SelectNodes("//img[@alt]");
+            if (imgNodes == null || !imgNodes.Any())
+            {
+                // Exception: "Dữ liệu chưa được công bố"
+                return NotFound("Dữ liệu chưa được công bố");
+            }
+
+            // Lấy node hình ảnh cuối cùng từ danh sách tìm thấy
+            var lastImgNode = imgNodes.Last();
+
+            string src = lastImgNode.GetAttributeValue("src", string.Empty);
+            string alt = lastImgNode.GetAttributeValue("alt", string.Empty);
+
+            if (!string.IsNullOrEmpty(src) && !string.IsNullOrEmpty(alt))
+            {
+                result[alt] = src;
+            }
+
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            // Trả về lỗi server nếu có vấn đề khi tải hoặc phân tích trang web
+            return StatusCode(500, $"An error occurred: {ex.Message}");
+        }
     }
 
     private (int? mssv, ActionResult? errorResult) GetCurrentMssv()
