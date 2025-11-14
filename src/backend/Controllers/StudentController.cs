@@ -287,16 +287,20 @@ public class StudentsController : ControllerBase
                 return NotFound("Dữ liệu chưa được công bố");
             }
 
-            // Lấy node hình ảnh cuối cùng từ danh sách tìm thấy
-            var lastImgNode = imgNodes.Last();
+            // Tìm node hình ảnh đầu tiên có cả 'src' và 'alt' không rỗng
+            var validImgNode = imgNodes.FirstOrDefault(node =>
+                !string.IsNullOrEmpty(node.GetAttributeValue("src", "")) &&
+                !string.IsNullOrEmpty(node.GetAttributeValue("alt", "")));
 
-            string src = lastImgNode.GetAttributeValue("src", string.Empty);
-            string alt = lastImgNode.GetAttributeValue("alt", string.Empty);
-
-            if (!string.IsNullOrEmpty(src) && !string.IsNullOrEmpty(alt))
+            if (validImgNode == null)
             {
-                result[alt] = src;
+                // Nếu không tìm thấy node nào hợp lệ, cũng coi như dữ liệu chưa có
+                return NotFound("Dữ liệu chưa được công bố");
             }
+
+            string src = validImgNode.GetAttributeValue("src", string.Empty);
+            string alt = validImgNode.GetAttributeValue("alt", string.Empty);
+            result[alt] = src;
 
             return Ok(result);
         }
