@@ -55,6 +55,20 @@ public class StudentsController : ControllerBase
         public long da_dong { get; set; }
         public long so_tien_con_lai { get; set; }
     }
+    
+    // Lớp private để ánh xạ kết quả từ hàm func_calculate_progress_tracking
+    private class TrainingProgressResult
+    {
+        public float overall_progress_percentage { get; set; }
+        public int total_required_credits { get; set; }
+        public int completed_credits { get; set; }
+        public int remaining_credits { get; set; }
+        public string? confirmation_status { get; set; } // Giả định DB trả về trạng thái xác nhận
+        public string course_id { get; set; } = string.Empty;
+        public string course_name { get; set; } = string.Empty;
+        public string course_group { get; set; } = string.Empty;
+        public string course_status { get; set; } = string.Empty;
+    }
 
     // GET: api/students/nextclass
     [HttpGet("/nextclass")]
@@ -62,10 +76,10 @@ public class StudentsController : ControllerBase
     {
         var (mssv, errorResult) = GetCurrentMssv();
         if (errorResult != null) return errorResult;
-
+        
+        var mssvParam = new NpgsqlParameter("p_mssv", mssv);
         var NextClassResult = await
-        _context.Database.SqlQuery<NextClassInfo>
-        ($"SELECT * FROM func_get_next_class({mssv})")
+        _context.Database.SqlQueryRaw<NextClassInfo>("SELECT * FROM func_get_next_class(@p_mssv)", mssvParam)
         .FirstOrDefaultAsync();
 
         if (NextClassResult == null) return NoContent();
@@ -92,9 +106,10 @@ public class StudentsController : ControllerBase
         var (mssv, errorResult) = GetCurrentMssv();
         if (errorResult != null) return errorResult;
 
+        var mssvParam = new NpgsqlParameter("p_mssv", mssv);
         var student = await
-            _context.Database.SqlQuery<CardInfoResult>(
-            $"SELECT * FROM func_get_student_card_info({mssv})")
+            _context.Database.SqlQueryRaw<CardInfoResult>(
+            "SELECT * FROM func_get_student_card_info(@p_mssv)", mssvParam)
             .FirstOrDefaultAsync();
 
         if (student == null)
@@ -135,9 +150,10 @@ public class StudentsController : ControllerBase
         var (mssv, errorResult) = GetCurrentMssv();
         if (errorResult != null) return errorResult;
 
+        var mssvParam = new NpgsqlParameter("p_mssv", mssv);
         var result = await
-            _context.Database.SqlQuery<QuickGpa>(
-            $"SELECT * FROM func_calculate_gpa({mssv})")
+            _context.Database.SqlQueryRaw<QuickGpa>(
+            "SELECT * FROM func_calculate_gpa(@p_mssv)", mssvParam)
             .FirstOrDefaultAsync();
 
         if (result == null)
@@ -193,6 +209,60 @@ public class StudentsController : ControllerBase
         return Ok(tuitionDtos);
     }
     
+    /// <summary>
+    /// Retrieves the training progress for the currently authenticated student.
+    /// </summary>
+    /// <param name="filter_by_group">Optional filter for course group (e.g., 'co_so', 'chuyen_nganh').</param>
+    [HttpGet("progress")]
+    public async Task<ActionResult<ProgressTrackingDto>> GetTrainingProgress([FromQuery] string? filter_by_group)
+    {
+        var (mssv, errorResult) = GetCurrentMssv();
+        if (errorResult != null) return errorResult;
+
+        // Sử dụng tham số để gọi hàm trong DB một cách an toàn
+        var mssvParam = new NpgsqlParameter("p_mssv", mssv);
+        var groupFilterParam = new NpgsqlParameter("p_group_filter", (object)filter_by_group ?? DBNull.Value);
+
+        var progressResults = await _context.Database
+            .SqlQueryRaw<TrainingProgressResult>(
+                "SELECT * FROM func_calculate_progress_tracking(@p_mssv, @p_group_filter)",
+                mssvParam, groupFilterParam)
+            .ToListAsync();
+
+        if (progressResults == null || !progressResults.Any())
+        {
+            // Xử lý lỗi khi không thể tải dữ liệu
+            return NotFound("Không thể tải dữ liệu");
+        }
+
+        // Lấy thông tin tổng quan từ dòng đầu tiên (giả định thông tin này lặp lại)
+        var firstRecord = progressResults.First();
+        var progressTrackingDto = new ProgressTrackingDto
+        {
+            OverallProgressPercentage = firstRecord.overall_progress_percentage,
+            TotalRequiredCredits = firstRecord.total_required_credits,
+            CompletedCredits = firstRecord.completed_credits,
+            RemainingCredits = firstRecord.remaining_credits
+        };
+
+        // Xử lý trường hợp "Đang chờ xác nhận"
+        if (firstRecord.confirmation_status == "pending")
+        {
+            progressTrackingDto.Message = "Đang chờ xác nhận";
+        }
+
+        // Ánh xạ chi tiết tiến độ của từng môn học
+        progressTrackingDto.ProgressDetails = progressResults.Select(p => new CourseProgressDto
+        {
+            CourseId = p.course_id,
+            CourseName = p.course_name,
+            Group = p.course_group,
+            Status = p.course_status
+        }).ToList();
+
+        return Ok(progressTrackingDto);
+    }
+
     private (int? mssv, ActionResult? errorResult) GetCurrentMssv()
     {
         var loggedInMssv = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
