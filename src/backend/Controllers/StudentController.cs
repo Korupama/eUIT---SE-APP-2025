@@ -24,12 +24,11 @@ public class StudentsController : ControllerBase
     public class NextClassInfo
     {
         public string ma_lop { get; set; }
-        public string ten_mon_hoc_vn { get; set; }
         public string thu { get; set; }
         public int tiet_bat_dau { get; set; }
         public int tiet_ket_thuc { get; set; }
         public string phong_hoc { get; set; }
-        public DateTime ngay_hoc { get; set; }
+        public DateTime next_date { get; set; }
     }
     private class CardInfoResult
     {
@@ -84,12 +83,11 @@ public class StudentsController : ControllerBase
         var NextClass = new NextClassDto
         {
             MaLop = NextClassResult.ma_lop,
-            TenLop = NextClassResult.ten_mon_hoc_vn,
             Thu = NextClassResult.thu,
             TietBatDau = NextClassResult.tiet_bat_dau,
             TietKetThuc = NextClassResult.tiet_ket_thuc,
             PhongHoc = NextClassResult.phong_hoc,
-            NgayHoc = NextClassResult.ngay_hoc
+            NgayHoc = NextClassResult.next_date
         };
 
         return Ok(NextClass);
