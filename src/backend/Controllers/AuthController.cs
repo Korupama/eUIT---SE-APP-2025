@@ -61,7 +61,7 @@ public class AuthController : ControllerBase
 
         if (isAuth)
         {
-            var token = _tokenService.CreateToken(loginRequest.userId ?? string.Empty, loginRequest.role ?? string.Empty);
+            var token = _tokenService.CreateToken(loginRequest.userId, loginRequest.role);
             return Ok(new { token = token });
         }
         return Unauthorized(new { message = "Invalid credentials" });

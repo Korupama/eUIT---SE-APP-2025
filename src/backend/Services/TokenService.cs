@@ -27,7 +27,7 @@ public class TokenService : ITokenService
             new Claim(ClaimTypes.Role, role)
         };
         // 2. Lấy key từ appsettings.json
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"] ?? throw new InvalidOperationException("Jwt:Key not configured")));
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
 
         // 3. Tạo "chứng thực ký" bằng thuật toán an toàn
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
@@ -38,8 +38,8 @@ public class TokenService : ITokenService
             Subject = new ClaimsIdentity(claims),
             Expires = DateTime.Now.AddDays(1), // Token sẽ hết hạn sau 1 ngày
             SigningCredentials = creds,
-            Issuer = _config["Jwt:Issuer"] ?? throw new InvalidOperationException("Jwt:Issuer not configured"),
-            Audience = _config["Jwt:Audience"] ?? throw new InvalidOperationException("Jwt:Audience not configured")
+            Issuer = _config["Jwt:Issuer"],
+            Audience = _config["Jwt:Audience"]
         };
 
         // 5. Tạo token dựa trên bản mô tả
