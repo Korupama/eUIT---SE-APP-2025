@@ -11,7 +11,7 @@ import 'utils/app_colors.dart';
 import 'screens/settings_screen.dart';
 import 'screens/profile_screen.dart';
 import 'screens/notification_preferences.dart';
-import 'screens/change_password_screen.dart';
+// change_password_screen removed - change password now opens external auth site
 
 void main() {
   runApp(
@@ -69,7 +69,6 @@ class MyApp extends StatelessWidget {
         '/settings': (context) => const SettingsScreen(),
         '/profile': (context) => const ProfileScreen(),
         '/notification_preferences': (context) => const NotificationPreferencesScreen(),
-        '/change_password': (context) => const ChangePasswordScreen(),
       },
       initialRoute: '/',
     );

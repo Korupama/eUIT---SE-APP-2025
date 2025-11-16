@@ -277,8 +277,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           trailing: const Icon(Icons.open_in_new_rounded),
                           onTap: () async {
                             final url = Uri.parse('https://auth.uit.edu.vn/');
-                            if (await canLaunchUrl(url)) {
-                              await launchUrl(url, mode: LaunchMode.externalApplication);
+                            try {
+                              final launched = await launchUrl(url, mode: LaunchMode.externalApplication);
+                              if (!launched && mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text(AppLocalizations.of(context).t('link_open_failed')), backgroundColor: AppTheme.error),
+                                );
+                              }
+                            } catch (e) {
+                              if (mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text('${AppLocalizations.of(context).t('error_prefix')}${e.toString()}'), backgroundColor: AppTheme.error),
+                                );
+                              }
                             }
                           },
                         ),
@@ -328,8 +339,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 'subject': loc.t('feedback_subject'),
                               },
                             );
-                            if (await canLaunchUrl(emailUri)) {
-                              await launchUrl(emailUri);
+                            try {
+                              final launched = await launchUrl(emailUri);
+                              if (!launched && mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(loc.t('link_open_failed')), backgroundColor: AppTheme.error));
+                            } catch (e) {
+                              if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${loc.t('error_prefix')}${e.toString()}'), backgroundColor: AppTheme.error));
                             }
                           },
                         ),
@@ -339,8 +353,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           trailing: const Icon(Icons.open_in_new_rounded),
                           onTap: () async {
                             final url = Uri.parse('https://example.com/privacy');
-                            if (await canLaunchUrl(url)) {
-                              await launchUrl(url, mode: LaunchMode.externalApplication);
+                            try {
+                              final launched = await launchUrl(url, mode: LaunchMode.externalApplication);
+                              if (!launched && mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(loc.t('link_open_failed')), backgroundColor: AppTheme.error));
+                            } catch (e) {
+                              if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${loc.t('error_prefix')}${e.toString()}'), backgroundColor: AppTheme.error));
                             }
                           },
                         ),

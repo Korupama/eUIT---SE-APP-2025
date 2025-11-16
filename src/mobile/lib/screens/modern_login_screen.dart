@@ -125,18 +125,16 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
   Future<void> _handleForgotPassword() async {
     final url = Uri.parse('https://auth.uit.edu.vn/ForgotPassword.aspx');
     try {
-      if (await canLaunchUrl(url)) {
-        await launchUrl(url, mode: LaunchMode.externalApplication);
-      } else {
-        if (mounted) {
-          final loc = AppLocalizations.of(context);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(loc.t('link_open_failed')),
-              backgroundColor: AppTheme.error,
-            ),
-          );
-        }
+      // Try launching directly; some devices/emulators return false for canLaunchUrl
+      final launched = await launchUrl(url, mode: LaunchMode.externalApplication);
+      if (!launched && mounted) {
+        final loc = AppLocalizations.of(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(loc.t('link_open_failed')),
+            backgroundColor: AppTheme.error,
+          ),
+        );
       }
     } catch (e) {
       if (mounted) {
