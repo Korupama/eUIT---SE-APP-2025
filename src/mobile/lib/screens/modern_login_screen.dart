@@ -29,7 +29,8 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
   bool _obscurePassword = true;
   bool _rememberMe = false;
   bool _isLoading = false;
-  String? _errorMessage;
+  String? _errorMessage; // keep for non-coded generic errors
+  String? _errorKey; // holds localization key like 'invalid_credentials'
   bool _shakeUsername = false;
   bool _shakePassword = false;
 
@@ -61,6 +62,7 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
   Future<void> _handleLogin() async {
     setState(() {
       _errorMessage = null;
+      _errorKey = null; // reset error key so it can re-localize
       _shakeUsername = false;
       _shakePassword = false;
     });
@@ -97,16 +99,15 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
       }
     } catch (e) {
       if (mounted) {
-        String message;
-        final loc = AppLocalizations.of(context);
         final errorText = e.toString().replaceAll('Exception: ', '');
-        if (errorText == 'invalid_credentials') {
-          message = loc.t('invalid_credentials');
-        } else {
-          message = errorText;
-        }
         setState(() {
-          _errorMessage = message;
+          if (errorText == 'invalid_credentials') {
+            _errorKey = 'invalid_credentials'; // store key only
+            _errorMessage = null; // ensure old message cleared
+          } else {
+            _errorMessage = errorText; // fallback raw message
+            _errorKey = null;
+          }
           _passwordController.clear();
           _shakePassword = true;
         });
@@ -357,11 +358,13 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
             ),
 
             // Error Message
-            if (_errorMessage != null) ...[
-              const SizedBox(height: 10), // Reduced from 12
+            if (_errorKey != null || _errorMessage != null) ...[
+              const SizedBox(height: 10),
               Text(
-                _errorMessage!,
-                style: TextStyle(
+                _errorKey != null
+                    ? loc.t(_errorKey!) // dynamic localization
+                    : _errorMessage!,
+                style: const TextStyle(
                   color: AppTheme.error,
                   fontSize: 14,
                 ),
