@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DataSourcePerFileMappings">
+    <file url="file://$APPLICATION_CONFIG_DIR$/consoles/db/359ffda5-7a44-43e8-a543-d4271c3fe423/console.sql" value="359ffda5-7a44-43e8-a543-d4271c3fe423" />
+    <file url="file://$PROJECT_DIR$/sql/init.sql" value="359ffda5-7a44-43e8-a543-d4271c3fe423" />
+    <file url="file://$PROJECT_DIR$/sql/qldt.sql" value="359ffda5-7a44-43e8-a543-d4271c3fe423" />
+  </component>
+</project>
