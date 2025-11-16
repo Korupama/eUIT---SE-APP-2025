@@ -269,36 +269,74 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Time badge
-              Text(
-                schedule.timeRange,
-                style: TextStyle(
-                  color: isDark ? AppTheme.bluePrimary : AppTheme.bluePrimary,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              const SizedBox(height: 10),
+              // Row for Title and Countdown
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // Left side: Course Info
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Time badge
+                        Text(
+                          schedule.timeRange,
+                          style: TextStyle(
+                            color: isDark ? AppTheme.bluePrimary : AppTheme.bluePrimary,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
 
-              // Course code
-              Text(
-                schedule.courseCode,
-                style: TextStyle(
-                  color: isDark ? Colors.white : Colors.black87,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              const SizedBox(height: 6),
+                        // Course code
+                        Text(
+                          schedule.courseCode,
+                          style: TextStyle(
+                            color: isDark ? Colors.white : Colors.black87,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
 
-              // Course name
-              Text(
-                schedule.courseName,
-                style: TextStyle(
-                  color: isDark ? Colors.white : Colors.black87,
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                ),
+                        // Course name
+                        Text(
+                          schedule.courseName,
+                          style: TextStyle(
+                            color: isDark ? Colors.white : Colors.black87,
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  // Right side: Countdown
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        loc.t('starts_in'),
+                        style: TextStyle(
+                          color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
+                          fontSize: 13,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        schedule.countdown,
+                        style: TextStyle(
+                          color: isDark ? AppTheme.bluePrimary : AppTheme.bluePrimary,
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
               const SizedBox(height: 14),
 
@@ -311,39 +349,21 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
                   _buildDetailChip('GV: ${schedule.lecturer}', isDark),
                 ],
               ),
-              const SizedBox(height: 14),
+              const SizedBox(height: 10), // Reduced space
 
-              // Countdown
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    loc.t('starts_in'),
-                    style: TextStyle(
-                      color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
-                      fontSize: 13,
-                    ),
+              // View schedule button aligned to the right
+              Align(
+                alignment: Alignment.centerLeft,
+                child: TextButton.icon(
+                  onPressed: () {},
+                  style: TextButton.styleFrom(
+                    foregroundColor: AppTheme.bluePrimary,
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4), // Compact padding
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap, // Reduce tap area
                   ),
-                  Text(
-                    schedule.countdown,
-                    style: TextStyle(
-                      color: isDark ? AppTheme.bluePrimary : AppTheme.bluePrimary,
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 14),
-
-              // View schedule button
-              TextButton.icon(
-                onPressed: () {},
-                style: TextButton.styleFrom(
-                  foregroundColor: AppTheme.bluePrimary,
+                  icon: const Icon(Icons.arrow_forward_rounded, size: 18),
+                  label: Text(loc.t('view_full_schedule')),
                 ),
-                icon: const Icon(Icons.arrow_forward_rounded, size: 18),
-                label: Text(loc.t('view_full_schedule')),
               ),
             ],
           ),
