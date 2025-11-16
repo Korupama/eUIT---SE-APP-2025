@@ -131,7 +131,7 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
                 children: [
                   // Avatar: tappable to show profile (temporary)
                   GestureDetector(
-                    onTap: () => _showProfileDialog(loc, isDark),
+                    onTap: () => Navigator.pushNamed(context, '/profile'),
                     child: Container(
                       width: 48,
                       height: 48,
@@ -908,63 +908,6 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
                 loc.t('gpa_details_soon'),
                 style: TextStyle(color: isDark ? Colors.grey.shade400 : Colors.grey.shade600, fontSize: 12),
                 textAlign: TextAlign.center,
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text(loc.t('close')),
-            )
-          ],
-        );
-      },
-    );
-  }
-
-  // Temporary profile dialog shown when tapping avatar
-  void _showProfileDialog(AppLocalizations loc, bool isDark) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          backgroundColor: isDark ? AppTheme.darkCard : Colors.white,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          title: Text(
-            loc.t('profile'),
-            style: TextStyle(color: isDark ? Colors.white : Colors.black87),
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  color: isDark ? Colors.white.withAlpha(10) : AppTheme.lightCard,
-                  border: Border.all(color: isDark ? Colors.white24 : AppTheme.lightBorder),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    const Icon(Icons.person_pin, size: 48, color: AppTheme.bluePrimary),
-                    const SizedBox(height: 12),
-                    Text(
-                      loc.t('coming_soon'),
-                      style: TextStyle(
-                        color: isDark ? Colors.white : Colors.black87,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      loc.t('profile_preview_coming_soon'),
-                      style: TextStyle(color: isDark ? Colors.grey.shade400 : Colors.grey.shade600, fontSize: 12),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ),
               ),
             ],
           ),
