@@ -1,4 +1,4 @@
-// ...existing code...
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -11,6 +11,7 @@ import '../utils/app_localizations.dart';
 import '../theme/app_theme.dart';
 import '../widgets/theme_switch.dart';
 import '../widgets/language_switch.dart';
+import '../widgets/animated_background.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -82,9 +83,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final languageController = context.watch<LanguageController>();
 
     final bg = isDark ? AppTheme.darkBackground : const Color(0xFFF7F8FC);
-    final card = isDark ? AppTheme.darkCard : AppTheme.lightCard;
     final textColor = isDark ? AppTheme.darkText : AppTheme.lightText;
-    final secondary = isDark ? AppTheme.darkTextSecondary : AppTheme.lightTextSecondary;
+    final secondary = isDark ? Colors.grey.shade400 : Colors.grey.shade600;
 
     return Scaffold(
       appBar: AppBar(
@@ -93,181 +93,282 @@ class _SettingsScreenState extends State<SettingsScreen> {
         elevation: 0,
       ),
       backgroundColor: bg,
-      body: ListView(
-        padding: const EdgeInsets.symmetric(vertical: 12),
+      body: Stack(
         children: [
-          // Header
-          InkWell(
-            onTap: () {
-              Navigator.pushNamed(context, '/profile');
-            },
-            child: Container(
-              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: card,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Row(
-                children: [
-                  CircleAvatar(
-                    radius: 30,
-                    backgroundColor: AppTheme.bluePrimary,
-                    child: const Text('NV', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+          // Use the same animated background as HomeScreen; pass current isDark
+          if (isDark)
+            const Positioned.fill(
+              child: AnimatedBackground(isDark: true),
+            ),
+          ListView(
+            padding: const EdgeInsets.only(left: 20, right: 20, top: 20, bottom: 84),
+            children: [
+              // Header (make it visually match HomeScreen header)
+              GestureDetector(
+                onTap: () => Navigator.pushNamed(context, '/profile'),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(16),
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                    child: Container(
+                      margin: const EdgeInsets.symmetric(vertical: 8),
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: isDark
+                            ? AppTheme.darkBackground.withAlpha(242)
+                            : Colors.white.withAlpha(229),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: isDark ? Colors.white.withAlpha(26) : Colors.grey.shade200.withAlpha(204),
+                          width: 1,
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          // Use same gradient avatar as HomeScreen (48x48 with icon)
+                          Container(
+                            width: 48,
+                            height: 48,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              gradient: const LinearGradient(
+                                colors: [AppTheme.bluePrimary, AppTheme.blueLight],
+                              ),
+                            ),
+                            child: const Icon(Icons.person, color: Colors.white, size: 28),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text('Nguyễn Văn A', style: TextStyle(color: textColor, fontWeight: FontWeight.bold, fontSize: 16)),
+                                const SizedBox(height: 4),
+                                Text('MSSV: B1234567', style: TextStyle(color: secondary, fontSize: 12)),
+                              ],
+                            ),
+                          ),
+                          Icon(Icons.chevron_right_rounded, color: secondary),
+                        ],
+                      ),
+                    ),
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(
+                ),
+              ),
+
+              const SizedBox(height: 8),
+
+              // Group 1: Interface & Language
+              _buildSectionTitle('Giao diện & Ngôn ngữ', isDark),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                  child: Container(
+                    margin: const EdgeInsets.symmetric(vertical: 6),
+                    decoration: BoxDecoration(
+                      color: isDark ? AppTheme.darkBackground.withAlpha(229) : Colors.white.withAlpha(242),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: isDark ? Colors.white.withAlpha(26) : Colors.grey.shade200,
+                        width: 1,
+                      ),
+                    ),
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Nguyễn Văn A', style: TextStyle(color: textColor, fontWeight: FontWeight.w600, fontSize: 16)),
-                        const SizedBox(height: 4),
-                        Text('MSSV: B1234567', style: TextStyle(color: secondary)),
+                        ListTile(
+                          title: Text(
+                            'Chế độ giao diện',
+                            style: TextStyle(
+                              color: isDark ? Colors.white : Colors.black87,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          subtitle: Text(
+                            themeController.isDark ? 'Tối' : 'Sáng',
+                            style: TextStyle(color: secondary, fontSize: 12),
+                          ),
+                          trailing: ThemeSwitch(
+                            isDark: themeController.isDark,
+                            onToggle: () => themeController.toggleTheme(),
+                          ),
+                          onTap: () => themeController.toggleTheme(),
+                        ),
+                        const Divider(height: 1),
+                        ListTile(
+                          title: Text(
+                            'Ngôn ngữ',
+                            style: TextStyle(
+                              color: isDark ? Colors.white : Colors.black87,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          subtitle: Text(
+                            languageController.locale.languageCode == 'vi' ? 'Tiếng Việt' : 'English',
+                            style: TextStyle(color: secondary, fontSize: 12),
+                          ),
+                          trailing: LanguageSwitch(
+                            isVietnamese: languageController.locale.languageCode == 'vi',
+                            onToggle: () => languageController.toggleLanguage(),
+                          ),
+                          onTap: () => languageController.toggleLanguage(),
+                        ),
                       ],
                     ),
                   ),
-                  Icon(Icons.chevron_right_rounded, color: secondary),
-                ],
+                ),
               ),
-            ),
-          ),
 
-          const SizedBox(height: 8),
-
-          // Group 1: Interface & Language
-          _buildSectionTitle('Giao diện & Ngôn ngữ'),
-          Card(
-            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            child: Column(
-              children: [
-                ListTile(
-                  title: const Text('Chế độ giao diện'),
-                  subtitle: Text(themeController.isDark ? 'Tối' : 'Sáng'),
-                  trailing: ThemeSwitch(
-                    isDark: themeController.isDark,
-                    onToggle: () => themeController.toggleTheme(),
+              // Group 2: Notifications
+              _buildSectionTitle('Thông báo', isDark),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                  child: Container(
+                    margin: const EdgeInsets.symmetric(vertical: 6),
+                    decoration: BoxDecoration(
+                      color: isDark ? AppTheme.darkBackground.withAlpha(229) : Colors.white.withAlpha(242),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: isDark ? Colors.white.withAlpha(26) : Colors.grey.shade200,
+                        width: 1,
+                      ),
+                    ),
+                    child: Column(
+                      children: [
+                        SwitchListTile(
+                          title: Text('Nhận thông báo đẩy', style: TextStyle(color: isDark ? Colors.white : Colors.black87, fontWeight: FontWeight.w600)),
+                          value: _pushNotifications,
+                          onChanged: (v) => _setPushPref(v),
+                        ),
+                        const Divider(height: 1),
+                        ListTile(
+                          title: Text('Tùy chỉnh thông báo', style: TextStyle(color: isDark ? Colors.white : Colors.black87, fontWeight: FontWeight.w600)),
+                          trailing: const Icon(Icons.chevron_right_rounded),
+                          onTap: () => Navigator.pushNamed(context, '/notification_preferences'),
+                        ),
+                      ],
+                    ),
                   ),
-                  onTap: () => themeController.toggleTheme(),
                 ),
-                const Divider(height: 1),
-                ListTile(
-                  title: const Text('Ngôn ngữ'),
-                  subtitle: Text(languageController.locale.languageCode == 'vi' ? 'Tiếng Việt' : 'English'),
-                  trailing: LanguageSwitch(
-                    isVietnamese: languageController.locale.languageCode == 'vi',
-                    onToggle: () => languageController.toggleLanguage(),
+              ),
+
+              // Group 3: Account & Security
+              _buildSectionTitle('Tài khoản & Bảo mật', isDark),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                  child: Container(
+                    margin: const EdgeInsets.symmetric(vertical: 6),
+                    decoration: BoxDecoration(
+                      color: isDark ? AppTheme.darkBackground.withAlpha(229) : Colors.white.withAlpha(242),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: isDark ? Colors.white.withAlpha(26) : Colors.grey.shade200,
+                        width: 1,
+                      ),
+                    ),
+                    child: Column(
+                      children: [
+                        ListTile(
+                          title: Text('Đổi mật khẩu', style: TextStyle(color: isDark ? Colors.white : Colors.black87, fontWeight: FontWeight.w600)),
+                          trailing: const Icon(Icons.open_in_new_rounded),
+                          onTap: () async {
+                            final url = Uri.parse('https://auth.uit.edu.vn/');
+                            if (await canLaunchUrl(url)) {
+                              await launchUrl(url, mode: LaunchMode.externalApplication);
+                            }
+                          },
+                        ),
+                        const Divider(height: 1),
+                        ListTile(
+                          title: Text('Đăng xuất', style: TextStyle(color: isDark ? Colors.white : Colors.black87, fontWeight: FontWeight.w600)),
+                          trailing: const Icon(Icons.exit_to_app_rounded),
+                          onTap: _confirmLogout,
+                        ),
+                      ],
+                    ),
                   ),
-                  onTap: () => languageController.toggleLanguage(),
                 ),
-              ],
-            ),
-          ),
+              ),
 
-          // Group 2: Notifications
-          _buildSectionTitle('Thông báo'),
-          Card(
-            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            child: Column(
-              children: [
-                SwitchListTile(
-                  title: const Text('Nhận thông báo đẩy'),
-                  value: _pushNotifications,
-                  onChanged: (v) => _setPushPref(v),
+              // Group 4: About
+              _buildSectionTitle('Về ứng dụng', isDark),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                  child: Container(
+                    margin: const EdgeInsets.symmetric(vertical: 6),
+                    decoration: BoxDecoration(
+                      color: isDark ? AppTheme.darkBackground.withAlpha(229) : Colors.white.withAlpha(242),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: isDark ? Colors.white.withAlpha(26) : Colors.grey.shade200,
+                        width: 1,
+                      ),
+                    ),
+                    child: Column(
+                      children: [
+                        ListTile(
+                          title: Text('Phiên bản', style: TextStyle(color: isDark ? Colors.white : Colors.black87, fontWeight: FontWeight.w600)),
+                          subtitle: const Text('1.0.0'),
+                        ),
+                        const Divider(height: 1),
+                        ListTile(
+                          title: Text('Gửi phản hồi & Báo lỗi', style: TextStyle(color: isDark ? Colors.white : Colors.black87, fontWeight: FontWeight.w600)),
+                          trailing: const Icon(Icons.chevron_right_rounded),
+                          onTap: () async {
+                            final Uri emailUri = Uri(
+                              scheme: 'mailto',
+                              path: 'support@example.com',
+                              queryParameters: {
+                                'subject': 'Phản hồi eUIT',
+                              },
+                            );
+                            if (await canLaunchUrl(emailUri)) {
+                              await launchUrl(emailUri);
+                            }
+                          },
+                        ),
+                        const Divider(height: 1),
+                        ListTile(
+                          title: Text('Chính sách bảo mật', style: TextStyle(color: isDark ? Colors.white : Colors.black87, fontWeight: FontWeight.w600)),
+                          trailing: const Icon(Icons.open_in_new_rounded),
+                          onTap: () async {
+                            final url = Uri.parse('https://example.com/privacy');
+                            if (await canLaunchUrl(url)) {
+                              await launchUrl(url, mode: LaunchMode.externalApplication);
+                            }
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
-                const Divider(height: 1),
-                ListTile(
-                  title: const Text('Tùy chỉnh thông báo'),
-                  trailing: const Icon(Icons.chevron_right_rounded),
-                  onTap: () => Navigator.pushNamed(context, '/notification_preferences'),
-                ),
-              ],
-            ),
-          ),
+              ),
 
-          // Group 3: Account & Security
-          _buildSectionTitle('Tài khoản & Bảo mật'),
-          Card(
-            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            child: Column(
-              children: [
-                ListTile(
-                  title: const Text('Đổi mật khẩu'),
-                  trailing: const Icon(Icons.open_in_new_rounded),
-                  onTap: () async {
-                    final url = Uri.parse('https://auth.uit.edu.vn/');
-                    if (await canLaunchUrl(url)) {
-                      await launchUrl(url, mode: LaunchMode.externalApplication);
-                    }
-                  },
-                ),
-                const Divider(height: 1),
-                ListTile(
-                  title: const Text('Đăng xuất'),
-                  trailing: const Icon(Icons.exit_to_app_rounded),
-                  onTap: _confirmLogout,
-                ),
-              ],
-            ),
+              const SizedBox(height: 24),
+            ],
           ),
-
-          // Group 4: About
-          _buildSectionTitle('Về ứng dụng'),
-          Card(
-            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            child: Column(
-              children: [
-                ListTile(
-                  title: const Text('Phiên bản'),
-                  subtitle: const Text('1.0.0'),
-                ),
-                const Divider(height: 1),
-                ListTile(
-                  title: const Text('Gửi phản hồi & Báo lỗi'),
-                  trailing: const Icon(Icons.chevron_right_rounded),
-                  onTap: () async {
-                    final Uri emailUri = Uri(
-                      scheme: 'mailto',
-                      path: 'support@example.com',
-                      queryParameters: {
-                        'subject': 'Phản hồi eUIT',
-                      },
-                    );
-                    if (await canLaunchUrl(emailUri)) {
-                      await launchUrl(emailUri);
-                    }
-                  },
-                ),
-                const Divider(height: 1),
-                ListTile(
-                  title: const Text('Chính sách bảo mật'),
-                  trailing: const Icon(Icons.open_in_new_rounded),
-                  onTap: () async {
-                    final url = Uri.parse('https://example.com/privacy');
-                    if (await canLaunchUrl(url)) {
-                      await launchUrl(url, mode: LaunchMode.externalApplication);
-                    }
-                  },
-                ),
-              ],
-            ),
-          ),
-
-          const SizedBox(height: 24),
         ],
       ),
     );
   }
 
-  Widget _buildSectionTitle(String title) {
+  // Section title that matches HomeScreen style
+  Widget _buildSectionTitle(String title, bool isDark) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 12, 20, 4),
+      padding: const EdgeInsets.only(bottom: 12),
       child: Text(
         title,
-        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.grey),
+        style: TextStyle(
+          color: isDark ? Colors.white : Colors.black87,
+          fontSize: 18,
+          fontWeight: FontWeight.bold,
+        ),
       ),
     );
   }
