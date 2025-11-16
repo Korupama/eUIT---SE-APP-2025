@@ -375,28 +375,34 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  children: [
-                    SizedBox(
-                      width: 24,
-                      height: 24,
-                      child: Checkbox(
-                        value: _rememberMe,
-                        onChanged: (value) {
-                          setState(() => _rememberMe = value ?? false);
-                        },
-                        activeColor: AppTheme.bluePrimary,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(4),
+                InkWell(
+                  borderRadius: BorderRadius.circular(4),
+                  onTap: () {
+                    setState(() => _rememberMe = !_rememberMe);
+                  },
+                  child: Row(
+                    children: [
+                      SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: Checkbox(
+                          value: _rememberMe,
+                          onChanged: (value) {
+                            setState(() => _rememberMe = value ?? false);
+                          },
+                          activeColor: AppTheme.bluePrimary,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(4),
+                          ),
                         ),
                       ),
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      loc.t('remember_me'),
-                      style: AppTheme.bodyMedium.copyWith(color: secondaryTextColor),
-                    ),
-                  ],
+                      const SizedBox(width: 8),
+                      Text(
+                        loc.t('remember_me'),
+                        style: AppTheme.bodyMedium.copyWith(color: secondaryTextColor),
+                      ),
+                    ],
+                  ),
                 ),
                 TextButton(
                   onPressed: _handleForgotPassword,
