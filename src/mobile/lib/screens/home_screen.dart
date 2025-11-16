@@ -720,8 +720,7 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
       isDark: isDark,
       isHover: _hoverGpaCard,
       onHover: (v) => setState(() => _hoverGpaCard = v),
-      // We handle tap inside with the IconButton
-      onTap: () {},
+      onTap: () => _showGpaDialog(loc, isDark),
       child: Row(
         children: [
           Expanded(
