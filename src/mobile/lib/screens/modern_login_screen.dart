@@ -97,8 +97,16 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
       }
     } catch (e) {
       if (mounted) {
+        String message;
+        final loc = AppLocalizations.of(context);
+        final errorText = e.toString().replaceAll('Exception: ', '');
+        if (errorText == 'invalid_credentials') {
+          message = loc.t('invalid_credentials');
+        } else {
+          message = errorText;
+        }
         setState(() {
-          _errorMessage = e.toString().replaceAll('Exception: ', '');
+          _errorMessage = message;
           _passwordController.clear();
           _shakePassword = true;
         });

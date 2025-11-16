@@ -13,7 +13,8 @@ class AuthService {
       await saveToken(token);
       return token;
     }
-    throw Exception('Tên tài khoản hoặc mật khẩu không đúng');
+    // Use a stable error code that the UI can localize instead of a hard-coded message.
+    throw Exception('invalid_credentials');
   }
 
   Future<void> saveToken(String token) async {
