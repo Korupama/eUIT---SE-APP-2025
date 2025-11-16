@@ -276,7 +276,7 @@ class _PlaceholderPage extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'Đang phát triển...',
+            loc.t('under_development'),
             style: TextStyle(
               color: isDark
                   ? AppTheme.darkTextSecondary

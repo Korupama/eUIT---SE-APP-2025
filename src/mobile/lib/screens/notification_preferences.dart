@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
+import '../utils/app_localizations.dart';
 
 class NotificationPreferencesScreen extends StatefulWidget {
   const NotificationPreferencesScreen({super.key});
@@ -15,13 +16,14 @@ class _NotificationPreferencesScreenState extends State<NotificationPreferencesS
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final bg = isDark ? AppTheme.darkBackground : const Color(0xFFF7F8FC);
     final card = isDark ? AppTheme.darkCard : AppTheme.lightCard;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Tùy chỉnh thông báo'),
+        title: Text(loc.t('notification_customization')),
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
@@ -34,19 +36,19 @@ class _NotificationPreferencesScreenState extends State<NotificationPreferencesS
             child: Column(
               children: [
                 SwitchListTile(
-                  title: const Text('Học phí'),
+                  title: Text(loc.t('tuition')),
                   value: tuition,
                   onChanged: (v) => setState(() => tuition = v),
                 ),
                 const Divider(height: 1),
                 SwitchListTile(
-                  title: const Text('Lịch thi'),
+                  title: Text(loc.t('exams')),
                   value: exams,
                   onChanged: (v) => setState(() => exams = v),
                 ),
                 const Divider(height: 1),
                 SwitchListTile(
-                  title: const Text('Sự kiện'),
+                  title: Text(loc.t('events')),
                   value: events,
                   onChanged: (v) => setState(() => events = v),
                 ),

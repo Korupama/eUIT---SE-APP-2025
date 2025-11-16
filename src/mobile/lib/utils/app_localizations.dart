@@ -20,6 +20,14 @@ class AppLocalizations {
   static final Map<String, Map<String, String>> _localizedValues = {
     'vi': {
       'login': 'Đăng nhập',
+      'profile_title': 'Hồ sơ chi tiết',
+      'tuition': 'Học phí',
+      'exams': 'Lịch thi',
+      'events': 'Sự kiện',
+      'link_open_failed': 'Không thể mở liên kết. Vui lòng thử lại sau.',
+      'error_prefix': 'Lỗi: ',
+      'password_changed': 'Mật khẩu đã được đổi.',
+      'under_development': 'Đang phát triển...',
       // Settings & related
       'notifications': 'Thông báo',
       'account_security': 'Tài khoản & Bảo mật',
@@ -76,9 +84,21 @@ class AppLocalizations {
       'digital_student_card_preview': 'Xem trước thẻ sinh viên số',
       'gpa_details_soon': 'Chi tiết GPA sẽ có trong bản cập nhật sau',
       'profile_preview_coming_soon': 'Xem trước hồ sơ sinh viên sẽ có trong bản cập nhật sau',
+      'old_password_label': 'Mật khẩu cũ',
+      'new_password_label': 'Mật khẩu mới',
+      'old_password_required': 'Vui lòng nhập mật khẩu cũ',
+      'new_password_min_length': 'Mật khẩu phải có ít nhất 6 ký tự',
     },
     'en': {
       'login': 'Login',
+      'profile_title': 'Profile Details',
+      'tuition': 'Tuition',
+      'exams': 'Exams',
+      'events': 'Events',
+      'link_open_failed': 'Cannot open the link. Please try again later.',
+      'error_prefix': 'Error: ',
+      'password_changed': 'Password has been changed.',
+      'under_development': 'Under development...',
       // Settings & related
       'notifications': 'Notifications',
       'account_security': 'Account & Security',
@@ -135,6 +155,10 @@ class AppLocalizations {
       'digital_student_card_preview': 'Digital student card preview',
       'gpa_details_soon': 'GPA details will be available in a future update',
       'profile_preview_coming_soon': 'Student profile preview will be available in a future update',
+      'old_password_label': 'Old password',
+      'new_password_label': 'New password',
+      'old_password_required': 'Please enter old password',
+      'new_password_min_length': 'Password must be at least 6 characters',
     },
   };
 

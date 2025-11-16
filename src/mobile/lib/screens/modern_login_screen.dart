@@ -129,9 +129,10 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
         await launchUrl(url, mode: LaunchMode.externalApplication);
       } else {
         if (mounted) {
+          final loc = AppLocalizations.of(context);
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Không thể mở liên kết. Vui lòng thử lại sau.'),
+            SnackBar(
+              content: Text(loc.t('link_open_failed')),
               backgroundColor: AppTheme.error,
             ),
           );
@@ -139,9 +140,10 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
       }
     } catch (e) {
       if (mounted) {
+        final loc = AppLocalizations.of(context);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Lỗi: ${e.toString()}'),
+            content: Text('${loc.t('error_prefix')}${e.toString()}'),
             backgroundColor: AppTheme.error,
           ),
         );

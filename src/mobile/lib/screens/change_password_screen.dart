@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
+import '../utils/app_localizations.dart';
 
 class ChangePasswordScreen extends StatefulWidget {
   const ChangePasswordScreen({super.key});
@@ -21,7 +22,8 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
     // Mock success
     if (!mounted) return;
     setState(() => _isLoading = false);
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Mật khẩu đã được đổi.')));
+    final loc = AppLocalizations.of(context);
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(loc.t('password_changed'))));
     Navigator.of(context).pop();
   }
 
@@ -33,7 +35,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Đổi mật khẩu'),
+        title: Text(AppLocalizations.of(context).t('change_password')),
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
@@ -54,15 +56,15 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                 TextFormField(
                   controller: _oldCtrl,
                   obscureText: true,
-                  decoration: const InputDecoration(labelText: 'Mật khẩu cũ'),
-                  validator: (v) => (v == null || v.isEmpty) ? 'Vui lòng nhập mật khẩu cũ' : null,
+                  decoration: InputDecoration(labelText: AppLocalizations.of(context).t('old_password_label')),
+                  validator: (v) => (v == null || v.isEmpty) ? AppLocalizations.of(context).t('old_password_required') : null,
                 ),
                 const SizedBox(height: 12),
                 TextFormField(
                   controller: _newCtrl,
                   obscureText: true,
-                  decoration: const InputDecoration(labelText: 'Mật khẩu mới'),
-                  validator: (v) => (v == null || v.length < 6) ? 'Mật khẩu phải có ít nhất 6 ký tự' : null,
+                  decoration: InputDecoration(labelText: AppLocalizations.of(context).t('new_password_label')),
+                  validator: (v) => (v == null || v.length < 6) ? AppLocalizations.of(context).t('new_password_min_length') : null,
                 ),
                 const SizedBox(height: 16),
                 SizedBox(
@@ -80,4 +82,3 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
     );
   }
 }
-
