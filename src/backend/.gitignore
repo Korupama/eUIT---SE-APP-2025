@@ -12,5 +12,16 @@
 /dataSources/
 /dataSources.local.xml
 appsettings.*
-eUIT.API.csproj
 appsettings.Application.json
+# Ignore all environment config files everywhere
+**/appsettings.Development.json
+**/appsettings.Local.json
+**/*.Development.json
+**/*.Local.json
+**/*.env
+**/*.secret
+**/*.key
+
+# Ignore all config directories
+**/config/
+config/
