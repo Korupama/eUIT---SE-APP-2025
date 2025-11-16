@@ -58,11 +58,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final res = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text('Đăng xuất'),
-        content: Text('Bạn có chắc chắn muốn đăng xuất không?'),
+        title: Text(loc.t('logout_title')),
+        content: Text(loc.t('logout_confirm')),
         actions: [
           TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: Text(loc.t('close'))),
-          TextButton(onPressed: () => Navigator.of(ctx).pop(true), child: const Text('Đồng ý')),
+          TextButton(onPressed: () => Navigator.of(ctx).pop(true), child: Text(loc.t('confirm'))),
         ],
       ),
     );
@@ -142,9 +142,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text('Nguyễn Văn A', style: TextStyle(color: textColor, fontWeight: FontWeight.bold, fontSize: 16)),
+                                Text(loc.t('student_name_placeholder'), style: TextStyle(color: textColor, fontWeight: FontWeight.bold, fontSize: 16)),
                                 const SizedBox(height: 4),
-                                Text('MSSV: B1234567', style: TextStyle(color: secondary, fontSize: 12)),
+                                Text(loc.t('student_id_placeholder'), style: TextStyle(color: secondary, fontSize: 12)),
                               ],
                             ),
                           ),
@@ -159,7 +159,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               const SizedBox(height: 8),
 
               // Group 1: Interface & Language
-              _buildSectionTitle('Giao diện & Ngôn ngữ', isDark),
+              _buildSectionTitle(loc.t('interface_language'), isDark),
               ClipRRect(
                 borderRadius: BorderRadius.circular(16),
                 child: BackdropFilter(
@@ -178,14 +178,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       children: [
                         ListTile(
                           title: Text(
-                            'Chế độ giao diện',
+                            loc.t('theme_mode_label'),
                             style: TextStyle(
                               color: isDark ? Colors.white : Colors.black87,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
                           subtitle: Text(
-                            themeController.isDark ? 'Tối' : 'Sáng',
+                            themeController.isDark ? loc.t('dark_mode') : loc.t('light_mode'),
                             style: TextStyle(color: secondary, fontSize: 12),
                           ),
                           trailing: ThemeSwitch(
@@ -197,14 +197,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         const Divider(height: 1),
                         ListTile(
                           title: Text(
-                            'Ngôn ngữ',
+                            loc.t('language'),
                             style: TextStyle(
                               color: isDark ? Colors.white : Colors.black87,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
                           subtitle: Text(
-                            languageController.locale.languageCode == 'vi' ? 'Tiếng Việt' : 'English',
+                            languageController.locale.languageCode == 'vi' ? loc.t('vietnamese') : loc.t('english'),
                             style: TextStyle(color: secondary, fontSize: 12),
                           ),
                           trailing: LanguageSwitch(
@@ -220,7 +220,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
 
               // Group 2: Notifications
-              _buildSectionTitle('Thông báo', isDark),
+              _buildSectionTitle(loc.t('notifications'), isDark),
               ClipRRect(
                 borderRadius: BorderRadius.circular(16),
                 child: BackdropFilter(
@@ -238,13 +238,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     child: Column(
                       children: [
                         SwitchListTile(
-                          title: Text('Nhận thông báo đẩy', style: TextStyle(color: isDark ? Colors.white : Colors.black87, fontWeight: FontWeight.w600)),
+                          title: Text(loc.t('push_notifications'), style: TextStyle(color: isDark ? Colors.white : Colors.black87, fontWeight: FontWeight.w600)),
                           value: _pushNotifications,
                           onChanged: (v) => _setPushPref(v),
                         ),
                         const Divider(height: 1),
                         ListTile(
-                          title: Text('Tùy chỉnh thông báo', style: TextStyle(color: isDark ? Colors.white : Colors.black87, fontWeight: FontWeight.w600)),
+                          title: Text(loc.t('notification_customization'), style: TextStyle(color: isDark ? Colors.white : Colors.black87, fontWeight: FontWeight.w600)),
                           trailing: const Icon(Icons.chevron_right_rounded),
                           onTap: () => Navigator.pushNamed(context, '/notification_preferences'),
                         ),
@@ -255,7 +255,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
 
               // Group 3: Account & Security
-              _buildSectionTitle('Tài khoản & Bảo mật', isDark),
+              _buildSectionTitle(loc.t('account_security'), isDark),
               ClipRRect(
                 borderRadius: BorderRadius.circular(16),
                 child: BackdropFilter(
@@ -273,7 +273,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     child: Column(
                       children: [
                         ListTile(
-                          title: Text('Đổi mật khẩu', style: TextStyle(color: isDark ? Colors.white : Colors.black87, fontWeight: FontWeight.w600)),
+                          title: Text(loc.t('change_password'), style: TextStyle(color: isDark ? Colors.white : Colors.black87, fontWeight: FontWeight.w600)),
                           trailing: const Icon(Icons.open_in_new_rounded),
                           onTap: () async {
                             final url = Uri.parse('https://auth.uit.edu.vn/');
@@ -284,7 +284,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         ),
                         const Divider(height: 1),
                         ListTile(
-                          title: Text('Đăng xuất', style: TextStyle(color: isDark ? Colors.white : Colors.black87, fontWeight: FontWeight.w600)),
+                          title: Text(loc.t('logout'), style: TextStyle(color: isDark ? Colors.white : Colors.black87, fontWeight: FontWeight.w600)),
                           trailing: const Icon(Icons.exit_to_app_rounded),
                           onTap: _confirmLogout,
                         ),
@@ -295,7 +295,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
 
               // Group 4: About
-              _buildSectionTitle('Về ứng dụng', isDark),
+              _buildSectionTitle(loc.t('about_app'), isDark),
               ClipRRect(
                 borderRadius: BorderRadius.circular(16),
                 child: BackdropFilter(
@@ -313,19 +313,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     child: Column(
                       children: [
                         ListTile(
-                          title: Text('Phiên bản', style: TextStyle(color: isDark ? Colors.white : Colors.black87, fontWeight: FontWeight.w600)),
+                          title: Text(loc.t('version'), style: TextStyle(color: isDark ? Colors.white : Colors.black87, fontWeight: FontWeight.w600)),
                           subtitle: const Text('1.0.0'),
                         ),
                         const Divider(height: 1),
                         ListTile(
-                          title: Text('Gửi phản hồi & Báo lỗi', style: TextStyle(color: isDark ? Colors.white : Colors.black87, fontWeight: FontWeight.w600)),
+                          title: Text(loc.t('send_feedback'), style: TextStyle(color: isDark ? Colors.white : Colors.black87, fontWeight: FontWeight.w600)),
                           trailing: const Icon(Icons.chevron_right_rounded),
                           onTap: () async {
                             final Uri emailUri = Uri(
                               scheme: 'mailto',
                               path: 'support@example.com',
                               queryParameters: {
-                                'subject': 'Phản hồi eUIT',
+                                'subject': loc.t('feedback_subject'),
                               },
                             );
                             if (await canLaunchUrl(emailUri)) {
@@ -335,7 +335,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         ),
                         const Divider(height: 1),
                         ListTile(
-                          title: Text('Chính sách bảo mật', style: TextStyle(color: isDark ? Colors.white : Colors.black87, fontWeight: FontWeight.w600)),
+                          title: Text(loc.t('privacy_policy'), style: TextStyle(color: isDark ? Colors.white : Colors.black87, fontWeight: FontWeight.w600)),
                           trailing: const Icon(Icons.open_in_new_rounded),
                           onTap: () async {
                             final url = Uri.parse('https://example.com/privacy');
