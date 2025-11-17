@@ -66,6 +66,12 @@ public class StudentsController : ControllerBase
         public decimal gpa_nhom_mon_out { get; set; }
     }
 
+    // Lớp private để lấy thông tin ngành học của sinh viên
+    private class StudentMajorInfo
+    {
+        public string nganh_hoc { get; set; } = string.Empty;
+    }
+
     // GET: api/students/nextclass
     [HttpGet("/nextclass")]
     public async Task<ActionResult<NextClassDto>> GetNextClass()
@@ -171,7 +177,7 @@ public class StudentsController : ControllerBase
     /// </summary>
     /// <param name="filter_by_year">The academic year to filter by (e.g., "2023-2024"). If null, returns all tuition data.</param>
     [HttpGet("tuition")]
-    public async Task<ActionResult<IEnumerable<TuitionDto>>> GetTuition([FromQuery] string? filter_by_year)
+    public async Task<ActionResult<TotalTuitionDto>> GetTuition([FromQuery] string? filter_by_year)
     {
         var (mssv, errorResult) = GetCurrentMssv();
         if (errorResult != null) return errorResult;
@@ -191,7 +197,7 @@ public class StudentsController : ControllerBase
             return NotFound("Chưa phát sinh học phí");
         }
 
-        var tuitionDtos = tuitionInfos.Select(t => new TuitionDto
+        var detailedTuition = tuitionInfos.Select(t => new TuitionDto
         {
             HocKy = t.hoc_ky,
             SoTinChi = t.so_tin_chi,
@@ -199,43 +205,36 @@ public class StudentsController : ControllerBase
             NoHocKyTruoc = t.no_hoc_ky_truoc,
             DaDong = t.da_dong,
             SoTienConLai = t.so_tien_con_lai
-        });
+        }).ToList();
 
-        return Ok(tuitionDtos);
+        // Tổng hợp thông tin học phí
+        var totalTuition = new TotalTuitionDto
+        {
+            TongHocPhi = detailedTuition.Sum(t => t.HocPhi),
+            TongDaDong = detailedTuition.Sum(t => t.DaDong),
+            TongConLai = detailedTuition.Sum(t => t.SoTienConLai),
+            ChiTietHocPhi = detailedTuition
+        };
+
+        return Ok(totalTuition);
     }
     
     /// <summary>
     /// Retrieves the training progress for the currently authenticated student.
     /// </summary>
-    /// <param name="filter_by_group">Optional filter for course group. Valid values: 'dai_cuong', 'co_so', 'chuyen_nganh', 'tot_nghiep'.</param>
     [HttpGet("progress")]
-    public async Task<ActionResult<ProgressTrackingDto>> GetTrainingProgress([FromQuery] string? filter_by_group)
+    public async Task<ActionResult<ProgressTrackingDto>> GetTrainingProgress()
     {
         var (mssv, errorResult) = GetCurrentMssv();
         if (errorResult != null) return errorResult;
 
         var validGroups = new List<string> { "dai_cuong", "co_so", "chuyen_nganh", "tot_nghiep" };
-        var groupsToQuery = new List<string>();
-
-        // Xác định các nhóm môn cần truy vấn
-        if (!string.IsNullOrEmpty(filter_by_group))
-        {
-            if (!validGroups.Contains(filter_by_group.ToLower()))
-            {
-                return BadRequest("Giá trị của 'filter_by_group' không hợp lệ.");
-            }
-            groupsToQuery.Add(filter_by_group);
-        }
-        else
-        {
-            // Nếu không lọc, truy vấn tất cả các nhóm
-            groupsToQuery.AddRange(validGroups);
-        }
 
         var progressByGroup = new List<GroupProgressDto>();
+        int totalCompletedCredits = 0;
         
         // Lặp qua từng nhóm và gọi hàm DB
-        foreach (var group in groupsToQuery)
+        foreach (var group in validGroups)
         {
             var mssvParam = new NpgsqlParameter("p_student_id", mssv);
             var groupFilterParam = new NpgsqlParameter("p_filter_group", group);
@@ -248,6 +247,7 @@ public class StudentsController : ControllerBase
 
             if (result != null)
             {
+                totalCompletedCredits += result.total_completed_credits_out;
                 progressByGroup.Add(new GroupProgressDto
                 {
                     GroupName = result.nhom_mon_out,
@@ -257,8 +257,48 @@ public class StudentsController : ControllerBase
             }
         }
 
-        var response = new ProgressTrackingDto { ProgressByGroup = progressByGroup };
+        // Lấy thông tin ngành học của sinh viên để tính tiến độ tốt nghiệp
+        var studentMajor = await _context.Database
+            .SqlQueryRaw<StudentMajorInfo>("SELECT nganh_hoc FROM sinh_vien WHERE mssv = {0}", mssv)
+            .FirstOrDefaultAsync();
+
+        if (studentMajor == null)
+        {
+            return NotFound("Không tìm thấy thông tin sinh viên.");
+        }
+
+        // Tính toán tiến độ tốt nghiệp
+        var totalCreditsRequired = GetCreditsRequiredForMajor(studentMajor.nganh_hoc);
+        var graduationProgress = new GraduationProgressDto
+        {
+            TotalCreditsRequired = totalCreditsRequired,
+            TotalCreditsCompleted = totalCompletedCredits,
+            CompletionPercentage = totalCreditsRequired > 0 
+                ? Math.Round((double)totalCompletedCredits / totalCreditsRequired * 100, 2) 
+                : 0
+        };
+
+        var response = new ProgressTrackingDto 
+        { 
+            ProgressByGroup = progressByGroup,
+            GraduationProgress = graduationProgress
+        };
+
         return Ok(response);
+    }
+
+    private int GetCreditsRequiredForMajor(string major)
+    {
+        return major switch {
+            "Công nghệ thông tin" => 125, "Thương mại điện tử" => 125,
+            "Khoa học máy tính" => 126,
+            "Trí tuệ nhân tạo" => 128, "Kỹ thuật máy tính" => 128,
+            "An toàn thông tin" => 129,
+            "Kỹ thuật phần mềm" => 130, "Mạng máy tính và truyền thông dữ liệu" => 130,
+            "Hệ thống Thông tin" => 132, "Thiết kế vi mạch" => 132,
+            "Khoa học dữ liệu" => 123,
+            _ => 0 // Mặc định nếu không tìm thấy ngành
+        };
     }
 
     /// <summary>
