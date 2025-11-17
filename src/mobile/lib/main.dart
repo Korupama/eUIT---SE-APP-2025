@@ -9,6 +9,10 @@ import 'services/language_controller.dart';
 import 'providers/home_provider.dart';
 import 'utils/app_localizations.dart';
 import 'utils/app_colors.dart';
+import 'screens/settings_screen.dart';
+import 'screens/profile_screen.dart';
+import 'screens/notification_preferences.dart';
+// change_password_screen removed - change password now opens external auth site
 
 void main() {
   runApp(
@@ -65,6 +69,9 @@ class MyApp extends StatelessWidget {
         '/': (context) => const ModernLoginScreen(),
         '/home': (context) => const MainScreen(),
         '/chatbot': (context) => const ChatbotScreen(),
+        '/settings': (context) => const SettingsScreen(),
+        '/profile': (context) => const ProfileScreen(),
+        '/notification_preferences': (context) => const NotificationPreferencesScreen(),
       },
       initialRoute: '/',
     );

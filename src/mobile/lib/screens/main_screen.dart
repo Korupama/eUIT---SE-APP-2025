@@ -4,6 +4,7 @@ import '../utils/app_localizations.dart';
 import '../theme/app_theme.dart';
 import 'home_screen.dart';
 import 'search/navigation_screen.dart';
+import 'settings_screen.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -25,7 +26,7 @@ class _MainScreenState extends State<MainScreen> {
       const NavigationScreen(),
       const HomeScreen(),
       const _PlaceholderPage(label: 'schedule'),
-      const _PlaceholderPage(label: 'settings'),
+      const SettingsScreen(),
     ];
   }
 
@@ -276,7 +277,7 @@ class _PlaceholderPage extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'Đang phát triển...',
+            loc.t('under_development'),
             style: TextStyle(
               color: isDark
                   ? AppTheme.darkTextSecondary
@@ -289,4 +290,3 @@ class _PlaceholderPage extends StatelessWidget {
     );
   }
 }
-

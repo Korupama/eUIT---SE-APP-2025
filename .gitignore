@@ -10,6 +10,7 @@ obj/
 
 # Ignore Visual Studio Code settings
 .vscode/
+.vs/
 
 # Ignore environment files
 .env

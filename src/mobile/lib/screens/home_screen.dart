@@ -36,6 +36,12 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
     _scrollController.dispose();
     super.dispose();
   }
+  // Hover states for interactive cards
+  bool _hoverStudentCard = false;
+  bool _hoverGpaCard = false;
+
+  // GPA visibility state
+  bool _isGpaVisible = false;
 
   @override
   Widget build(BuildContext context) {
@@ -163,7 +169,7 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
                         ),
                       ),
 
-                      /// ❌ Nút close bubble
+                      ///  Nút close bubble
                       Positioned(
                         top: -6,
                         right: -6,
@@ -189,6 +195,35 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
                             ),
                           ),
                         ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Header mới (Scrollable)
+                          _buildScrollableHeader(provider, isDark, loc),
+                          const SizedBox(height: 24),
+
+                          // Next Schedule Section
+                          _buildSectionTitle(loc.t('next_schedule'), isDark),
+                          const SizedBox(height: 12),
+                          _buildNextScheduleCard(provider, loc, isDark),
+                          const SizedBox(height: 24),
+
+                          // Student Info Cards (2 cols responsive)
+                          _buildStudentInfoCards(loc, isDark),
+                          const SizedBox(height: 24),
+
+                          // Quick Actions Section (SQUIRCLE)
+                          _buildSectionTitle(loc.t('quick_actions'), isDark),
+                          const SizedBox(height: 12),
+                          _buildQuickActionsGrid(provider, isDark),
+                          const SizedBox(height: 24),
+
+                          // Notifications Section
+                          _buildSectionTitle(loc.t('new_notifications'), isDark),
+                          const SizedBox(height: 12),
+                          _buildNotificationsList(provider, isDark),
+                          const SizedBox(height: 20),
+                        ],
                       ),
                     ],
                   ),
@@ -201,7 +236,7 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
   }
 
   // Header mới - Scrollable với BackdropFilter
-  Widget _buildScrollableHeader(HomeProvider provider, bool isDark) {
+  Widget _buildScrollableHeader(HomeProvider provider, bool isDark, AppLocalizations loc) {
     final unreadCount = provider.notifications.where((n) => n.isUnread).length;
 
     return ClipRRect(
@@ -228,19 +263,23 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
               // Left: Avatar + Name/MSSV
               Row(
                 children: [
-                  Container(
-                    width: 48,
-                    height: 48,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: const LinearGradient(
-                        colors: [AppTheme.bluePrimary, AppTheme.blueLight],
+                  // Avatar: tappable to show profile (temporary)
+                  GestureDetector(
+                    onTap: () => Navigator.pushNamed(context, '/profile'),
+                    child: Container(
+                      width: 48,
+                      height: 48,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: const LinearGradient(
+                          colors: [AppTheme.bluePrimary, AppTheme.blueLight],
+                        ),
                       ),
-                    ),
-                    child: const Icon(
-                      Icons.person,
-                      color: Colors.white,
-                      size: 28,
+                      child: const Icon(
+                        Icons.person,
+                        color: Colors.white,
+                        size: 28,
+                      ),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -429,36 +468,74 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Time badge
-              Text(
-                schedule.timeRange,
-                style: TextStyle(
-                  color: isDark ? AppTheme.bluePrimary : AppTheme.bluePrimary,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              const SizedBox(height: 10),
+              // Row for Title and Countdown
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // Left side: Course Info
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Time badge
+                        Text(
+                          schedule.timeRange,
+                          style: TextStyle(
+                            color: isDark ? AppTheme.bluePrimary : AppTheme.bluePrimary,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
 
-              // Course code
-              Text(
-                schedule.courseCode,
-                style: TextStyle(
-                  color: isDark ? Colors.white : Colors.black87,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              const SizedBox(height: 6),
+                        // Course code
+                        Text(
+                          schedule.courseCode,
+                          style: TextStyle(
+                            color: isDark ? Colors.white : Colors.black87,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
 
-              // Course name
-              Text(
-                schedule.courseName,
-                style: TextStyle(
-                  color: isDark ? Colors.white : Colors.black87,
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                ),
+                        // Course name
+                        Text(
+                          schedule.courseName,
+                          style: TextStyle(
+                            color: isDark ? Colors.white : Colors.black87,
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  // Right side: Countdown
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        loc.t('starts_in'),
+                        style: TextStyle(
+                          color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
+                          fontSize: 13,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        schedule.countdown,
+                        style: TextStyle(
+                          color: isDark ? AppTheme.bluePrimary : AppTheme.bluePrimary,
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
               const SizedBox(height: 14),
 
@@ -471,39 +548,21 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
                   _buildDetailChip('GV: ${schedule.lecturer}', isDark),
                 ],
               ),
-              const SizedBox(height: 14),
+              const SizedBox(height: 10), // Reduced space
 
-              // Countdown
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    loc.t('starts_in'),
-                    style: TextStyle(
-                      color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
-                      fontSize: 13,
-                    ),
+              // View schedule button aligned to the right
+              Align(
+                alignment: Alignment.centerLeft,
+                child: TextButton.icon(
+                  onPressed: () {},
+                  style: TextButton.styleFrom(
+                    foregroundColor: AppTheme.bluePrimary,
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4), // Compact padding
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap, // Reduce tap area
                   ),
-                  Text(
-                    schedule.countdown,
-                    style: TextStyle(
-                      color: isDark ? AppTheme.bluePrimary : AppTheme.bluePrimary,
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 14),
-
-              // View schedule button
-              TextButton.icon(
-                onPressed: () {},
-                style: TextButton.styleFrom(
-                  foregroundColor: AppTheme.bluePrimary,
+                  icon: const Icon(Icons.arrow_forward_rounded, size: 18),
+                  label: Text(loc.t('view_full_schedule')),
                 ),
-                icon: const Icon(Icons.arrow_forward_rounded, size: 18),
-                label: Text(loc.t('view_full_schedule')),
               ),
             ],
           ),
@@ -794,6 +853,264 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
           borderRadius: BorderRadius.circular(16),
         ),
       ),
+    );
+  }
+
+  // Build 2 info cards (Student Card & GPA)
+  Widget _buildStudentInfoCards(AppLocalizations loc, bool isDark) {
+    // Always render 2 cards on one row (each takes half width)
+    final card1 = _buildStudentCard(loc, isDark);
+    final card2 = _buildGpaCard(loc, isDark);
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(child: card1),
+          const SizedBox(width: 12),
+          Expanded(child: card2),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStudentCard(AppLocalizations loc, bool isDark) {
+    return _buildHoverCard(
+      isDark: isDark,
+      isHover: _hoverStudentCard,
+      onHover: (v) => setState(() => _hoverStudentCard = v),
+      onTap: () => _showStudentCardDialog(loc, isDark),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+              color: isDark ? Colors.white.withAlpha(13) : AppTheme.lightCard,
+              border: Border.all(
+                color: _hoverStudentCard ? AppTheme.bluePrimary : (isDark ? Colors.white.withAlpha(26) : AppTheme.lightBorder),
+              ),
+            ),
+            child: const Icon(Icons.badge_outlined, color: AppTheme.bluePrimary),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              loc.t('student_card'),
+              style: TextStyle(
+                color: isDark ? Colors.white : Colors.black87,
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildGpaCard(AppLocalizations loc, bool isDark) {
+    final secondary = isDark ? Colors.grey.shade400 : Colors.grey.shade600;
+    return _buildHoverCard(
+      isDark: isDark,
+      isHover: _hoverGpaCard,
+      onHover: (v) => setState(() => _hoverGpaCard = v),
+      onTap: () => _showGpaDialog(loc, isDark),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  loc.t('gpa'),
+                  style: TextStyle(
+                    color: secondary,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  _isGpaVisible ? '8.52/10.0' : '••••/10.0',
+                  style: TextStyle(
+                    color: isDark ? Colors.white : Colors.black87,
+                    fontSize: 21,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 0.2,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  _isGpaVisible ? '${loc.t('credits')}: 128' : '${loc.t('credits')}: •••',
+                  style: const TextStyle(
+                    color: AppTheme.bluePrimary,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          IconButton(
+            icon: Icon(
+              _isGpaVisible ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+              color: secondary,
+            ),
+            onPressed: () {
+              setState(() {
+                _isGpaVisible = !_isGpaVisible;
+              });
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHoverCard({
+    required Widget child,
+    required bool isDark,
+    required bool isHover,
+    required VoidCallback onTap,
+    required ValueChanged<bool> onHover,
+  }) {
+    final baseBorder = isDark ? Colors.white.withAlpha(26) : AppTheme.lightBorder;
+    final borderColor = isHover ? AppTheme.bluePrimary : baseBorder;
+    final boxShadowColor = isHover
+        ? AppTheme.bluePrimary.withAlpha(76)
+        : (isDark ? Colors.black.withAlpha(51) : Colors.black.withAlpha(25));
+
+    return MouseRegion(
+      onEnter: (_) => onHover(true),
+      onExit: (_) => onHover(false),
+      cursor: SystemMouseCursors.click,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        curve: Curves.easeOut,
+        decoration: BoxDecoration(
+          color: isDark ? AppTheme.darkCard.withAlpha(191) : Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: borderColor, width: 1),
+          boxShadow: [
+            BoxShadow(
+              color: boxShadowColor,
+              blurRadius: isHover ? 16 : 8,
+              offset: const Offset(0, 6),
+            ),
+          ],
+        ),
+        child: Material(
+          type: MaterialType.transparency,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(16),
+            onTap: onTap,
+            splashColor: AppTheme.bluePrimary.withAlpha(38),
+            highlightColor: AppTheme.bluePrimary.withAlpha(20),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: child,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showStudentCardDialog(AppLocalizations loc, bool isDark) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: isDark ? AppTheme.darkCard : Colors.white,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: Text(
+            loc.t('student_card'),
+            style: TextStyle(color: isDark ? Colors.white : Colors.black87),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  color: isDark ? Colors.white.withAlpha(10) : AppTheme.lightCard,
+                  border: Border.all(color: isDark ? Colors.white24 : AppTheme.lightBorder),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.badge_outlined, size: 48, color: AppTheme.bluePrimary),
+                    const SizedBox(height: 12),
+                    Text(
+                      loc.t('coming_soon'),
+                      style: TextStyle(
+                        color: isDark ? Colors.white : Colors.black87,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      loc.t('digital_student_card_preview'),
+                      style: TextStyle(color: isDark ? Colors.grey.shade400 : Colors.grey.shade600, fontSize: 12),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text(loc.t('close')),
+            )
+          ],
+        );
+      },
+    );
+  }
+
+  void _showGpaDialog(AppLocalizations loc, bool isDark) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: isDark ? AppTheme.darkCard : Colors.white,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: Text(
+            loc.t('gpa'),
+            style: TextStyle(color: isDark ? Colors.white : Colors.black87),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.assessment_outlined, size: 48, color: AppTheme.bluePrimary),
+              const SizedBox(height: 12),
+              Text(
+                loc.t('coming_soon'),
+                style: TextStyle(color: isDark ? Colors.white : Colors.black87, fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                loc.t('gpa_details_soon'),
+                style: TextStyle(color: isDark ? Colors.grey.shade400 : Colors.grey.shade600, fontSize: 12),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text(loc.t('close')),
+            )
+          ],
+        );
+      },
     );
   }
 }
