@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../utils/app_localizations.dart';
 import '../theme/app_theme.dart';
 import 'home_screen.dart';
+import 'search/navigation_screen.dart';
 import 'settings_screen.dart';
 
 class MainScreen extends StatefulWidget {
@@ -22,7 +23,7 @@ class _MainScreenState extends State<MainScreen> {
     super.initState();
     _pages = [
       const _PlaceholderPage(label: 'services'),
-      const _PlaceholderPage(label: 'search'),
+      const NavigationScreen(),
       const HomeScreen(),
       const _PlaceholderPage(label: 'schedule'),
       const SettingsScreen(),
