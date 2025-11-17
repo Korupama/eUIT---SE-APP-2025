@@ -115,7 +115,7 @@ class _HomeScreenState extends State<HomeScreen>
                   ),
           ),
 
-          /// 🔥 Chatbot Bubble Button
+          /// 🔥 Enhanced Chatbot Bubble Button with better UI
           if (!_bubbleClosed)
             AnimatedPositioned(
               duration: const Duration(milliseconds: 400),
@@ -132,7 +132,39 @@ class _HomeScreenState extends State<HomeScreen>
                   child: Stack(
                     clipBehavior: Clip.none,
                     children: [
-                      // Bubble Button
+                      // Animated gradient glow effect
+                      Container(
+                        width: 62,
+                        height: 62,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(20),
+                          gradient: LinearGradient(
+                            colors: isDark
+                                ? [
+                              Colors.blue.withOpacity(0.3),
+                              Colors.purple.withOpacity(0.3),
+                            ]
+                                : [
+                              Colors.blue.withOpacity(0.2),
+                              Colors.cyan.withOpacity(0.2),
+                            ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: isDark
+                                  ? Colors.blue.withOpacity(0.4)
+                                  : Colors.blue.withOpacity(0.3),
+                              blurRadius: 24,
+                              spreadRadius: 2,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      // Main Bubble Button
                       GestureDetector(
                         onTap: () {
                           Navigator.push(
@@ -147,28 +179,69 @@ class _HomeScreenState extends State<HomeScreen>
                           height: 62,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(20),
-                            color: Colors.transparent,
-                            border: Border.all(
-                              color: isDark ? Colors.white24 : Colors.black12,
-                              width: 1.4,
+                            gradient: LinearGradient(
+                              colors: isDark
+                                  ? [
+                                const Color(0xFF4A90E2),
+                                const Color(0xFF357ABD),
+                              ]
+                                  : [
+                                const Color(0xFF5B9FED),
+                                const Color(0xFF4285F4),
+                              ],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
                             ),
                             boxShadow: [
                               BoxShadow(
-                                color: isDark ? Colors.white10 : Colors.black12,
+                                color: isDark
+                                    ? Colors.blue.withOpacity(0.3)
+                                    : Colors.blue.withOpacity(0.25),
                                 blurRadius: 16,
                                 offset: const Offset(0, 6),
+                              ),
+                              BoxShadow(
+                                color: isDark
+                                    ? Colors.white.withOpacity(0.1)
+                                    : Colors.white.withOpacity(0.5),
+                                blurRadius: 2,
+                                offset: const Offset(-1, -1),
                               ),
                             ],
                           ),
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(20),
                             child: BackdropFilter(
-                              filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-                              child: Center(
-                                child: Icon(
-                                  Icons.chat_bubble_outline_rounded,
-                                  color: isDark ? Colors.white : Colors.black87,
-                                  size: 28,
+                              filter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(20),
+                                  border: Border.all(
+                                    color: Colors.white.withOpacity(0.2),
+                                    width: 1.5,
+                                  ),
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      Colors.white.withOpacity(0.15),
+                                      Colors.white.withOpacity(0.05),
+                                    ],
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                  ),
+                                ),
+                                child: Center(
+                                  child: Icon(
+                                    Icons.chat_bubble_rounded,
+                                    color: Colors.white,
+                                    size: 28,
+                                    shadows: [
+                                      Shadow(
+                                        color: Colors.black.withOpacity(0.2),
+                                        offset: const Offset(0, 2),
+                                        blurRadius: 4,
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
@@ -176,27 +249,70 @@ class _HomeScreenState extends State<HomeScreen>
                         ),
                       ),
 
-                      ///  Nút close bubble
+                      // Notification badge (optional - có thể hiện số tin nhắn mới)
                       Positioned(
-                        top: -6,
-                        right: -6,
+                        top: -4,
+                        right: -4,
+                        child: Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: Colors.red,
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: isDark ? AppTheme.darkBackground : const Color(0xFFF7F8FC),
+                              width: 2,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.red.withOpacity(0.4),
+                                blurRadius: 8,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: Text(
+                            '3', // Số tin nhắn mới - có thể thay bằng biến
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      /// ❌ Close button with better design
+                      Positioned(
+                        top: -8,
+                        left: -8,
                         child: GestureDetector(
                           onTap: () => setState(() => _bubbleClosed = true),
                           child: Container(
-                            padding: const EdgeInsets.all(4),
+                            padding: const EdgeInsets.all(5),
                             decoration: BoxDecoration(
-                              color: Colors.redAccent,
+                              gradient: LinearGradient(
+                                colors: [
+                                  Colors.red.shade400,
+                                  Colors.red.shade600,
+                                ],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
                               shape: BoxShape.circle,
+                              border: Border.all(
+                                color: isDark ? AppTheme.darkBackground : const Color(0xFFF7F8FC),
+                                width: 2,
+                              ),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black26,
-                                  blurRadius: 4,
-                                  offset: Offset(0, 2),
+                                  color: Colors.red.withOpacity(0.3),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 2),
                                 ),
                               ],
                             ),
                             child: const Icon(
-                              Icons.close,
+                              Icons.close_rounded,
                               color: Colors.white,
                               size: 14,
                             ),
