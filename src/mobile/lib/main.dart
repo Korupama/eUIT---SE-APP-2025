@@ -12,9 +12,15 @@ import 'utils/app_colors.dart';
 import 'screens/settings_screen.dart';
 import 'screens/profile_screen.dart';
 import 'screens/notification_preferences.dart';
-// change_password_screen removed - change password now opens external auth site
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  // Load .env file; ignore errors silently if missing.
+  try {
+    await dotenv.load(fileName: 'env/.env');
+  } catch (_) {}
+
   runApp(
     MultiProvider(
       providers: [

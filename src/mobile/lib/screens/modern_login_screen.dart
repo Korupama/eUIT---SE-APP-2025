@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../services/theme_controller.dart';
 import '../services/language_controller.dart';
 import '../services/auth_service.dart';
@@ -37,6 +38,8 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
   late AnimationController _fadeController;
   late Animation<double> _fadeAnimation;
 
+  static const _rememberedUsernameKey = 'remembered_username';
+
   @override
   void initState() {
     super.initState();
@@ -49,6 +52,8 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
       curve: Curves.easeOut,
     );
     _fadeController.forward();
+
+    _loadRememberedUsername();
   }
 
   @override
@@ -57,6 +62,19 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
     _usernameController.dispose();
     _passwordController.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadRememberedUsername() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final remembered = prefs.getString(_rememberedUsernameKey);
+      if (remembered != null && remembered.isNotEmpty) {
+        _usernameController.text = remembered;
+        setState(() => _rememberMe = true);
+      }
+    } catch (_) {
+      // ignore
+    }
   }
 
   Future<void> _handleLogin() async {
@@ -94,6 +112,16 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
 
       await _authService.saveToken(token);
 
+      // Persist or clear remembered username based on checkbox
+      try {
+        final prefs = await SharedPreferences.getInstance();
+        if (_rememberMe) {
+          await prefs.setString(_rememberedUsernameKey, _usernameController.text.trim());
+        } else {
+          await prefs.remove(_rememberedUsernameKey);
+        }
+      } catch (_) {}
+
       if (mounted) {
         Navigator.pushReplacementNamed(context, '/home');
       }
@@ -101,9 +129,13 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
       if (mounted) {
         final errorText = e.toString().replaceAll('Exception: ', '');
         setState(() {
-          if (errorText == 'invalid_credentials') {
-            _errorKey = 'invalid_credentials'; // store key only
-            _errorMessage = null; // ensure old message cleared
+          // Recognize coded errors and localize them
+          const codedErrors = {
+            'invalid_credentials', 'network_error', 'login_failed', 'invalid_response'
+          };
+          if (codedErrors.contains(errorText)) {
+            _errorKey = errorText;
+            _errorMessage = null;
           } else {
             _errorMessage = errorText; // fallback raw message
             _errorKey = null;
