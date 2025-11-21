@@ -32,7 +32,7 @@ Trong file `src/backend/appsettings.json`:
 
 ```json
 "ConnectionStrings": {
-  "eUITDatabase": "Server=localhost;Port=5432;Database=eUIT;User Id=postgres;Password=17122005;"
+  "eUITDatabase": "Server=localhost;Port=5432;Database=eUIT;User Id=postgres;Password=YOUR_PASSWORD;"
 }
 ```
 
@@ -41,7 +41,7 @@ Trong file `src/backend/appsettings.json`:
 - **Port=5432**: Cổng mặc định của PostgreSQL
 - **Database=eUIT**: Tên database là "eUIT"
 - **User Id=postgres**: Username đăng nhập PostgreSQL
-- **Password=17122005**: Mật khẩu PostgreSQL
+- **Password=YOUR_PASSWORD**: Mật khẩu PostgreSQL của bạn
 
 ---
 
