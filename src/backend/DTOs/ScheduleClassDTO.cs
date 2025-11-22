@@ -19,7 +19,7 @@ public class ScheduleClassDto
     public DateTime NgayBatDau { get; set; }
     public DateTime NgayKetThuc { get; set; }
     public string PhongHoc { get; set; } = string.Empty;
-    public int SiSo { get; set; }
+    public int? SiSo { get; set; }
     public string HinhThucGiangDay { get; set; } = string.Empty;
     public string? GhiChu { get; set; }
 }
