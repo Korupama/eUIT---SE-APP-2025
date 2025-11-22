@@ -24,6 +24,7 @@ class _ScheduleMainScreenState extends State<ScheduleMainScreen> {
         subject: 'IE104 Internet và Công nghệ Web',
         room: 'B1.06',
         type: 'class',
+        teacher: 'TS. Nguyễn Văn A', // Thêm tên giảng viên
       ),
       ScheduleItem(
         startTime: '13:00 PM',
@@ -31,6 +32,7 @@ class _ScheduleMainScreenState extends State<ScheduleMainScreen> {
         subject: 'Thực hành IE104 Internet và Công nghệ Web',
         room: 'B1.22',
         type: 'class',
+        teacher: 'ThS. Trần Thị B', // Thêm tên giảng viên
       ),
     ],
     '2025-10-4': [
@@ -40,6 +42,7 @@ class _ScheduleMainScreenState extends State<ScheduleMainScreen> {
         subject: 'IT001 Nhập môn Lập trình',
         room: 'A2.03',
         type: 'class',
+        teacher: 'PGS.TS. Phan Trọng Đĩnh', // Thêm tên giảng viên
       ),
     ],
     '2025-10-1': [
@@ -49,6 +52,7 @@ class _ScheduleMainScreenState extends State<ScheduleMainScreen> {
         subject: 'CS106 Cấu trúc dữ liệu',
         room: 'C1.15',
         type: 'class',
+        teacher: 'TS. Phạm Thị D', // Thêm tên giảng viên
       ),
     ],
   };
@@ -223,7 +227,7 @@ class _ScheduleMainScreenState extends State<ScheduleMainScreen> {
                   ),
 
                 ],
-            ),
+              ),
             ),
             // Month Navigation
             Padding(
@@ -454,15 +458,32 @@ class _ScheduleMainScreenState extends State<ScheduleMainScreen> {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Expanded(
-                child: Text(
-                  item.subject,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      item.subject,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    // Thêm thông tin giảng viên
+                    if (item.teacher.isNotEmpty) ...[
+                      const SizedBox(height: 6),
+                      Text(
+                        item.teacher,
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.7),
+                          fontSize: 13,
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
               ),
               const SizedBox(width: 12),
@@ -504,4 +525,3 @@ class DayInfo {
 
   DayInfo(this.dayName, this.day, this.date);
 }
-

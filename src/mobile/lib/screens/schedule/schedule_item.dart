@@ -6,6 +6,7 @@ class ScheduleItem {
   final String subject;
   final String room;
   final String type;
+  final String teacher;
 
   ScheduleItem({
     required this.startTime,
@@ -13,5 +14,6 @@ class ScheduleItem {
     required this.subject,
     required this.room,
     required this.type,
+    this.teacher = '',
   });
 }
