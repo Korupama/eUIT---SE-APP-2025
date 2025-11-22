@@ -25,7 +25,8 @@ public class StudentsController : ControllerBase
     public class NextClassInfo
     {
         public string ma_lop { get; set; } = string.Empty;
-        public string ten_mon_hoc_vn { get; set; } = string.Empty;
+        public string ten_mon_hoc_vn { get; set; } = string.Empty; // Tên giảng viên lấy từ DB
+        public string ten_giang_vien { get; set; } = string.Empty;
         public string thu { get; set; } = string.Empty;
         public int tiet_bat_dau { get; set; }
         public int tiet_ket_thuc { get; set; }
@@ -92,6 +93,7 @@ public class StudentsController : ControllerBase
         {
             MaLop = NextClassResult.ma_lop.Trim(),
             TenMonHoc = NextClassResult.ten_mon_hoc_vn,
+            TenGiangVien = string.IsNullOrWhiteSpace(NextClassResult.ten_giang_vien) ? "" : NextClassResult.ten_giang_vien,
             Thu = NextClassResult.thu,
             TietBatDau = NextClassResult.tiet_bat_dau,
             TietKetThuc = NextClassResult.tiet_ket_thuc,
