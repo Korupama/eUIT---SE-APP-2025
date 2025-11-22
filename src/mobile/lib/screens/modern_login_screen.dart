@@ -29,7 +29,8 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
   bool _obscurePassword = true;
   bool _rememberMe = false;
   bool _isLoading = false;
-  String? _errorMessage;
+  String? _errorMessage; // keep for non-coded generic errors
+  String? _errorKey; // holds localization key like 'invalid_credentials'
   bool _shakeUsername = false;
   bool _shakePassword = false;
 
@@ -61,6 +62,7 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
   Future<void> _handleLogin() async {
     setState(() {
       _errorMessage = null;
+      _errorKey = null; // reset error key so it can re-localize
       _shakeUsername = false;
       _shakePassword = false;
     });
@@ -97,8 +99,15 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
       }
     } catch (e) {
       if (mounted) {
+        final errorText = e.toString().replaceAll('Exception: ', '');
         setState(() {
-          _errorMessage = e.toString().replaceAll('Exception: ', '');
+          if (errorText == 'invalid_credentials') {
+            _errorKey = 'invalid_credentials'; // store key only
+            _errorMessage = null; // ensure old message cleared
+          } else {
+            _errorMessage = errorText; // fallback raw message
+            _errorKey = null;
+          }
           _passwordController.clear();
           _shakePassword = true;
         });
@@ -116,23 +125,23 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
   Future<void> _handleForgotPassword() async {
     final url = Uri.parse('https://auth.uit.edu.vn/ForgotPassword.aspx');
     try {
-      if (await canLaunchUrl(url)) {
-        await launchUrl(url, mode: LaunchMode.externalApplication);
-      } else {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Không thể mở liên kết. Vui lòng thử lại sau.'),
-              backgroundColor: AppTheme.error,
-            ),
-          );
-        }
+      // Try launching directly; some devices/emulators return false for canLaunchUrl
+      final launched = await launchUrl(url, mode: LaunchMode.externalApplication);
+      if (!launched && mounted) {
+        final loc = AppLocalizations.of(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(loc.t('link_open_failed')),
+            backgroundColor: AppTheme.error,
+          ),
+        );
       }
     } catch (e) {
       if (mounted) {
+        final loc = AppLocalizations.of(context);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Lỗi: ${e.toString()}'),
+            content: Text('${loc.t('error_prefix')}${e.toString()}'),
             backgroundColor: AppTheme.error,
           ),
         );
@@ -349,11 +358,13 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
             ),
 
             // Error Message
-            if (_errorMessage != null) ...[
-              const SizedBox(height: 10), // Reduced from 12
+            if (_errorKey != null || _errorMessage != null) ...[
+              const SizedBox(height: 10),
               Text(
-                _errorMessage!,
-                style: TextStyle(
+                _errorKey != null
+                    ? loc.t(_errorKey!) // dynamic localization
+                    : _errorMessage!,
+                style: const TextStyle(
                   color: AppTheme.error,
                   fontSize: 14,
                 ),
@@ -367,28 +378,34 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  children: [
-                    SizedBox(
-                      width: 24,
-                      height: 24,
-                      child: Checkbox(
-                        value: _rememberMe,
-                        onChanged: (value) {
-                          setState(() => _rememberMe = value ?? false);
-                        },
-                        activeColor: AppTheme.bluePrimary,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(4),
+                InkWell(
+                  borderRadius: BorderRadius.circular(4),
+                  onTap: () {
+                    setState(() => _rememberMe = !_rememberMe);
+                  },
+                  child: Row(
+                    children: [
+                      SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: Checkbox(
+                          value: _rememberMe,
+                          onChanged: (value) {
+                            setState(() => _rememberMe = value ?? false);
+                          },
+                          activeColor: AppTheme.bluePrimary,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(4),
+                          ),
                         ),
                       ),
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      loc.t('remember_me'),
-                      style: AppTheme.bodyMedium.copyWith(color: secondaryTextColor),
-                    ),
-                  ],
+                      const SizedBox(width: 8),
+                      Text(
+                        loc.t('remember_me'),
+                        style: AppTheme.bodyMedium.copyWith(color: secondaryTextColor),
+                      ),
+                    ],
+                  ),
                 ),
                 TextButton(
                   onPressed: _handleForgotPassword,

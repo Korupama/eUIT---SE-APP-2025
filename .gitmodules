@@ -1,0 +1,3 @@
+[submodule "src/chatbot"]
+	path = src/chatbot
+	url = https://github.com/jnswkz/dotnet-LangChain.git
