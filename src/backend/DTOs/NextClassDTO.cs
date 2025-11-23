@@ -11,4 +11,5 @@ public class NextClassDto
     public int TietKetThuc { get; set; }
     public string PhongHoc { get; set; } = string.Empty;
     public DateTime NgayHoc { get; set; }
+    public int CountdownMinutes { get; set; }
 }
