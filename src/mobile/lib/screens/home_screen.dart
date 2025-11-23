@@ -788,14 +788,17 @@ class _HomeScreenState extends State<HomeScreen>
               ),
             ),
 
-          // View all button
+          // View all button (icon + localized label)
           Align(
             alignment: Alignment.centerLeft,
-            child: TextButton(
+            child: TextButton.icon(
               onPressed: () => Navigator.pushNamed(context, '/notifications'),
-              child: Text(
-                loc.t('view_all'),
-                style: TextStyle(color: AppTheme.bluePrimary, fontWeight: FontWeight.w600),
+              icon: Icon(Icons.arrow_forward_rounded, size: 18, color: AppTheme.bluePrimary),
+              label: Text(loc.t('view_all'), style: TextStyle(color: AppTheme.bluePrimary, fontWeight: FontWeight.w600)),
+              style: TextButton.styleFrom(
+                foregroundColor: AppTheme.bluePrimary,
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
               ),
             ),
           ),
@@ -854,9 +857,15 @@ class _HomeScreenState extends State<HomeScreen>
 
         Align(
           alignment: Alignment.centerLeft,
-          child: TextButton(
+          child: TextButton.icon(
             onPressed: () => Navigator.pushNamed(context, '/notifications'),
-            child: Text(loc.t('view_all'), style: TextStyle(color: AppTheme.bluePrimary, fontWeight: FontWeight.w600)),
+            icon: Icon(Icons.arrow_forward_rounded, size: 18, color: AppTheme.bluePrimary),
+            label: Text(loc.t('view_all'), style: TextStyle(color: AppTheme.bluePrimary, fontWeight: FontWeight.w600)),
+            style: TextButton.styleFrom(
+              foregroundColor: AppTheme.bluePrimary,
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
           ),
         ),
       ],
