@@ -198,7 +198,8 @@ class HomeProvider extends ChangeNotifier {
 
         String timeRange = '';
         if (tietBatDau != null && tietKetThuc != null) {
-          timeRange = 'Tiết ${tietBatDau} - ${tietKetThuc}';
+          // Map periods to actual time-of-day ranges using the school's schedule
+          timeRange = _periodsToTimeRange(tietBatDau, tietKetThuc);
         } else if (body['ngayHoc'] != null) {
           try {
             final dt = DateTime.parse(body['ngayHoc'].toString());
@@ -233,5 +234,37 @@ class HomeProvider extends ChangeNotifier {
     if (h > 0 && m > 0) return '${h}h ${m}m';
     if (h > 0) return '${h}h';
     return '${m}m';
+  }
+
+  // Convert start/end period numbers to human-readable time range using school schedule
+  String _periodsToTimeRange(int startPeriod, int endPeriod) {
+    const Map<int, String> startMap = {
+      1: '7:30',
+      2: '8:15',
+      3: '9:00',
+      4: '10:00',
+      5: '10:45',
+      6: '13:00',
+      7: '13:45',
+      8: '14:30',
+      9: '15:30',
+      0: '16:15',
+    };
+    const Map<int, String> endMap = {
+      1: '8:15',
+      2: '9:00',
+      3: '9:45',
+      4: '10:45',
+      5: '11:30',
+      6: '13:45',
+      7: '14:30',
+      8: '15:15',
+      9: '16:15',
+      0: '17:00',
+    };
+
+    final start = startMap[startPeriod] ?? '${startPeriod}';
+    final end = endMap[endPeriod] ?? '${endPeriod}';
+    return '$start - $end';
   }
 }
