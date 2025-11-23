@@ -5,6 +5,7 @@ import '../models/schedule_item.dart';
 import '../models/notification_item.dart';
 import '../models/quick_action.dart';
 import '../services/auth_service.dart';
+import '../models/student_card_dto.dart';
 
 class HomeProvider extends ChangeNotifier {
   bool _isLoading = false;
@@ -13,6 +14,8 @@ class HomeProvider extends ChangeNotifier {
     _loadMock();
     // Try to fetch quick GPA in background when provider is created
     Future.microtask(() => fetchQuickGpa());
+    // Fetch student card in background
+    Future.microtask(() => fetchStudentCard());
   }
 
   late ScheduleItem _nextSchedule;
@@ -21,6 +24,9 @@ class HomeProvider extends ChangeNotifier {
 
   double? _gpa;
   int? _soTinChiTichLuy;
+  StudentCardDto? _studentCard;
+
+  StudentCardDto? get studentCard => _studentCard;
 
   final AuthService _auth = AuthService();
 
@@ -125,6 +131,30 @@ class HomeProvider extends ChangeNotifier {
       }
     } catch (e) {
       // Silently ignore network/parse errors for now; UI will continue using mock or empty state.
+    }
+  }
+
+  /// Fetch student card from backend: GET /card
+  Future<void> fetchStudentCard() async {
+    try {
+      final token = await _auth.getToken();
+      if (token == null || token.isEmpty) return;
+
+      final uri = _auth.buildUri('/card');
+      final res = await http.get(uri, headers: {
+        'Authorization': 'Bearer $token',
+        'Accept': 'application/json',
+      });
+
+      if (res.statusCode >= 200 && res.statusCode < 300) {
+        final Map<String, dynamic> body = jsonDecode(res.body) as Map<String, dynamic>;
+        _studentCard = StudentCardDto.fromJson(body);
+        notifyListeners();
+      } else if (res.statusCode == 401) {
+        await _auth.deleteToken();
+      }
+    } catch (e) {
+      // ignore network/parse errors for now
     }
   }
 }

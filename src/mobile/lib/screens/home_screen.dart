@@ -285,11 +285,12 @@ class _HomeScreenState extends State<HomeScreen>
                     ),
                   ),
                   const SizedBox(width: 12),
+                  // Show real student info when available
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Nguyễn Văn A',
+                        provider.studentCard?.hoTen ?? 'Nguyễn Văn A',
                         style: TextStyle(
                           color: isDark ? Colors.white : Colors.black87,
                           fontSize: 16,
@@ -297,7 +298,7 @@ class _HomeScreenState extends State<HomeScreen>
                         ),
                       ),
                       Text(
-                        'MSSV: 20520001',
+                        'MSSV: ${provider.studentCard?.mssv?.toString() ?? '20520001'}',
                         style: TextStyle(
                           color: isDark
                               ? Colors.grey.shade400
@@ -1101,6 +1102,7 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   void _showStudentCardDialog(AppLocalizations loc, bool isDark) {
+    final provider = Provider.of<HomeProvider>(context, listen: false);
     showDialog(
       context: context,
       barrierDismissible: true,
@@ -1113,9 +1115,9 @@ class _HomeScreenState extends State<HomeScreen>
           child: ConstrainedBox(
             constraints: BoxConstraints(maxWidth: screenWidth - 24),
             child: StudentIdCard(
-              studentName: 'Nguyễn Văn A',
-              studentId: '20520001',
-              majorName: 'Khoa học máy tính',
+              studentName: provider.studentCard?.hoTen ?? 'Nguyễn Văn A',
+              studentId: provider.studentCard?.mssv?.toString() ?? '20520001',
+              majorName: provider.studentCard?.nganhHoc ?? 'Khoa học máy tính',
             ),
           ),
         );
