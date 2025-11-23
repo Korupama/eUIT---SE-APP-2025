@@ -7,6 +7,7 @@ import '../utils/app_localizations.dart';
 import '../widgets/animated_background.dart';
 import 'package:shimmer/shimmer.dart';
 import 'chatbot.dart';
+import '../widgets/student_id_card.dart';
 
 /// HomeScreen - Trang chủ Light Theme với bố cục mới
 class HomeScreen extends StatefulWidget {
@@ -43,10 +44,6 @@ class _HomeScreenState extends State<HomeScreen>
   // GPA visibility state
   bool _isGpaVisible = false;
 
-  String _formatGpa(double? gpa) {
-    if (gpa == null) return '••••/10.0';
-    return '${gpa.toStringAsFixed(gpa.truncateToDouble() == gpa ? 0 : 2)}/10.0';
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -1116,52 +1113,13 @@ class _HomeScreenState extends State<HomeScreen>
             loc.t('student_card'),
             style: TextStyle(color: isDark ? Colors.white : Colors.black87),
           ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  color: isDark
-                      ? Colors.white.withAlpha(10)
-                      : AppTheme.lightCard,
-                  border: Border.all(
-                    color: isDark ? Colors.white24 : AppTheme.lightBorder,
-                  ),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    const Icon(
-                      Icons.badge_outlined,
-                      size: 48,
-                      color: AppTheme.bluePrimary,
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      loc.t('coming_soon'),
-                      style: TextStyle(
-                        color: isDark ? Colors.white : Colors.black87,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      loc.t('digital_student_card_preview'),
-                      style: TextStyle(
-                        color: isDark
-                            ? Colors.grey.shade400
-                            : Colors.grey.shade600,
-                        fontSize: 12,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ),
-              ),
-            ],
+          content: SizedBox(
+            width: 360,
+            child: StudentIdCard(
+              studentName: 'Nguyễn Văn A',
+              studentId: '20520001',
+              majorName: 'Khoa học máy tính',
+            ),
           ),
           actions: [
             TextButton(
