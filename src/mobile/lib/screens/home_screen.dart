@@ -516,16 +516,19 @@ class _HomeScreenState extends State<HomeScreen>
                         const SizedBox(height: 6),
 
                         // Course name
-                        Text(
-                          schedule.courseName,
-                          maxLines: 2, // limit to two lines; if it would go to a 3rd line show ellipsis
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
+                        LayoutBuilder(builder: (context, constraints) {
+                          final courseStyle = TextStyle(
                             color: isDark ? Colors.white : Colors.black87,
                             fontSize: 22,
                             fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                          );
+                          return _EllipsizeAtWord(
+                            text: schedule.courseName,
+                            style: courseStyle,
+                            maxLines: 2,
+                            maxWidth: constraints.maxWidth,
+                          );
+                        }),
                       ],
                     ),
                   ),
@@ -1190,5 +1193,92 @@ class _HomeScreenState extends State<HomeScreen>
         );
       },
     );
+  }
+}
+
+// Helper widget: truncates text to whole-word boundary when adding ellipsis.
+class _EllipsizeAtWord extends StatelessWidget {
+  final String text;
+  final TextStyle style;
+  final int maxLines;
+  final double maxWidth;
+
+  const _EllipsizeAtWord({required this.text, required this.style, required this.maxLines, required this.maxWidth, super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final textScale = MediaQuery.of(context).textScaleFactor;
+    final textDirection = Directionality.of(context);
+
+    // Quick check: does the full text already fit?
+    final tp = TextPainter(
+      text: TextSpan(text: text, style: style),
+      textDirection: textDirection,
+      textScaleFactor: textScale,
+      maxLines: maxLines,
+    );
+    tp.layout(maxWidth: maxWidth);
+    if (!tp.didExceedMaxLines) {
+      return Text(text, style: style, maxLines: maxLines);
+    }
+
+    // Try to fit as many whole words as possible, then append ellipsis
+    final words = text.split(RegExp(r'\s+'));
+    int low = 0;
+    int high = words.length;
+    String best = '';
+
+    while (low <= high) {
+      final mid = (low + high) >> 1;
+      final candidate = words.take(mid).join(' ');
+      final candWithEll = candidate.isEmpty ? '…' : candidate + '…';
+      final tp2 = TextPainter(
+        text: TextSpan(text: candWithEll, style: style),
+        textDirection: textDirection,
+        textScaleFactor: textScale,
+        maxLines: maxLines,
+      );
+      tp2.layout(maxWidth: maxWidth);
+      if (!tp2.didExceedMaxLines) {
+        best = candWithEll;
+        low = mid + 1;
+      } else {
+        high = mid - 1;
+      }
+    }
+
+    if (best.isNotEmpty) {
+      return Text(best, style: style, maxLines: maxLines, overflow: TextOverflow.clip);
+    }
+
+    // Fallback: no whole word fits, do character-level binary search
+    String bestChar = '';
+    int lo = 0;
+    int hi = text.length;
+    while (lo <= hi) {
+      final mid = (lo + hi) >> 1;
+      final cand = text.substring(0, mid);
+      final candWithEll = cand + '…';
+      final tp3 = TextPainter(
+        text: TextSpan(text: candWithEll, style: style),
+        textDirection: textDirection,
+        textScaleFactor: textScale,
+        maxLines: maxLines,
+      );
+      tp3.layout(maxWidth: maxWidth);
+      if (!tp3.didExceedMaxLines) {
+        bestChar = candWithEll;
+        lo = mid + 1;
+      } else {
+        hi = mid - 1;
+      }
+    }
+
+    if (bestChar.isNotEmpty) {
+      return Text(bestChar, style: style, maxLines: maxLines, overflow: TextOverflow.clip);
+    }
+
+    // As a last resort, show original text with ellipsis overflow (shouldn't reach here)
+    return Text(text, style: style, maxLines: maxLines, overflow: TextOverflow.ellipsis);
   }
 }
