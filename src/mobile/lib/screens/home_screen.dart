@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../providers/home_provider.dart';
 import '../theme/app_theme.dart';
 import '../utils/app_localizations.dart';
@@ -53,14 +54,12 @@ class _HomeScreenState extends State<HomeScreen>
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: isDark
-          ? AppTheme.darkBackground
-          : const Color(0xFFF7F8FC),
+      // Match ModernLoginScreen background so header transparency reveals same AnimatedBackground
+      backgroundColor: isDark ? AppTheme.darkBackground : AppTheme.lightBackground,
       body: Stack(
         children: [
-          // Animated background cho Dark Mode
-          if (isDark)
-            const Positioned.fill(child: AnimatedBackground(isDark: true)),
+          // Animated background (match login) - render in both modes
+          Positioned.fill(child: AnimatedBackground(isDark: isDark)),
 
           // Main scrollable content
           SafeArea(
@@ -245,18 +244,14 @@ class _HomeScreenState extends State<HomeScreen>
     return ClipRRect(
       borderRadius: BorderRadius.circular(16),
       child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+        filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6), // nhẹ, hiển thị nền động phía sau
         child: Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: isDark
-                ? AppTheme.darkBackground.withAlpha(242) // 0.95 opacity
-                : Colors.white.withAlpha(229), // 0.9 opacity
+            color: isDark ? AppTheme.darkCard.withAlpha(160) : Colors.white.withAlpha(200),
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: isDark
-                  ? Colors.white.withAlpha(26) // 0.1 opacity
-                  : Colors.grey.shade200.withAlpha(204), // 0.8 opacity
+              color: isDark ? Colors.white.withAlpha(18) : AppTheme.lightBorder,
               width: 1,
             ),
           ),
@@ -266,7 +261,6 @@ class _HomeScreenState extends State<HomeScreen>
               // Left: Avatar + Name/MSSV
               Row(
                 children: [
-                  // Avatar: tappable to show profile (temporary)
                   GestureDetector(
                     onTap: () => Navigator.pushNamed(context, '/profile'),
                     child: Container(
@@ -278,15 +272,16 @@ class _HomeScreenState extends State<HomeScreen>
                           colors: [AppTheme.bluePrimary, AppTheme.blueLight],
                         ),
                       ),
-                      child: const Icon(
-                        Icons.person,
-                        color: Colors.white,
-                        size: 28,
+                      child: Padding(
+                        padding: const EdgeInsets.all(10.0),
+                        child: SvgPicture.asset(
+                          'assets/icons/logo-uit.svg',
+                          colorFilter: const ColorFilter.mode(AppTheme.bluePrimary, BlendMode.srcIn),
+                        ),
                       ),
                     ),
                   ),
                   const SizedBox(width: 12),
-                  // Show real student info when available
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -301,9 +296,7 @@ class _HomeScreenState extends State<HomeScreen>
                       Text(
                         'MSSV: ${provider.studentCard?.mssv?.toString() ?? '12345678'}',
                         style: TextStyle(
-                          color: isDark
-                              ? Colors.grey.shade400
-                              : Colors.grey.shade600,
+                          color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
                           fontSize: 12,
                         ),
                       ),
@@ -311,17 +304,15 @@ class _HomeScreenState extends State<HomeScreen>
                   ),
                 ],
               ),
-              // RIGHT: Chatbot + Notification
+
+              // Right: Chatbot + Notification
               Row(
                 children: [
-                  // Chatbot Button (Circle) - Matching Theme
                   GestureDetector(
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(
-                          builder: (context) => const ChatbotScreen(),
-                        ),
+                        MaterialPageRoute(builder: (context) => const ChatbotScreen()),
                       );
                     },
                     child: Container(
@@ -329,26 +320,15 @@ class _HomeScreenState extends State<HomeScreen>
                       height: 44,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-
-                        /// 🎨 Gradient giống hệt bell notification
                         color: Colors.transparent,
-
-                        /// 🌫️ Shadow giống bell
                         boxShadow: [
                           BoxShadow(
-                            color: isDark
-                                ? AppTheme.bluePrimary.withAlpha(77) // ~30% opacity
-                                : Colors.black12,
+                            color: isDark ? AppTheme.bluePrimary.withAlpha(77) : Colors.black12,
                             blurRadius: 10,
                             offset: const Offset(0, 3),
                           ),
                         ],
-
-                        /// Viền nhẹ giống bell notification
-                        border: Border.all(
-                          color: isDark ? Colors.white24 : Colors.black12,
-                          width: 1.2,
-                        ),
+                        border: Border.all(color: isDark ? Colors.white24 : Colors.black12, width: 1.2),
                       ),
                       child: ClipOval(
                         child: BackdropFilter(
@@ -357,8 +337,6 @@ class _HomeScreenState extends State<HomeScreen>
                             child: Icon(
                               Icons.smart_toy,
                               size: 20,
-
-                              /// Icon màu giống bell (trắng khi dark / đen khi light)
                               color: isDark ? Colors.white : Colors.black87,
                             ),
                           ),
@@ -369,15 +347,11 @@ class _HomeScreenState extends State<HomeScreen>
 
                   const SizedBox(width: 10),
 
-                  // Notification Bell
                   Stack(
                     clipBehavior: Clip.none,
                     children: [
                       IconButton(
-                        onPressed: () {
-                          print('Notification tapped');
-                          Navigator.pushNamed(context, '/notifications');
-                        },
+                        onPressed: () => Navigator.pushNamed(context, '/notifications'),
                         icon: Icon(
                           Icons.notifications_outlined,
                           color: isDark ? Colors.white : Colors.black87,
@@ -390,22 +364,12 @@ class _HomeScreenState extends State<HomeScreen>
                           right: 8,
                           child: Container(
                             padding: const EdgeInsets.all(4),
-                            decoration: const BoxDecoration(
-                              color: Colors.red,
-                              shape: BoxShape.circle,
-                            ),
-                            constraints: const BoxConstraints(
-                              minWidth: 18,
-                              minHeight: 18,
-                            ),
+                            decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
+                            constraints: const BoxConstraints(minWidth: 18, minHeight: 18),
                             child: Center(
                               child: Text(
                                 unreadCount > 9 ? '9+' : '$unreadCount',
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                                style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
                               ),
                             ),
                           ),
@@ -827,58 +791,66 @@ class _HomeScreenState extends State<HomeScreen>
     // Default: render up to maxItems notifications with a footer button
     return Column(
       children: [
-        ...notifications.map((notification) {
-          return Container(
-            margin: const EdgeInsets.only(bottom: 12),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(16),
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: isDark ? const Color(0xFF1E293B).withAlpha(153) : Colors.white.withAlpha(204),
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: isDark ? Colors.white.withAlpha(13) : Colors.grey.shade100),
-                  ),
-                  child: ListTile(
-                    contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                    leading: Container(
-                      width: 44,
-                      height: 44,
-                      decoration: BoxDecoration(
-                        gradient: notification.isUnread
-                            ? const LinearGradient(colors: [AppTheme.bluePrimary, AppTheme.blueLight])
-                            : LinearGradient(colors: [Colors.grey.shade300, Colors.grey.shade200]),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Icon(
-                        Icons.notifications_outlined,
-                        color: notification.isUnread ? Colors.white : Colors.grey.shade600,
-                        size: 22,
-                      ),
+        // map each notification to a ListTile wrapped in blurred card
+        ...notifications.map((notification) => Container(
+              margin: const EdgeInsets.only(bottom: 12),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: isDark ? const Color(0xFF1E293B).withAlpha(153) : Colors.white.withAlpha(204),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: isDark ? Colors.white.withAlpha(13) : Colors.grey.shade100),
                     ),
-                    title: Text(notification.title, style: TextStyle(color: isDark ? Colors.white : Colors.black87, fontWeight: FontWeight.w600), maxLines: 2, overflow: TextOverflow.ellipsis),
-                    subtitle: notification.body != null
-                        ? Padding(
-                            padding: const EdgeInsets.only(top: 4),
-                            child: Text(notification.body!, style: TextStyle(color: isDark ? Colors.grey.shade400 : Colors.grey.shade600, fontSize: 12), maxLines: 1, overflow: TextOverflow.ellipsis),
-                          )
-                        : null,
-                    trailing: notification.isUnread ? Container(width: 10, height: 10, decoration: const BoxDecoration(color: AppTheme.bluePrimary, shape: BoxShape.circle)) : null,
-                    onTap: () => print('Tapped notification: ${notification.title}'),
+                    child: ListTile(
+                      contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                      leading: Container(
+                        width: 44,
+                        height: 44,
+                        decoration: BoxDecoration(
+                          gradient: notification.isUnread
+                              ? const LinearGradient(colors: [AppTheme.bluePrimary, AppTheme.blueLight])
+                              : LinearGradient(colors: [Colors.grey.shade300, Colors.grey.shade200]),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Icon(
+                          Icons.notifications_outlined,
+                          color: notification.isUnread ? Colors.white : Colors.grey.shade600,
+                          size: 22,
+                        ),
+                      ),
+                      title: Text(notification.title,
+                          style: TextStyle(color: isDark ? Colors.white : Colors.black87, fontWeight: FontWeight.w600),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis),
+                      subtitle: notification.body != null
+                          ? Padding(
+                              padding: const EdgeInsets.only(top: 4),
+                              child: Text(notification.body!,
+                                  style: TextStyle(color: isDark ? Colors.grey.shade400 : Colors.grey.shade600, fontSize: 12),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis),
+                            )
+                          : null,
+                      trailing: notification.isUnread
+                          ? Container(width: 10, height: 10, decoration: const BoxDecoration(color: AppTheme.bluePrimary, shape: BoxShape.circle))
+                          : null,
+                      onTap: () => print('Tapped notification: ${notification.title}'),
+                    ),
                   ),
                 ),
               ),
-            ),
-          );
-        }).toList(),
+            )).toList(),
 
+        // View all button
         Align(
           alignment: Alignment.centerLeft,
           child: TextButton.icon(
             onPressed: () => Navigator.pushNamed(context, '/notifications'),
-            icon: Icon(Icons.arrow_forward_rounded, size: 18, color: AppTheme.bluePrimary),
-            label: Text(loc.t('view_all'), style: TextStyle(color: AppTheme.bluePrimary, fontWeight: FontWeight.w600)),
+            icon: const Icon(Icons.arrow_forward_rounded, size: 18, color: AppTheme.bluePrimary),
+            label: Text(loc.t('view_all'), style: const TextStyle(color: AppTheme.bluePrimary, fontWeight: FontWeight.w600)),
             style: TextButton.styleFrom(
               foregroundColor: AppTheme.bluePrimary,
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -1203,18 +1175,16 @@ class _EllipsizeAtWord extends StatelessWidget {
   final int maxLines;
   final double maxWidth;
 
-  const _EllipsizeAtWord({required this.text, required this.style, required this.maxLines, required this.maxWidth, super.key});
+  const _EllipsizeAtWord({Key? key, required this.text, required this.style, required this.maxLines, required this.maxWidth}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final textScale = MediaQuery.of(context).textScaleFactor;
     final textDirection = Directionality.of(context);
 
     // Quick check: does the full text already fit?
     final tp = TextPainter(
       text: TextSpan(text: text, style: style),
       textDirection: textDirection,
-      textScaleFactor: textScale,
       maxLines: maxLines,
     );
     tp.layout(maxWidth: maxWidth);
@@ -1235,7 +1205,6 @@ class _EllipsizeAtWord extends StatelessWidget {
       final tp2 = TextPainter(
         text: TextSpan(text: candWithEll, style: style),
         textDirection: textDirection,
-        textScaleFactor: textScale,
         maxLines: maxLines,
       );
       tp2.layout(maxWidth: maxWidth);
@@ -1262,7 +1231,6 @@ class _EllipsizeAtWord extends StatelessWidget {
       final tp3 = TextPainter(
         text: TextSpan(text: candWithEll, style: style),
         textDirection: textDirection,
-        textScaleFactor: textScale,
         maxLines: maxLines,
       );
       tp3.layout(maxWidth: maxWidth);
