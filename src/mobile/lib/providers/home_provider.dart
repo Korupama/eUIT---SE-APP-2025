@@ -16,6 +16,8 @@ class HomeProvider extends ChangeNotifier {
     Future.microtask(() => fetchQuickGpa());
     // Fetch student card in background
     Future.microtask(() => fetchStudentCard());
+    // Fetch next class in background
+    Future.microtask(() => fetchNextClass());
   }
 
   late ScheduleItem _nextSchedule;
@@ -156,5 +158,80 @@ class HomeProvider extends ChangeNotifier {
     } catch (e) {
       // ignore network/parse errors for now
     }
+  }
+
+  /// Fetch next class from backend: GET /nextclass
+  /// Maps server response to local ScheduleItem used by UI.
+  Future<void> fetchNextClass() async {
+    try {
+      final token = await _auth.getToken();
+      if (token == null || token.isEmpty) return;
+
+      final uri = _auth.buildUri('/nextclass');
+      final res = await http.get(uri, headers: {
+        'Authorization': 'Bearer $token',
+        'Accept': 'application/json',
+      });
+
+      if (res.statusCode >= 200 && res.statusCode < 300) {
+        final Map<String, dynamic> body = jsonDecode(res.body) as Map<String, dynamic>;
+
+        final maLop = body['maLop']?.toString() ?? '';
+        final tenMonHoc = body['tenMonHoc']?.toString() ?? '';
+        final tenGiangVien = body['tenGiangVien']?.toString() ?? '';
+        final phongHoc = body['phongHoc']?.toString() ?? '';
+
+        int? tietBatDau;
+        int? tietKetThuc;
+        if (body['tietBatDau'] != null) {
+          tietBatDau = (body['tietBatDau'] is int) ? body['tietBatDau'] as int : int.tryParse(body['tietBatDau'].toString());
+        }
+        if (body['tietKetThuc'] != null) {
+          tietKetThuc = (body['tietKetThuc'] is int) ? body['tietKetThuc'] as int : int.tryParse(body['tietKetThuc'].toString());
+        }
+
+        String countdownStr = '';
+        if (body['countdownMinutes'] != null) {
+          final cm = (body['countdownMinutes'] is int) ? body['countdownMinutes'] as int : int.tryParse(body['countdownMinutes'].toString()) ?? 0;
+          countdownStr = _formatMinutesToHoursMinutes(cm);
+        }
+
+        String timeRange = '';
+        if (tietBatDau != null && tietKetThuc != null) {
+          timeRange = 'Tiết ${tietBatDau} - ${tietKetThuc}';
+        } else if (body['ngayHoc'] != null) {
+          try {
+            final dt = DateTime.parse(body['ngayHoc'].toString());
+            timeRange = '${dt.day}/${dt.month}/${dt.year}';
+          } catch (_) {
+            timeRange = '';
+          }
+        }
+
+        _nextSchedule = ScheduleItem(
+          timeRange: timeRange.isNotEmpty ? timeRange : '—',
+          courseCode: maLop,
+          courseName: tenMonHoc,
+          room: phongHoc,
+          lecturer: tenGiangVien,
+          countdown: countdownStr.isNotEmpty ? countdownStr : (body['countdownMinutes'] != null ? '${body['countdownMinutes']} min' : ''),
+        );
+
+        notifyListeners();
+      } else if (res.statusCode == 401) {
+        await _auth.deleteToken();
+      }
+    } catch (e) {
+      // Keep existing mock data on error
+    }
+  }
+
+  String _formatMinutesToHoursMinutes(int minutes) {
+    if (minutes <= 0) return '0m';
+    final h = minutes ~/ 60;
+    final m = minutes % 60;
+    if (h > 0 && m > 0) return '${h}h ${m}m';
+    if (h > 0) return '${h}h';
+    return '${m}m';
   }
 }

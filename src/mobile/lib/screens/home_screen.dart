@@ -69,9 +69,10 @@ class _HomeScreenState extends State<HomeScreen>
                 : RefreshIndicator(
                     onRefresh: () async {
                       try {
-                        await provider.fetchQuickGpa();
+                        // Refresh both quick GPA and next class when user pulls to refresh
+                        await Future.wait([provider.fetchQuickGpa(), provider.fetchNextClass()]);
                       } catch (_) {
-                        // ignore
+                        // ignore network errors for UX continuity
                       }
                     },
                     color: AppTheme.bluePrimary,
