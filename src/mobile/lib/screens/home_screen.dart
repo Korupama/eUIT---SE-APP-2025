@@ -1104,44 +1104,18 @@ class _HomeScreenState extends State<HomeScreen>
     showDialog(
       context: context,
       barrierDismissible: true,
+      barrierColor: Colors.black54, // darken background for clarity
       builder: (context) {
-        final width = MediaQuery.of(context).size.width;
+        final screenWidth = MediaQuery.of(context).size.width;
         return Dialog(
-          insetPadding: EdgeInsets.zero,
+          insetPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 24),
           backgroundColor: Colors.transparent,
-          child: SafeArea(
-            child: Stack(
-              children: [
-                // Full-width card centered vertically with a small top/bottom padding
-                Center(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                    child: SizedBox(
-                      width: width,
-                      child: StudentIdCard(
-                        studentName: 'Nguyễn Văn A',
-                        studentId: '20520001',
-                        majorName: 'Khoa học máy tính',
-                      ),
-                    ),
-                  ),
-                ),
-                // Close button (top-right)
-                Positioned(
-                  top: 8,
-                  right: 8,
-                  child: Material(
-                    color: Colors.transparent,
-                    child: IconButton(
-                      style: IconButton.styleFrom(
-                        backgroundColor: (isDark ? Colors.black : Colors.white).withAlpha(178), // ~0.7
-                      ),
-                      icon: Icon(Icons.close, color: isDark ? Colors.white : Colors.black87),
-                      onPressed: () => Navigator.of(context).pop(),
-                    ),
-                  ),
-                ),
-              ],
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: screenWidth - 24),
+            child: StudentIdCard(
+              studentName: 'Nguyễn Văn A',
+              studentId: '20520001',
+              majorName: 'Khoa học máy tính',
             ),
           ),
         );
