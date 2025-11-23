@@ -95,6 +95,15 @@ class _HomeScreenState extends State<HomeScreen>
                           _buildNextScheduleCard(provider, loc, isDark),
                           const SizedBox(height: 24),
 
+                          // Notifications Section (moved here: show single item + View all)
+                          _buildSectionTitle(
+                            loc.t('new_notifications'),
+                            isDark,
+                          ),
+                          const SizedBox(height: 12),
+                          _buildNotificationsList(provider, isDark, loc, maxItems: 1),
+                          const SizedBox(height: 24),
+
                           // Quick Actions Section (SQUIRCLE)
                           _buildSectionTitle(loc.t('quick_actions'), isDark),
                           const SizedBox(height: 12),
@@ -102,13 +111,13 @@ class _HomeScreenState extends State<HomeScreen>
                           const SizedBox(height: 24),
 
                           // Notifications Section
-                          _buildSectionTitle(
-                            loc.t('new_notifications'),
-                            isDark,
-                          ),
-                          const SizedBox(height: 12),
-                          _buildNotificationsList(provider, isDark),
-                          const SizedBox(height: 20),
+                          // _buildSectionTitle(
+                          //   loc.t('new_notifications'),
+                          //   isDark,
+                          // ),
+                          // const SizedBox(height: 12),
+                          // _buildNotificationsList(provider, isDark),
+                          // const SizedBox(height: 20),
                         ],
                       ),
                     ),
@@ -315,7 +324,7 @@ class _HomeScreenState extends State<HomeScreen>
                         boxShadow: [
                           BoxShadow(
                             color: isDark
-                                ? AppTheme.bluePrimary.withOpacity(0.3)
+                                ? AppTheme.bluePrimary.withAlpha(77) // ~30% opacity
                                 : Colors.black12,
                             blurRadius: 10,
                             offset: const Offset(0, 3),
@@ -354,6 +363,7 @@ class _HomeScreenState extends State<HomeScreen>
                       IconButton(
                         onPressed: () {
                           print('Notification tapped');
+                          Navigator.pushNamed(context, '/notifications');
                         },
                         icon: Icon(
                           Icons.notifications_outlined,
@@ -706,111 +716,150 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   // Notifications List với BackdropFilter
-  Widget _buildNotificationsList(HomeProvider provider, bool isDark) {
-    final notifications = provider.notifications.take(3).toList();
+  Widget _buildNotificationsList(HomeProvider provider, bool isDark, AppLocalizations loc, {int maxItems = 3}) {
+    final all = provider.notifications;
+    final notifications = all.take(maxItems).toList();
 
-    return Column(
-      children: notifications.map((notification) {
-        return Container(
-          margin: const EdgeInsets.only(bottom: 12),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(16),
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: isDark
-                      ? const Color(0xFF1E293B).withAlpha(153) // 0.6 opacity
-                      : Colors.white.withAlpha(204), // 0.8 opacity
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: isDark
-                        ? Colors.white.withAlpha(13) // 0.05 opacity
-                        : Colors.grey.shade100,
-                  ),
-                  boxShadow: isDark
-                      ? []
-                      : [
-                          BoxShadow(
-                            color: Colors.black.withAlpha(13),
-                            blurRadius: 8,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                ),
-                child: ListTile(
-                  leading: Container(
-                    width: 44,
-                    height: 44,
+    // If we only want to show the latest one, render it and a footer button.
+    if (maxItems == 1) {
+      final hasOne = notifications.isNotEmpty;
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (hasOne)
+            Container(
+              margin: const EdgeInsets.only(bottom: 12),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
                     decoration: BoxDecoration(
-                      gradient: notification.isUnread
-                          ? const LinearGradient(
-                              colors: [
-                                AppTheme.bluePrimary,
-                                AppTheme.blueLight,
-                              ],
+                      color: isDark
+                          ? const Color(0xFF1E293B).withAlpha(153)
+                          : Colors.white.withAlpha(204),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: isDark ? Colors.white.withAlpha(13) : Colors.grey.shade100,
+                      ),
+                    ),
+                    child: ListTile(
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 8),
+                      leading: Container(
+                        width: 44,
+                        height: 44,
+                        decoration: BoxDecoration(
+                          gradient: notifications[0].isUnread
+                              ? const LinearGradient(colors: [AppTheme.bluePrimary, AppTheme.blueLight])
+                              : LinearGradient(colors: [Colors.grey.shade300, Colors.grey.shade200]),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Icon(
+                          Icons.notifications_outlined,
+                          color: notifications[0].isUnread ? Colors.white : Colors.grey.shade600,
+                          size: 22,
+                        ),
+                      ),
+                      title: Text(
+                        notifications[0].title,
+                        style: TextStyle(color: isDark ? Colors.white : Colors.black87, fontWeight: FontWeight.w600),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      subtitle: notifications[0].body != null
+                          ? Padding(
+                              padding: const EdgeInsets.only(top: 4),
+                              child: Text(
+                                notifications[0].body!,
+                                style: TextStyle(color: isDark ? Colors.grey.shade400 : Colors.grey.shade600, fontSize: 12),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
                             )
-                          : LinearGradient(
-                              colors: [
-                                Colors.grey.shade300,
-                                Colors.grey.shade200,
-                              ],
-                            ),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Icon(
-                      Icons.notifications_outlined,
-                      color: notification.isUnread
-                          ? Colors.white
-                          : Colors.grey.shade600,
-                      size: 22,
+                          : null,
+                      trailing: notifications[0].isUnread
+                          ? Container(width: 10, height: 10, decoration: const BoxDecoration(color: AppTheme.bluePrimary, shape: BoxShape.circle))
+                          : null,
+                      onTap: () => Navigator.pushNamed(context, '/notifications'),
                     ),
                   ),
-                  title: Text(
-                    notification.title,
-                    style: TextStyle(
-                      color: isDark ? Colors.white : Colors.black87,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  subtitle: notification.body != null
-                      ? Padding(
-                          padding: const EdgeInsets.only(top: 4),
-                          child: Text(
-                            notification.body!,
-                            style: TextStyle(
-                              color: isDark
-                                  ? Colors.grey.shade400
-                                  : Colors.grey.shade600,
-                              fontSize: 12,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        )
-                      : null,
-                  trailing: notification.isUnread
-                      ? Container(
-                          width: 10,
-                          height: 10,
-                          decoration: const BoxDecoration(
-                            color: AppTheme.bluePrimary,
-                            shape: BoxShape.circle,
-                          ),
-                        )
-                      : null,
-                  onTap: () {
-                    print('Tapped notification: ${notification.title}');
-                  },
                 ),
               ),
             ),
+
+          // View all button
+          Align(
+            alignment: Alignment.centerLeft,
+            child: TextButton(
+              onPressed: () => Navigator.pushNamed(context, '/notifications'),
+              child: Text(
+                loc.t('view_all'),
+                style: TextStyle(color: AppTheme.bluePrimary, fontWeight: FontWeight.w600),
+              ),
+            ),
           ),
-        );
-      }).toList(),
+        ],
+      );
+    }
+
+    // Default: render up to maxItems notifications with a footer button
+    return Column(
+      children: [
+        ...notifications.map((notification) {
+          return Container(
+            margin: const EdgeInsets.only(bottom: 12),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: isDark ? const Color(0xFF1E293B).withAlpha(153) : Colors.white.withAlpha(204),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: isDark ? Colors.white.withAlpha(13) : Colors.grey.shade100),
+                  ),
+                  child: ListTile(
+                    contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                    leading: Container(
+                      width: 44,
+                      height: 44,
+                      decoration: BoxDecoration(
+                        gradient: notification.isUnread
+                            ? const LinearGradient(colors: [AppTheme.bluePrimary, AppTheme.blueLight])
+                            : LinearGradient(colors: [Colors.grey.shade300, Colors.grey.shade200]),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Icon(
+                        Icons.notifications_outlined,
+                        color: notification.isUnread ? Colors.white : Colors.grey.shade600,
+                        size: 22,
+                      ),
+                    ),
+                    title: Text(notification.title, style: TextStyle(color: isDark ? Colors.white : Colors.black87, fontWeight: FontWeight.w600), maxLines: 2, overflow: TextOverflow.ellipsis),
+                    subtitle: notification.body != null
+                        ? Padding(
+                            padding: const EdgeInsets.only(top: 4),
+                            child: Text(notification.body!, style: TextStyle(color: isDark ? Colors.grey.shade400 : Colors.grey.shade600, fontSize: 12), maxLines: 1, overflow: TextOverflow.ellipsis),
+                          )
+                        : null,
+                    trailing: notification.isUnread ? Container(width: 10, height: 10, decoration: const BoxDecoration(color: AppTheme.bluePrimary, shape: BoxShape.circle)) : null,
+                    onTap: () => print('Tapped notification: ${notification.title}'),
+                  ),
+                ),
+              ),
+            ),
+          );
+        }).toList(),
+
+        Align(
+          alignment: Alignment.centerLeft,
+          child: TextButton(
+            onPressed: () => Navigator.pushNamed(context, '/notifications'),
+            child: Text(loc.t('view_all'), style: TextStyle(color: AppTheme.bluePrimary, fontWeight: FontWeight.w600)),
+          ),
+        ),
+      ],
     );
   }
 
