@@ -1,0 +1,26 @@
+﻿# Default ignored files
+/shelf/
+/workspace.xml
+# Rider ignored files
+/modules.xml
+/contentModel.xml
+/projectSettingsUpdater.xml
+/.idea.backend.iml
+# Editor-based HTTP Client requests
+# Datasource local storage ignored files
+/dataSources/
+/dataSources.local.xml
+appsettings.*
+appsettings.Application.json
+# Ignore all environment config files everywhere
+**/appsettings.Development.json
+**/appsettings.Local.json
+**/*.Development.json
+**/*.Local.json
+**/*.env
+**/*.secret
+**/*.key
+
+# Ignore all config directories
+**/config/
+config/
