@@ -102,6 +102,9 @@ class _HomeScreenState extends State<HomeScreen>
                           ),
                           const SizedBox(height: 12),
                           _buildNotificationsList(provider, isDark, loc, maxItems: 1),
+                          const SizedBox(height: 16),
+                          // Student card + GPA placed between Notifications and Quick Actions
+                          _buildStudentInfoCards(loc, isDark),
                           const SizedBox(height: 24),
 
                           // Quick Actions Section (SQUIRCLE)
