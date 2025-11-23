@@ -268,14 +268,25 @@ class _HomeScreenState extends State<HomeScreen>
                       height: 48,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        gradient: const LinearGradient(
-                          colors: [AppTheme.bluePrimary, AppTheme.blueLight],
+                        // White circular background with blue logo
+                        color: Colors.white,
+                        border: Border.all(
+                          color: isDark ? Colors.white24 : AppTheme.lightBorder,
+                          width: 1,
                         ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black12,
+                            blurRadius: 6,
+                            offset: const Offset(0, 3),
+                          ),
+                        ],
                       ),
                       child: Padding(
-                        padding: const EdgeInsets.all(10.0),
+                        padding: const EdgeInsets.all(6.0),
                         child: SvgPicture.asset(
                           'assets/icons/logo-uit.svg',
+                          // Force the logo to render in the primary blue color
                           colorFilter: const ColorFilter.mode(AppTheme.bluePrimary, BlendMode.srcIn),
                         ),
                       ),
