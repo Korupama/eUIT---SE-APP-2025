@@ -106,37 +106,42 @@ class _MainScreenState extends State<MainScreen> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   _NavItem(
+                    index: 0,
+                    selectedIndex: _selectedIndex,
                     iconData: Icons.apps_rounded,
                     label: loc.t('services'),
-                    isActive: _selectedIndex == 0,
                     isDark: isDark,
                     onTap: () => setState(() => _selectedIndex = 0),
                   ),
                   _NavItem(
+                    index: 1,
+                    selectedIndex: _selectedIndex,
                     iconData: Icons.search_rounded,
                     label: loc.t('search'),
-                    isActive: _selectedIndex == 1,
                     isDark: isDark,
                     onTap: () => setState(() => _selectedIndex = 1),
                   ),
                   _NavItem(
+                    index: 2,
+                    selectedIndex: _selectedIndex,
                     iconData: Icons.home_rounded,
                     label: loc.t('home'),
-                    isActive: _selectedIndex == 2,
                     isDark: isDark,
                     onTap: () => setState(() => _selectedIndex = 2),
                   ),
                   _NavItem(
+                    index: 3,
+                    selectedIndex: _selectedIndex,
                     iconData: Icons.calendar_month_rounded,
                     label: loc.t('schedule'),
-                    isActive: _selectedIndex == 3,
                     isDark: isDark,
                     onTap: () => setState(() => _selectedIndex = 3),
                   ),
                   _NavItem(
+                    index: 4,
+                    selectedIndex: _selectedIndex,
                     iconData: Icons.settings_rounded,
                     label: loc.t('settings'),
-                    isActive: _selectedIndex == 4,
                     isDark: isDark,
                     onTap: () => setState(() => _selectedIndex = 4),
                   ),
@@ -152,27 +157,29 @@ class _MainScreenState extends State<MainScreen> {
 
 // Custom Nav Item Widget
 class _NavItem extends StatelessWidget {
+  final int index;
+  final int selectedIndex;
   final IconData iconData;
   final String label;
-  final bool isActive;
   final bool isDark;
   final VoidCallback onTap;
 
   const _NavItem({
+    required this.index,
+    required this.selectedIndex,
     required this.iconData,
     required this.label,
-    required this.isActive,
     required this.isDark,
     required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    // Each item expands evenly; inside we render a small rounded-square "bubble" above a tiny label.
+    // Each item expands evenly; bubble size depends on distance from selectedIndex: nearer => larger.
     return Expanded(
       child: TweenAnimationBuilder<double>(
         duration: const Duration(milliseconds: 200),
-        tween: Tween(begin: 1.0, end: isActive ? 1.03 : 1.0),
+        tween: Tween(begin: 1.0, end: selectedIndex == index ? 1.03 : 1.0),
         curve: Curves.easeInOut,
         builder: (context, scale, child) {
           return Transform.scale(
@@ -196,9 +203,10 @@ class _NavItem extends StatelessWidget {
                     filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 200),
-                      // Selected item is larger (48x48), others are 40x40
-                      width: isActive ? 48 : 40,
-                      height: isActive ? 48 : 40,
+                      // Size interpolates based on distance from selectedIndex
+                      // sizes range from maxSize (48) to minSize (36)
+                      width: _computeBubbleSize(index, selectedIndex),
+                      height: _computeBubbleSize(index, selectedIndex),
                       padding: const EdgeInsets.all(0),
                       decoration: BoxDecoration(
                         gradient: isDark
@@ -216,17 +224,17 @@ class _NavItem extends StatelessWidget {
                               ),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: isActive
+                          color: selectedIndex == index
                               ? (isDark ? AppTheme.bluePrimary.withAlpha(200) : AppTheme.bluePrimary)
                               : (isDark ? Colors.white.withAlpha(26) : Colors.grey.shade200),
-                          width: isActive ? 1.4 : 1.0,
+                          width: selectedIndex == index ? 1.4 : 1.0,
                         ),
                         boxShadow: [
                           BoxShadow(
                             color: isDark
                                 ? AppTheme.bluePrimary.withAlpha(20)
                                 : Colors.black.withAlpha(10),
-                            blurRadius: isActive ? 12 : 6,
+                            blurRadius: selectedIndex == index ? 12 : 6,
                             offset: const Offset(0, 3),
                           ),
                         ],
@@ -236,15 +244,16 @@ class _NavItem extends StatelessWidget {
                           duration: const Duration(milliseconds: 200),
                           tween: ColorTween(
                             begin: Colors.grey.shade600,
-                            end: isActive
+                            end: selectedIndex == index
                                 ? (isDark ? Colors.blue.shade300 : AppTheme.bluePrimary)
                                 : Colors.grey.shade600,
                           ),
                           builder: (context, iconColor, _) {
+                            final bubbleSize = _computeBubbleSize(index, selectedIndex);
+                            final iconSize = (bubbleSize / 48 * 20).clamp(16.0, 20.0);
                             return Icon(
                               iconData,
-                              // Slightly larger icon for active item
-                              size: isActive ? 20 : 18,
+                              size: iconSize,
                               color: iconColor,
                             );
                           },
@@ -260,7 +269,7 @@ class _NavItem extends StatelessWidget {
                   duration: const Duration(milliseconds: 200),
                   tween: ColorTween(
                     begin: Colors.grey.shade600,
-                    end: isActive
+                    end: selectedIndex == index
                         ? (isDark ? Colors.blue.shade300 : AppTheme.bluePrimary)
                         : Colors.grey.shade600,
                   ),
@@ -271,7 +280,7 @@ class _NavItem extends StatelessWidget {
                       maxLines: 1,
                       style: TextStyle(
                         fontSize: 11,
-                        fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
+                        fontWeight: selectedIndex == index ? FontWeight.w600 : FontWeight.normal,
                         color: color,
                         height: 0.7,
                       ),
@@ -284,6 +293,16 @@ class _NavItem extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  // Helper: interpolate bubble size based on distance from selected index
+  static double _computeBubbleSize(int index, int selectedIndex) {
+    const double maxSize = 48.0;
+    const double minSize = 36.0;
+    final int maxDistance = 4; // for 5 items
+    final int distance = (selectedIndex - index).abs();
+    final double t = (distance.clamp(0, maxDistance)) / maxDistance;
+    return maxSize - t * (maxSize - minSize);
   }
 }
 
