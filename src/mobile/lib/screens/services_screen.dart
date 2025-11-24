@@ -57,6 +57,21 @@ class ServicesScreen extends StatelessWidget {
               // Placeholder service tiles: now each tile combines two previous horizontal tiles (full-width cards)
               Column(
                 children: List.generate(4, (index) {
+                  // For the first tile, show the requested service details; others use the default placeholder
+                  if (index == 0) {
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: _buildWidePlaceholderTile(
+                        context,
+                        isDark,
+                        loc,
+                        title: 'Đăng ký giấy xác nhận sinh viên',
+                        subtitle: 'Phòng Công tác Sinh viên',
+                        icon: Icons.description_outlined,
+                      ),
+                    );
+                  }
+
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 12),
                     child: _buildWidePlaceholderTile(context, isDark, loc),
@@ -71,8 +86,19 @@ class ServicesScreen extends StatelessWidget {
   }
 
   // New: wide placeholder tile that spans the full content width (combines two horizontal tiles)
-  Widget _buildWidePlaceholderTile(BuildContext context, bool isDark, AppLocalizations loc) {
+  Widget _buildWidePlaceholderTile(
+    BuildContext context,
+    bool isDark,
+    AppLocalizations loc, {
+    String? title,
+    String? subtitle,
+    IconData? icon,
+  }) {
     final fullWidth = MediaQuery.of(context).size.width - 20 * 2; // account for horizontal padding
+
+    final displayTitle = title ?? loc.t('waiting_integration');
+    final displaySubtitle = subtitle;
+    final iconData = icon ?? Icons.miscellaneous_services_outlined;
 
     return InkWell(
       borderRadius: BorderRadius.circular(12),
@@ -82,7 +108,7 @@ class ServicesScreen extends StatelessWidget {
           backgroundColor: isDark ? AppTheme.darkCard : Colors.white,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           title: Text(loc.t('coming_soon')),
-          content: Text(loc.t('waiting_integration')),
+          content: Text(displayTitle),
           actions: [
             TextButton(onPressed: () => Navigator.of(ctx).pop(), child: Text(loc.t('close'))),
           ],
@@ -113,20 +139,36 @@ class ServicesScreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(
-                    Icons.miscellaneous_services_outlined,
+                    iconData,
                     size: 32,
                     color: isDark ? Colors.grey.shade300 : Colors.grey.shade600,
                   ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: Text(
-                    loc.t('waiting_integration'),
-                    style: TextStyle(
-                      color: isDark ? Colors.grey.shade300 : Colors.grey.shade700,
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                    ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        displayTitle,
+                        style: TextStyle(
+                          color: isDark ? Colors.grey.shade300 : Colors.grey.shade700,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      if (displaySubtitle != null) ...[
+                        const SizedBox(height: 6),
+                        Text(
+                          displaySubtitle,
+                          style: TextStyle(
+                            color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
+                            fontSize: 13,
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
                 ),
                 Icon(
