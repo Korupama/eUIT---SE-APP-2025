@@ -138,7 +138,7 @@ class _MainScreenState extends State<MainScreen> {
                     _NavItem(
                       index: 0,
                       selectedIndex: _selectedIndex,
-                      iconData: Icons.apps_rounded,
+                      iconData: Icons.home_repair_service_outlined,
                       label: loc.t('services'),
                       isDark: isDark,
                       onTap: () => setState(() => _selectedIndex = 0),
