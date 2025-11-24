@@ -59,11 +59,18 @@ class _MainScreenState extends State<MainScreen> {
 
   Widget _buildCustomBottomNav(AppLocalizations loc, bool isDark) {
     // Bottom nav background: frosted schedule-card-like look but slightly more transparent.
+    // Fix the background height so it doesn't change when children animate.
+    final double baseHeight = 90.0; // base bar height (content)
+    final double bottomInset = MediaQuery.of(context).padding.bottom; // device inset
+    final double barHeight = baseHeight + bottomInset;
+
     return ClipRRect(
       borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
         child: Container(
+          // Fixed height to avoid layout shifts
+          height: barHeight,
           decoration: BoxDecoration(
             gradient: isDark
                 ? LinearGradient(
@@ -250,7 +257,9 @@ class _NavItem extends StatelessWidget {
                           ),
                           builder: (context, iconColor, _) {
                             final bubbleSize = _computeBubbleSize(index, selectedIndex);
-                            final iconSize = (bubbleSize / 48 * 20).clamp(16.0, 20.0);
+                            // Make icon proportional to bubble to avoid overflow.
+                            // Use ~50% of bubble size, clamped to [12, 20].
+                            final iconSize = (bubbleSize * 0.5).clamp(12.0, 20.0);
                             return Icon(
                               iconData,
                               size: iconSize,
@@ -297,12 +306,17 @@ class _NavItem extends StatelessWidget {
 
   // Helper: interpolate bubble size based on distance from selected index
   static double _computeBubbleSize(int index, int selectedIndex) {
+    // New rule: max 48. For the first two steps (distance 1-2) reduce 4 per step.
+    // For any additional distance beyond 2, reduce only 2 per extra step.
     const double maxSize = 48.0;
-    const double minSize = 36.0;
-    final int maxDistance = 4; // for 5 items
+    const double primaryStep = 4.0; // for distance 1..2
+    const double secondaryStep = 2.0; // for distance >2
     final int distance = (selectedIndex - index).abs();
-    final double t = (distance.clamp(0, maxDistance)) / maxDistance;
-    return maxSize - t * (maxSize - minSize);
+    final int primarySteps = distance.clamp(0, 2);
+    final int extraSteps = (distance > 2) ? (distance - 2) : 0;
+    final double size = maxSize - primarySteps * primaryStep - extraSteps * secondaryStep;
+    // Clamp to avoid too small values
+    return size.clamp(24.0, maxSize);
   }
 }
 
