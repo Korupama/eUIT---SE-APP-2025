@@ -242,13 +242,20 @@ class ServicesScreen extends StatelessWidget {
     final Color strokeColor = isDark ? Color.fromRGBO(255, 255, 255, 0.12) : Color.fromRGBO(0, 0, 0, 0.06);
 
     // Determine stripe/icon/arrow colors:
-    // If orderIndex provided, alternate by order: even -> strong blue, odd -> lighter blue
-    final Color strongBlue = const Color(0xFF2F6BFF);
-    final Color lightBlue = const Color (0xFF20B0FF);
-    final bool useAlternating = orderIndex >= 0;
-    final Color stripeColor = useAlternating ? (orderIndex % 2 == 0 ? strongBlue : lightBlue) : defaultAccent;
+    // Use a per-index palette so each tile gets its own distinctive color
+    final List<Color> palette = [
+      const Color(0xFF2F6BFF), // blue
+      const Color(0xFF38BDF8), // sky
+      const Color(0xFFF472B6), // pink
+      const Color(0xFF7C3AED), // purple
+      const Color(0xFF22C55E), // green
+      const Color(0xFFF59E0B), // amber
+    ];
 
-    // Helper to apply opacity when needed
+    final bool hasIndex = orderIndex >= 0 && orderIndex < 10000; // simple guard
+    final Color stripeColor = hasIndex ? palette[orderIndex % palette.length] : defaultAccent;
+
+    // Helper to apply opacity when needed (avoid deprecated accessors)
     Color applyOpacity(Color c, double opacity) => Color.fromRGBO((c.r * 255).round(), (c.g * 255).round(), (c.b * 255).round(), opacity);
 
     // Adjust sizes. When isLarge==true we make the surrounding wrapper only slightly taller than the icon box
