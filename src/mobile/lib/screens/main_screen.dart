@@ -58,29 +58,42 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   Widget _buildCustomBottomNav(AppLocalizations loc, bool isDark) {
-    return ClipRect(
+    // Bottom nav background: frosted schedule-card-like look but slightly more transparent.
+    return ClipRRect(
+      borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
       child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+        filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
         child: Container(
           decoration: BoxDecoration(
-            color: isDark
-                ? AppTheme.darkBackground.withAlpha(249) // 0.98 opacity
-                : Colors.white.withAlpha(249), // 0.98 opacity
+            gradient: isDark
+                ? LinearGradient(
+                    colors: [
+                      const Color(0xFF1E293B).withAlpha(200), // slightly more transparent than card
+                      const Color(0xFF1E293B).withAlpha(180),
+                    ],
+                  )
+                : LinearGradient(
+                    colors: [
+                      Colors.white.withAlpha(220), // a bit more transparent than card
+                      Colors.white.withAlpha(220),
+                    ],
+                  ),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
             border: Border(
               top: BorderSide(
                 color: isDark
-                    ? Colors.white.withAlpha(26) // 0.1 opacity
-                    : Colors.grey.shade200,
+                    ? AppTheme.bluePrimary.withAlpha(40)
+                    : AppTheme.bluePrimary.withAlpha(30),
                 width: 1,
               ),
             ),
             boxShadow: [
               BoxShadow(
                 color: isDark
-                    ? Colors.black.withAlpha(76) // 0.3 opacity
-                    : Colors.black.withAlpha(26), // 0.1 opacity
-                blurRadius: 20,
-                offset: const Offset(0, -10),
+                    ? AppTheme.bluePrimary.withAlpha(18)
+                    : Colors.black.withAlpha(10),
+                blurRadius: 16,
+                offset: const Offset(0, -6),
               ),
             ],
           ),
@@ -89,45 +102,45 @@ class _MainScreenState extends State<MainScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
-                crossAxisAlignment: CrossAxisAlignment.center, // Changed from end to center
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                _NavItem(
-                  iconData: Icons.apps_rounded,
-                  label: loc.t('services'),
-                  isActive: _selectedIndex == 0,
-                  isDark: isDark,
-                  onTap: () => setState(() => _selectedIndex = 0),
-                ),
-                _NavItem(
-                  iconData: Icons.search_rounded,
-                  label: loc.t('search'),
-                  isActive: _selectedIndex == 1,
-                  isDark: isDark,
-                  onTap: () => setState(() => _selectedIndex = 1),
-                ),
-                _NavItem(
-                  iconData: Icons.home_rounded,
-                  label: loc.t('home'),
-                  isActive: _selectedIndex == 2,
-                  isDark: isDark,
-                  onTap: () => setState(() => _selectedIndex = 2),
-                ),
-                _NavItem(
-                  iconData: Icons.calendar_month_rounded,
-                  label: loc.t('schedule'),
-                  isActive: _selectedIndex == 3,
-                  isDark: isDark,
-                  onTap: () => setState(() => _selectedIndex = 3),
-                ),
-                _NavItem(
-                  iconData: Icons.settings_rounded,
-                  label: loc.t('settings'),
-                  isActive: _selectedIndex == 4,
-                  isDark: isDark,
-                  onTap: () => setState(() => _selectedIndex = 4),
-                ),
-              ],
-            ),
+                  _NavItem(
+                    iconData: Icons.apps_rounded,
+                    label: loc.t('services'),
+                    isActive: _selectedIndex == 0,
+                    isDark: isDark,
+                    onTap: () => setState(() => _selectedIndex = 0),
+                  ),
+                  _NavItem(
+                    iconData: Icons.search_rounded,
+                    label: loc.t('search'),
+                    isActive: _selectedIndex == 1,
+                    isDark: isDark,
+                    onTap: () => setState(() => _selectedIndex = 1),
+                  ),
+                  _NavItem(
+                    iconData: Icons.home_rounded,
+                    label: loc.t('home'),
+                    isActive: _selectedIndex == 2,
+                    isDark: isDark,
+                    onTap: () => setState(() => _selectedIndex = 2),
+                  ),
+                  _NavItem(
+                    iconData: Icons.calendar_month_rounded,
+                    label: loc.t('schedule'),
+                    isActive: _selectedIndex == 3,
+                    isDark: isDark,
+                    onTap: () => setState(() => _selectedIndex = 3),
+                  ),
+                  _NavItem(
+                    iconData: Icons.settings_rounded,
+                    label: loc.t('settings'),
+                    isActive: _selectedIndex == 4,
+                    isDark: isDark,
+                    onTap: () => setState(() => _selectedIndex = 4),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -174,38 +187,46 @@ class _NavItem extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Rounded-square bubble
-                TweenAnimationBuilder<Color?>(
-                  duration: const Duration(milliseconds: 200),
-                  tween: ColorTween(
-                    begin: Colors.transparent,
-                    end: isActive
-                        ? (isDark ? Colors.blue.shade300.withAlpha((0.18 * 255).round()) : AppTheme.bluePrimary.withAlpha((0.12 * 255).round()))
-                        : Colors.transparent,
-                  ),
-                  builder: (context, bubbleColor, child) {
-                    return AnimatedContainer(
+                // Use the 'Next Schedule' card visual style (small frosted gradient with border)
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                    child: AnimatedContainer(
                       duration: const Duration(milliseconds: 200),
-                      width: 44, // small square suitable for nav height
-                      height: 44,
+                      width: 48,
+                      height: 48,
+                      padding: const EdgeInsets.all(0),
                       decoration: BoxDecoration(
-                        color: bubbleColor,
-                        borderRadius: BorderRadius.circular(10), // rounded corners
+                        gradient: isDark
+                            ? LinearGradient(
+                                colors: [
+                                  const Color(0xFF1E293B).withAlpha(200),
+                                  const Color(0xFF1E293B).withAlpha(180),
+                                ],
+                              )
+                            : LinearGradient(
+                                colors: [
+                                  Colors.white.withAlpha(230),
+                                  Colors.white.withAlpha(230),
+                                ],
+                              ),
+                        borderRadius: BorderRadius.circular(12),
                         border: Border.all(
                           color: isActive
-                              ? (isDark ? Colors.blue.shade300 : AppTheme.bluePrimary)
+                              ? (isDark ? AppTheme.bluePrimary.withAlpha(200) : AppTheme.bluePrimary)
                               : (isDark ? Colors.white.withAlpha(26) : Colors.grey.shade200),
-                          width: isActive ? 1.2 : 1.0,
+                          width: isActive ? 1.4 : 1.0,
                         ),
-                        boxShadow: isActive
-                            ? [
-                                BoxShadow(
-                                  color: (isDark ? Colors.blue.shade300 : AppTheme.bluePrimary).withAlpha((0.12 * 255).round()),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ]
-                            : [],
+                        boxShadow: [
+                          BoxShadow(
+                            color: isDark
+                                ? AppTheme.bluePrimary.withAlpha(20)
+                                : Colors.black.withAlpha(10),
+                            blurRadius: isActive ? 12 : 6,
+                            offset: const Offset(0, 3),
+                          ),
+                        ],
                       ),
                       child: Center(
                         child: TweenAnimationBuilder<Color?>(
@@ -225,8 +246,8 @@ class _NavItem extends StatelessWidget {
                           },
                         ),
                       ),
-                    );
-                  },
+                    ),
+                  ),
                 ),
 
                 const SizedBox(height: 4),
