@@ -99,7 +99,7 @@ class _ChatbotScreenState extends State<ChatbotScreen> with TickerProviderStateM
       child: Scaffold(
         backgroundColor: isDark ? const Color(0xFF0A0E27) : null,
         // Bottom navigation included to show active tab; you can tie this to app nav
-        bottomNavigationBar: _BottomNavBar(activeIndex: 1), // 1 => Chatbot
+        //bottomNavigationBar: _BottomNavBar(activeIndex: 1), // 1 => Chatbot
         body: SafeArea(
           child: Column(
             children: [

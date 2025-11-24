@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:mobile/screens/schedule/schedule_main_screen.dart';
 import '../utils/app_localizations.dart';
 import '../theme/app_theme.dart';
 import 'home_screen.dart';
@@ -25,7 +26,7 @@ class _MainScreenState extends State<MainScreen> {
       const _PlaceholderPage(label: 'services'),
       const NavigationScreen(),
       const HomeScreen(),
-      const _PlaceholderPage(label: 'schedule'),
+      const ScheduleMainScreen(),
       const SettingsScreen(),
     ];
   }

@@ -1,22 +1,15 @@
--- ---------------------------------------------------------------------------------
--- HÀM 6: Lấy tiết học tiếp theo của MỘT sinh viên.
--- ---------------------------------------------------------------------------------
--- Tên hàm: func_get_next_class
--- Mục đích: Trả về thông tin tiết học tiếp theo của sinh viên dựa trên thời gian hiện tại.
--- Tham số:
---   p_mssv INT: Mã số sinh viên cần tra cứu.
--- Trả về: Một hàng chứa thông tin lớp học tiếp theo (hoặc rỗng nếu không có).
--- ---------------------------------------------------------------------------------
+-- Drop the existing function first
+DROP FUNCTION IF EXISTS func_get_next_class(INT);
 
-
-CREATE OR REPLACE  FUNCTION func_get_next_class(
+-- Create the updated function with new columns
+CREATE OR REPLACE FUNCTION func_get_next_class(
     p_mssv INT
 )
 RETURNS TABLE (
-    ma_lop CHAR(20),
+    ma_lop VARCHAR(20),
     ten_mon_hoc_vn VARCHAR(255),
     ho_ten VARCHAR(50),
-    thu CHAR(2),
+    thu VARCHAR(2),
     tiet_bat_dau INT,
     tiet_ket_thuc INT,
     phong_hoc VARCHAR(10),
@@ -96,27 +89,3 @@ SELECT
 FROM NextClass nc
 JOIN giang_vien gv ON nc.ma_giang_vien = gv.ma_giang_vien;
 $$;
-
-
-SELECT * from func_get_next_class(23520541)
-
-CREATE OR REPLACE FUNCTION func_get_student_card_info( p_mssv INT )
-RETURNS TABLE (
-    mssv INT,
-    ho_ten VARCHAR(50),
-    khoa_hoc INT,    
-    nganh_hoc VARCHAR(100),
-    anh_the_url VARCHAR(255)    
-)
-LANGUAGE sql
-as $$
-SELECT mssv, ho_ten, khoa_hoc, nganh_hoc, anh_the_url from sinh_vien
-where mssv = p_mssv;
-$$;
-
-UPDATE sinh_vien
-set anh_the_url = 'students/avatars/23520547.png'
-where mssv = 23520547
-
-select * from func_get_student_card_info(23520541)
-
