@@ -88,6 +88,21 @@ class ServicesScreen extends StatelessWidget {
                     );
                   }
 
+                  if (index == 2) {
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: _buildWidePlaceholderTile(
+                        context,
+                        isDark,
+                        loc,
+                        title: 'Đăng ký Xác nhận chứng chỉ',
+                        subtitle: 'Phòng Đào tạo Đại học / VPCCTĐB',
+                        icon: Icons.document_scanner_outlined,
+                        isLarge: true,
+                      ),
+                    );
+                  }
+
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 12),
                     child: _buildWidePlaceholderTile(context, isDark, loc, isLarge: true),
