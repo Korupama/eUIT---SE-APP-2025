@@ -99,7 +99,8 @@ class _MainScreenState extends State<MainScreen> {
           ),
           child: SafeArea(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+              // Reduced vertical padding to make the bar shorter
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -183,7 +184,8 @@ class _NavItem extends StatelessWidget {
           onTap: onTap,
           borderRadius: BorderRadius.circular(12),
           child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
+            // Reduced padding to compact items
+            padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 4),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -194,8 +196,8 @@ class _NavItem extends StatelessWidget {
                     filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 200),
-                      width: 48,
-                      height: 48,
+                      width: 40,
+                      height: 40,
                       padding: const EdgeInsets.all(0),
                       decoration: BoxDecoration(
                         gradient: isDark
@@ -240,7 +242,7 @@ class _NavItem extends StatelessWidget {
                           builder: (context, iconColor, _) {
                             return Icon(
                               iconData,
-                              size: 20,
+                              size: 18,
                               color: iconColor,
                             );
                           },
@@ -266,10 +268,10 @@ class _NavItem extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       maxLines: 1,
                       style: TextStyle(
-                        fontSize: 10,
+                        fontSize: 11,
                         fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
                         color: color,
-                        height: 1.0,
+                        height: 0.7,
                       ),
                     );
                   },
