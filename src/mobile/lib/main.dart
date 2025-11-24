@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'screens/modern_login_screen.dart';
 import 'screens/main_screen.dart';
 import 'screens/chatbot.dart';
+import 'screens/notifications_screen.dart';
 import 'services/theme_controller.dart';
 import 'services/language_controller.dart';
 import 'providers/home_provider.dart';
@@ -75,6 +76,7 @@ class MyApp extends StatelessWidget {
         '/': (context) => const ModernLoginScreen(),
         '/home': (context) => const MainScreen(),
         '/chatbot': (context) => const ChatbotScreen(),
+        '/notifications': (context) => const NotificationsScreen(),
         '/settings': (context) => const SettingsScreen(),
         '/profile': (context) => const ProfileScreen(),
         '/notification_preferences': (context) => const NotificationPreferencesScreen(),

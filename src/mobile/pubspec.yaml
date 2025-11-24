@@ -42,6 +42,7 @@ dependencies:
   flutter_speed_dial: ^7.0.0
 
   http: ^1.2.2
+  auto_size_text: ^3.0.0
   flutter_dotenv: ^6.0.0
 
 dev_dependencies:
