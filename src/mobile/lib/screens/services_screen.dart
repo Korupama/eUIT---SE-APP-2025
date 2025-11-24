@@ -73,6 +73,21 @@ class ServicesScreen extends StatelessWidget {
                     );
                   }
 
+                  // Second tile: specific service requested by user
+                  if (index == 1) {
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: _buildWidePlaceholderTile(
+                        context,
+                        isDark,
+                        loc,
+                        title: 'Đăng ký Vé tháng gửi xe máy',
+                        subtitle: 'Phòng Dữ liệu & Công nghệ thông tin',
+                        icon: Icons.local_parking_rounded,
+                      ),
+                    );
+                  }
+
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 12),
                     child: _buildWidePlaceholderTile(context, isDark, loc),
