@@ -22,38 +22,52 @@ class ServicesScreen extends StatelessWidget {
           // Main scaffold content
           Scaffold(
             backgroundColor: Colors.transparent,
-            appBar: AppBar(
-              backgroundColor: isDark ? AppTheme.darkBackground : Colors.white,
-              elevation: 0,
-              centerTitle: false,
-              toolbarHeight: 76,
-              titleSpacing: 20,
-              title: Padding(
-                padding: const EdgeInsets.only(top: 6), // nudge title down slightly to mimic old header spacing
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      loc.t('services'),
-                      style: TextStyle(
-                        color: isDark ? Colors.white : Colors.black87,
-                        fontSize: 20, // increased by 1 size (from 18 -> 20)
-                        fontWeight: FontWeight.bold,
+            appBar: PreferredSize(
+              preferredSize: const Size.fromHeight(76),
+              child: ClipRRect(
+                // keep no rounded corners so it aligns with screen edges
+                borderRadius: BorderRadius.zero,
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
+                  child: Container(
+                    // Use same semi-transparent dark card for dark mode and white for light mode
+                    color: isDark ? AppTheme.darkCard.withAlpha(160) : Colors.white,
+                    child: AppBar(
+                      backgroundColor: Colors.transparent,
+                      elevation: 0,
+                      centerTitle: false,
+                      toolbarHeight: 76,
+                      titleSpacing: 20,
+                      title: Padding(
+                        padding: const EdgeInsets.only(top: 6), // nudge title down slightly to mimic old header spacing
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              loc.t('services'),
+                              style: TextStyle(
+                                color: isDark ? Colors.white : Colors.black87,
+                                fontSize: 20, // increased by 1 size (from 18 -> 20)
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              loc.t('services_description'),
+                              style: TextStyle(
+                                color: isDark ? Colors.grey.shade400 : Colors.grey.shade700,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
+                      iconTheme: IconThemeData(color: isDark ? Colors.white : Colors.black87),
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      loc.t('services_description'),
-                      style: TextStyle(
-                        color: isDark ? Colors.grey.shade400 : Colors.grey.shade700,
-                        fontSize: 13,
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ),
-              iconTheme: IconThemeData(color: isDark ? Colors.white : Colors.black87),
             ),
             body: SafeArea(
               child: SingleChildScrollView(
