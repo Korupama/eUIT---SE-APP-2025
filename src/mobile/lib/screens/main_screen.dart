@@ -196,8 +196,9 @@ class _NavItem extends StatelessWidget {
                     filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 200),
-                      width: 40,
-                      height: 40,
+                      // Selected item is larger (48x48), others are 40x40
+                      width: isActive ? 48 : 40,
+                      height: isActive ? 48 : 40,
                       padding: const EdgeInsets.all(0),
                       decoration: BoxDecoration(
                         gradient: isDark
@@ -242,7 +243,8 @@ class _NavItem extends StatelessWidget {
                           builder: (context, iconColor, _) {
                             return Icon(
                               iconData,
-                              size: 18,
+                              // Slightly larger icon for active item
+                              size: isActive ? 20 : 18,
                               color: iconColor,
                             );
                           },
