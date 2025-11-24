@@ -167,12 +167,14 @@ class _HomeScreenState extends State<HomeScreen>
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(18), // bo góc giống app UIT
                     border: Border.all(
-                    color: Colors.white.withOpacity(0.18), // viền mỏng sáng
+                    // Replaced deprecated withOpacity -> explicit ARGB (0.18 * 255 ≈ 46 -> 0x2D)
+                    color: const Color(0x2DFFFFFF), // was Colors.white.withOpacity(0.18)
                     width: 1,
                   ),
                   boxShadow: [
                   BoxShadow(
-                    color: Colors.blueAccent.withOpacity(0.25),
+                    // Replaced deprecated withOpacity -> explicit ARGB (0.25 * 255 ≈ 64 -> 0x40)
+                    color: const Color(0x40448AFF), // was Colors.blueAccent.withOpacity(0.25)
                     blurRadius: 20,
                     spreadRadius: 1,
                     offset: const Offset(0, 6),
@@ -187,15 +189,16 @@ class _HomeScreenState extends State<HomeScreen>
                     decoration: BoxDecoration(
                     gradient: LinearGradient(
                     colors: [
-                    Colors.white.withOpacity(0.07),
-                    Colors.white.withOpacity(0.02),
-                    ],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                      ),
-                    ),
-                    child: const Center(
-                      child: Icon(
+                    // Replaced deprecated withOpacity -> explicit ARGB
+                    const Color(0x12FFFFFF), // ~0.07 opacity
+                    const Color(0x05FFFFFF), // ~0.02 opacity
+                     ],
+                     begin: Alignment.topLeft,
+                     end: Alignment.bottomRight,
+                       ),
+                     ),
+                     child: const Center(
+                       child: Icon(
                         Icons.smart_toy,
                         color: Colors.white,
                         size: 28,
@@ -216,33 +219,34 @@ class _HomeScreenState extends State<HomeScreen>
                     child: Container(
                     padding: const EdgeInsets.all(4),
                     decoration: BoxDecoration(
-                    color: Colors.redAccent,
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.3),
-                        blurRadius: 5,
-                        offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                      child: const Icon(
-                        Icons.close,
-                        color: Colors.white,
-                        size: 14,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          )
-        ],
-      ),
-    );
-  }
+                   color: Colors.redAccent,
+                   shape: BoxShape.circle,
+                   boxShadow: [
+                     BoxShadow(
+                        // Replaced deprecated withOpacity -> explicit ARGB (0.3 * 255 ≈ 77 -> 0x4D)
+                        color: const Color(0x4D000000),
+                         blurRadius: 5,
+                         offset: const Offset(0, 2),
+                         ),
+                       ],
+                     ),
+                       child: const Icon(
+                         Icons.close,
+                         color: Colors.white,
+                         size: 14,
+                           ),
+                         ),
+                       ),
+                     ),
+                   ],
+                 ),
+               ),
+             ),
+           )
+         ],
+       ),
+     );
+   }
 
   // Header mới - Scrollable với BackdropFilter
   Widget _buildScrollableHeader(
@@ -665,7 +669,6 @@ class _HomeScreenState extends State<HomeScreen>
           // Squircle button
           GestureDetector(
             onTap: () {
-              print('Tapped: ${action.label}');
             },
             child: Container(
               width: 64,
@@ -859,12 +862,12 @@ class _HomeScreenState extends State<HomeScreen>
                       trailing: notification.isUnread
                           ? Container(width: 10, height: 10, decoration: const BoxDecoration(color: AppTheme.bluePrimary, shape: BoxShape.circle))
                           : null,
-                      onTap: () => print('Tapped notification: ${notification.title}'),
+                      onTap: () => {}
                     ),
                   ),
                 ),
               ),
-            )).toList(),
+            )),
 
         // View all button
         Align(
@@ -1223,7 +1226,7 @@ class _EllipsizeAtWord extends StatelessWidget {
     while (low <= high) {
       final mid = (low + high) >> 1;
       final candidate = words.take(mid).join(' ');
-      final candWithEll = candidate.isEmpty ? '…' : candidate + '…';
+      final candWithEll = candidate.isEmpty ? '…' : '$candidate…';
       final tp2 = TextPainter(
         text: TextSpan(text: candWithEll, style: style),
         textDirection: textDirection,
@@ -1249,7 +1252,7 @@ class _EllipsizeAtWord extends StatelessWidget {
     while (lo <= hi) {
       final mid = (lo + hi) >> 1;
       final cand = text.substring(0, mid);
-      final candWithEll = cand + '…';
+      final candWithEll = '$cand…';
       final tp3 = TextPainter(
         text: TextSpan(text: candWithEll, style: style),
         textDirection: textDirection,

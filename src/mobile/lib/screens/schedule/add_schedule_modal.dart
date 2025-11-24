@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'schedule_main_screen.dart';
 import 'schedule_item.dart';
 
 class AddScheduleModal extends StatefulWidget {
@@ -102,7 +101,8 @@ class _AddScheduleModalState extends State<AddScheduleModal> {
           borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF4FFFED).withOpacity(0.2),
+              // Replaced deprecated `.withOpacity()` with const ARGB to avoid precision-loss warning
+              color: const Color(0x334FFFED),
               blurRadius: 30,
               spreadRadius: 0,
             ),
@@ -132,7 +132,7 @@ class _AddScheduleModalState extends State<AddScheduleModal> {
                       IconButton(
                         onPressed: () => Navigator.of(context).pop(),
                         icon: const Icon(Icons.close),
-                        color: Colors.white.withOpacity(0.7),
+                        color: const Color(0xB3FFFFFF),
                       ),
                     ],
                   ),
@@ -145,7 +145,7 @@ class _AddScheduleModalState extends State<AddScheduleModal> {
                     decoration: InputDecoration(
                       hintText: 'Nhập tên sự kiện...',
                       hintStyle: TextStyle(
-                        color: Colors.white.withOpacity(0.5),
+                        color: const Color(0x80FFFFFF),
                       ),
                       filled: true,
                       fillColor: const Color(0xFF0F172A),
@@ -272,7 +272,7 @@ class _AddScheduleModalState extends State<AddScheduleModal> {
                     decoration: InputDecoration(
                       hintText: 'Nhập địa điểm...',
                       hintStyle: TextStyle(
-                        color: Colors.white.withOpacity(0.5),
+                        color: const Color(0x80FFFFFF),
                       ),
                       filled: true,
                       fillColor: const Color(0xFF0F172A),

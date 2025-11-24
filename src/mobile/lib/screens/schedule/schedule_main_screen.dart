@@ -252,7 +252,8 @@ class _ScheduleMainScreenState extends State<ScheduleMainScreen> {
                           child: Container(
                             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                             decoration: BoxDecoration(
-                              color: const Color(0xFF4FFFED).withOpacity(0.2),
+                              // Replaced deprecated `.withOpacity()` with const ARGB color to avoid precision-loss warning
+                              color: const Color(0x334FFFED),
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(
                                 color: const Color(0xFF4FFFED),
@@ -274,7 +275,8 @@ class _ScheduleMainScreenState extends State<ScheduleMainScreen> {
                       Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.1),
+                          // Use explicit ARGB instead of `withOpacity` (deprecated)
+                          color: const Color(0x1AFFFFFF),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: const Icon(
@@ -310,7 +312,8 @@ class _ScheduleMainScreenState extends State<ScheduleMainScreen> {
                         const SizedBox(width: 8),
                         Icon(
                           Icons.keyboard_arrow_down,
-                          color: Colors.white.withOpacity(0.7),
+                          // Replaced deprecated withOpacity -> explicit ARGB
+                          color: const Color(0xB3FFFFFF),
                           size: 20,
                         ),
                       ],
@@ -344,7 +347,7 @@ class _ScheduleMainScreenState extends State<ScheduleMainScreen> {
                         Text(
                           day.dayName,
                           style: TextStyle(
-                            color: Colors.white.withOpacity(0.6),
+                            color: const Color(0x99FFFFFF),
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
                           ),
@@ -409,7 +412,7 @@ class _ScheduleMainScreenState extends State<ScheduleMainScreen> {
                 child: Text(
                   getEmptyMessage(),
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.5),
+                    color: const Color(0x80FFFFFF),
                     fontSize: 16,
                   ),
                 ),
@@ -445,7 +448,7 @@ class _ScheduleMainScreenState extends State<ScheduleMainScreen> {
             label,
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: isSelected ? Colors.black : Colors.white.withOpacity(0.7),
+              color: isSelected ? Colors.black : const Color(0xB3FFFFFF),
               fontSize: 14,
               fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
             ),
@@ -470,16 +473,18 @@ class _ScheduleMainScreenState extends State<ScheduleMainScreen> {
         ),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: const Color(0xFF4FFFED).withOpacity(0.5),
-          width: 1.5,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF4FFFED).withOpacity(0.2),
-            blurRadius: 20,
-            spreadRadius: 0,
-          ),
-        ],
+          // Converted to ARGB (50% alpha)
+          color: const Color(0x7F4FFFED),
+           width: 1.5,
+         ),
+         boxShadow: [
+           BoxShadow(
+            // Converted to ARGB (~20% alpha)
+            color: const Color(0x334FFFED),
+             blurRadius: 20,
+             spreadRadius: 0,
+           ),
+         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -490,7 +495,7 @@ class _ScheduleMainScreenState extends State<ScheduleMainScreen> {
               Text(
                 '${item.startTime} - ${item.endTime}',
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.8),
+                  color: const Color(0xCCFFFFFF),
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
                 ),
@@ -498,7 +503,7 @@ class _ScheduleMainScreenState extends State<ScheduleMainScreen> {
               Text(
                 'Phòng',
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.5),
+                  color: const Color(0x80FFFFFF),
                   fontSize: 12,
                 ),
               ),
@@ -529,7 +534,7 @@ class _ScheduleMainScreenState extends State<ScheduleMainScreen> {
                       Text(
                         item.teacher,
                         style: TextStyle(
-                          color: Colors.white.withOpacity(0.7),
+                          color: const Color(0xB3FFFFFF),
                           fontSize: 13,
                           fontWeight: FontWeight.w400,
                         ),

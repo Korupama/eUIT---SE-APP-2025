@@ -1,13 +1,11 @@
 // file: chatbot.dart
 import 'dart:async';
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
-import '../theme/app_theme.dart';
 import '../utils/app_localizations.dart';
 
 /// Chatbot screen for UIT Assistant
@@ -137,7 +135,7 @@ class _ChatbotScreenState extends State<ChatbotScreen> with TickerProviderStateM
                             child: Container(
                               color: isDark
                                   ? Colors.transparent
-                                  : Colors.white.withOpacity(0.06),
+                                  : const Color(0x0FFFFFFF),
                               child: Consumer<ChatbotProvider>(
                                 builder: (context, provider, _) {
                                   if (provider.messages.isEmpty && !provider.isAiTyping) {
@@ -198,7 +196,8 @@ class _ChatbotScreenState extends State<ChatbotScreen> with TickerProviderStateM
                               opacity: 1.0,
                               duration: const Duration(milliseconds: 300),
                               child: Container(
-                                color: isDark ? Colors.transparent : Colors.white.withOpacity(0.02),
+                                // Replaced deprecated withOpacity -> explicit ARGB (0.02*255 ≈ 5 -> 0x05)
+                                color: isDark ? Colors.transparent : const Color(0x05FFFFFF),
                                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                                 child: Wrap(
                                   spacing: 8,
@@ -307,7 +306,8 @@ class _ChatbotScreenState extends State<ChatbotScreen> with TickerProviderStateM
               width: 120,
               height: 120,
               decoration: BoxDecoration(
-                color: isDark ? Colors.white12 : Colors.white.withOpacity(0.12),
+                // Replaced deprecated withOpacity -> explicit ARGB (0.12*255 ≈ 31 -> 0x1F)
+                color: isDark ? Colors.white12 : const Color(0x1FFFFFFF),
                 borderRadius: BorderRadius.circular(24),
               ),
               child: Center(
@@ -351,8 +351,6 @@ class _ChatbotScreenState extends State<ChatbotScreen> with TickerProviderStateM
   }
 
   Widget _buildInputArea(bool isDark) {
-    final provider = Provider.of<ChatbotProvider>(context, listen: false);
-
     return Container(
       color: isDark ? const Color(0xFF0A0E27) : Colors.white,
       padding: const EdgeInsets.fromLTRB(12, 8, 12, 12), // bottom padding to sit above bottom nav
@@ -531,45 +529,6 @@ class _ChatbotScreenState extends State<ChatbotScreen> with TickerProviderStateM
   }
 }
 
-/// Simple bottom nav with Chatbot active (index 1)
-class _BottomNavBar extends StatelessWidget {
-  final int activeIndex;
-  const _BottomNavBar({required this.activeIndex});
-
-  @override
-  Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final routes = ['/home', '/chatbot', '/account'];
-    return BottomNavigationBar(
-      currentIndex: activeIndex,
-      backgroundColor: isDark ? const Color(0xFF0A0E27) : Colors.white,
-      selectedItemColor: const Color(0xFF2F6BFF),
-      unselectedItemColor: isDark ? Colors.white70 : Colors.black54,
-      items: const [
-        BottomNavigationBarItem(icon: Icon(Icons.home_outlined), label: 'Trang chủ'),
-        BottomNavigationBarItem(icon: Icon(Icons.chat_bubble_outline), label: 'Hỗ trợ'),
-        BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: 'Tài khoản'),
-      ],
-      onTap: (index) {
-        // TODO: integrate navigation
-        if (index == activeIndex) return; // tránh reload trang hiện tại
-
-        // Trang chủ và chatbot đã có route trong main.dart
-        if (index == 0) {
-          Navigator.pushReplacementNamed(context, '/home');
-        } else if (index == 1) {
-
-        } else {
-          // TODO: mở trang tài khoản sau
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Trang tài khoản đang phát triển')),
-          );
-        }
-      },
-    );
-  }
-}
-
 /// Message model
 class ChatMessage {
   final String id;
@@ -692,10 +651,6 @@ class ChatbotProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-  }
 }
 
 /// Message tile with animations and styling
@@ -761,7 +716,8 @@ class _MessageTileState extends State<MessageTile> with SingleTickerProviderStat
                 boxShadow: isDark && isUser
                     ? [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.25),
+                    // Replaced deprecated withOpacity -> explicit ARGB (0.25*255 ≈ 64 -> 0x40)
+                    color: const Color(0x40000000),
                     blurRadius: 6,
                     offset: const Offset(0, 2),
                   )
@@ -848,7 +804,7 @@ class _MessageTileState extends State<MessageTile> with SingleTickerProviderStat
 /// Typing indicator (3 dots)
 class _AiTypingIndicator extends StatefulWidget {
   final bool isDark;
-  const _AiTypingIndicator({required this.isDark, super.key});
+  const _AiTypingIndicator({required this.isDark});
 
   @override
   State<_AiTypingIndicator> createState() => _AiTypingIndicatorState();
@@ -886,7 +842,7 @@ class _AiTypingIndicatorState extends State<_AiTypingIndicator> with SingleTicke
 
   @override
   Widget build(BuildContext context) {
-    final bg = widget.isDark ? Colors.white12 : Colors.white.withOpacity(0.08);
+    final bg = widget.isDark ? Colors.white12 : const Color(0x14FFFFFF);
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
