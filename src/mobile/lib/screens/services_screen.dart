@@ -296,7 +296,8 @@ class ServicesScreen extends StatelessWidget {
                       Text(
                         displayTitle,
                         style: TextStyle(
-                          color: isDark ? Colors.grey.shade300 : Colors.grey.shade700,
+                          // Title: strong white in dark mode, dark text in light mode
+                          color: isDark ? Colors.white : Colors.black87,
                           fontSize: titleFontSize,
                           fontWeight: titleWeight,
                         ),
@@ -306,7 +307,8 @@ class ServicesScreen extends StatelessWidget {
                         Text(
                           displaySubtitle,
                           style: TextStyle(
-                            color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
+                            // Subtitle: use a light silver-blue in dark mode for hierarchy and readability
+                            color: isDark ? const Color(0xFFBFD8FF) : Colors.grey.shade600,
                             fontSize: 13,
                           ),
                         ),
@@ -317,7 +319,8 @@ class ServicesScreen extends StatelessWidget {
                 Icon(
                   Icons.arrow_forward_ios_rounded,
                   size: 18,
-                  color: isDark ? Colors.grey.shade300 : Colors.grey.shade500,
+                  // Arrow color: use accent (primary) to invite action in both themes
+                  color: Theme.of(context).colorScheme.primary,
                 ),
               ],
             ),
