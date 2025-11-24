@@ -64,9 +64,26 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
     super.dispose();
   }
 
+  // Updated: load saved username+password from secure storage. Falls back to
+  // legacy SharedPreferences username-only storage if secure credentials
+  // are not present (for older installs). Auto-login support has been removed.
   Future<void> _loadRememberedUsername() async {
     try {
+      // Try secure storage credentials first
+      final creds = await _authService.getSavedCredentials();
       final prefs = await SharedPreferences.getInstance();
+
+      if (creds != null) {
+        // we have saved credentials (secure)
+        _usernameController.text = creds['username'] ?? '';
+        _passwordController.text = creds['password'] ?? '';
+        // mark remember me because credentials exist
+        _rememberMe = true;
+        setState(() {});
+        return;
+      }
+
+      // Fallback: previous implementation stored username in SharedPreferences
       final remembered = prefs.getString(_rememberedUsernameKey);
       if (remembered != null && remembered.isNotEmpty) {
         _usernameController.text = remembered;
@@ -112,13 +129,23 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
 
       await _authService.saveToken(token);
 
-      // Persist or clear remembered username based on checkbox
+      // Persist or clear remembered credentials based on checkbox.
       try {
         final prefs = await SharedPreferences.getInstance();
         if (_rememberMe) {
-          await prefs.setString(_rememberedUsernameKey, _usernameController.text.trim());
+          await _authService.saveCredentials(
+            _usernameController.text.trim(),
+            _passwordController.text,
+          );
+          // remove legacy username-only pref if exists
+          try {
+            await prefs.remove(_rememberedUsernameKey);
+          } catch (_) {}
         } else {
-          await prefs.remove(_rememberedUsernameKey);
+          await _authService.deleteCredentials();
+          try {
+            await prefs.remove(_rememberedUsernameKey);
+          } catch (_) {}
         }
       } catch (_) {}
 
@@ -413,7 +440,10 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
                 InkWell(
                   borderRadius: BorderRadius.circular(4),
                   onTap: () {
-                    setState(() => _rememberMe = !_rememberMe);
+                    // Toggle remember only
+                    setState(() {
+                      _rememberMe = !_rememberMe;
+                    });
                   },
                   child: Row(
                     children: [
@@ -423,7 +453,10 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
                         child: Checkbox(
                           value: _rememberMe,
                           onChanged: (value) {
-                            setState(() => _rememberMe = value ?? false);
+                            final newVal = value ?? false;
+                            setState(() {
+                              _rememberMe = newVal;
+                            });
                           },
                           activeColor: AppTheme.bluePrimary,
                           shape: RoundedRectangleBorder(
