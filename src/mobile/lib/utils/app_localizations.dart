@@ -87,6 +87,9 @@ class AppLocalizations {
       'digital_student_card_preview': 'Xem trước thẻ sinh viên số',
       'gpa_details_soon': 'Chi tiết GPA sẽ có trong bản cập nhật sau',
       'profile_preview_coming_soon': 'Xem trước hồ sơ sinh viên sẽ có trong bản cập nhật sau',
+      // Services screen
+      'services_description': 'Cung cấp các dịch vụ trực tuyến cho sinh viên',
+      'waiting_integration': 'Đang chờ tích hợp dịch vụ',
       'old_password_label': 'Mật khẩu cũ',
       'new_password_label': 'Mật khẩu mới',
       'old_password_required': 'Vui lòng nhập mật khẩu cũ',
@@ -161,6 +164,9 @@ class AppLocalizations {
       'digital_student_card_preview': 'Digital student card preview',
       'gpa_details_soon': 'GPA details will be available in a future update',
       'profile_preview_coming_soon': 'Student profile preview will be available in a future update',
+      // Services screen
+      'services_description': 'Providing online services for students',
+      'waiting_integration': 'Waiting for service integration',
       'old_password_label': 'Old password',
       'new_password_label': 'New password',
       'old_password_required': 'Please enter old password',

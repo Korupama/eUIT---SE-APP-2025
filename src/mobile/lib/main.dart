@@ -12,6 +12,7 @@ import 'utils/app_colors.dart';
 import 'screens/settings_screen.dart';
 import 'screens/profile_screen.dart';
 import 'screens/notification_preferences.dart';
+import 'screens/services_screen.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 Future<void> main() async {
@@ -73,6 +74,7 @@ class MyApp extends StatelessWidget {
       supportedLocales: AppLocalizations.supportedLocales,
       routes: {
         '/': (context) => const ModernLoginScreen(),
+        '/services': (context) => const ServicesScreen(),
         '/home': (context) => const MainScreen(),
         '/chatbot': (context) => const ChatbotScreen(),
         '/settings': (context) => const SettingsScreen(),

@@ -1,0 +1,144 @@
+import 'dart:ui';
+import 'package:flutter/material.dart';
+import '../theme/app_theme.dart';
+import '../utils/app_localizations.dart';
+
+class ServicesScreen extends StatelessWidget {
+  const ServicesScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Scaffold(
+      backgroundColor: isDark ? AppTheme.darkBackground : const Color(0xFFF7F8FC),
+      appBar: AppBar(
+        backgroundColor: isDark ? AppTheme.darkBackground : Colors.white,
+        elevation: 0,
+        centerTitle: false,
+        toolbarHeight: 76,
+        titleSpacing: 20,
+        title: Padding(
+          padding: const EdgeInsets.only(top: 6), // nudge title down slightly to mimic old header spacing
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                loc.t('services'),
+                style: TextStyle(
+                  color: isDark ? Colors.white : Colors.black87,
+                  fontSize: 20, // increased by 1 size (from 18 -> 20)
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                loc.t('services_description'),
+                style: TextStyle(
+                  color: isDark ? Colors.grey.shade400 : Colors.grey.shade700,
+                  fontSize: 13,
+                ),
+              ),
+            ],
+          ),
+        ),
+        iconTheme: IconThemeData(color: isDark ? Colors.white : Colors.black87),
+      ),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 4),
+
+              // Placeholder service tiles: now each tile combines two previous horizontal tiles (full-width cards)
+              Column(
+                children: List.generate(4, (index) {
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: _buildWidePlaceholderTile(context, isDark, loc),
+                  );
+                }),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // New: wide placeholder tile that spans the full content width (combines two horizontal tiles)
+  Widget _buildWidePlaceholderTile(BuildContext context, bool isDark, AppLocalizations loc) {
+    final fullWidth = MediaQuery.of(context).size.width - 20 * 2; // account for horizontal padding
+
+    return InkWell(
+      borderRadius: BorderRadius.circular(12),
+      onTap: () => showDialog<void>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          backgroundColor: isDark ? AppTheme.darkCard : Colors.white,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          title: Text(loc.t('coming_soon')),
+          content: Text(loc.t('waiting_integration')),
+          actions: [
+            TextButton(onPressed: () => Navigator.of(ctx).pop(), child: Text(loc.t('close'))),
+          ],
+        ),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
+          child: Container(
+            width: fullWidth,
+            height: 120,
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: isDark ? AppTheme.darkCard.withAlpha(160) : Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: isDark ? Colors.white12 : Colors.grey.shade100,
+              ),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 56,
+                  height: 56,
+                  decoration: BoxDecoration(
+                    color: isDark ? Colors.white12 : Colors.grey.shade100,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(
+                    Icons.miscellaneous_services_outlined,
+                    size: 32,
+                    color: isDark ? Colors.grey.shade300 : Colors.grey.shade600,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    loc.t('waiting_integration'),
+                    style: TextStyle(
+                      color: isDark ? Colors.grey.shade300 : Colors.grey.shade700,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+                Icon(
+                  Icons.arrow_forward_ios_rounded,
+                  size: 18,
+                  color: isDark ? Colors.grey.shade300 : Colors.grey.shade500,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}

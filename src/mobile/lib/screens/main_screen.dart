@@ -5,6 +5,7 @@ import '../theme/app_theme.dart';
 import 'home_screen.dart';
 import 'search/navigation_screen.dart';
 import 'settings_screen.dart';
+import 'services_screen.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -22,7 +23,7 @@ class _MainScreenState extends State<MainScreen> {
   void initState() {
     super.initState();
     _pages = [
-      const _PlaceholderPage(label: 'services'),
+      const ServicesScreen(),
       const NavigationScreen(),
       const HomeScreen(),
       const _PlaceholderPage(label: 'schedule'),
