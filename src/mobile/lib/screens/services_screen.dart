@@ -57,7 +57,7 @@ class ServicesScreen extends StatelessWidget {
               // Placeholder service tiles: now each tile combines two previous horizontal tiles (full-width cards)
               Column(
                 children: List.generate(4, (index) {
-                  // For the first tile, show the requested service details and make it slightly larger
+                  // All tiles should use the same compact sizing as the first one (isLarge: true)
                   if (index == 0) {
                     return Padding(
                       padding: const EdgeInsets.only(bottom: 12),
@@ -73,7 +73,6 @@ class ServicesScreen extends StatelessWidget {
                     );
                   }
 
-                  // Second tile: specific service requested by user
                   if (index == 1) {
                     return Padding(
                       padding: const EdgeInsets.only(bottom: 12),
@@ -84,13 +83,14 @@ class ServicesScreen extends StatelessWidget {
                         title: 'Đăng ký Vé tháng gửi xe máy',
                         subtitle: 'Phòng Dữ liệu & Công nghệ thông tin',
                         icon: Icons.local_parking_rounded,
+                        isLarge: true,
                       ),
                     );
                   }
 
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 12),
-                    child: _buildWidePlaceholderTile(context, isDark, loc),
+                    child: _buildWidePlaceholderTile(context, isDark, loc, isLarge: true),
                   );
                 }),
               ),
