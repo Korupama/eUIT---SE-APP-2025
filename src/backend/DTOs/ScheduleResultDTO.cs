@@ -19,7 +19,7 @@ public class ScheduleResultDto
     public DateTime ngay_bat_dau { get; set; }
     public DateTime ngay_ket_thuc { get; set; }
     public string phong_hoc { get; set; } = string.Empty;
-    public int si_so { get; set; }
+    public int? si_so { get; set; }
     public string hinh_thuc_giang_day { get; set; } = string.Empty;
     public string? ghi_chu { get; set; }
 }
