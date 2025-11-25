@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io' show Platform;
+import 'dart:developer' as developer;
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
@@ -25,7 +26,10 @@ class AuthService {
   Future<void> _init() async {
     try {
       final t = await _storage.read(key: _tokenKey);
-      if (tokenNotifier.value != t) tokenNotifier.value = t;
+      if (tokenNotifier.value != t) {
+        tokenNotifier.value = t;
+        developer.log('AuthService: initialized tokenNotifier with value ${t == null ? 'null' : '***'}', name: 'AuthService');
+      }
     } catch (_) {
       // ignore read errors
     }
@@ -132,6 +136,7 @@ class AuthService {
     try {
       // Notify listeners (e.g., providers) that a new token is available.
       tokenNotifier.value = token;
+      developer.log('AuthService: saveToken called; token saved and notified', name: 'AuthService');
     } catch (_) {
       // ignore notifier errors
     }
@@ -145,6 +150,7 @@ class AuthService {
     await _storage.delete(key: _tokenKey);
     try {
       tokenNotifier.value = null;
+      developer.log('AuthService: deleteToken called; token removed and notified', name: 'AuthService');
     } catch (_) {
       // ignore
     }

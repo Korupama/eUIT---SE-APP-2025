@@ -6,6 +6,7 @@ import '../models/notification_item.dart';
 import '../models/quick_action.dart';
 import '../services/auth_service.dart';
 import 'package:flutter/foundation.dart';
+import 'dart:developer' as developer;
 import '../models/student_card_dto.dart';
 
 class HomeProvider extends ChangeNotifier {
@@ -14,16 +15,18 @@ class HomeProvider extends ChangeNotifier {
   // Listen for token changes and refetch data when a new token is saved.
   late final VoidCallback _tokenListener;
 
-  HomeProvider({AuthService? auth}) {
+  HomeProvider({required AuthService auth}) {
     _loadMock();
-    _auth = auth ?? AuthService();
+    _auth = auth;
 
     // When token changes, refresh data (or clear on null).
     _tokenListener = () {
       final tok = AuthService.tokenNotifier.value;
       if (tok == null || tok.isEmpty) {
+        developer.log('HomeProvider: token is null -> clearing data', name: 'HomeProvider');
         clear();
       } else {
+        developer.log('HomeProvider: token available -> refreshing data', name: 'HomeProvider');
         // Fire-and-forget background refresh
         fetchQuickGpa();
         fetchStudentCard();
