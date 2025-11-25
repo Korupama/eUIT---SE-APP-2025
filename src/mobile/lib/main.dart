@@ -81,7 +81,7 @@ class MyApp extends StatelessWidget {
         '/profile': (context) => const ProfileScreen(),
         '/notification_preferences': (context) => const NotificationPreferencesScreen(),
       },
-      initialRoute: '/',
+      initialRoute: '/home',
     );
   }
 }

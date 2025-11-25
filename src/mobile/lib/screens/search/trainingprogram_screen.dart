@@ -9,6 +9,7 @@ class TrainingProgramScreen extends StatefulWidget {
 
 class _TrainingProgramScreenState extends State<TrainingProgramScreen> {
   String selectedProgram = 'Công nghệ thông tin';
+  int? expandedCategoryIndex;
 
   final List<String> programs = [
     'Công nghệ thông tin',
@@ -110,8 +111,8 @@ class _TrainingProgramScreenState extends State<TrainingProgramScreen> {
 
               SizedBox(height: 20),
 
-              // Credit Distribution
-              _buildCreditDistribution(),
+              // Git-style Credit Distribution
+              _buildGitStyleDistribution(),
 
               SizedBox(height: 20),
 
@@ -313,7 +314,7 @@ class _TrainingProgramScreenState extends State<TrainingProgramScreen> {
     );
   }
 
-  Widget _buildCreditDistribution() {
+  Widget _buildGitStyleDistribution() {
     final data = programData[selectedProgram];
     if (data == null) return SizedBox.shrink();
 
@@ -342,71 +343,170 @@ class _TrainingProgramScreenState extends State<TrainingProgramScreen> {
             ),
           ),
           SizedBox(height: 16),
-          ...categories.map((category) {
-            final credits = category['credits'] as int;
-            final percentage = (credits / totalCredits * 100);
 
-            return Padding(
-              padding: EdgeInsets.only(bottom: 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          // Git-style progress bar
+          Container(
+            height: 10,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(5),
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(5),
+              child: Row(
+                children: categories.asMap().entries.map((entry) {
+                  final index = entry.key;
+                  final category = entry.value;
+                  final credits = category['credits'] as int;
+                  final percentage = (credits / totalCredits);
+                  final isFirst = index == 0;
+                  final isLast = index == categories.length - 1;
+
+                  return Flexible(
+                    flex: (percentage * 1000).round(),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: category['color'],
+                        borderRadius: BorderRadius.only(
+                          topLeft: isFirst ? Radius.circular(5) : Radius.zero,
+                          bottomLeft: isFirst ? Radius.circular(5) : Radius.zero,
+                          topRight: isLast ? Radius.circular(5) : Radius.zero,
+                          bottomRight: isLast ? Radius.circular(5) : Radius.zero,
+                        ),
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ),
+            ),
+          ),
+
+          SizedBox(height: 20),
+
+          // Legend items
+          Wrap(
+            spacing: 16,
+            runSpacing: 12,
+            children: categories.map<Widget>((category) {
+              final credits = category['credits'] as int;
+              final percentage = (credits / totalCredits * 100);
+
+              return InkWell(
+                onTap: () {
+                  // Optional: Add interaction
+                },
+                borderRadius: BorderRadius.circular(8),
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: Color(0xFF0F172A),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: category['color'].withOpacity(0.3),
+                      width: 1,
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
+                      Container(
+                        width: 12,
+                        height: 12,
+                        decoration: BoxDecoration(
+                          color: category['color'],
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: category['color'].withOpacity(0.4),
+                              blurRadius: 4,
+                              spreadRadius: 1,
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(width: 8),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            category['name'].toString().split(' ').take(2).join(' '),
+                            style: TextStyle(
+                              color: Colors.white.withOpacity(0.7),
+                              fontSize: 11,
+                            ),
+                          ),
+                          SizedBox(height: 2),
+                          Text(
+                            '${percentage.toStringAsFixed(1)}%',
+                            style: TextStyle(
+                              color: category['color'],
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+
+          SizedBox(height: 16),
+
+          // Detailed breakdown
+          Container(
+            padding: EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Color(0xFF0F172A),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: Colors.white.withOpacity(0.05),
+                width: 1,
+              ),
+            ),
+            child: Column(
+              children: categories.map<Widget>((category) {
+                final credits = category['credits'] as int;
+                final percentage = (credits / totalCredits * 100);
+
+                return Padding(
+                  padding: EdgeInsets.symmetric(vertical: 6),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 8,
+                        height: 8,
+                        decoration: BoxDecoration(
+                          color: category['color'],
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      SizedBox(width: 12),
                       Expanded(
                         child: Text(
                           category['name'],
                           style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 13,
-                            fontWeight: FontWeight.w500,
+                            color: Colors.white.withOpacity(0.8),
+                            fontSize: 12,
                           ),
                         ),
                       ),
                       Text(
-                        '$credits TC (${percentage.toStringAsFixed(0)}%)',
+                        '$credits TC',
                         style: TextStyle(
-                          color: category['color'],
-                          fontSize: 13,
+                          color: Colors.white,
+                          fontSize: 12,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
                     ],
                   ),
-                  SizedBox(height: 8),
-                  Stack(
-                    children: [
-                      Container(
-                        height: 8,
-                        decoration: BoxDecoration(
-                          color: Color(0xFF0F172A),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                      ),
-                      FractionallySizedBox(
-                        widthFactor: percentage / 100,
-                        child: Container(
-                          height: 8,
-                          decoration: BoxDecoration(
-                            color: category['color'],
-                            borderRadius: BorderRadius.circular(4),
-                            boxShadow: [
-                              BoxShadow(
-                                color: category['color'].withOpacity(0.5),
-                                blurRadius: 4,
-                                offset: Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            );
-          }).toList(),
+                );
+              }).toList(),
+            ),
+          ),
         ],
       ),
     );
@@ -430,100 +530,148 @@ class _TrainingProgramScreenState extends State<TrainingProgramScreen> {
           ),
         ),
         SizedBox(height: 16),
-        ...categories.map((category) {
+        ...categories.asMap().entries.map((entry) {
+          final index = entry.key;
+          final category = entry.value;
+          final isExpanded = expandedCategoryIndex == index;
+
           return Padding(
             padding: EdgeInsets.only(bottom: 12),
-            child: _buildCategoryCard(category),
+            child: _buildCategoryCard(category, index, isExpanded),
           );
         }).toList(),
       ],
     );
   }
 
-  Widget _buildCategoryCard(Map<String, dynamic> category) {
-    return Container(
+  Widget _buildCategoryCard(Map<String, dynamic> category, int index, bool isExpanded) {
+    final subjects = category['subjects'] as List;
+
+    return AnimatedContainer(
+      duration: Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
       padding: EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Color(0xFF1E293B),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: Colors.white.withOpacity(0.1),
+          color: isExpanded
+              ? category['color'].withOpacity(0.3)
+              : Colors.white.withOpacity(0.1),
           width: 1,
         ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Container(
-                width: 4,
-                height: 20,
-                decoration: BoxDecoration(
-                  color: category['color'],
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  category['name'],
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: category['color'].withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  '${category['credits']} TC',
-                  style: TextStyle(
+          InkWell(
+            onTap: () {
+              setState(() {
+                expandedCategoryIndex = isExpanded ? null : index;
+              });
+            },
+            child: Row(
+              children: [
+                Container(
+                  width: 4,
+                  height: 20,
+                  decoration: BoxDecoration(
                     color: category['color'],
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
+                    borderRadius: BorderRadius.circular(2),
                   ),
                 ),
-              ),
-            ],
+                SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    category['name'],
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: category['color'].withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    '${category['credits']} TC',
+                    style: TextStyle(
+                      color: category['color'],
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                SizedBox(width: 8),
+                AnimatedRotation(
+                  turns: isExpanded ? 0.5 : 0,
+                  duration: Duration(milliseconds: 300),
+                  child: Icon(
+                    Icons.keyboard_arrow_down,
+                    color: Colors.white.withOpacity(0.5),
+                    size: 20,
+                  ),
+                ),
+              ],
+            ),
           ),
-          SizedBox(height: 16),
-          ...((category['subjects'] as List).asMap().entries.map((entry) {
-            final index = entry.key;
-            final subject = entry.value;
-            final isLast = index == (category['subjects'] as List).length - 1;
 
-            return Padding(
-              padding: EdgeInsets.only(bottom: isLast ? 0 : 8),
-              child: Row(
-                children: [
-                  Container(
-                    width: 6,
-                    height: 6,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: category['color'].withOpacity(0.6),
-                    ),
+          AnimatedCrossFade(
+            firstChild: SizedBox.shrink(),
+            secondChild: Column(
+              children: [
+                SizedBox(height: 16),
+                Container(
+                  padding: EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Color(0xFF0F172A),
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      subject,
-                      style: TextStyle(
-                        color: Colors.white.withOpacity(0.8),
-                        fontSize: 13,
-                      ),
-                    ),
+                  child: Column(
+                    children: subjects.asMap().entries.map((entry) {
+                      final subjectIndex = entry.key;
+                      final subject = entry.value;
+                      final isLast = subjectIndex == subjects.length - 1;
+
+                      return Padding(
+                        padding: EdgeInsets.only(bottom: isLast ? 0 : 8),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 6,
+                              height: 6,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: category['color'].withOpacity(0.6),
+                              ),
+                            ),
+                            SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
+                                subject,
+                                style: TextStyle(
+                                  color: Colors.white.withOpacity(0.8),
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }).toList(),
                   ),
-                ],
-              ),
-            );
-          }).toList()),
+                ),
+              ],
+            ),
+            crossFadeState: isExpanded
+                ? CrossFadeState.showSecond
+                : CrossFadeState.showFirst,
+            duration: Duration(milliseconds: 300),
+          ),
         ],
       ),
     );

@@ -74,7 +74,8 @@ class _TrainingPointScreenState extends State<TrainingPointScreen> {
 
   Widget _buildTotalScoreCard() {
     return Container(
-      padding: EdgeInsets.all(32),
+      width: double.infinity,
+      padding: EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: Color(0xFF1E293B),
         borderRadius: BorderRadius.circular(16),
@@ -83,7 +84,7 @@ class _TrainingPointScreenState extends State<TrainingPointScreen> {
           width: 1,
         ),
       ),
-      child: Column(
+      child: Row(
         children: [
           // Icon
           Container(
@@ -99,39 +100,47 @@ class _TrainingPointScreenState extends State<TrainingPointScreen> {
             ),
           ),
 
-          SizedBox(height: 20),
+          SizedBox(width: 24),
 
-          // Title
-          Text(
-            'Điểm Rèn Luyện Tổng',
-            style: TextStyle(
-              color: Color(0xFF8B5CF6),
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-
-          SizedBox(height: 8),
-
-          // Score
-          Text(
-            '88.5',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 56,
-              fontWeight: FontWeight.bold,
-              height: 1.2,
-            ),
-          ),
-
-          SizedBox(height: 4),
-
-          // Scale
-          Text(
-            '/ 100',
-            style: TextStyle(
-              color: Colors.white.withOpacity(0.5),
-              fontSize: 16,
+          // Content
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Điểm Rèn Luyện Tổng',
+                  style: TextStyle(
+                    color: Color(0xFF8B5CF6),
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                SizedBox(height: 8),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      '88.5',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 48,
+                        fontWeight: FontWeight.bold,
+                        height: 1.2,
+                      ),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(bottom: 8, left: 4),
+                      child: Text(
+                        '/ 100',
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.5),
+                          fontSize: 16,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
         ],

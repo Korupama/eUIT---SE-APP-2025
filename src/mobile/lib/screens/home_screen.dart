@@ -30,6 +30,17 @@ class _HomeScreenState extends State<HomeScreen>
   void initState() {
     super.initState();
     _scrollController = ScrollController();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final size = MediaQuery.of(context).size;
+
+      setState(() {
+        bubblePosition = Offset(
+          size.width - 64 - 20,   // right: 20
+          size.height - 64 - 105, // bottom: 105
+        );
+      });
+    });
   }
 
   @override
@@ -44,7 +55,8 @@ class _HomeScreenState extends State<HomeScreen>
 
   // GPA visibility state
   bool _isGpaVisible = false;
-
+  Offset bubblePosition = const Offset(105, 820);
+  Offset dragStartOffset = Offset.zero;
 
   @override
   Widget build(BuildContext context) {
@@ -135,110 +147,133 @@ class _HomeScreenState extends State<HomeScreen>
                   ),
           ),
 
-              // 🔥 Chatbot Bubble Button (UIT Style)
-              if (!_bubbleClosed)
-                AnimatedPositioned(
-                  duration: const Duration(milliseconds: 400),
-                  curve: Curves.easeOutBack,
-                  bottom: 105,
-                  right: 20,
-                  child: AnimatedScale(
-                  duration: const Duration(milliseconds: 300),
-                  scale: !_bubbleClosed ? 1 : 0.7,
-                  curve: Curves.easeOutBack,
-                  child: AnimatedOpacity(
+// 🔥 Chatbot Bubble Button (UIT Style)
+          if (!_bubbleClosed)
+            AnimatedPositioned(
+              duration: const Duration(milliseconds: 400),
+              curve: Curves.easeOutBack,
+              left: bubblePosition.dx,
+              top: bubblePosition.dy,
+              child: AnimatedScale(
+                duration: const Duration(milliseconds: 300),
+                scale: !_bubbleClosed ? 1 : 0.7,
+                curve: Curves.easeOutBack,
+                child: AnimatedOpacity(
                   duration: const Duration(milliseconds: 300),
                   opacity: !_bubbleClosed ? 1 : 0,
-                  child: Stack(
-                  clipBehavior: Clip.none,
-                children: [
-                    GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const ChatbotScreen(),
-                          ),
-                        );
-                      },
-                child: Container(
-                  width: 64,
-                  height: 64,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(18), // bo góc giống app UIT
-                    border: Border.all(
-                    color: Colors.white.withOpacity(0.18), // viền mỏng sáng
-                    width: 1,
-                  ),
-                  boxShadow: [
-                  BoxShadow(
-                    color: Colors.blueAccent.withOpacity(0.25),
-                    blurRadius: 20,
-                    spreadRadius: 1,
-                    offset: const Offset(0, 6),
-                  ),
-                ],
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(18),
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
-                  child: Container(
-                    decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                    colors: [
-                    Colors.white.withOpacity(0.07),
-                    Colors.white.withOpacity(0.02),
-                    ],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                      ),
-                    ),
-                    child: const Center(
-                      child: Icon(
-                        Icons.smart_toy,
-                        color: Colors.white,
-                        size: 28,
+                  child: GestureDetector(
+                    onPanStart: (details) {
+                      dragStartOffset = details.globalPosition - bubblePosition;
+                    },
+                    onPanUpdate: (details) {
+                      setState(() {
+                        bubblePosition = details.globalPosition - dragStartOffset;
+                      });
+                    },
+                    onPanEnd: (details) {
+                      // ⭐ Snap về cạnh
+                      double screenWidth = MediaQuery.of(context).size.width;
+
+                      setState(() {
+                        if (bubblePosition.dx < screenWidth / 2) {
+                          bubblePosition = Offset(10, bubblePosition.dy);
+                        } else {
+                          bubblePosition = Offset(screenWidth - 84, bubblePosition.dy);
+                        }
+                      });
+                    },
+                    child: Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const ChatbotScreen(),
+                              ),
+                            );
+                          },
+                          child: Container(
+                            width: 64,
+                            height: 64,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(18),
+                              border: Border.all(
+                                color: Colors.white.withOpacity(0.18),
+                                width: 1,
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.blueAccent.withOpacity(0.25),
+                                  blurRadius: 20,
+                                  spreadRadius: 1,
+                                  offset: const Offset(0, 6),
+                                ),
+                              ],
+                            ),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(18),
+                              child: BackdropFilter(
+                                filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      colors: [
+                                        Colors.white.withOpacity(0.07),
+                                        Colors.white.withOpacity(0.02),
+                                      ],
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                    ),
+                                  ),
+                                  child: const Center(
+                                    child: Icon(
+                                      Icons.smart_toy,
+                                      color: Colors.white,
+                                      size: 28,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
                           ),
                         ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
 
-              // 🔴 Nút tắt bubble
-              Positioned(
-                top: -7,
-                right: -7,
-                  child: GestureDetector(
-                    onTap: () => setState(() => _bubbleClosed = true),
-                    child: Container(
-                    padding: const EdgeInsets.all(4),
-                    decoration: BoxDecoration(
-                    color: Colors.redAccent,
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.3),
-                        blurRadius: 5,
-                        offset: const Offset(0, 2),
+                        // 🔴 Nút tắt bubble
+                        Positioned(
+                          top: -7,
+                          right: -7,
+                          child: GestureDetector(
+                            onTap: () => setState(() => _bubbleClosed = true),
+                            child: Container(
+                              padding: const EdgeInsets.all(4),
+                              decoration: BoxDecoration(
+                                color: Colors.redAccent,
+                                shape: BoxShape.circle,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.3),
+                                    blurRadius: 5,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                              child: const Icon(
+                                Icons.close,
+                                color: Colors.white,
+                                size: 14,
+                              ),
+                            ),
+                          ),
                         ),
                       ],
                     ),
-                      child: const Icon(
-                        Icons.close,
-                        color: Colors.white,
-                        size: 14,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ),
             ),
-          )
+
         ],
       ),
     );
