@@ -3,6 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../providers/home_provider.dart';
 import '../services/theme_controller.dart';
 import '../services/language_controller.dart';
 import '../services/auth_service.dart';
@@ -25,7 +26,7 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
   final _formKey = GlobalKey<FormState>();
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _authService = AuthService();
+  late AuthService _authService;
 
   bool _obscurePassword = true;
   bool _rememberMe = false;
@@ -34,6 +35,7 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
   String? _errorKey; // holds localization key like 'invalid_credentials'
   bool _shakeUsername = false;
   bool _shakePassword = false;
+  bool _authInitialized = false;
 
   late AnimationController _fadeController;
   late Animation<double> _fadeAnimation;
@@ -54,6 +56,16 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
     _fadeController.forward();
 
     _loadRememberedUsername();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Initialize shared AuthService from Provider once when context is available
+    if (!_authInitialized) {
+      _authService = context.read<AuthService>();
+      _authInitialized = true;
+    }
   }
 
   @override
@@ -128,6 +140,13 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
       );
 
       await _authService.saveToken(token);
+
+      // Best-effort: trigger providers to refresh now so Home shows fresh data.
+      try {
+        await context.read<HomeProvider>().refreshAll();
+      } catch (_) {
+        // ignore errors; we'll still navigate
+      }
 
       // Persist or clear remembered credentials based on checkbox.
       try {

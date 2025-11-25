@@ -68,7 +68,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
 
     if (res == true) {
-      final auth = AuthService();
+      final auth = context.read<AuthService>();
       await auth.deleteToken();
       if (!mounted) return;
       Navigator.pushReplacementNamed(context, '/');

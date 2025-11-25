@@ -15,6 +15,7 @@ import 'screens/profile_screen.dart';
 import 'screens/notification_preferences.dart';
 import 'screens/services_screen.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'services/auth_service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,9 +27,12 @@ Future<void> main() async {
   runApp(
     MultiProvider(
       providers: [
+        // Single shared AuthService instance for the whole app
+        Provider<AuthService>(create: (_) => AuthService(), lazy: false),
         ChangeNotifierProvider(create: (_) => ThemeController()),
         ChangeNotifierProvider(create: (_) => LanguageController()),
-        ChangeNotifierProvider(create: (_) => HomeProvider()),
+        // Inject the shared AuthService into HomeProvider so it doesn't create its own
+        ChangeNotifierProvider(create: (context) => HomeProvider(auth: context.read<AuthService>())),
         ChangeNotifierProvider(create: (_) => ChatbotProvider()),
       ],
       child: const MyApp(),
