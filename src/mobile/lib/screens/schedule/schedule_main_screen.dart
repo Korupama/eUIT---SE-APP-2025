@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'add_schedule_modal.dart'; // Import modal file
 import 'schedule_item.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
-import '../../widgets/animated_background.dart';
 
 class ScheduleMainScreen extends StatefulWidget {
   const ScheduleMainScreen({Key? key}) : super(key: key);
@@ -189,246 +188,204 @@ class _ScheduleMainScreenState extends State<ScheduleMainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    // Get the week containing the selected day
-    List<DayInfo> weekDays = _getWeekDays();
-
     return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF0A0E27) : const Color(0xFFF7F8FC),
-
-      floatingActionButton: selectedTab == 2
-          ? Padding(
-        padding: const EdgeInsets.only(bottom: 80.0, right: 10.0), // tăng bottom để nâng lên
-        child: SpeedDial(
-          icon: Icons.add,
-          activeIcon: Icons.close,
-          backgroundColor: Colors.blueAccent,
-          overlayOpacity: 0.3,
-          spacing: 12,
-          spaceBetweenChildren: 12,
+      backgroundColor: Colors.transparent,
+      body: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SpeedDialChild(
-              child: Icon(Icons.edit_calendar),
-              onTap: () {
-                showModalBottomSheet(
-                  context: context,
-                  isScrollControlled: true,
-                  backgroundColor: Colors.transparent,
-                  builder: (_) => AddScheduleModal(
-                    onSave: (newItem) => _addNewSchedule(newItem),
+            // Header
+            Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Lịch',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                );
-              },
-            ),
-          ],
-        ),
-      )
-          : null,
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
 
-      body: Stack(
-        children: [
-          // Animated background layer so schedule page matches other nav pages
-          Positioned.fill(child: AnimatedBackground(isDark: isDark)),
-
-          SafeArea(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Header
-                Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  Row(
                     children: [
-                      const Text(
-                        'Lịch',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 32,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-
-                      Row(
-                        children: [
-                          // Nút "Hôm nay" - chỉ hiện khi không ở tuần hiện tại
-                          if (!isCurrentWeek) ...[
-                            GestureDetector(
-                              onTap: goToToday,
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                decoration: BoxDecoration(
-                                  // Replaced deprecated `.withOpacity()` with const ARGB color to avoid precision-loss warning
-                                  color: const Color(0x334FFFED),
-                                  borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(
-                                    color: const Color(0xFF4FFFED),
-                                    width: 1,
-                                  ),
-                                ),
-                                child: const Text(
-                                  'Hôm nay',
-                                  style: TextStyle(
-                                    color: Color(0xFF4FFFED),
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
+                      // Nút "Hôm nay" - chỉ hiện khi không ở tuần hiện tại
+                      if (!isCurrentWeek) ...[
+                        GestureDetector(
+                          onTap: goToToday,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                            decoration: BoxDecoration(
+                              // Replaced deprecated `.withOpacity()` with const ARGB color to avoid precision-loss warning
+                              color: const Color(0x334FFFED),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: const Color(0xFF4FFFED),
+                                width: 1,
                               ),
                             ),
-                            const SizedBox(width: 12),
-                          ],
-                          Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              // Use explicit ARGB instead of `withOpacity` (deprecated)
-                              color: const Color(0x1AFFFFFF),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: const Icon(
-                              Icons.notifications_outlined,
-                              color: Colors.white,
-                              size: 24,
-                            ),
-                          ),
-                        ],
-                      ),
-
-                    ],
-                  ),
-                ),
-                // Month Navigation
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      GestureDetector(
-                        onTap: showMonthYearPicker,
-                        child: Row(
-                          children: [
-                            Text(
-                              getMonthYearDisplay(),
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 20,
+                            child: const Text(
+                              'Hôm nay',
+                              style: TextStyle(
+                                color: Color(0xFF4FFFED),
+                                fontSize: 13,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
-                            const SizedBox(width: 8),
-                            Icon(
-                              Icons.keyboard_arrow_down,
-                              // Replaced deprecated withOpacity -> explicit ARGB
-                              color: const Color(0xB3FFFFFF),
-                              size: 20,
-                            ),
-                          ],
+                          ),
                         ),
-                      ),
-                      // Chỉ hiện nút next week
-                      IconButton(
-                        onPressed: () => changeWeek(1),
-                        icon: const Icon(Icons.chevron_right),
-                        color: Colors.white,
+                        const SizedBox(width: 12),
+                      ],
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          // Use explicit ARGB instead of `withOpacity` (deprecated)
+                          color: const Color(0x1AFFFFFF),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Icon(
+                          Icons.notifications_outlined,
+                          color: Colors.white,
+                          size: 24,
+                        ),
                       ),
                     ],
                   ),
-                ),
 
-                // Mini Calendar (Week View)
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 15),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: weekDays.map((day) {
-                      bool isSelected = day.day == selectedDay;
-                      return GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            selectedDay = day.day;
-                          });
-                        },
-                        child: Column(
-                          children: [
-                            Text(
-                              day.dayName,
-                              style: TextStyle(
-                                color: const Color(0x99FFFFFF),
-                                fontSize: 12,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Container(
-                              width: 40,
-                              height: 40,
-                              decoration: BoxDecoration(
-                                color: isSelected ? const Color(0xFF4FFFED) : Colors.transparent,
-                                shape: BoxShape.circle,
-                              ),
-                              child: Center(
-                                child: Text(
-                                  '${day.day}',
-                                  style: TextStyle(
-                                    color: isSelected ? Colors.black : Colors.white,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                ),
-
-                // Tab Navigation
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 15),
-                  child: Container(
-                    padding: const EdgeInsets.all(4),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF1E2139),
-                      borderRadius: BorderRadius.circular(16),
-                    ),
+                ],
+              ),
+            ),
+            // Month Navigation
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  GestureDetector(
+                    onTap: showMonthYearPicker,
                     child: Row(
                       children: [
-                        _buildTab('Lên lớp', 0),
-                        _buildTab('Kiểm tra', 1),
-                        _buildTab('Cá nhân', 2),
+                        Text(
+                          getMonthYearDisplay(),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Icon(
+                          Icons.keyboard_arrow_down,
+                          // Replaced deprecated withOpacity -> explicit ARGB
+                          color: const Color(0xB3FFFFFF),
+                          size: 20,
+                        ),
                       ],
                     ),
                   ),
-                ),
+                  // Chỉ hiện nút next week
+                  IconButton(
+                    onPressed: () => changeWeek(1),
+                    icon: const Icon(Icons.chevron_right),
+                    color: Colors.white,
+                  ),
+                ],
+              ),
+            ),
 
-                // Schedule List
-                Expanded(
-                  child: getScheduleForSelectedDay().isNotEmpty
-                      ? ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                    itemCount: getScheduleForSelectedDay().length,
-                    itemBuilder: (context, index) {
-                      final item = getScheduleForSelectedDay()[index];
-                      return _buildScheduleCard(item);
+            // Mini Calendar (Week View)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 15),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: _getWeekDays().map((day) {
+                  bool isSelected = day.day == selectedDay;
+                  return GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        selectedDay = day.day;
+                      });
                     },
-                  )
-                      : Center(
-                    child: Text(
-                      getEmptyMessage(),
-                      style: TextStyle(
-                        color: const Color(0x80FFFFFF),
-                        fontSize: 16,
-                      ),
+                    child: Column(
+                      children: [
+                        Text(
+                          day.dayName,
+                          style: const TextStyle(
+                            color: Color(0x99FFFFFF),
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: isSelected ? const Color(0xFF4FFFED) : Colors.transparent,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Center(
+                            child: Text(
+                              '${day.day}',
+                              style: TextStyle(
+                                color: isSelected ? Colors.black : Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
+                  );
+                }).toList(),
+              ),
+            ),
+
+            // Tab Navigation
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 15),
+              child: Container(
+                padding: const EdgeInsets.all(4),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF1E2139),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Row(
+                  children: [
+                    _buildTab('Lên lớp', 0),
+                    _buildTab('Kiểm tra', 1),
+                    _buildTab('Cá nhân', 2),
+                  ],
+                ),
+              ),
+            ),
+
+            // Schedule List
+            Expanded(
+              child: getScheduleForSelectedDay().isNotEmpty
+                  ? ListView.builder(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                itemCount: getScheduleForSelectedDay().length,
+                itemBuilder: (context, index) {
+                  final item = getScheduleForSelectedDay()[index];
+                  return _buildScheduleCard(item);
+                },
+              )
+                  : Center(
+                child: Text(
+                  getEmptyMessage(),
+                  style: TextStyle(
+                    color: const Color(0x80FFFFFF),
+                    fontSize: 16,
                   ),
                 ),
-              ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -484,16 +441,16 @@ class _ScheduleMainScreenState extends State<ScheduleMainScreen> {
         border: Border.all(
           // Converted to ARGB (50% alpha)
           color: const Color(0x7F4FFFED),
-           width: 1.5,
-         ),
-         boxShadow: [
-           BoxShadow(
+          width: 1.5,
+        ),
+        boxShadow: const [
+          BoxShadow(
             // Converted to ARGB (~20% alpha)
-            color: const Color(0x334FFFED),
-             blurRadius: 20,
-             spreadRadius: 0,
-           ),
-         ],
+            color: Color(0x334FFFED),
+            blurRadius: 20,
+            spreadRadius: 0,
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -503,16 +460,16 @@ class _ScheduleMainScreenState extends State<ScheduleMainScreen> {
             children: [
               Text(
                 '${item.startTime} - ${item.endTime}',
-                style: TextStyle(
-                  color: const Color(0xCCFFFFFF),
+                style: const TextStyle(
+                  color: Color(0xCCFFFFFF),
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              Text(
+              const Text(
                 'Phòng',
                 style: TextStyle(
-                  color: const Color(0x80FFFFFF),
+                  color: Color(0x80FFFFFF),
                   fontSize: 12,
                 ),
               ),
@@ -542,8 +499,8 @@ class _ScheduleMainScreenState extends State<ScheduleMainScreen> {
                       const SizedBox(height: 6),
                       Text(
                         item.teacher,
-                        style: TextStyle(
-                          color: const Color(0xB3FFFFFF),
+                        style: const TextStyle(
+                          color: Color(0xB3FFFFFF),
                           fontSize: 13,
                           fontWeight: FontWeight.w400,
                         ),

@@ -7,6 +7,7 @@ import 'home_screen.dart';
 import 'search/navigation_screen.dart';
 import 'settings_screen.dart';
 import 'services_screen.dart';
+import '../widgets/animated_background.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -68,10 +69,17 @@ class _MainScreenState extends State<MainScreen> {
       },
       child: Scaffold(
         backgroundColor:
-            isDark ? AppTheme.darkBackground : const Color(0xFFF7F8FC),
+            isDark ? AppTheme.darkBackground : const Color(0xFF020617),
         body: Stack(
           children: [
-            // Main content with horizontal swipe between tabs
+            // Nền động chung cho tất cả tab
+            Positioned.fill(
+              child: IgnorePointer(
+                child: AnimatedBackground(isDark: isDark),
+              ),
+            ),
+
+            // Nội dung các tab (PageView)
             PageView(
               controller: _pageController,
               physics: const BouncingScrollPhysics(),
@@ -85,7 +93,7 @@ class _MainScreenState extends State<MainScreen> {
               children: _pages,
             ),
 
-            // Custom Bottom Navigation Bar
+            // Bottom Navigation Bar
             Positioned(
               left: 0,
               right: 0,

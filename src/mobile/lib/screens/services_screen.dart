@@ -2,7 +2,6 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import '../utils/app_localizations.dart';
-import '../widgets/animated_background.dart';
 
 class ServicesScreen extends StatelessWidget {
   const ServicesScreen({super.key});
@@ -19,193 +18,185 @@ class ServicesScreen extends StatelessWidget {
     // (AppBar uses transparent background; per-tile card/stroke colors are defined inside the tile builder)
 
     return Scaffold(
-      backgroundColor: isDark ? AppTheme.darkBackground : const Color(0xFFF7F8FC),
-      body: Stack(
-        children: [
-          // Animated background for both light and dark modes so the navbar pages share the same background visual
-          Positioned.fill(child: AnimatedBackground(isDark: isDark)),
-
-          // Main scaffold content
-          Scaffold(
-            backgroundColor: Colors.transparent,
-            appBar: PreferredSize(
-              preferredSize: const Size.fromHeight(76),
-              child: ClipRRect(
-                // keep no rounded corners so it aligns with screen edges
-                borderRadius: BorderRadius.zero,
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
-                  child: Container(
-                    // Make AppBar background transparent so the animated background shows through
-                    decoration: const BoxDecoration(
-                      color: Colors.transparent,
-                    ),
-                    child: AppBar(
-                      backgroundColor: Colors.transparent,
-                      elevation: 0,
-                      centerTitle: false,
-                      toolbarHeight: 76,
-                      titleSpacing: 20,
-                      title: Padding(
-                        padding: const EdgeInsets.only(top: 6), // nudge title down slightly to mimic old header spacing
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              loc.t('services'),
-                              style: TextStyle(
-                                color: isDark ? Colors.white : Colors.black87,
-                                fontSize: 20, // increased by 1 size (from 18 -> 20)
-                                fontWeight: FontWeight.bold,
-                              ),
+      backgroundColor: Colors.transparent,
+      body: SafeArea(
+        child: Scaffold(
+          backgroundColor: Colors.transparent,
+          appBar: PreferredSize(
+            preferredSize: const Size.fromHeight(76),
+            child: ClipRRect(
+              // keep no rounded corners so it aligns with screen edges
+              borderRadius: BorderRadius.zero,
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
+                child: Container(
+                  // Make AppBar background transparent so the animated background shows through
+                  decoration: const BoxDecoration(
+                    color: Colors.transparent,
+                  ),
+                  child: AppBar(
+                    backgroundColor: Colors.transparent,
+                    elevation: 0,
+                    centerTitle: false,
+                    toolbarHeight: 76,
+                    titleSpacing: 20,
+                    title: Padding(
+                      padding: const EdgeInsets.only(top: 6), // nudge title down slightly to mimic old header spacing
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            loc.t('services'),
+                            style: TextStyle(
+                              color: isDark ? Colors.white : Colors.black87,
+                              fontSize: 20, // increased by 1 size (from 18 -> 20)
+                              fontWeight: FontWeight.bold,
                             ),
-                            const SizedBox(height: 4),
-                            Text(
-                              loc.t('services_description'),
-                              style: TextStyle(
-                                color: isDark ? Colors.grey.shade400 : Colors.grey.shade700,
-                                fontSize: 13,
-                              ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            loc.t('services_description'),
+                            style: TextStyle(
+                              color: isDark ? Colors.grey.shade400 : Colors.grey.shade700,
+                              fontSize: 13,
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
-                      iconTheme: IconThemeData(color: isDark ? Colors.white : Colors.black87),
                     ),
+                    iconTheme: IconThemeData(color: isDark ? Colors.white : Colors.black87),
                   ),
                 ),
               ),
             ),
-            body: SafeArea(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 4),
+          ),
+          body: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 4),
 
-                    // Placeholder service tiles: now each tile combines two previous horizontal tiles (full-width cards)
-                    Column(
-                      children: List.generate(6, (index) {
-                        // All tiles should use the same compact sizing as the first one (isLarge: true)
-                        if (index == 0) {
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 12),
-                            child: _buildWidePlaceholderTile(
-                              context,
-                              isDark,
-                              loc,
-                              title: 'Đăng ký giấy xác nhận sinh viên',
-                              subtitle: 'Phòng Công tác Sinh viên',
-                              icon: Icons.description_outlined,
-                              isLarge: true,
-                              iconVariant: 0,
-                              orderIndex: index,
-                            ),
-                          );
-                        }
+                // Placeholder service tiles: now each tile combines two previous horizontal tiles (full-width cards)
+                Column(
+                  children: List.generate(6, (index) {
+                    // All tiles should use the same compact sizing as the first one (isLarge: true)
+                    if (index == 0) {
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: _buildWidePlaceholderTile(
+                          context,
+                          isDark,
+                          loc,
+                          title: 'Đăng ký giấy xác nhận sinh viên',
+                          subtitle: 'Phòng Công tác Sinh viên',
+                          icon: Icons.description_outlined,
+                          isLarge: true,
+                          iconVariant: 0,
+                          orderIndex: index,
+                        ),
+                      );
+                    }
 
-                        if (index == 1) {
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 12),
-                            child: _buildWidePlaceholderTile(
-                              context,
-                              isDark,
-                              loc,
-                              title: 'Đăng ký Vé tháng gửi xe máy',
-                              subtitle: 'Phòng Dữ liệu & Công nghệ thông tin',
-                              icon: Icons.local_parking_rounded,
-                              isLarge: true,
-                              iconVariant: 0,
-                              orderIndex: index,
-                            ),
-                          );
-                        }
+                    if (index == 1) {
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: _buildWidePlaceholderTile(
+                          context,
+                          isDark,
+                          loc,
+                          title: 'Đăng ký Vé tháng gửi xe máy',
+                          subtitle: 'Phòng Dữ liệu & Công nghệ thông tin',
+                          icon: Icons.local_parking_rounded,
+                          isLarge: true,
+                          iconVariant: 0,
+                          orderIndex: index,
+                        ),
+                      );
+                    }
 
-                        if (index == 2) {
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 12),
-                            child: _buildWidePlaceholderTile(
-                              context,
-                              isDark,
-                              loc,
-                              title: 'Đăng ký Xác nhận chứng chỉ',
-                              subtitle: 'Phòng Đào tạo Đại học / VPCCTĐB',
-                              icon: Icons.document_scanner_outlined,
-                              isLarge: true,
-                              iconVariant: 0,
-                              orderIndex: index,
-                            ),
-                          );
-                        }
+                    if (index == 2) {
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: _buildWidePlaceholderTile(
+                          context,
+                          isDark,
+                          loc,
+                          title: 'Đăng ký Xác nhận chứng chỉ',
+                          subtitle: 'Phòng Đào tạo Đại học / VPCCTĐB',
+                          icon: Icons.document_scanner_outlined,
+                          isLarge: true,
+                          iconVariant: 0,
+                          orderIndex: index,
+                        ),
+                      );
+                    }
 
-                        // Fourth tile: 'Đăng ký Phúc khảo'
-                        if (index == 3) {
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 12),
-                            child: _buildWidePlaceholderTile(
-                              context,
-                              isDark,
-                              loc,
-                              title: 'Đăng ký Phúc khảo',
-                              subtitle: 'Phòng Đào tạo Đại học / VPCCTĐB',
-                              icon: Icons.edit_document,
-                              isLarge: true,
-                              iconVariant: 0,
-                              orderIndex: index,
-                            ),
-                          );
-                        }
+                    // Fourth tile: 'Đăng ký Phúc khảo'
+                    if (index == 3) {
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: _buildWidePlaceholderTile(
+                          context,
+                          isDark,
+                          loc,
+                          title: 'Đăng ký Phúc khảo',
+                          subtitle: 'Phòng Đào tạo Đại học / VPCCTĐB',
+                          icon: Icons.edit_document,
+                          isLarge: true,
+                          iconVariant: 0,
+                          orderIndex: index,
+                        ),
+                      );
+                    }
 
-                        // Fifth tile: 'Đăng ký bảng điểm'
-                        if (index == 4) {
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 12),
-                            child: _buildWidePlaceholderTile(
-                              context,
-                              isDark,
-                              loc,
-                              title: 'Đăng ký Bảng điểm',
-                              subtitle: 'Phòng Đào tạo Đại học / VPCCTĐB',
-                              icon: Icons.receipt_long,
-                              isLarge: true,
-                              iconVariant: 0,
-                              orderIndex: index,
-                            ),
-                          );
-                        }
+                    // Fifth tile: 'Đăng ký bảng điểm'
+                    if (index == 4) {
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: _buildWidePlaceholderTile(
+                          context,
+                          isDark,
+                          loc,
+                          title: 'Đăng ký Bảng điểm',
+                          subtitle: 'Phòng Đào tạo Đại học / VPCCTĐB',
+                          icon: Icons.receipt_long,
+                          isLarge: true,
+                          iconVariant: 0,
+                          orderIndex: index,
+                        ),
+                      );
+                    }
 
-                        // Sixth tile: 'Đăng ký Giấy giới thiệu'
-                        if (index == 5) {
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 12),
-                            child: _buildWidePlaceholderTile(
-                              context,
-                              isDark,
-                              loc,
-                              title: 'Đăng ký Giấy giới thiệu',
-                              subtitle: 'Phòng Đào tạo Đại học / VPCCTĐB',
-                              icon: Icons.assignment_ind,
-                              isLarge: true,
-                              iconVariant: 0,
-                              orderIndex: index,
-                            ),
-                          );
-                        }
+                    // Sixth tile: 'Đăng ký Giấy giới thiệu'
+                    if (index == 5) {
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: _buildWidePlaceholderTile(
+                          context,
+                          isDark,
+                          loc,
+                          title: 'Đăng ký Giấy giới thiệu',
+                          subtitle: 'Phòng Đào tạo Đại học / VPCCTĐB',
+                          icon: Icons.assignment_ind,
+                          isLarge: true,
+                          iconVariant: 0,
+                          orderIndex: index,
+                        ),
+                      );
+                    }
 
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 12),
-                          child: _buildWidePlaceholderTile(context, isDark, loc, isLarge: true, orderIndex: index),
-                        );
-                      }),
-                    ),
-                  ],
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: _buildWidePlaceholderTile(context, isDark, loc, isLarge: true, orderIndex: index),
+                    );
+                  }),
                 ),
-              ),
+              ],
             ),
           ),
-        ],
+        ),
       ),
     );
   }

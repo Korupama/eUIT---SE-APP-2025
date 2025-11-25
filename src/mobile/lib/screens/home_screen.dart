@@ -5,7 +5,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 import '../providers/home_provider.dart';
 import '../theme/app_theme.dart';
 import '../utils/app_localizations.dart';
-import '../widgets/animated_background.dart';
 import 'package:shimmer/shimmer.dart';
 import 'chatbot.dart';
 import '../widgets/student_id_card.dart';
@@ -54,14 +53,9 @@ class _HomeScreenState extends State<HomeScreen>
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      // Match ModernLoginScreen background so header transparency reveals same AnimatedBackground
-      backgroundColor: isDark ? AppTheme.darkBackground : AppTheme.lightBackground,
+      backgroundColor: Colors.transparent,
       body: Stack(
         children: [
-          // Animated background (match login) - render in both modes
-          Positioned.fill(child: AnimatedBackground(isDark: isDark)),
-
-          // Main scrollable content
           SafeArea(
             child: provider.isLoading
                 ? _buildShimmerLoading(isDark)
@@ -134,119 +128,114 @@ class _HomeScreenState extends State<HomeScreen>
                     ),
                   ),
           ),
-
-              // 🔥 Chatbot Bubble Button (UIT Style)
-              if (!_bubbleClosed)
-                AnimatedPositioned(
-                  duration: const Duration(milliseconds: 400),
-                  curve: Curves.easeOutBack,
-                  bottom: 105,
-                  right: 20,
-                  child: AnimatedScale(
-                  duration: const Duration(milliseconds: 300),
-                  scale: !_bubbleClosed ? 1 : 0.7,
-                  curve: Curves.easeOutBack,
-                  child: AnimatedOpacity(
+          if (!_bubbleClosed)
+            // 🔥 Chatbot Bubble Button (UIT Style)
+            AnimatedPositioned(
+              duration: const Duration(milliseconds: 400),
+              curve: Curves.easeOutBack,
+              bottom: 105,
+              right: 20,
+              child: AnimatedScale(
+                duration: const Duration(milliseconds: 300),
+                scale: !_bubbleClosed ? 1 : 0.7,
+                curve: Curves.easeOutBack,
+                child: AnimatedOpacity(
                   duration: const Duration(milliseconds: 300),
                   opacity: !_bubbleClosed ? 1 : 0,
                   child: Stack(
-                  clipBehavior: Clip.none,
-                children: [
-                    GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const ChatbotScreen(),
+                    clipBehavior: Clip.none,
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const ChatbotScreen(),
+                            ),
+                          );
+                        },
+                        child: Container(
+                          width: 64,
+                          height: 64,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(18), // bo góc giống app UIT
+                            border: Border.all(
+                              color: const Color(0x2DFFFFFF), // was Colors.white.withOpacity(0.18)
+                              width: 1,
+                            ),
+                            boxShadow: const [
+                              BoxShadow(
+                                color: Color(0x40448AFF), // was Colors.blueAccent.withOpacity(0.25)
+                                blurRadius: 20,
+                                spreadRadius: 1,
+                                offset: Offset(0, 6),
+                              ),
+                            ],
                           ),
-                        );
-                      },
-                child: Container(
-                  width: 64,
-                  height: 64,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(18), // bo góc giống app UIT
-                    border: Border.all(
-                    // Replaced deprecated withOpacity -> explicit ARGB (0.18 * 255 ≈ 46 -> 0x2D)
-                    color: const Color(0x2DFFFFFF), // was Colors.white.withOpacity(0.18)
-                    width: 1,
-                  ),
-                  boxShadow: [
-                  BoxShadow(
-                    // Replaced deprecated withOpacity -> explicit ARGB (0.25 * 255 ≈ 64 -> 0x40)
-                    color: const Color(0x40448AFF), // was Colors.blueAccent.withOpacity(0.25)
-                    blurRadius: 20,
-                    spreadRadius: 1,
-                    offset: const Offset(0, 6),
-                  ),
-                ],
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(18),
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
-                  child: Container(
-                    decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                    colors: [
-                    // Replaced deprecated withOpacity -> explicit ARGB
-                    const Color(0x12FFFFFF), // ~0.07 opacity
-                    const Color(0x05FFFFFF), // ~0.02 opacity
-                     ],
-                     begin: Alignment.topLeft,
-                     end: Alignment.bottomRight,
-                       ),
-                     ),
-                     child: const Center(
-                       child: Icon(
-                        Icons.smart_toy,
-                        color: Colors.white,
-                        size: 28,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(18),
+                            child: BackdropFilter(
+                              filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+                              child: Container(
+                                decoration: const BoxDecoration(
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      Color(0x12FFFFFF), // ~0.07 opacity
+                                      Color(0x05FFFFFF), // ~0.02 opacity
+                                    ],
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                  ),
+                                ),
+                                child: const Center(
+                                  child: Icon(
+                                    Icons.smart_toy,
+                                    color: Colors.white,
+                                    size: 28,
+                                  ),
+                                ),
+                              ),
+                            ),
                           ),
                         ),
                       ),
-                    ),
+
+                      // 🔴 Nút tắt bubble
+                      Positioned(
+                        top: -7,
+                        right: -7,
+                        child: GestureDetector(
+                          onTap: () => setState(() => _bubbleClosed = true),
+                          child: Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: const BoxDecoration(
+                              color: Colors.redAccent,
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Color(0x4D000000),
+                                  blurRadius: 5,
+                                  offset: Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: const Icon(
+                              Icons.close,
+                              color: Colors.white,
+                              size: 14,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
-
-              // 🔴 Nút tắt bubble
-              Positioned(
-                top: -7,
-                right: -7,
-                  child: GestureDetector(
-                    onTap: () => setState(() => _bubbleClosed = true),
-                    child: Container(
-                    padding: const EdgeInsets.all(4),
-                    decoration: BoxDecoration(
-                   color: Colors.redAccent,
-                   shape: BoxShape.circle,
-                   boxShadow: [
-                     BoxShadow(
-                        // Replaced deprecated withOpacity -> explicit ARGB (0.3 * 255 ≈ 77 -> 0x4D)
-                        color: const Color(0x4D000000),
-                         blurRadius: 5,
-                         offset: const Offset(0, 2),
-                         ),
-                       ],
-                     ),
-                       child: const Icon(
-                         Icons.close,
-                         color: Colors.white,
-                         size: 14,
-                           ),
-                         ),
-                       ),
-                     ),
-                   ],
-                 ),
-               ),
-             ),
-           )
-         ],
-       ),
-     );
-   }
+            ),
+        ],
+      ),
+    );
+  }
 
   // Header mới - Scrollable với BackdropFilter
   Widget _buildScrollableHeader(

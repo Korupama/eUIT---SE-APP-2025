@@ -3,12 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:mobile/screens/search/plan_screen.dart';
 import 'package:mobile/screens/search/trainingprogram_screen.dart';
 import 'package:mobile/screens/search/trainingregulations_screen.dart';
-import 'package:provider/provider.dart';
-import '../../providers/home_provider.dart';
-import '../../theme/app_theme.dart';
 import '../../utils/app_localizations.dart';
-import '../../widgets/animated_background.dart';
-import 'package:shimmer/shimmer.dart';
 import 'studyresult_screen.dart';
 import 'trainingpoint_screen.dart';
 import 'progress_screen.dart';
@@ -96,7 +91,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
   }
 
   void _navigateToScreen(String route, String title, Color color) {
-    Widget? screen;
+    Widget screen;
 
     switch (route) {
       case '/academic-results':
@@ -133,40 +128,28 @@ class _NavigationScreenState extends State<NavigationScreen> {
     }
 
     // Navigate to the screen
-    if (screen != null) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => screen!),
-      );
-    }
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => screen),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: isDark ? AppTheme.darkBackground : const Color(0xFFF7F8FC),
-      body: Stack(
-        children: [
-          // Animated background layer shared across main nav pages
-          Positioned.fill(child: AnimatedBackground(isDark: isDark)),
-
-          SafeArea(
-            child: Column(
-              children: [
-                // Header with Search
-                _buildHeader(isDark),
-
-                // Content
-                Expanded(
-                  child: _filteredItems.isEmpty
-                      ? _buildEmptyState()
-                      : _buildMenuGrid(),
-                ),
-              ],
+      backgroundColor: Colors.transparent,
+      body: SafeArea(
+        child: Column(
+          children: [
+            _buildHeader(isDark),
+            Expanded(
+              child: _filteredItems.isEmpty
+                  ? _buildEmptyState()
+                  : _buildMenuGrid(),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -201,7 +184,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Text(
-                                loc.t('search_title') ?? 'Tra cứu thông tin',
+                                loc.t('search_title'),
                                 style: TextStyle(
                                   color: isDark ? Colors.white : Colors.black87,
                                   fontSize: 20,
@@ -210,7 +193,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                loc.t('search_subtitle') ?? 'Tìm kiếm thông tin sinh viên',
+                                loc.t('search_subtitle'),
                                 style: TextStyle(
                                   color: isDark ? Colors.grey.shade400 : Colors.grey.shade700,
                                   fontSize: 13,

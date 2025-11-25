@@ -420,37 +420,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   PreferredSizeWidget _buildSettingsHeader(AppLocalizations loc, bool isDark) {
     return PreferredSize(
-      preferredSize: const Size.fromHeight(76),
-      child: ClipRRect(
-        borderRadius: BorderRadius.zero,
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
-          child: AppBar(
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            titleSpacing: 20,
-            title: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  loc.t('settings'),
-                  style: TextStyle(
-                    color: isDark ? Colors.white : Colors.black87,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  loc.t('settings_subtitle'),
-                  style: TextStyle(
-                    color: isDark ? Colors.grey.shade400 : Colors.grey.shade700,
-                    fontSize: 13,
-                  ),
-                ),
-              ],
-            ),
+      preferredSize: const Size.fromHeight(56),
+      child: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        titleSpacing: 20,
+        title: Text(
+          loc.t('settings'),
+          style: TextStyle(
+            color: isDark ? Colors.white : Colors.black87,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
           ),
         ),
       ),
