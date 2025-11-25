@@ -54,8 +54,6 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
       curve: Curves.easeOut,
     );
     _fadeController.forward();
-
-    _loadRememberedUsername();
   }
 
   @override
@@ -65,6 +63,8 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
     if (!_authInitialized) {
       _authService = context.read<AuthService>();
       _authInitialized = true;
+      // Now that _authService is available, load saved credentials (remember me)
+      _loadRememberedUsername();
     }
   }
 
@@ -81,24 +81,25 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
   // are not present (for older installs). Auto-login support has been removed.
   Future<void> _loadRememberedUsername() async {
     try {
-      // Try secure storage credentials first
-      final creds = await _authService.getSavedCredentials();
+      // Only load secure-saved credentials if the user previously enabled "remember me"
+      final rememberFlag = await _authService.isRememberMeEnabled();
       final prefs = await SharedPreferences.getInstance();
-
-      if (creds != null) {
-        // we have saved credentials (secure)
-        _usernameController.text = creds['username'] ?? '';
-        _passwordController.text = creds['password'] ?? '';
-        // mark remember me because credentials exist
-        _rememberMe = true;
-        setState(() {});
-        return;
+      if (rememberFlag) {
+        final creds = await _authService.getSavedCredentials();
+        if (creds != null) {
+          _usernameController.text = creds['username'] ?? '';
+          _passwordController.text = creds['password'] ?? '';
+          _rememberMe = true;
+          setState(() {});
+          return;
+        }
       }
 
       // Fallback: previous implementation stored username in SharedPreferences
       final remembered = prefs.getString(_rememberedUsernameKey);
       if (remembered != null && remembered.isNotEmpty) {
         _usernameController.text = remembered;
+        // legacy stored username implies remember checkbox visually
         setState(() => _rememberMe = true);
       }
     } catch (_) {
@@ -156,12 +157,15 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
             _usernameController.text.trim(),
             _passwordController.text,
           );
+          await _authService.setRememberMe(true);
           // remove legacy username-only pref if exists
           try {
             await prefs.remove(_rememberedUsernameKey);
           } catch (_) {}
         } else {
+          // Ensure we don't keep secure credentials if user opted out
           await _authService.deleteCredentials();
+          await _authService.setRememberMe(false);
           try {
             await prefs.remove(_rememberedUsernameKey);
           } catch (_) {}

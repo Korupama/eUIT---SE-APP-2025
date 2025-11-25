@@ -6,6 +6,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
   // Notifier shared across all AuthService instances so providers and UI can
@@ -186,6 +187,31 @@ class AuthService {
       await _storage.delete(key: _savedPasswordKey);
     } catch (_) {
       // ignore
+    }
+  }
+
+  // --- Remember-me flag stored in SharedPreferences (non-sensitive)
+  static const String _rememberMePrefKey = 'remember_me_enabled';
+
+  /// Persist whether "remember me" was enabled. This flag is kept in
+  /// SharedPreferences (non-sensitive) and indicates whether saved
+  /// credentials in secure storage should be loaded at app start.
+  Future<void> setRememberMe(bool enabled) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool(_rememberMePrefKey, enabled);
+    } catch (_) {
+      // ignore
+    }
+  }
+
+  /// Returns whether "remember me" was enabled. Defaults to false.
+  Future<bool> isRememberMeEnabled() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      return prefs.getBool(_rememberMePrefKey) ?? false;
+    } catch (_) {
+      return false;
     }
   }
 }
