@@ -1,0 +1,334 @@
+### Service API - Appeals and Tuition Extensions
+
+### Variables
+@baseUrl = http://localhost:5128
+@token = your_jwt_token_here
+
+### ============================================
+### 1. SUBMIT APPEAL (Nộp phúc khảo)
+### ============================================
+
+### 1.1. Submit appeal with online payment
+POST {{baseUrl}}/api/service/appeal
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "courseId": "IT001",
+  "reason": "Em thấy bài thi có nhiều câu đúng nhưng không được tính điểm. Kính mong thầy cô xem xét lại.",
+  "paymentMethod": "banking"
+}
+
+### Response (Success):
+# {
+#   "id": 1,
+#   "courseId": "IT001",
+#   "reason": "Em thấy bài thi có nhiều câu đúng...",
+#   "paymentMethod": "banking",
+#   "paymentStatus": "completed",
+#   "status": "pending",
+#   "createdAt": "24/11/2025 10:00",
+#   "message": "Nộp đơn phúc khảo thành công. Đơn của bạn đang được xử lý."
+# }
+
+###
+
+### 1.2. Submit appeal with cash payment
+POST {{baseUrl}}/api/service/appeal
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "courseId": "IT002",
+  "reason": "Điểm thi không phản ánh đúng kiến thức của em. Mong được xem xét lại.",
+  "paymentMethod": "cash"
+}
+
+### Response (Awaiting payment):
+# {
+#   "id": 2,
+#   "courseId": "IT002",
+#   "reason": "Điểm thi không phản ánh...",
+#   "paymentMethod": "cash",
+#   "paymentStatus": "pending",
+#   "status": "awaiting_payment",
+#   "createdAt": "24/11/2025 10:05",
+#   "message": "Đơn phúc khảo đã được tạo. Vui lòng hoàn thành thanh toán để đơn được xử lý."
+# }
+
+###
+
+### 1.3. Submit duplicate appeal (Error)
+POST {{baseUrl}}/api/service/appeal
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "courseId": "IT001",
+  "reason": "Nộp lại lần nữa",
+  "paymentMethod": "momo"
+}
+
+### Response (Error):
+# {
+#   "error": "Bạn đã nộp đơn phúc khảo cho môn học này rồi."
+# }
+
+###
+
+### 1.4. Submit appeal without required fields (Validation Error)
+POST {{baseUrl}}/api/service/appeal
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "courseId": "IT003"
+}
+
+### Response (400 Bad Request):
+# {
+#   "type": "https://tools.ietf.org/html/rfc7231#section-6.5.1",
+#   "title": "One or more validation errors occurred.",
+#   "status": 400,
+#   "errors": {
+#     "Reason": ["Lý do phúc khảo không được để trống"],
+#     "PaymentMethod": ["Phương thức thanh toán không được để trống"]
+#   }
+# }
+
+###
+
+### ============================================
+### 2. TUITION EXTENSION (Gia hạn học phí)
+### ============================================
+
+### 2.1. Request tuition extension without supporting docs
+POST {{baseUrl}}/api/service/tuition-extension
+Authorization: Bearer {{token}}
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary
+
+------WebKitFormBoundary
+Content-Disposition: form-data; name="Reason"
+
+Gia đình em gặp khó khăn tài chính do bố mẹ mất việc. Kính mong nhà trường xem xét cho em gia hạn thời gian đóng học phí.
+------WebKitFormBoundary
+Content-Disposition: form-data; name="DesiredTime"
+
+2026-02-15T00:00:00
+------WebKitFormBoundary--
+
+### Response (Success):
+# {
+#   "id": 1,
+#   "reason": "Gia đình em gặp khó khăn...",
+#   "desiredTime": "15/02/2026",
+#   "supportingDocs": null,
+#   "status": "pending",
+#   "createdAt": "24/11/2025 10:10",
+#   "updatedAt": "24/11/2025 10:10",
+#   "message": "Đăng ký gia hạn học phí thành công. Đơn của bạn đang chờ Phòng KHTC xét duyệt."
+# }
+
+###
+
+### 2.2. Request tuition extension with supporting docs (using file)
+POST {{baseUrl}}/api/service/tuition-extension
+Authorization: Bearer {{token}}
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary
+
+------WebKitFormBoundary
+Content-Disposition: form-data; name="Reason"
+
+Em bị ốm nặng và phải nằm viện, chưa thể đóng học phí đúng hạn. Kính gửi giấy xác nhận từ bệnh viện.
+------WebKitFormBoundary
+Content-Disposition: form-data; name="DesiredTime"
+
+2026-01-30T00:00:00
+------WebKitFormBoundary
+Content-Disposition: form-data; name="SupportingDocs"; filename="giay_xac_nhan_benh_vien.pdf"
+Content-Type: application/pdf
+
+<binary data here>
+------WebKitFormBoundary--
+
+### Response (Success with file):
+# {
+#   "id": 2,
+#   "reason": "Em bị ốm nặng...",
+#   "desiredTime": "30/01/2026",
+#   "supportingDocs": "uploads/tuition-extensions/22520001_20251124_abc123.pdf",
+#   "status": "pending",
+#   "createdAt": "24/11/2025 10:15",
+#   "updatedAt": "24/11/2025 10:15",
+#   "message": "Đăng ký gia hạn học phí thành công. Đơn của bạn đang chờ Phòng KHTC xét duyệt."
+# }
+
+###
+
+### 2.3. Request with invalid desired time (Error)
+POST {{baseUrl}}/api/service/tuition-extension
+Authorization: Bearer {{token}}
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary
+
+------WebKitFormBoundary
+Content-Disposition: form-data; name="Reason"
+
+Xin gia hạn
+------WebKitFormBoundary
+Content-Disposition: form-data; name="DesiredTime"
+
+2026-03-30T00:00:00
+------WebKitFormBoundary--
+
+### Response (Error):
+# {
+#   "error": "Thời gian gia hạn không hợp lệ. Vượt quá quy định cho phép."
+# }
+
+###
+
+### 2.4. Request with past date (Error)
+POST {{baseUrl}}/api/service/tuition-extension
+Authorization: Bearer {{token}}
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary
+
+------WebKitFormBoundary
+Content-Disposition: form-data; name="Reason"
+
+Xin gia hạn
+------WebKitFormBoundary
+Content-Disposition: form-data; name="DesiredTime"
+
+2025-01-01T00:00:00
+------WebKitFormBoundary--
+
+### Response (Error):
+# {
+#   "error": "Thời gian gia hạn phải sau thời điểm hiện tại."
+# }
+
+###
+
+### ============================================
+### 3. UPDATE TUITION EXTENSION (Sửa đơn gia hạn)
+### ============================================
+
+### 3.1. Update tuition extension (pending status)
+PUT {{baseUrl}}/api/service/tuition-extension/1
+Authorization: Bearer {{token}}
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary
+
+------WebKitFormBoundary
+Content-Disposition: form-data; name="Reason"
+
+Cập nhật lý do: Gia đình em gặp khó khăn do thiên tai. Em đính kèm thêm giấy xác nhận từ chính quyền địa phương.
+------WebKitFormBoundary
+Content-Disposition: form-data; name="DesiredTime"
+
+2026-02-20T00:00:00
+------WebKitFormBoundary--
+
+### Response (Success):
+# {
+#   "id": 1,
+#   "reason": "Cập nhật lý do: Gia đình em gặp khó khăn...",
+#   "desiredTime": "20/02/2026",
+#   "supportingDocs": null,
+#   "status": "pending",
+#   "createdAt": "24/11/2025 10:10",
+#   "updatedAt": "24/11/2025 10:30",
+#   "message": "Cập nhật đơn gia hạn thành công."
+# }
+
+###
+
+### 3.2. Update with new supporting docs
+PUT {{baseUrl}}/api/service/tuition-extension/1
+Authorization: Bearer {{token}}
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary
+
+------WebKitFormBoundary
+Content-Disposition: form-data; name="SupportingDocs"; filename="giay_xac_nhan_moi.pdf"
+Content-Type: application/pdf
+
+<binary data here>
+------WebKitFormBoundary--
+
+### Response (Success):
+# {
+#   "id": 1,
+#   "reason": "Cập nhật lý do: Gia đình em gặp khó khăn...",
+#   "desiredTime": "20/02/2026",
+#   "supportingDocs": "uploads/tuition-extensions/22520001_20251124_xyz789.pdf",
+#   "status": "pending",
+#   "createdAt": "24/11/2025 10:10",
+#   "updatedAt": "24/11/2025 10:35",
+#   "message": "Cập nhật đơn gia hạn thành công."
+# }
+
+###
+
+### 3.3. Update non-existent request (Error)
+PUT {{baseUrl}}/api/service/tuition-extension/999
+Authorization: Bearer {{token}}
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary
+
+------WebKitFormBoundary
+Content-Disposition: form-data; name="Reason"
+
+Test
+------WebKitFormBoundary--
+
+### Response (404 Not Found):
+# {
+#   "error": "Không tìm thấy đơn gia hạn hoặc bạn không có quyền chỉnh sửa."
+# }
+
+###
+
+### 3.4. Update approved request (Error)
+# First, assume request_id=2 has been approved (status='approved')
+PUT {{baseUrl}}/api/service/tuition-extension/2
+Authorization: Bearer {{token}}
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary
+
+------WebKitFormBoundary
+Content-Disposition: form-data; name="Reason"
+
+Muốn sửa lại
+------WebKitFormBoundary--
+
+### Response (400 Bad Request):
+# {
+#   "error": "Không thể chỉnh sửa đơn gia hạn đã được phê duyệt."
+# }
+
+###
+
+### ============================================
+### NOTES
+### ============================================
+# 
+# Appeal (Phúc khảo):
+# - Payment methods: banking, momo, vnpay, cash
+# - Payment status: pending, completed, failed
+# - Status: pending, approved, rejected, awaiting_payment
+# - Cannot submit duplicate appeal for same course
+# 
+# Tuition Extension (Gia hạn học phí):
+# - Supporting docs: Optional PDF/JPG/PNG file (max 10MB)
+# - Desired time must be between now and max 2 months from deadline
+# - Status: pending, approved, rejected
+# - Can only edit when status is "pending"
+# - Old files are automatically deleted when uploading new ones
+# 
+# Edge Cases Handled:
+# ✅ Appeal deadline check (commented out, ready to implement)
+# ✅ Duplicate appeal prevention
+# ✅ Payment method validation
+# ✅ Payment failure handling (simulated)
+# ✅ Tuition extension deadline check
+# ✅ Invalid extension time validation
+# ✅ File upload with validation
+# ✅ Only allow edit when pending
+# ✅ Authorization check (can only edit own requests)

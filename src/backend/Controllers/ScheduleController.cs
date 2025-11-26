@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using eUIT.API.Data;
 using eUIT.API.DTOs;
+using eUIT.API.Models;
 using System.Security.Claims;
 
 namespace eUIT.API.Controllers;
@@ -156,8 +157,11 @@ public class ScheduleController : ControllerBase
             return false;
 
         // Check cach_tuan (interval weeks)
-        var weeksSinceStart = (date - schedule.ngay_bat_dau).Days / 7;
-        return weeksSinceStart % schedule.cach_tuan == 0;
+        if (!schedule.ngay_bat_dau.HasValue || !schedule.cach_tuan.HasValue)
+            return false;
+            
+        var weeksSinceStart = (date - schedule.ngay_bat_dau.Value).Days / 7;
+        return weeksSinceStart % schedule.cach_tuan.Value == 0;
     }
 
     // GET: api/student/schedule/exams
@@ -231,6 +235,290 @@ public class ScheduleController : ControllerBase
                 Exams = new List<ExamScheduleDto>(),
                 Message = "Chưa công bố lịch thi"
             });
+        }
+    }
+
+    // POST: api/student/schedule/personal
+    [HttpPost("personal")]
+    public async Task<ActionResult<PersonalEventCreateResponseDto>> CreatePersonalEvent(
+        [FromBody] PersonalEventRequestDto request)
+    {
+        var loggedInMssv = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (loggedInMssv == null) return Forbid();
+        if (!int.TryParse(loggedInMssv, out int mssvInt)) return Forbid();
+
+        try
+        {
+            // Check for conflicts with class schedule
+            var classConflict = await CheckClassConflict(mssvInt, request.Time);
+            
+            // Check for conflicts with exam schedule
+            var examConflict = await CheckExamConflict(mssvInt, request.Time);
+
+            PersonalEventConflictDto? conflict = null;
+            if (classConflict != null)
+            {
+                conflict = new PersonalEventConflictDto
+                {
+                    HasConflict = true,
+                    ConflictType = "class",
+                    ConflictDetails = classConflict
+                };
+            }
+            else if (examConflict != null)
+            {
+                conflict = new PersonalEventConflictDto
+                {
+                    HasConflict = true,
+                    ConflictType = "exam",
+                    ConflictDetails = examConflict
+                };
+            }
+
+            // Create the event despite conflict (warning only)
+            var personalEvent = new PersonalEvent
+            {
+                Mssv = mssvInt,
+                EventName = request.EventName,
+                Time = request.Time,
+                Location = request.Location,
+                Description = request.Description,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
+
+            _context.PersonalEvents.Add(personalEvent);
+            await _context.SaveChangesAsync();
+
+            var response = new PersonalEventCreateResponseDto
+            {
+                Success = true,
+                Message = conflict != null 
+                    ? $"Sự kiện đã được tạo nhưng có xung đột với {(conflict.ConflictType == "class" ? "lịch học" : "lịch thi")}"
+                    : "Tạo sự kiện thành công",
+                Event = new PersonalEventResponseDto
+                {
+                    EventId = personalEvent.EventId,
+                    EventName = personalEvent.EventName,
+                    Time = personalEvent.Time,
+                    Location = personalEvent.Location,
+                    Description = personalEvent.Description,
+                    CreatedAt = personalEvent.CreatedAt,
+                    UpdatedAt = personalEvent.UpdatedAt
+                },
+                Conflict = conflict
+            };
+
+            return Ok(response);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new PersonalEventCreateResponseDto
+            {
+                Success = false,
+                Message = "Không thể tạo sự kiện: " + ex.Message
+            });
+        }
+    }
+
+    // PUT: api/student/schedule/personal/{event_id}
+    [HttpPut("personal/{event_id}")]
+    public async Task<ActionResult<PersonalEventCreateResponseDto>> UpdatePersonalEvent(
+        int event_id,
+        [FromBody] PersonalEventUpdateDto request)
+    {
+        var loggedInMssv = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (loggedInMssv == null) return Forbid();
+        if (!int.TryParse(loggedInMssv, out int mssvInt)) return Forbid();
+
+        try
+        {
+            var personalEvent = await _context.PersonalEvents
+                .FirstOrDefaultAsync(e => e.EventId == event_id && e.Mssv == mssvInt);
+
+            if (personalEvent == null)
+            {
+                return NotFound(new PersonalEventCreateResponseDto
+                {
+                    Success = false,
+                    Message = "Không tìm thấy sự kiện hoặc bạn không có quyền chỉnh sửa"
+                });
+            }
+
+            // Update fields if provided
+            if (!string.IsNullOrEmpty(request.EventName))
+                personalEvent.EventName = request.EventName;
+
+            if (request.Location != null)
+                personalEvent.Location = request.Location;
+
+            if (request.Description != null)
+                personalEvent.Description = request.Description;
+
+            PersonalEventConflictDto? conflict = null;
+
+            // Check for conflicts if time is being updated
+            if (request.Time.HasValue)
+            {
+                var classConflict = await CheckClassConflict(mssvInt, request.Time.Value);
+                var examConflict = await CheckExamConflict(mssvInt, request.Time.Value);
+
+                if (classConflict != null)
+                {
+                    conflict = new PersonalEventConflictDto
+                    {
+                        HasConflict = true,
+                        ConflictType = "class",
+                        ConflictDetails = classConflict
+                    };
+                }
+                else if (examConflict != null)
+                {
+                    conflict = new PersonalEventConflictDto
+                    {
+                        HasConflict = true,
+                        ConflictType = "exam",
+                        ConflictDetails = examConflict
+                    };
+                }
+
+                personalEvent.Time = request.Time.Value;
+            }
+
+            personalEvent.UpdatedAt = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+
+            var response = new PersonalEventCreateResponseDto
+            {
+                Success = true,
+                Message = conflict != null 
+                    ? $"Sự kiện đã được cập nhật nhưng có xung đột với {(conflict.ConflictType == "class" ? "lịch học" : "lịch thi")}"
+                    : "Cập nhật sự kiện thành công",
+                Event = new PersonalEventResponseDto
+                {
+                    EventId = personalEvent.EventId,
+                    EventName = personalEvent.EventName,
+                    Time = personalEvent.Time,
+                    Location = personalEvent.Location,
+                    Description = personalEvent.Description,
+                    CreatedAt = personalEvent.CreatedAt,
+                    UpdatedAt = personalEvent.UpdatedAt
+                },
+                Conflict = conflict
+            };
+
+            return Ok(response);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new PersonalEventCreateResponseDto
+            {
+                Success = false,
+                Message = "Không thể cập nhật sự kiện: " + ex.Message
+            });
+        }
+    }
+
+    // DELETE: api/student/schedule/personal/{event_id}
+    [HttpDelete("personal/{event_id}")]
+    public async Task<ActionResult<PersonalEventCreateResponseDto>> DeletePersonalEvent(int event_id)
+    {
+        var loggedInMssv = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (loggedInMssv == null) return Forbid();
+        if (!int.TryParse(loggedInMssv, out int mssvInt)) return Forbid();
+
+        try
+        {
+            var personalEvent = await _context.PersonalEvents
+                .FirstOrDefaultAsync(e => e.EventId == event_id && e.Mssv == mssvInt);
+
+            if (personalEvent == null)
+            {
+                return NotFound(new PersonalEventCreateResponseDto
+                {
+                    Success = false,
+                    Message = "Không tìm thấy sự kiện hoặc bạn không có quyền xóa"
+                });
+            }
+
+            _context.PersonalEvents.Remove(personalEvent);
+            await _context.SaveChangesAsync();
+
+            return Ok(new PersonalEventCreateResponseDto
+            {
+                Success = true,
+                Message = "Xóa sự kiện thành công"
+            });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new PersonalEventCreateResponseDto
+            {
+                Success = false,
+                Message = "Không thể xóa sự kiện: " + ex.Message
+            });
+        }
+    }
+
+    // Helper method to check conflicts with class schedule
+    private async Task<string?> CheckClassConflict(int mssv, DateTime eventTime)
+    {
+        try
+        {
+            var scheduleResults = await _context.Database
+                .SqlQuery<ScheduleResultDto>($"SELECT * FROM func_get_student_schedule({mssv})")
+                .ToListAsync();
+
+            foreach (var schedule in scheduleResults)
+            {
+                if (IsClassOnDate(schedule, eventTime.Date))
+                {
+                    // Check if time overlaps (assuming class time based on tiet)
+                    // Each tiet is approximately 50 minutes, starting from 7:00 AM
+                    var classStartTime = new DateTime(eventTime.Year, eventTime.Month, eventTime.Day, 7, 0, 0)
+                        .AddMinutes((schedule.tiet_bat_dau.GetValueOrDefault(1) - 1) * 50);
+                    var classEndTime = new DateTime(eventTime.Year, eventTime.Month, eventTime.Day, 7, 0, 0)
+                        .AddMinutes(schedule.tiet_ket_thuc.GetValueOrDefault(1) * 50);
+
+                    if (eventTime >= classStartTime && eventTime < classEndTime)
+                    {
+                        return $"{schedule.ten_mon_hoc} ({schedule.ma_lop}) - Tiết {schedule.tiet_bat_dau}-{schedule.tiet_ket_thuc}, Phòng {schedule.phong_hoc}";
+                    }
+                }
+            }
+
+            return null;
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    // Helper method to check conflicts with exam schedule
+    private async Task<string?> CheckExamConflict(int mssv, DateTime eventTime)
+    {
+        try
+        {
+            var examResults = await _context.Database
+                .SqlQuery<ExamResultDto>($"SELECT * FROM func_get_student_exam_schedule({mssv})")
+                .ToListAsync();
+
+            foreach (var exam in examResults)
+            {
+                // Check if exam is on the same day
+                if (exam.ngay_thi.Date == eventTime.Date)
+                {
+                    // Parse ca_thi to get exam time (format might be "7h00 - 8h30")
+                    return $"{exam.ten_mon_hoc} ({exam.ma_lop}) - Ca thi {exam.ca_thi}, Phòng {exam.phong_thi}";
+                }
+            }
+
+            return null;
+        }
+        catch
+        {
+            return null;
         }
     }
 }

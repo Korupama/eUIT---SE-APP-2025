@@ -13,11 +13,11 @@ public class ScheduleClassDto
     public string MaGiangVien { get; set; } = string.Empty;
     public string TenGiangVien { get; set; } = string.Empty;
     public string Thu { get; set; } = string.Empty;
-    public int TietBatDau { get; set; }
-    public int TietKetThuc { get; set; }
-    public int CachTuan { get; set; }
-    public DateTime NgayBatDau { get; set; }
-    public DateTime NgayKetThuc { get; set; }
+    public int? TietBatDau { get; set; }
+    public int? TietKetThuc { get; set; }
+    public int? CachTuan { get; set; }
+    public DateTime? NgayBatDau { get; set; }
+    public DateTime? NgayKetThuc { get; set; }
     public string PhongHoc { get; set; } = string.Empty;
     public int? SiSo { get; set; }
     public string HinhThucGiangDay { get; set; } = string.Empty;

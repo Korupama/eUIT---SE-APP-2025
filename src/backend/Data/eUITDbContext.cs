@@ -13,4 +13,7 @@ public class eUITDbContext : DbContext
     public DbSet<ConfirmationLetter> ConfirmationLetters { get; set; }
     public DbSet<LanguageCertificate> LanguageCertificates { get; set; }
     public DbSet<ParkingPass> ParkingPasses { get; set; }
+    public DbSet<PersonalEvent> PersonalEvents { get; set; }
+    public DbSet<Appeal> Appeals { get; set; }
+    public DbSet<TuitionExtension> TuitionExtensions { get; set; }
 }
