@@ -60,111 +60,125 @@ class _StudentConfirmationScreenState extends State<StudentConfirmationScreen> {
             child: AnimatedBackground(isDark: isDark),
           ),
 
-          // Safe area for content; leave content area empty as requested
+          // Safe area for content; container has min height and submit button is fixed at bottom
           SafeArea(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              // add extra bottom padding so the fixed button doesn't cover content
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+              child: Stack(
                 children: [
-                  const SizedBox(height: 8),
-
-                  // Language chips row
-                  Row(
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildLanguageChip(context, 'vi'),
-                      const SizedBox(width: 12),
-                      _buildLanguageChip(context, 'en'),
+                      const SizedBox(height: 8),
+
+                      // Language chips row
+                      Row(
+                        children: [
+                          _buildLanguageChip(context, 'vi'),
+                          const SizedBox(width: 12),
+                          _buildLanguageChip(context, 'en'),
+                        ],
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      // Title
+                      Text(
+                        AppLocalizations.of(context).t('student_confirmation_reason_title'),
+                        style: TextStyle(
+                          color: isDark ? Colors.white : Colors.black87,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+
+                      const SizedBox(height: 12),
+
+                      // Glassmorphism container with radios — min height provided
+                      Flexible(
+                        fit: FlexFit.loose,
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(minHeight: 300),
+                          child: Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: isDark
+                                  ? Color.fromRGBO(255, 255, 255, 0.1)
+                                  : Color.fromRGBO(255, 255, 255, 0.5),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: isDark
+                                    ? Color.fromRGBO(255, 255, 255, 0.10)
+                                    : Color.fromRGBO(0, 0, 0, 0.5),
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: isDark
+                                      ? Color.fromRGBO(0, 0, 0, 0.1)
+                                      : Color.fromRGBO(0, 0, 0, 0.1),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(10),
+                              child: SingleChildScrollView(
+                                child: Column(
+                                  children: _buildReasonList(context, isDark),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      // spacer so content doesn't butt into the bottom fixed button area
+                      const SizedBox(height: 12),
                     ],
                   ),
 
-                  const SizedBox(height: 20),
-
-                  // Title
-                  Text(
-                    AppLocalizations.of(context).t('student_confirmation_reason_title'),
-                    style: TextStyle(
-                      color: isDark ? Colors.white : Colors.black87,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-
-                  const SizedBox(height: 12),
-
-                  // Glassmorphism container with radios
-                  Expanded(
-                    child: Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: isDark
-                            ? Color.fromRGBO(255, 255, 255, 0.04)
-                            : Color.fromRGBO(255, 255, 255, 0.7),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: isDark
-                              ? Color.fromRGBO(255, 255, 255, 0.10)
-                              : Color.fromRGBO(0, 0, 0, 0.06),
+                  // Fixed submit button pinned to bottom of the SafeArea padding
+                  Positioned(
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    child: SizedBox(
+                      height: 56,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppTheme.bluePrimary,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          elevation: 4,
                         ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: isDark
-                                ? Color.fromRGBO(0, 0, 0, 0.4)
-                                : Color.fromRGBO(0, 0, 0, 0.06),
-                            blurRadius: 8,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(10),
-                        child: SingleChildScrollView(
-                          child: Column(
-                            children: _buildReasonList(context, isDark),
-                          ),
+                        onPressed: () {
+                          // UI only: no real submit logic as requested
+                          showDialog(
+                            context: context,
+                            builder: (_) => AlertDialog(
+                              title: Text(AppLocalizations.of(context).t('student_confirmation_success_title')),
+                              content: Text(AppLocalizations.of(context).t('under_development')),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.of(context).pop(),
+                                  child: Text(AppLocalizations.of(context).t('close')),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                        child: Text(
+                          AppLocalizations.of(context).t('student_confirmation_submit'),
+                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white),
                         ),
                       ),
                     ),
                   ),
-
-                  const SizedBox(height: 16),
-
-                  // Submit button
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.bluePrimary,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        elevation: 4,
-                      ),
-                      onPressed: () {
-                        // UI only: no real submit logic as requested
-                        showDialog(
-                          context: context,
-                          builder: (_) => AlertDialog(
-                            title: Text(AppLocalizations.of(context).t('student_confirmation_success_title')),
-                            content: Text(AppLocalizations.of(context).t('under_development')),
-                            actions: [
-                              TextButton(
-                                onPressed: () => Navigator.of(context).pop(),
-                                child: Text(AppLocalizations.of(context).t('close')),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                      child: Text(
-                        AppLocalizations.of(context).t('student_confirmation_submit'),
-                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
                 ],
               ),
             ),
@@ -230,7 +244,7 @@ class _StudentConfirmationScreenState extends State<StudentConfirmationScreen> {
       );
 
       if (i != items.length - 1) {
-        widgets.add(Divider(color: Color.fromRGBO(255, 255, 255, isDark ? 0.06 : 0.12), height: 1));
+        widgets.add(Divider(color: Color.fromRGBO(255, 255, 255, isDark ? 0.2 : 0.8), height: 1));
       }
 
       // If 'other' and selected, render TextField directly under that option
@@ -244,9 +258,9 @@ class _StudentConfirmationScreenState extends State<StudentConfirmationScreen> {
               style: TextStyle(color: Colors.white, fontSize: 14),
               decoration: InputDecoration(
                 hintText: t('student_confirmation_reason_other_hint'),
-                hintStyle: TextStyle(color: Colors.white70),
+                hintStyle: TextStyle(color: isDark ? Colors.white : Colors.black87),
                 filled: true,
-                fillColor: Color.fromRGBO(0, 0, 0, isDark ? 0.35 : 0.06),
+                fillColor: Color.fromRGBO(0, 0, 0, isDark ? 0.3 : 0.1),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
                   borderSide: BorderSide.none,
