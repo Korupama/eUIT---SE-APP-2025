@@ -16,6 +16,25 @@ class StudentConfirmationScreen extends StatefulWidget {
   State<StudentConfirmationScreen> createState() => _StudentConfirmationScreenState();
 }
 
+// Small model to represent history items returned by the API
+class ConfirmationHistoryItem {
+  final int serialNumber;
+  final String purpose;
+  final String expiryDate;
+  final String requestedAt;
+
+  ConfirmationHistoryItem({required this.serialNumber, required this.purpose, required this.expiryDate, required this.requestedAt});
+
+  factory ConfirmationHistoryItem.fromJson(Map<String, dynamic> json) {
+    return ConfirmationHistoryItem(
+      serialNumber: (json['serialNumber'] is int) ? json['serialNumber'] as int : int.tryParse(json['serialNumber']?.toString() ?? '') ?? 0,
+      purpose: json['purpose']?.toString() ?? '',
+      expiryDate: json['expiryDate']?.toString() ?? '',
+      requestedAt: json['requestedAt']?.toString() ?? '',
+    );
+  }
+}
+
 class _StudentConfirmationScreenState extends State<StudentConfirmationScreen> {
   // Selected language chip (UI only)
   String _selectedLang = 'vi';
@@ -24,6 +43,13 @@ class _StudentConfirmationScreenState extends State<StudentConfirmationScreen> {
   String? _selectedReason;
   final TextEditingController _otherController = TextEditingController();
   bool _isSubmitting = false;
+
+  // Scaffold key so we can open the endDrawer from the AppBar
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  // History state
+  List<ConfirmationHistoryItem> _history = [];
+  bool _isHistoryLoading = false;
 
   @override
   void initState() {
@@ -34,6 +60,9 @@ class _StudentConfirmationScreenState extends State<StudentConfirmationScreen> {
       setState(() {
         _selectedLang = locale.startsWith('en') ? 'en' : 'vi';
       });
+
+      // Load history after we've initialized the UI context
+      _loadHistory();
     });
   }
 
@@ -65,6 +94,40 @@ class _StudentConfirmationScreenState extends State<StudentConfirmationScreen> {
     if (_selectedReason == null) return '';
     if (_selectedReason == 'other') return _otherController.text.trim();
     return _selectedLang == 'en' ? (en[_selectedReason!] ?? '') : (vi[_selectedReason!] ?? '');
+  }
+
+  // Fetch confirmation history from API
+  Future<void> _loadHistory() async {
+    setState(() => _isHistoryLoading = true);
+    final auth = AuthService();
+    try {
+      final token = await auth.getToken();
+      final uri = auth.buildUri('/api/service/confirmation-letter/history');
+      final headers = {'Accept': 'application/json'};
+      if (token != null && token.isNotEmpty) headers['Authorization'] = 'Bearer $token';
+
+      final res = await http.get(uri, headers: headers).timeout(const Duration(seconds: 20));
+
+      if (res.statusCode >= 200 && res.statusCode < 300) {
+        final List<dynamic> list = jsonDecode(res.body) as List<dynamic>;
+        final parsed = list.map((e) => ConfirmationHistoryItem.fromJson(e as Map<String, dynamic>)).toList();
+        if (mounted) setState(() => _history = parsed);
+      } else if (res.statusCode == 401) {
+        await auth.deleteToken();
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Yêu cầu đăng nhập lại')));
+      } else {
+        String message = 'Không thể tải lịch sử';
+        try {
+          final Map<String, dynamic> err = jsonDecode(res.body) as Map<String, dynamic>;
+          if (err['message'] != null) message = err['message'].toString();
+        } catch (_) {}
+        if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+      }
+    } catch (e) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Lỗi mạng, thử lại')));
+    } finally {
+      if (mounted) setState(() => _isHistoryLoading = false);
+    }
   }
 
   Future<void> _submitConfirmation() async {
@@ -118,6 +181,9 @@ class _StudentConfirmationScreenState extends State<StudentConfirmationScreen> {
             ],
           ),
         );
+
+        // After successful submit, refresh history
+        await _loadHistory();
       } else if (res.statusCode == 401) {
         // unauthorized
         await auth.deleteToken();
@@ -142,6 +208,7 @@ class _StudentConfirmationScreenState extends State<StudentConfirmationScreen> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
+      key: _scaffoldKey,
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
@@ -158,11 +225,65 @@ class _StudentConfirmationScreenState extends State<StudentConfirmationScreen> {
           IconButton(
             icon: const Icon(Icons.history),
             onPressed: () {
-              // Placeholder action for the right-side icon (matches ServicesScreen tile)
+              // Open the history drawer
+              _scaffoldKey.currentState?.openEndDrawer();
             },
           ),
         ],
       ),
+
+      // Add endDrawer to show history
+      endDrawer: Drawer(
+        child: SafeArea(
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(AppLocalizations.of(context).t('student_confirmation_history_title'), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                    IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.of(context).maybePop()),
+                  ],
+                ),
+              ),
+
+              Expanded(
+                child: _isHistoryLoading
+                    ? const Center(child: CircularProgressIndicator())
+                    : (_history.isEmpty
+                        ? Center(child: Text(AppLocalizations.of(context).t('no_history')))
+                        : ListView.separated(
+                            padding: const EdgeInsets.symmetric(vertical: 8),
+                            itemCount: _history.length,
+                            separatorBuilder: (_, __) => const Divider(height: 1),
+                            itemBuilder: (ctx, idx) {
+                              final item = _history[idx];
+                              return ListTile(
+                                title: Text('Số seri: ${item.serialNumber}'),
+                                subtitle: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const SizedBox(height: 4),
+                                    Text('Lý do: ${item.purpose}'),
+                                    const SizedBox(height: 4),
+                                    Text('Yêu cầu: ${item.requestedAt}'),
+                                  ],
+                                ),
+                                trailing: Text(item.expiryDate),
+                                onTap: () {
+                                  // Optionally close drawer and show details / copy serial
+                                  Navigator.of(context).pop();
+                                },
+                              );
+                            },
+                          )),
+              ),
+            ],
+          ),
+        ),
+      ),
+
       body: Stack(
         children: [
           // Use the shared AnimatedBackground widget for the animated backdrop

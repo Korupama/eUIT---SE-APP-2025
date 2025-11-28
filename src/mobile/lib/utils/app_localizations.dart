@@ -118,6 +118,9 @@ class AppLocalizations {
       'student_confirmation_success_title': 'Đăng ký thành công',
       'student_confirmation_serial_number': 'Số hiệu',
       'student_confirmation_expiry_date': 'Ngày hết hạn',
+      // History / empty state for confirmation screen
+      'student_confirmation_history_title': 'Lịch sử đăng ký',
+      'no_history': 'Không có lịch sử',
     },
     'en': {
       'login': 'Login',
@@ -219,6 +222,9 @@ class AppLocalizations {
       'student_confirmation_success_title': 'Request created successfully',
       'student_confirmation_serial_number': 'Serial number',
       'student_confirmation_expiry_date': 'Expiry date',
+      // History / empty state for confirmation screen
+      'student_confirmation_history_title': 'Request history',
+      'no_history': 'No history',
     },
   };
 
