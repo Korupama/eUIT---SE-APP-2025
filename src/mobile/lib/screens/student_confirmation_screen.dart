@@ -209,6 +209,8 @@ class _StudentConfirmationScreenState extends State<StudentConfirmationScreen> {
 
     return Scaffold(
       key: _scaffoldKey,
+      // Use a subtle semi-transparent scrim so the underlying animated background is visible but dimmed
+      drawerScrimColor: Colors.black.withOpacity(0.5),
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
@@ -234,6 +236,9 @@ class _StudentConfirmationScreenState extends State<StudentConfirmationScreen> {
 
       // Add endDrawer to show history
       endDrawer: Drawer(
+        // semi-transparent drawer background (adapts to light/dark for contrast)
+        backgroundColor: isDark ? Colors.black.withOpacity(0.8) : Colors.white.withOpacity(0.85),
+        elevation: 0,
         child: SafeArea(
           child: Column(
             children: [
