@@ -1,10 +1,13 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 import '../widgets/animated_background.dart';
 import '../utils/app_localizations.dart';
 import '../theme/app_theme.dart';
+import '../services/auth_service.dart';
 
 class StudentConfirmationScreen extends StatefulWidget {
   const StudentConfirmationScreen({super.key});
@@ -20,6 +23,7 @@ class _StudentConfirmationScreenState extends State<StudentConfirmationScreen> {
   // Selected reason value
   String? _selectedReason;
   final TextEditingController _otherController = TextEditingController();
+  bool _isSubmitting = false;
 
   @override
   void initState() {
@@ -37,6 +41,100 @@ class _StudentConfirmationScreenState extends State<StudentConfirmationScreen> {
   void dispose() {
     _otherController.dispose();
     super.dispose();
+  }
+
+  String _formatDate(DateTime dt) => '${dt.day.toString().padLeft(2, '0')}/${dt.month.toString().padLeft(2, '0')}/${dt.year}';
+
+  String _getPurposeText() {
+    // Keep the same local label logic used for display (match selected language)
+    final Map<String, String> vi = {
+      'military': 'Tạm hoãn nghĩa vụ quân sự',
+      'dorm': 'Xin gia hạn ở ký túc xá',
+      'tax': 'Bổ sung hồ sơ giảm thuế thu nhập cá nhân cho gia đình',
+      'education': 'Đăng ký học Giáo dục Quốc phòng',
+      'other': 'Khác',
+    };
+    final Map<String, String> en = {
+      'military': 'Defer military service',
+      'dorm': 'Request dormitory extension',
+      'tax': 'Supplement personal income tax documents for family',
+      'education': 'Register for National Defense Education',
+      'other': 'Other',
+    };
+
+    if (_selectedReason == null) return '';
+    if (_selectedReason == 'other') return _otherController.text.trim();
+    return _selectedLang == 'en' ? (en[_selectedReason!] ?? '') : (vi[_selectedReason!] ?? '');
+  }
+
+  Future<void> _submitConfirmation() async {
+    // Validation
+    final purpose = _getPurposeText();
+    if (_selectedReason == null || purpose.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Vui lòng chọn lý do xác nhận')));
+      return;
+    }
+
+    setState(() => _isSubmitting = true);
+    final auth = AuthService();
+    try {
+      final token = await auth.getToken();
+      final uri = auth.buildUri('/api/service/confirmation-letter');
+      final headers = {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      };
+      if (token != null && token.isNotEmpty) headers['Authorization'] = 'Bearer $token';
+
+      final body = jsonEncode({'purpose': purpose});
+      final res = await http.post(uri, headers: headers, body: body).timeout(const Duration(seconds: 20));
+
+      if (res.statusCode >= 200 && res.statusCode < 300) {
+        final Map<String, dynamic> json = jsonDecode(res.body) as Map<String, dynamic>;
+        final serial = json['serialNumber']?.toString() ?? '—';
+        final expiry = json['expiryDate']?.toString() ?? '';
+        final requestDate = _formatDate(DateTime.now());
+
+        // Show success dialog with details
+        await showDialog<void>(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: Text(AppLocalizations.of(context).t('student_confirmation_success_title')),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Số seri: $serial'),
+                const SizedBox(height: 6),
+                Text('Lý do: $purpose'),
+                const SizedBox(height: 6),
+                Text('Ngày yêu cầu: $requestDate'),
+                const SizedBox(height: 6),
+                Text('Ngày hết hạn: $expiry'),
+              ],
+            ),
+            actions: [
+              TextButton(onPressed: () => Navigator.of(ctx).pop(), child: Text(AppLocalizations.of(context).t('close'))),
+            ],
+          ),
+        );
+      } else if (res.statusCode == 401) {
+        // unauthorized
+        await auth.deleteToken();
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Yêu cầu đăng nhập lại')));
+      } else {
+        String message = 'Đăng ký thất bại';
+        try {
+          final Map<String, dynamic> err = jsonDecode(res.body) as Map<String, dynamic>;
+          if (err['message'] != null) message = err['message'].toString();
+        } catch (_) {}
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Lỗi mạng, thử lại')));
+    } finally {
+      if (mounted) setState(() => _isSubmitting = false);
+    }
   }
 
   @override
@@ -58,7 +156,7 @@ class _StudentConfirmationScreenState extends State<StudentConfirmationScreen> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.description_outlined),
+            icon: const Icon(Icons.history),
             onPressed: () {
               // Placeholder action for the right-side icon (matches ServicesScreen tile)
             },
@@ -168,26 +266,13 @@ class _StudentConfirmationScreenState extends State<StudentConfirmationScreen> {
                           ),
                           elevation: 4,
                         ),
-                        onPressed: () {
-                          // UI only: no real submit logic as requested
-                          showDialog(
-                            context: context,
-                            builder: (_) => AlertDialog(
-                              title: Text(AppLocalizations.of(context).t('student_confirmation_success_title')),
-                              content: Text(AppLocalizations.of(context).t('under_development')),
-                              actions: [
-                                TextButton(
-                                  onPressed: () => Navigator.of(context).pop(),
-                                  child: Text(AppLocalizations.of(context).t('close')),
-                                ),
-                              ],
-                            ),
-                          );
-                        },
-                        child: Text(
-                          AppLocalizations.of(context).t('student_confirmation_submit'),
-                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white),
-                        ),
+                        onPressed: _isSubmitting ? null : _submitConfirmation,
+                        child: _isSubmitting
+                            ? const CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Colors.white))
+                            : Text(
+                                AppLocalizations.of(context).t('student_confirmation_submit'),
+                                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white),
+                              ),
                       ),
                     ),
                   ),
