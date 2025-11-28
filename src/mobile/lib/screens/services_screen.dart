@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import '../utils/app_localizations.dart';
+import 'student_confirmation_screen.dart';
 
 class ServicesScreen extends StatelessWidget {
   const ServicesScreen({super.key});
@@ -95,6 +96,13 @@ class ServicesScreen extends StatelessWidget {
                           isLarge: true,
                           iconVariant: 0,
                           orderIndex: index,
+                          onTap: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => const StudentConfirmationScreen(),
+                              ),
+                            );
+                          },
                         ),
                       );
                     }
@@ -210,9 +218,10 @@ class ServicesScreen extends StatelessWidget {
     String? subtitle,
     IconData? icon,
     bool isLarge = false,
-    int iconVariant = 0, // 0 = dark bg + primary-colored icon, 1 = pastel/gradient bg + white icon
+    int iconVariant = 0,
     Gradient? iconGradient,
-    int orderIndex = -1, // optional tile order index for alternating colors
+    int orderIndex = -1,
+    VoidCallback? onTap,
   }) {
     final fullWidth = MediaQuery.of(context).size.width - 20 * 2; // account for horizontal padding
 
@@ -259,18 +268,22 @@ class ServicesScreen extends StatelessWidget {
 
     return InkWell(
       borderRadius: BorderRadius.circular(12),
-      onTap: () => showDialog<void>(
-        context: context,
-        builder: (ctx) => AlertDialog(
-          backgroundColor: isDark ? AppTheme.darkCard : Colors.white,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          title: Text(loc.t('coming_soon')),
-          content: Text(displayTitle),
-          actions: [
-            TextButton(onPressed: () => Navigator.of(ctx).pop(), child: Text(loc.t('close'))),
-          ],
-        ),
-      ),
+      onTap: onTap ??
+          () => showDialog<void>(
+                context: context,
+                builder: (ctx) => AlertDialog(
+                  backgroundColor: isDark ? AppTheme.darkCard : Colors.white,
+                  shape:
+                      RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  title: Text(loc.t('coming_soon')),
+                  content: Text(displayTitle),
+                  actions: [
+                    TextButton(
+                        onPressed: () => Navigator.of(ctx).pop(),
+                        child: Text(loc.t('close'))),
+                  ],
+                ),
+              ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(12),
         child: BackdropFilter(
