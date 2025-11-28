@@ -22,6 +22,18 @@ class _StudentConfirmationScreenState extends State<StudentConfirmationScreen> {
   final TextEditingController _otherController = TextEditingController();
 
   @override
+  void initState() {
+    super.initState();
+    // Defer reading Localizations.localeOf(context) until after first frame
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final locale = Localizations.localeOf(context).languageCode.toLowerCase();
+      setState(() {
+        _selectedLang = locale.startsWith('en') ? 'en' : 'vi';
+      });
+    });
+  }
+
+  @override
   void dispose() {
     _otherController.dispose();
     super.dispose();
@@ -189,16 +201,17 @@ class _StudentConfirmationScreenState extends State<StudentConfirmationScreen> {
   }
 
   Widget _buildLanguageChip(BuildContext context, String code) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final isSelected = _selectedLang == code;
     final label = AppLocalizations.of(context).t(code == 'vi' ? 'vietnamese' : 'english');
     return ChoiceChip(
-      label: Text(label, style: TextStyle(color: isSelected ? Colors.white : Colors.white70)),
+      label: Text(label, style: TextStyle(color: isSelected ? Colors.white : isDark ? Colors.white : Colors.black87)),
       selected: isSelected,
       onSelected: (_) => setState(() => _selectedLang = code),
       backgroundColor: Colors.transparent,
       selectedColor: AppTheme.bluePrimary,
       shape: RoundedRectangleBorder(
-        side: BorderSide(color: isSelected ? AppTheme.bluePrimary : Color.fromRGBO(255, 255, 255, 0.14)),
+        side: BorderSide(color: isSelected ? AppTheme.bluePrimary : isDark ? Colors.white54 : Color.fromRGBO(0, 0, 0, 0.8)),
         borderRadius: BorderRadius.circular(20),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -206,25 +219,39 @@ class _StudentConfirmationScreenState extends State<StudentConfirmationScreen> {
   }
 
   List<Widget> _buildReasonList(BuildContext context, bool isDark) {
-    final t = AppLocalizations.of(context).t;
+    // Localized labels for the reasons (local, independent from AppLocalizations)
+    final Map<String, String> vi = {
+      'military': 'Tạm hoãn nghĩa vụ quân sự',
+      'dorm': 'Xin gia hạn ở ký túc xá',
+      'tax': 'Bổ sung hồ sơ giảm thuế thu nhập cá nhân cho gia đình',
+      'education': 'Đăng ký học Giáo dục Quốc phòng',
+      'other': 'Khác',
+      'other_hint': 'Nhập lý do khác...',
+    };
 
-    final items = [
-      {'value': 'military', 'key': 'student_confirmation_reason_military_defer'},
-      {'value': 'dorm', 'key': 'student_confirmation_reason_dorm_extend'},
-      {'value': 'tax', 'key': 'student_confirmation_reason_tax_reduction'},
-      {'value': 'education', 'key': 'student_confirmation_reason_military_education'},
-      {'value': 'other', 'key': 'student_confirmation_reason_other'},
-    ];
+    final Map<String, String> en = {
+      'military': 'Defer military service',
+      'dorm': 'Request dormitory extension',
+      'tax': 'Supplement personal income tax documents for family',
+      'education': 'Register for National Defense Education',
+      'other': 'Other',
+      'other_hint': 'Enter other reason...',
+    };
+
+    final items = ['military', 'dorm', 'tax', 'education', 'other'];
 
     final List<Widget> widgets = [];
 
     for (var i = 0; i < items.length; i++) {
-      final item = items[i];
+      final key = items[i];
+      final label = _selectedLang == 'en' ? en[key]! : vi[key]!;
+      final hint = _selectedLang == 'en' ? en['other_hint']! : vi['other_hint']!;
+
       widgets.add(
         ListTile(
           contentPadding: const EdgeInsets.symmetric(horizontal: 0),
           leading: Radio<String>(
-            value: item['value']!,
+            value: key,
             groupValue: _selectedReason,
             onChanged: (v) => setState(() {
               _selectedReason = v;
@@ -233,12 +260,12 @@ class _StudentConfirmationScreenState extends State<StudentConfirmationScreen> {
             fillColor: MaterialStateProperty.all(AppTheme.bluePrimary),
           ),
           title: Text(
-            t(item['key']!),
+            label,
             style: TextStyle(color: isDark ? Colors.white : Colors.black87),
           ),
           onTap: () => setState(() {
-            _selectedReason = item['value'];
-            if (item['value'] != 'other') _otherController.clear();
+            _selectedReason = key;
+            if (key != 'other') _otherController.clear();
           }),
         ),
       );
@@ -248,7 +275,7 @@ class _StudentConfirmationScreenState extends State<StudentConfirmationScreen> {
       }
 
       // If 'other' and selected, render TextField directly under that option
-      if (item['value'] == 'other' && _selectedReason == 'other') {
+      if (key == 'other' && _selectedReason == 'other') {
         widgets.add(
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -257,7 +284,7 @@ class _StudentConfirmationScreenState extends State<StudentConfirmationScreen> {
               maxLines: 3,
               style: TextStyle(color: Colors.white, fontSize: 14),
               decoration: InputDecoration(
-                hintText: t('student_confirmation_reason_other_hint'),
+                hintText: hint,
                 hintStyle: TextStyle(color: isDark ? Colors.white : Colors.black87),
                 filled: true,
                 fillColor: Color.fromRGBO(0, 0, 0, isDark ? 0.3 : 0.1),
