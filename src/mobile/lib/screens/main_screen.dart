@@ -6,6 +6,7 @@ import '../theme/app_theme.dart';
 import 'home_screen.dart';
 import 'search/navigation_screen.dart';
 import 'settings_screen.dart';
+import '../widgets/draggable_chatbot_overlay.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -52,6 +53,9 @@ class _MainScreenState extends State<MainScreen> {
             bottom: 0,
             child: _buildCustomBottomNav(loc, isDark),
           ),
+          
+          // Global Chatbot Overlay
+          const DraggableChatbotOverlay(),
         ],
       ),
     );

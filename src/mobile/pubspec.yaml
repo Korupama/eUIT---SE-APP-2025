@@ -44,6 +44,7 @@ dependencies:
   http: ^1.2.2
   auto_size_text: ^3.0.0
   flutter_dotenv: ^6.0.0
+  flutter_markdown: ^0.7.1
 
 dev_dependencies:
   flutter_test:
