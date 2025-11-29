@@ -310,6 +310,17 @@ class _StudentConfirmationScreenState extends State<StudentConfirmationScreen> {
                     children: [
                       const SizedBox(height: 8),
 
+                      // Label for language selection (localized)
+                      Text(
+                        AppLocalizations.of(context).t('language'),
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+
                       // Language chips row
                       Row(
                         children: [
