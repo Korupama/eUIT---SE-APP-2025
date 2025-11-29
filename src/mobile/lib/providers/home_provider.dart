@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -5,10 +6,13 @@ import '../models/schedule_item.dart';
 import '../models/notification_item.dart';
 import '../models/quick_action.dart';
 import '../services/auth_service.dart';
+import '../services/notification_service.dart';
 import '../models/student_card_dto.dart';
 
 class HomeProvider extends ChangeNotifier {
   final bool _isLoading = false;
+  final NotificationService _notificationService = NotificationService();
+  final List<StreamSubscription> _subscriptions = [];
 
   HomeProvider() {
     _loadMock();
@@ -18,6 +22,8 @@ class HomeProvider extends ChangeNotifier {
     Future.microtask(() => fetchStudentCard());
     // Fetch next class in background
     Future.microtask(() => fetchNextClass());
+    // Setup realtime notification listeners
+    _setupNotificationListeners();
   }
 
   late ScheduleItem _nextSchedule;
@@ -80,6 +86,124 @@ class HomeProvider extends ChangeNotifier {
       QuickAction(label: 'Chứng chỉ', type: 'certificate', iconName: 'workspace_premium_outlined'),
     ];
     // notifyListeners(); // not necessary here because ctor will cause initial build
+  }
+
+  /// Setup realtime notification listeners from SignalR
+  void _setupNotificationListeners() {
+    // Kết quả học tập
+    _subscriptions.add(
+      _notificationService.onKetQuaHocTap.listen((notification) {
+        _addNotification(NotificationItem(
+          title: 'Cập nhật điểm: ${notification.tenMonHoc}',
+          body: 'QT: ${notification.diemQuaTrinh ?? "-"} | '
+              'GK: ${notification.diemGiuaKy ?? "-"} | '
+              'CK: ${notification.diemCuoiKy ?? "-"}',
+          time: 'Vừa xong',
+          isUnread: true,
+          category: NotificationCategory.ketQuaHocTap,
+        ));
+      }),
+    );
+
+    // Báo bù
+    _subscriptions.add(
+      _notificationService.onBaoBu.listen((notification) {
+        // Tạo danh sách tiết từ tiết bắt đầu đến tiết kết thúc
+        final tietBatDau = int.tryParse(notification.tietBatDau) ?? 1;
+        final tietKetThuc = int.tryParse(notification.tietKetThuc) ?? tietBatDau;
+        final danhSachTiet = List.generate(
+          tietKetThuc - tietBatDau + 1,
+          (i) => (tietBatDau + i).toString(),
+        ).join(', ');
+
+        _addNotification(NotificationItem(
+          title: 'Lịch học bù: ${notification.tenMonHoc}',
+          body: 'Ngày: ${_formatDate(notification.ngayBu)}\n'
+              'Tiết: $danhSachTiet\n'
+              'Phòng: ${notification.phongHoc}',
+          time: 'Vừa xong',
+          isUnread: true,
+          category: NotificationCategory.baoBu,
+        ));
+      }),
+    );
+
+    // Báo nghỉ
+    _subscriptions.add(
+      _notificationService.onBaoNghi.listen((notification) {
+        _addNotification(NotificationItem(
+          title: 'Nghỉ học: ${notification.tenMonHoc}',
+          body: 'Ngày: ${_formatDate(notification.ngayNghi)}\n'
+              'Lý do: ${notification.lyDo}',
+          time: 'Vừa xong',
+          isUnread: true,
+          category: NotificationCategory.baoNghi,
+        ));
+      }),
+    );
+
+    // Điểm rèn luyện
+    _subscriptions.add(
+      _notificationService.onDiemRenLuyen.listen((notification) {
+        _addNotification(NotificationItem(
+          title: 'Điểm rèn luyện HK${notification.hocKy}',
+          body: 'Điểm: ${notification.diemRenLuyen} - ${notification.xepLoai}',
+          time: 'Vừa xong',
+          isUnread: true,
+          category: NotificationCategory.diemRenLuyen,
+        ));
+      }),
+    );
+  }
+
+  String _formatDate(DateTime date) {
+    return '${date.day}/${date.month}/${date.year}';
+  }
+
+  /// Thêm notification mới vào đầu danh sách
+  void _addNotification(NotificationItem notification) {
+    _notifications.insert(0, notification);
+    notifyListeners();
+  }
+
+  /// Đánh dấu notification đã đọc
+  void markNotificationAsRead(String id) {
+    final index = _notifications.indexWhere((n) => n.id == id);
+    if (index != -1) {
+      _notifications[index] = _notifications[index].copyWith(isUnread: false);
+      notifyListeners();
+    }
+  }
+
+  /// Đánh dấu tất cả đã đọc
+  void markAllNotificationsAsRead() {
+    _notifications = _notifications.map((n) => n.copyWith(isUnread: false)).toList();
+    notifyListeners();
+  }
+
+  /// Số lượng notification chưa đọc
+  int get unreadNotificationCount => _notifications.where((n) => n.isUnread).length;
+
+  /// Kết nối SignalR với MSSV
+  Future<void> connectNotifications(String mssv) async {
+    await _notificationService.connect(mssv);
+  }
+
+  /// Ngắt kết nối SignalR
+  Future<void> disconnectNotifications() async {
+    await _notificationService.disconnect();
+  }
+
+  /// Trạng thái kết nối SignalR
+  bool get isNotificationConnected => _notificationService.isConnected;
+
+  @override
+  void dispose() {
+    for (var sub in _subscriptions) {
+      sub.cancel();
+    }
+    _notificationService.disconnect();
+    super.dispose();
   }
 
   /// Fetch quick GPA from backend: GET /quickgpa
@@ -152,6 +276,11 @@ class HomeProvider extends ChangeNotifier {
         final Map<String, dynamic> body = jsonDecode(res.body) as Map<String, dynamic>;
         _studentCard = StudentCardDto.fromJson(body);
         notifyListeners();
+        
+        // Kết nối SignalR sau khi có MSSV
+        if (_studentCard?.mssv != null) {
+          connectNotifications(_studentCard!.mssv.toString());
+        }
       } else if (res.statusCode == 401) {
         await _auth.deleteToken();
       }

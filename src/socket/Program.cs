@@ -1,139 +1,158 @@
-﻿using System.Net.WebSockets;
-using System.Text;
+﻿using eUIT.Socket.Hubs;
+using eUIT.Socket.Services;
 using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configure Kestrel to listen on all interfaces for cloud deployment
+// Configure Kestrel for cloud deployment
 var port = Environment.GetEnvironmentVariable("PORT") ?? "5000";
 builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
 
-// Get allowed origins from environment or use defaults
-var allowedOrigins = Environment.GetEnvironmentVariable("ALLOWED_ORIGINS")?.Split(',') 
-    ?? new[] { "http://localhost:3000", "http://localhost:5000", "*" };
+// CORS configuration
+var allowedOriginsEnv = Environment.GetEnvironmentVariable("ALLOWED_ORIGINS");
+var allowedOrigins = !string.IsNullOrEmpty(allowedOriginsEnv) 
+    ? allowedOriginsEnv.Split(',', StringSplitOptions.RemoveEmptyEntries)
+    : new[] { "http://localhost:3000", "http://localhost:5000", "http://localhost:8080" };
 
-// CORS configuration for cloud deployment
-builder.Services.AddCors(opt =>
+builder.Services.AddCors(options =>
 {
-    opt.AddPolicy("ws", p =>
+    options.AddPolicy("SignalRPolicy", policy =>
     {
-        if (allowedOrigins.Contains("*"))
+        if (allowedOriginsEnv == "*")
         {
-            p.AllowAnyHeader()
-             .AllowAnyMethod()
-             .SetIsOriginAllowed(_ => true)
-             .AllowCredentials();
+            policy.SetIsOriginAllowed(_ => true)
+                  .AllowAnyHeader()
+                  .AllowAnyMethod()
+                  .AllowCredentials();
         }
         else
         {
-            p.AllowAnyHeader()
-             .AllowAnyMethod()
-             .AllowCredentials()
-             .WithOrigins(allowedOrigins);
+            policy.WithOrigins(allowedOrigins)
+                  .AllowAnyHeader()
+                  .AllowAnyMethod()
+                  .AllowCredentials();
         }
     });
 });
 
-// Add health checks for cloud monitoring
+// Add SignalR with camelCase JSON serialization for Flutter compatibility
+builder.Services.AddSignalR(options =>
+{
+    options.EnableDetailedErrors = builder.Environment.IsDevelopment();
+    options.KeepAliveInterval = TimeSpan.FromSeconds(15);
+    options.ClientTimeoutInterval = TimeSpan.FromSeconds(30);
+}).AddJsonProtocol(options =>
+{
+    options.PayloadSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+});
+
+// Register notification service
+builder.Services.AddSingleton<INotificationService, NotificationService>();
+
+// Health checks
 builder.Services.AddHealthChecks();
 
 var app = builder.Build();
 
-app.UseCors("ws");
-
-// Health check endpoint for load balancers and monitoring
+app.UseCors("SignalRPolicy");
 app.MapHealthChecks("/health");
 
-app.UseWebSockets(new WebSocketOptions
-{
-    KeepAliveInterval = TimeSpan.FromSeconds(30)
-});
-
-var clients = new HashSet<WebSocket>();
-var clientLock = new object(); // Thread-safe client management
-
+// Server info
 app.MapGet("/", () => new
 {
-    status = "running",
-    service = "WebSocket Server",
+    service = "eUIT Notification Server",
     version = "1.0.0",
-    endpoints = new { websocket = "/ws", health = "/health" }
+    hub = "/notifications",
+    health = "/health",
+    onlineStudents = NotificationHub.GetOnlineCount(),
+    serverTime = DateTimeOffset.UtcNow
 });
 
-app.Map("/ws", async context =>
+// SignalR hub
+app.MapHub<NotificationHub>("/notifications");
+
+// === API Endpoints for Backend Integration ===
+
+// Kết quả học tập (Grade updates)
+app.MapPost("/api/notify/ket-qua-hoc-tap/{maSinhVien}", async (
+    string maSinhVien,
+    KetQuaHocTapNotification data,
+    INotificationService notificationService) =>
 {
-    if (!context.WebSockets.IsWebSocketRequest)
-    {
-        context.Response.StatusCode = 400;
-        return;
-    }
-
-    using var socket = await context.WebSockets.AcceptWebSocketAsync();
-    
-    lock (clientLock) { clients.Add(socket); }
-    Console.WriteLine($"[{DateTime.UtcNow:yyyy-MM-dd HH:mm:ss}] Client connected. Total clients: {clients.Count}");
-
-    var buffer = new byte[8 * 1024];
-    var ct = context.RequestAborted;
-
-    try
-    {
-        while (!ct.IsCancellationRequested && socket.State == WebSocketState.Open)
-        {
-            var result = await socket.ReceiveAsync(buffer, ct);
-
-            if (result.MessageType == WebSocketMessageType.Close)
-                break;
-
-            // Handle fragmented frames
-            var ms = new MemoryStream();
-            ms.Write(buffer, 0, result.Count);
-            while (!result.EndOfMessage)
-            {
-                result = await socket.ReceiveAsync(buffer, ct);
-                ms.Write(buffer, 0, result.Count);
-            }
-            var msg = Encoding.UTF8.GetString(ms.ToArray());
-
-            var payload = new
-            {
-                type = "echo",
-                text = msg,
-                serverTime = DateTimeOffset.UtcNow
-            };
-            var bytes = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(payload));
-
-            // Echo back to sender
-            await socket.SendAsync(bytes, WebSocketMessageType.Text, true, ct);
-
-            // Broadcast to other clients
-            List<WebSocket> currentClients;
-            lock (clientLock) { currentClients = clients.ToList(); }
-            
-            foreach (var c in currentClients)
-            {
-                if (c != socket && c.State == WebSocketState.Open)
-                {
-                    try
-                    {
-                        await c.SendAsync(bytes, WebSocketMessageType.Text, true, ct);
-                    }
-                    catch
-                    {
-                        // Remove dead connections
-                        lock (clientLock) { clients.Remove(c); }
-                    }
-                }
-            }
-        }
-    }
-    finally
-    {
-        lock (clientLock) { clients.Remove(socket); }
-        Console.WriteLine($"[{DateTime.UtcNow:yyyy-MM-dd HH:mm:ss}] Client disconnected. Total clients: {clients.Count}");
-        try { await socket.CloseAsync(WebSocketCloseStatus.NormalClosure, "bye", ct); } catch { /* ignore */ }
-    }
+    await notificationService.NotifyKetQuaHocTapAsync(maSinhVien, data);
+    return Results.Ok(new { success = true, type = "ket_qua_hoc_tap", maSinhVien });
 });
 
-Console.WriteLine($"WebSocket server starting on port {port}...");
+// Báo bù (Make-up class)
+app.MapPost("/api/notify/bao-bu/{maSinhVien}", async (
+    string maSinhVien,
+    BaoBuNotification data,
+    INotificationService notificationService) =>
+{
+    await notificationService.NotifyBaoBuAsync(maSinhVien, data);
+    return Results.Ok(new { success = true, type = "bao_bu", maSinhVien });
+});
+
+// Báo nghỉ (Class cancellation)
+app.MapPost("/api/notify/bao-nghi/{maSinhVien}", async (
+    string maSinhVien,
+    BaoNghiNotification data,
+    INotificationService notificationService) =>
+{
+    await notificationService.NotifyBaoNghiAsync(maSinhVien, data);
+    return Results.Ok(new { success = true, type = "bao_nghi", maSinhVien });
+});
+
+// Điểm rèn luyện (Training score)
+app.MapPost("/api/notify/diem-ren-luyen/{maSinhVien}", async (
+    string maSinhVien,
+    DiemRenLuyenNotification data,
+    INotificationService notificationService) =>
+{
+    await notificationService.NotifyDiemRenLuyenAsync(maSinhVien, data);
+    return Results.Ok(new { success = true, type = "diem_ren_luyen", maSinhVien });
+});
+
+// Batch notify multiple students
+app.MapPost("/api/notify/batch", async (
+    BatchNotificationRequest request,
+    INotificationService notificationService) =>
+{
+    await notificationService.NotifyStudentsAsync(request.MaSinhViens, request.EventName, request.Data);
+    return Results.Ok(new { success = true, count = request.MaSinhViens.Count() });
+});
+
+// Broadcast to all
+app.MapPost("/api/notify/broadcast", async (
+    BroadcastRequest request,
+    INotificationService notificationService) =>
+{
+    await notificationService.BroadcastAsync(request.Title, request.Message, request.Data);
+    return Results.Ok(new { success = true, type = "broadcast" });
+});
+
+// Check if student is online
+app.MapGet("/api/status/{maSinhVien}", (string maSinhVien) =>
+{
+    return Results.Ok(new
+    {
+        maSinhVien,
+        online = NotificationHub.IsStudentOnline(maSinhVien)
+    });
+});
+
+Console.WriteLine($"╔═══════════════════════════════════════════════════════╗");
+Console.WriteLine($"║      eUIT Notification Server - Port {port,-5}            ║");
+Console.WriteLine($"╠═══════════════════════════════════════════════════════╣");
+Console.WriteLine($"║  Hub:  /notifications                                 ║");
+Console.WriteLine($"║  API:  /api/notify/ket-qua-hoc-tap/{{maSinhVien}}       ║");
+Console.WriteLine($"║        /api/notify/bao-bu/{{maSinhVien}}                ║");
+Console.WriteLine($"║        /api/notify/bao-nghi/{{maSinhVien}}              ║");
+Console.WriteLine($"║        /api/notify/diem-ren-luyen/{{maSinhVien}}        ║");
+Console.WriteLine($"╚═══════════════════════════════════════════════════════╝");
+
 app.Run();
+
+// Request DTOs
+record BatchNotificationRequest(IEnumerable<string> MaSinhViens, string EventName, object Data);
+record BroadcastRequest(string Title, string Message, object? Data = null);

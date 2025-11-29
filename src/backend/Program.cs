@@ -5,6 +5,7 @@ using Microsoft.IdentityModel.Tokens; // Thêm để sử dụng TokenValidation
 using System.Text; // Thêm để sử dụng Encoding.UTF8
 using Microsoft.OpenApi.Models;
 using Microsoft.Extensions.FileProviders;
+using eUIT.API.Services; // Thêm để sử dụng NotificationClient
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,6 +31,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddScoped<eUIT.API.Services.ITokenService, eUIT.API.Services.TokenService>();
 
+// Thêm Notification Client để gửi thông báo realtime
+builder.Services.AddNotificationClient();
 
 // Lấy chuỗi kết nối từ file appsettings.json
 var connectionString = builder.Configuration.GetConnectionString("eUITDatabase");
