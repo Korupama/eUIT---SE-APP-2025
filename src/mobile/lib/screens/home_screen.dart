@@ -6,7 +6,7 @@ import '../providers/home_provider.dart';
 import '../theme/app_theme.dart';
 import '../utils/app_localizations.dart';
 import 'package:shimmer/shimmer.dart';
-import 'chatbot.dart';
+import 'package:shimmer/shimmer.dart';
 import '../widgets/student_id_card.dart';
 
 /// HomeScreen - Trang chủ Light Theme với bố cục mới
@@ -23,12 +23,15 @@ class _HomeScreenState extends State<HomeScreen>
   bool get wantKeepAlive => true;
 
   late ScrollController _scrollController;
-  bool _bubbleClosed = false;
 
   @override
   void initState() {
     super.initState();
     _scrollController = ScrollController();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // Post frame callback logic if needed
+    });
   }
 
   @override
@@ -128,110 +131,9 @@ class _HomeScreenState extends State<HomeScreen>
                     ),
                   ),
           ),
-          if (!_bubbleClosed)
-            // 🔥 Chatbot Bubble Button (UIT Style)
-            AnimatedPositioned(
-              duration: const Duration(milliseconds: 400),
-              curve: Curves.easeOutBack,
-              bottom: 105,
-              right: 20,
-              child: AnimatedScale(
-                duration: const Duration(milliseconds: 300),
-                scale: !_bubbleClosed ? 1 : 0.7,
-                curve: Curves.easeOutBack,
-                child: AnimatedOpacity(
-                  duration: const Duration(milliseconds: 300),
-                  opacity: !_bubbleClosed ? 1 : 0,
-                  child: Stack(
-                    clipBehavior: Clip.none,
-                    children: [
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const ChatbotScreen(),
-                            ),
-                          );
-                        },
-                        child: Container(
-                          width: 64,
-                          height: 64,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(18), // bo góc giống app UIT
-                            border: Border.all(
-                              color: const Color(0x2DFFFFFF), // was Colors.white.withOpacity(0.18)
-                              width: 1,
-                            ),
-                            boxShadow: const [
-                              BoxShadow(
-                                color: Color(0x40448AFF), // was Colors.blueAccent.withOpacity(0.25)
-                                blurRadius: 20,
-                                spreadRadius: 1,
-                                offset: Offset(0, 6),
-                              ),
-                            ],
-                          ),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(18),
-                            child: BackdropFilter(
-                              filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
-                              child: Container(
-                                decoration: const BoxDecoration(
-                                  gradient: LinearGradient(
-                                    colors: [
-                                      Color(0x12FFFFFF), // ~0.07 opacity
-                                      Color(0x05FFFFFF), // ~0.02 opacity
-                                    ],
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                  ),
-                                ),
-                                child: const Center(
-                                  child: Icon(
-                                    Icons.smart_toy,
-                                    color: Colors.white,
-                                    size: 28,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
 
-                      // 🔴 Nút tắt bubble
-                      Positioned(
-                        top: -7,
-                        right: -7,
-                        child: GestureDetector(
-                          onTap: () => setState(() => _bubbleClosed = true),
-                          child: Container(
-                            padding: const EdgeInsets.all(4),
-                            decoration: const BoxDecoration(
-                              color: Colors.redAccent,
-                              shape: BoxShape.circle,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Color(0x4D000000),
-                                  blurRadius: 5,
-                                  offset: Offset(0, 2),
-                                ),
-                              ],
-                            ),
-                            child: const Icon(
-                              Icons.close,
-                              color: Colors.white,
-                              size: 14,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
+
+
         ],
       ),
     );
@@ -323,44 +225,7 @@ class _HomeScreenState extends State<HomeScreen>
               // Right: Chatbot + Notification
               Row(
                 children: [
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => const ChatbotScreen()),
-                      );
-                    },
-                    child: Container(
-                      width: 44,
-                      height: 44,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.transparent,
-                        boxShadow: [
-                          BoxShadow(
-                            color: isDark ? AppTheme.bluePrimary.withAlpha(77) : Colors.black12,
-                            blurRadius: 10,
-                            offset: const Offset(0, 3),
-                          ),
-                        ],
-                        border: Border.all(color: isDark ? Colors.white24 : Colors.black12, width: 1.2),
-                      ),
-                      child: ClipOval(
-                        child: BackdropFilter(
-                          filter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
-                          child: Center(
-                            child: Icon(
-                              Icons.smart_toy,
-                              size: 20,
-                              color: isDark ? Colors.white : Colors.black87,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
 
-                  const SizedBox(width: 10),
 
                   Stack(
                     clipBehavior: Clip.none,

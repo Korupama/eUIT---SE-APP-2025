@@ -11,7 +11,7 @@ class ScheduleMainScreen extends StatefulWidget {
 }
 
 class _ScheduleMainScreenState extends State<ScheduleMainScreen> {
-  DateTime currentWeekStart = DateTime(2025, 11, 25); // Monday of the week (31 Sep doesn't exist, so week starts Sep 29)
+  DateTime currentWeekStart = DateTime(2025, 11, 24); // Monday of the week (31 Sep doesn't exist, so week starts Sep 29)
   int selectedDay = 3; // Day of October (T4 - Thursday)
   int selectedTab = 0; // 0: Lên lớp, 1: Kiểm tra, 2: Cá nhân
 

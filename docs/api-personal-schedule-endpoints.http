@@ -1,0 +1,191 @@
+### Personal Schedule Management API Endpoints
+
+### Variables
+@baseUrl = http://localhost:5000
+@token = your_jwt_token_here
+
+### 1. Create Personal Event (POST)
+# Thêm sự kiện cá nhân mới
+# Warning: Sẽ cảnh báo nếu có xung đột với lịch học/thi
+POST {{baseUrl}}/api/student/schedule/personal
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "eventName": "Họp nhóm đồ án",
+  "time": "2025-11-25T14:00:00",
+  "location": "Phòng E205",
+  "description": "Họp bàn về tiến độ đồ án môn Công nghệ phần mềm"
+}
+
+### Response with conflict warning:
+# {
+#   "success": true,
+#   "message": "Sự kiện đã được tạo nhưng có xung đột với lịch học",
+#   "event": {
+#     "eventId": 1,
+#     "eventName": "Họp nhóm đồ án",
+#     "time": "2025-11-25T14:00:00",
+#     "location": "Phòng E205",
+#     "description": "Họp bàn về tiến độ đồ án môn Công nghệ phần mềm",
+#     "createdAt": "2025-11-24T10:00:00",
+#     "updatedAt": "2025-11-24T10:00:00"
+#   },
+#   "conflict": {
+#     "hasConflict": true,
+#     "conflictType": "class",
+#     "conflictDetails": "Công nghệ phần mềm (SE101.N11) - Tiết 7-9, Phòng E205"
+#   }
+# }
+
+###
+
+### 2. Create Personal Event (No Conflict)
+POST {{baseUrl}}/api/student/schedule/personal
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "eventName": "Sinh nhật bạn thân",
+  "time": "2025-11-30T18:00:00",
+  "location": "The Coffee House",
+  "description": "Tổ chức sinh nhật cho Minh"
+}
+
+### Response without conflict:
+# {
+#   "success": true,
+#   "message": "Tạo sự kiện thành công",
+#   "event": {
+#     "eventId": 2,
+#     "eventName": "Sinh nhật bạn thân",
+#     "time": "2025-11-30T18:00:00",
+#     "location": "The Coffee House",
+#     "description": "Tổ chức sinh nhật cho Minh",
+#     "createdAt": "2025-11-24T10:05:00",
+#     "updatedAt": "2025-11-24T10:05:00"
+#   },
+#   "conflict": null
+# }
+
+###
+
+### 3. Update Personal Event (PUT)
+# Chỉnh sửa sự kiện cá nhân
+# Có thể cập nhật một hoặc nhiều trường
+PUT {{baseUrl}}/api/student/schedule/personal/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "eventName": "Họp nhóm đồ án (Lần 2)",
+  "time": "2025-11-25T16:00:00",
+  "location": "Phòng E206",
+  "description": "Họp bàn về tiến độ đồ án - Thảo luận về demo"
+}
+
+### Response:
+# {
+#   "success": true,
+#   "message": "Cập nhật sự kiện thành công",
+#   "event": {
+#     "eventId": 1,
+#     "eventName": "Họp nhóm đồ án (Lần 2)",
+#     "time": "2025-11-25T16:00:00",
+#     "location": "Phòng E206",
+#     "description": "Họp bàn về tiến độ đồ án - Thảo luận về demo",
+#     "createdAt": "2025-11-24T10:00:00",
+#     "updatedAt": "2025-11-24T10:15:00"
+#   },
+#   "conflict": null
+# }
+
+###
+
+### 4. Update Personal Event (Partial Update)
+# Chỉ cập nhật các trường cần thiết
+PUT {{baseUrl}}/api/student/schedule/personal/2
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "location": "Highlands Coffee"
+}
+
+###
+
+### 5. Delete Personal Event (DELETE)
+# Xóa sự kiện cá nhân
+DELETE {{baseUrl}}/api/student/schedule/personal/1
+Authorization: Bearer {{token}}
+
+### Response:
+# {
+#   "success": true,
+#   "message": "Xóa sự kiện thành công",
+#   "event": null,
+#   "conflict": null
+# }
+
+###
+
+### 6. Error Cases
+
+### 6.1. Try to update non-existent event
+PUT {{baseUrl}}/api/student/schedule/personal/999
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "eventName": "Test"
+}
+
+### Response:
+# {
+#   "success": false,
+#   "message": "Không tìm thấy sự kiện hoặc bạn không có quyền chỉnh sửa"
+# }
+
+###
+
+### 6.2. Try to delete non-existent event
+DELETE {{baseUrl}}/api/student/schedule/personal/999
+Authorization: Bearer {{token}}
+
+### Response:
+# {
+#   "success": false,
+#   "message": "Không tìm thấy sự kiện hoặc bạn không có quyền xóa"
+# }
+
+###
+
+### 6.3. Create event without required fields
+POST {{baseUrl}}/api/student/schedule/personal
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "location": "Phòng E205"
+}
+
+### Response:
+# {
+#   "type": "https://tools.ietf.org/html/rfc7231#section-6.5.1",
+#   "title": "One or more validation errors occurred.",
+#   "status": 400,
+#   "errors": {
+#     "EventName": ["Tên sự kiện không được để trống"],
+#     "Time": ["Thời gian không được để trống"]
+#   }
+# }
+
+###
+
+### Notes:
+# - Tất cả endpoints đều yêu cầu JWT authentication
+# - Sinh viên chỉ có thể tạo/sửa/xóa sự kiện của chính mình
+# - Hệ thống sẽ cảnh báo nhưng vẫn cho phép tạo sự kiện khi có xung đột với lịch học/thi
+# - Conflict checking được thực hiện với cả lịch học và lịch thi
+# - Khi update, chỉ các trường được cung cấp mới được cập nhật
+# - Trường updated_at tự động được cập nhật khi có thay đổi

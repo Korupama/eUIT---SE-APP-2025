@@ -1,5 +1,9 @@
 // file: chatbot.dart
 import 'dart:async';
+import 'dart:ui';
+import 'dart:convert';
+import 'dart:io';
+import 'package:http/http.dart' as http;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -7,6 +11,8 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../utils/app_localizations.dart';
+import '../providers/home_provider.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 
 /// Chatbot screen for UIT Assistant
 /// - Uses provider for local state
@@ -35,8 +41,8 @@ class _ChatbotScreenState extends State<ChatbotScreen> with TickerProviderStateM
   void initState() {
     super.initState();
     _provider = ChatbotProvider();
-    // Add sample messages (5-7 messages)
-    _provider.loadSampleConversation();
+    // Clear messages every time we enter this screen
+    _provider.clearMessages();
     _provider.addListener(_onProviderUpdate);
   }
 
@@ -75,16 +81,11 @@ class _ChatbotScreenState extends State<ChatbotScreen> with TickerProviderStateM
   void _onSend() {
     final text = _textController.text.trim();
     if (text.isEmpty) return;
-    _provider.sendUserMessage(text);
+
     _textController.clear();
-    // Simulate AI response after a short delay with typing indicator
-    _provider.setAiTyping(true);
-    Future.delayed(const Duration(milliseconds: 900), () async {
-      // Keep typing for a bit
-      await Future.delayed(const Duration(milliseconds: 800));
-      _provider.setAiTyping(false);
-      _provider.addAiMessage(_provider.generateAiReply(text));
-    });
+    final homeProvider = Provider.of<HomeProvider>(context, listen: false);
+    final userId = homeProvider.studentCard?.mssv?.toString() ?? 'anonymous';
+    _provider.sendMessage(text, userId);
   }
 
   @override
@@ -187,36 +188,6 @@ class _ChatbotScreenState extends State<ChatbotScreen> with TickerProviderStateM
                               ),
                             ),
                           ),
-                        ),
-
-                        // Suggestion chips
-                        Consumer<ChatbotProvider>(
-                          builder: (context, provider, _) {
-                            return AnimatedOpacity(
-                              opacity: 1.0,
-                              duration: const Duration(milliseconds: 300),
-                              child: Container(
-                                // Replaced deprecated withOpacity -> explicit ARGB (0.02*255 ≈ 5 -> 0x05)
-                                color: isDark ? Colors.transparent : const Color(0x05FFFFFF),
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                child: Wrap(
-                                  spacing: 8,
-                                  runSpacing: 8,
-                                  children: provider.suggestions.map((s) {
-                                    return ActionChip(
-                                      label: Text(s, style: TextStyle(color: isDark ? Colors.white : Colors.white)),
-                                      backgroundColor: isDark ? Colors.white12 : Colors.white24,
-                                      onPressed: () {
-                                        // insert suggestion as message
-                                        _textController.text = s;
-                                        _textController.selection = TextSelection.fromPosition(TextPosition(offset: s.length));
-                                      },
-                                    );
-                                  }).toList(),
-                                ),
-                              ),
-                            );
-                          },
                         ),
                       ],
                     ),
@@ -327,23 +298,7 @@ class _ChatbotScreenState extends State<ChatbotScreen> with TickerProviderStateM
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: 8),
-            Text(
-              'Bạn có thể hỏi: "Xem lịch học", "Tra cứu điểm", "Thông báo mới"...',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: isDark ? Colors.white70 : Colors.white70,
-              ),
-            ),
-            const SizedBox(height: 18),
-            Wrap(
-              spacing: 8,
-              children: const [
-                Chip(label: Text('Xem lịch học')),
-                Chip(label: Text('Tra cứu điểm')),
-                Chip(label: Text('Thông báo mới')),
-              ],
-            ),
+
           ],
         ),
       ),
@@ -351,6 +306,8 @@ class _ChatbotScreenState extends State<ChatbotScreen> with TickerProviderStateM
   }
 
   Widget _buildInputArea(bool isDark) {
+    final provider = Provider.of<ChatbotProvider>(context, listen: false);
+
     return Container(
       color: isDark ? const Color(0xFF0A0E27) : Colors.white,
       padding: const EdgeInsets.fromLTRB(12, 8, 12, 12), // bottom padding to sit above bottom nav
@@ -529,6 +486,8 @@ class _ChatbotScreenState extends State<ChatbotScreen> with TickerProviderStateM
   }
 }
 
+
+
 /// Message model
 class ChatMessage {
   final String id;
@@ -551,12 +510,7 @@ class ChatbotProvider extends ChangeNotifier {
   bool _isAiTyping = false;
   bool get isAiTyping => _isAiTyping;
 
-  List<String> suggestions = [
-    'Xem lịch học',
-    'Tra cứu điểm',
-    'Thông báo mới',
-    'Hướng dẫn đăng ký học phần',
-  ];
+
 
   bool get isTyping => _isAiTyping;
 
@@ -581,15 +535,47 @@ class ChatbotProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void sendUserMessage(String text) {
-    final msg = ChatMessage(
+  Future<void> sendMessage(String text, String userId) async {
+    final userMsg = ChatMessage(
       id: UniqueKey().toString(),
       text: text,
       createdAt: DateTime.now(),
       isUser: true,
     );
-    _messages.add(msg);
+    _messages.add(userMsg);
     notifyListeners();
+
+    setAiTyping(true);
+
+    try {
+      String baseUrl = 'http://localhost:5001';
+      if (Platform.isAndroid) {
+        baseUrl = 'http://10.0.2.2:5001';
+      }
+      final url = Uri.parse('$baseUrl/api/chat');
+
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'userId': userId,
+          'question': text,
+          'includeContext': true
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final answer = data['answer'] ?? 'Không có phản hồi.';
+        addAiMessage(answer);
+      } else {
+        addAiMessage('Lỗi kết nối: ${response.statusCode}');
+      }
+    } catch (e) {
+      addAiMessage('Không thể kết nối đến server chatbot. Lỗi: $e');
+    } finally {
+      setAiTyping(false);
+    }
   }
 
   void deleteMessage(String id) {
@@ -602,55 +588,10 @@ class ChatbotProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  String generateAiReply(String userText) {
-    // Simple rule-based mock replies for demo purposes
-    final t = userText.toLowerCase();
-    if (t.contains('lịch') || t.contains('tkb')) {
-      return 'Lịch học của bạn: Thứ 2 8:00 - Lập trình, Thứ 4 10:00 - CSDL. Muốn xem chi tiết nào không?';
-    } else if (t.contains('điểm') || t.contains('tra cứu')) {
-      return 'Điểm học kỳ: Môn Lập trình: 8.5, CSDL: 7.0. Bạn muốn gửi bảng điểm về email không?';
-    } else if (t.contains('thông báo')) {
-      return 'Có 2 thông báo mới: (1) Nghỉ Lễ 30/4, (2) Nộp học phí trước 10/5.';
-    } else if (t.contains('hướng dẫn') || t.contains('đăng ký')) {
-      return 'Hướng dẫn đăng ký học phần: Vào hệ thống học vụ -> Đăng ký học phần -> Chọn môn -> Xác nhận.';
-    } else {
-      return 'Mình chưa rõ lắm. Bạn muốn mình tra cứu thông tin cụ thể nào?';
-    }
+  @override
+  void dispose() {
+    super.dispose();
   }
-
-  void loadSampleConversation() {
-    // Add 5-7 sample messages
-    _messages.clear();
-    _messages.addAll([
-      ChatMessage(
-          id: UniqueKey().toString(),
-          text: 'Xin chào! Mình là UIT Assistant. Mình có thể giúp gì cho bạn hôm nay?',
-          createdAt: DateTime.now().subtract(const Duration(minutes: 12)),
-          isUser: false),
-      ChatMessage(
-          id: UniqueKey().toString(),
-          text: 'Chào bạn, mình muốn xem lịch học kỳ này.',
-          createdAt: DateTime.now().subtract(const Duration(minutes: 11)),
-          isUser: true),
-      ChatMessage(
-          id: UniqueKey().toString(),
-          text: 'Bạn học ngành gì và năm mấy? Mình sẽ lấy lịch tương ứng.',
-          createdAt: DateTime.now().subtract(const Duration(minutes: 10)),
-          isUser: false),
-      ChatMessage(
-          id: UniqueKey().toString(),
-          text: 'Mình học CNTT năm 3.',
-          createdAt: DateTime.now().subtract(const Duration(minutes: 9)),
-          isUser: true),
-      ChatMessage(
-          id: UniqueKey().toString(),
-          text: 'Đã tìm lịch: Thứ 2 - Lập trình 8:00; Thứ 4 - CSDL 10:00. Muốn thêm nhắc nhở không?',
-          createdAt: DateTime.now().subtract(const Duration(minutes: 8)),
-          isUser: false),
-    ]);
-    notifyListeners();
-  }
-
 }
 
 /// Message tile with animations and styling
@@ -727,10 +668,14 @@ class _MessageTileState extends State<MessageTile> with SingleTickerProviderStat
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    widget.message.text,
-                    style: TextStyle(
-                      color: isUser ? Colors.white : (isDark ? Colors.white : Colors.black87),
+                  MarkdownBody(
+                    data: widget.message.text,
+                    styleSheet: MarkdownStyleSheet(
+                      p: TextStyle(
+                        color: isUser ? Colors.white : (isDark ? Colors.white : Colors.black87),
+                        fontSize: 16, // Match default text size
+                      ),
+                      // Add other styles if needed
                     ),
                   ),
                   const SizedBox(height: 6),
@@ -804,7 +749,7 @@ class _MessageTileState extends State<MessageTile> with SingleTickerProviderStat
 /// Typing indicator (3 dots)
 class _AiTypingIndicator extends StatefulWidget {
   final bool isDark;
-  const _AiTypingIndicator({required this.isDark});
+  const _AiTypingIndicator({required this.isDark, super.key});
 
   @override
   State<_AiTypingIndicator> createState() => _AiTypingIndicatorState();

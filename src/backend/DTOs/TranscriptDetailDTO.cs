@@ -6,10 +6,10 @@ public class SubjectGradeDetailDto
     public string MaMonHoc { get; set; } = string.Empty;
     public string TenMonHoc { get; set; } = string.Empty;
     public int SoTinChi { get; set; }
-    public int TrongSoQuaTrinh { get; set; }
-    public int TrongSoGiuaKi { get; set; }
-    public int TrongSoThucHanh { get; set; }
-    public int TrongSoCuoiKi { get; set; }
+    public int? TrongSoQuaTrinh { get; set; }
+    public int? TrongSoGiuaKi { get; set; }
+    public int? TrongSoThucHanh { get; set; }
+    public int? TrongSoCuoiKi { get; set; }
     public float? DiemQuaTrinh { get; set; }
     public float? DiemGiuaKi { get; set; }
     public float? DiemThucHanh { get; set; }

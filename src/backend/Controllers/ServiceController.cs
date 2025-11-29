@@ -307,6 +307,308 @@ public class ServiceController : ControllerBase
     }
 
     // =============================
+    //      APPEAL (PHÚ C KHẢO)
+    // =============================
+    /// <summary>
+    /// POST: api/service/appeal
+    /// Nộp đơn phúc khảo điểm
+    /// </summary>
+    [HttpPost("appeal")]
+    public async Task<ActionResult<AppealResponseDto>> SubmitAppeal([FromBody] AppealRequestDto requestDto)
+    {
+        var (mssv, error) = GetCurrentMssv();
+        if (error != null) return error;
+
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        try
+        {
+            // Kiểm tra thời hạn phúc khảo (ví dụ: trong vòng 7 ngày sau khi công bố điểm)
+            var appealDeadline = DateTime.UtcNow.AddDays(-7); // Giả sử deadline là 7 ngày trước
+            
+            // TODO: Kiểm tra thời gian công bố điểm môn học từ DB
+            // Tạm thời bỏ qua check này, có thể implement sau
+            
+            // Kiểm tra xem đã nộp phúc khảo cho môn này chưa
+            var existingAppeal = await _context.Appeals
+                .Where(a => a.Mssv == mssv.Value && a.CourseId == requestDto.CourseId)
+                .FirstOrDefaultAsync();
+
+            if (existingAppeal != null)
+            {
+                return BadRequest(new { error = "Bạn đã nộp đơn phúc khảo cho môn học này rồi." });
+            }
+
+            // Xử lý thanh toán (giả lập)
+            string paymentStatus = "pending";
+            if (requestDto.PaymentMethod == "cash")
+            {
+                // Thanh toán tiền mặt cần xác nhận sau
+                paymentStatus = "pending";
+            }
+            else
+            {
+                // Giả lập thanh toán online thành công
+                // TODO: Tích hợp payment gateway thực tế
+                paymentStatus = "completed";
+            }
+
+            // Tạo đơn phúc khảo
+            var appeal = new Appeal
+            {
+                Mssv = mssv.Value,
+                CourseId = requestDto.CourseId,
+                Reason = requestDto.Reason,
+                PaymentMethod = requestDto.PaymentMethod,
+                PaymentStatus = paymentStatus,
+                Status = paymentStatus == "completed" ? "pending" : "awaiting_payment",
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
+
+            _context.Appeals.Add(appeal);
+            await _context.SaveChangesAsync();
+
+            var response = new AppealResponseDto
+            {
+                Id = appeal.Id,
+                CourseId = appeal.CourseId,
+                Reason = appeal.Reason,
+                PaymentMethod = appeal.PaymentMethod,
+                PaymentStatus = appeal.PaymentStatus,
+                Status = appeal.Status,
+                CreatedAt = appeal.CreatedAt.ToString("dd/MM/yyyy HH:mm"),
+                Message = paymentStatus == "completed" 
+                    ? "Nộp đơn phúc khảo thành công. Đơn của bạn đang được xử lý."
+                    : "Đơn phúc khảo đã được tạo. Vui lòng hoàn thành thanh toán để đơn được xử lý."
+            };
+
+            return Ok(response);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { error = $"Lỗi Server: {ex.Message}" });
+        }
+    }
+
+    // =============================
+    //      TUITION EXTENSION
+    // =============================
+    /// <summary>
+    /// POST: api/service/tuition-extension
+    /// Đăng ký gia hạn học phí
+    /// </summary>
+    [HttpPost("tuition-extension")]
+    [RequestSizeLimit(10 * 1024 * 1024)] // Max 10MB
+    public async Task<ActionResult<TuitionExtensionResponseDto>> RequestTuitionExtension(
+        [FromForm] TuitionExtensionRequestDto requestDto)
+    {
+        var (mssv, error) = GetCurrentMssv();
+        if (error != null) return error;
+
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        try
+        {
+            // Kiểm tra thời hạn đăng ký gia hạn (ví dụ: trước 15 ngày so với hạn đóng học phí)
+            var extensionDeadline = new DateTime(2025, 12, 15); // TODO: Lấy từ DB
+            if (DateTime.UtcNow > extensionDeadline)
+            {
+                return BadRequest(new { error = "Đã hết thời hạn đăng ký gia hạn học phí." });
+            }
+
+            // Kiểm tra thời gian gia hạn mong muốn có hợp lệ không
+            var maxExtensionDate = extensionDeadline.AddMonths(2); // Tối đa gia hạn 2 tháng
+            if (requestDto.DesiredTime > maxExtensionDate)
+            {
+                return BadRequest(new { error = "Thời gian gia hạn không hợp lệ. Vượt quá quy định cho phép." });
+            }
+
+            if (requestDto.DesiredTime <= DateTime.UtcNow)
+            {
+                return BadRequest(new { error = "Thời gian gia hạn phải sau thời điểm hiện tại." });
+            }
+
+            // Xử lý file minh chứng nếu có
+            string? filePath = null;
+            if (requestDto.SupportingDocs != null && requestDto.SupportingDocs.Length > 0)
+            {
+                var allowed = new[] { ".pdf", ".jpg", ".jpeg", ".png" };
+                var ext = Path.GetExtension(requestDto.SupportingDocs.FileName).ToLowerInvariant();
+
+                if (!allowed.Contains(ext))
+                    return BadRequest(new { error = "File phải là PDF hoặc JPG/PNG." });
+
+                string root = _env.WebRootPath ?? Path.Combine(_env.ContentRootPath, "wwwroot");
+                string folder = Path.Combine(root, "uploads", "tuition-extensions");
+                Directory.CreateDirectory(folder);
+
+                string unique = $"{mssv}_{DateTime.UtcNow:yyyyMMdd}_{Guid.NewGuid():N}{ext}";
+                filePath = Path.Combine(folder, unique);
+
+                await using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await requestDto.SupportingDocs.CopyToAsync(stream);
+                }
+
+                filePath = $"uploads/tuition-extensions/{unique}";
+            }
+
+            // Tạo đơn gia hạn
+            var extension = new TuitionExtension
+            {
+                Mssv = mssv.Value,
+                Reason = requestDto.Reason,
+                DesiredTime = requestDto.DesiredTime,
+                SupportingDocs = filePath,
+                Status = "pending",
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
+
+            _context.TuitionExtensions.Add(extension);
+            await _context.SaveChangesAsync();
+
+            var response = new TuitionExtensionResponseDto
+            {
+                Id = extension.Id,
+                Reason = extension.Reason,
+                DesiredTime = extension.DesiredTime.ToString("dd/MM/yyyy"),
+                SupportingDocs = extension.SupportingDocs,
+                Status = extension.Status,
+                CreatedAt = extension.CreatedAt.ToString("dd/MM/yyyy HH:mm"),
+                UpdatedAt = extension.UpdatedAt.ToString("dd/MM/yyyy HH:mm"),
+                Message = "Đăng ký gia hạn học phí thành công. Đơn của bạn đang chờ Phòng KHTC xét duyệt."
+            };
+
+            return Ok(response);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { error = $"Lỗi Server: {ex.Message}" });
+        }
+    }
+
+    /// <summary>
+    /// PUT: api/service/tuition-extension/{request_id}
+    /// Chỉnh sửa đơn gia hạn học phí (chỉ khi chưa được duyệt)
+    /// </summary>
+    [HttpPut("tuition-extension/{request_id}")]
+    [RequestSizeLimit(10 * 1024 * 1024)]
+    public async Task<ActionResult<TuitionExtensionResponseDto>> UpdateTuitionExtension(
+        int request_id,
+        [FromForm] TuitionExtensionUpdateDto requestDto)
+    {
+        var (mssv, error) = GetCurrentMssv();
+        if (error != null) return error;
+
+        try
+        {
+            // Tìm đơn gia hạn
+            var extension = await _context.TuitionExtensions
+                .FirstOrDefaultAsync(e => e.Id == request_id && e.Mssv == mssv.Value);
+
+            if (extension == null)
+            {
+                return NotFound(new { error = "Không tìm thấy đơn gia hạn hoặc bạn không có quyền chỉnh sửa." });
+            }
+
+            // Chỉ cho phép chỉnh sửa nếu đơn chưa được duyệt
+            if (extension.Status != "pending")
+            {
+                return BadRequest(new 
+                { 
+                    error = $"Không thể chỉnh sửa đơn gia hạn đã được {(extension.Status == "approved" ? "phê duyệt" : "từ chối")}." 
+                });
+            }
+
+            // Cập nhật các trường nếu được cung cấp
+            if (!string.IsNullOrEmpty(requestDto.Reason))
+            {
+                extension.Reason = requestDto.Reason;
+            }
+
+            if (requestDto.DesiredTime.HasValue)
+            {
+                // Kiểm tra thời gian gia hạn hợp lệ
+                var extensionDeadline = new DateTime(2025, 12, 15);
+                var maxExtensionDate = extensionDeadline.AddMonths(2);
+                
+                if (requestDto.DesiredTime.Value > maxExtensionDate)
+                {
+                    return BadRequest(new { error = "Thời gian gia hạn không hợp lệ. Vượt quá quy định cho phép." });
+                }
+
+                if (requestDto.DesiredTime.Value <= DateTime.UtcNow)
+                {
+                    return BadRequest(new { error = "Thời gian gia hạn phải sau thời điểm hiện tại." });
+                }
+
+                extension.DesiredTime = requestDto.DesiredTime.Value;
+            }
+
+            // Xử lý file minh chứng mới nếu có
+            if (requestDto.SupportingDocs != null && requestDto.SupportingDocs.Length > 0)
+            {
+                var allowed = new[] { ".pdf", ".jpg", ".jpeg", ".png" };
+                var ext = Path.GetExtension(requestDto.SupportingDocs.FileName).ToLowerInvariant();
+
+                if (!allowed.Contains(ext))
+                    return BadRequest(new { error = "File phải là PDF hoặc JPG/PNG." });
+
+                // Xóa file cũ nếu có
+                if (!string.IsNullOrEmpty(extension.SupportingDocs))
+                {
+                    string root = _env.WebRootPath ?? Path.Combine(_env.ContentRootPath, "wwwroot");
+                    string oldFilePath = Path.Combine(root, extension.SupportingDocs);
+                    if (System.IO.File.Exists(oldFilePath))
+                    {
+                        System.IO.File.Delete(oldFilePath);
+                    }
+                }
+
+                // Lưu file mới
+                string rootPath = _env.WebRootPath ?? Path.Combine(_env.ContentRootPath, "wwwroot");
+                string folder = Path.Combine(rootPath, "uploads", "tuition-extensions");
+                Directory.CreateDirectory(folder);
+
+                string unique = $"{mssv}_{DateTime.UtcNow:yyyyMMdd}_{Guid.NewGuid():N}{ext}";
+                string filePath = Path.Combine(folder, unique);
+
+                await using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await requestDto.SupportingDocs.CopyToAsync(stream);
+                }
+
+                extension.SupportingDocs = $"uploads/tuition-extensions/{unique}";
+            }
+
+            extension.UpdatedAt = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+
+            var response = new TuitionExtensionResponseDto
+            {
+                Id = extension.Id,
+                Reason = extension.Reason,
+                DesiredTime = extension.DesiredTime.ToString("dd/MM/yyyy"),
+                SupportingDocs = extension.SupportingDocs,
+                Status = extension.Status,
+                CreatedAt = extension.CreatedAt.ToString("dd/MM/yyyy HH:mm"),
+                UpdatedAt = extension.UpdatedAt.ToString("dd/MM/yyyy HH:mm"),
+                Message = "Cập nhật đơn gia hạn thành công."
+            };
+
+            return Ok(response);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { error = $"Lỗi Server: {ex.Message}" });
+        }
+    }
+
+    // =============================
     //        GET CURRENT MSSV
     // =============================
     private (int? mssv, ActionResult? error) GetCurrentMssv()

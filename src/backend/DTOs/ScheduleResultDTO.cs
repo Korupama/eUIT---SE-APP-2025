@@ -13,13 +13,13 @@ public class ScheduleResultDto
     public string ma_giang_vien { get; set; } = string.Empty;
     public string ho_ten { get; set; } = string.Empty;
     public string thu { get; set; } = string.Empty;
-    public int tiet_bat_dau { get; set; }
-    public int tiet_ket_thuc { get; set; }
-    public int cach_tuan { get; set; }
-    public DateTime ngay_bat_dau { get; set; }
-    public DateTime ngay_ket_thuc { get; set; }
+    public int? tiet_bat_dau { get; set; }
+    public int? tiet_ket_thuc { get; set; }
+    public int? cach_tuan { get; set; }
+    public DateTime? ngay_bat_dau { get; set; }
+    public DateTime? ngay_ket_thuc { get; set; }
     public string phong_hoc { get; set; } = string.Empty;
-    public int si_so { get; set; }
+    public int? si_so { get; set; }
     public string hinh_thuc_giang_day { get; set; } = string.Empty;
     public string? ghi_chu { get; set; }
 }
