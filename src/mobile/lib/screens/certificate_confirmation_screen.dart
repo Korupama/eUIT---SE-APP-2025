@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 
@@ -17,8 +15,26 @@ class CertificateConfirmationScreen extends StatefulWidget {
 class _CertificateConfirmationScreenState extends State<CertificateConfirmationScreen> {
   final _formKey = GlobalKey<FormState>();
 
+  // Helper to render a label with a red '*' prefix to indicate required fields
+  Widget _requiredLabel(String text, bool isDark) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text('*', style: TextStyle(color: Colors.red, fontWeight: FontWeight.w700)),
+        const SizedBox(width: 6),
+        Flexible(
+          child: Text(
+            text,
+            style: TextStyle(color: isDark ? Colors.white : Colors.black87, fontWeight: FontWeight.w600),
+          ),
+        ),
+      ],
+    );
+  }
+
   // Form fields
-  String? _certificateType;
+  // Default to empty string so the dropdown shows the placeholder item when the screen opens
+  String _certificateType = '';
   DateTime? _dateOfBirth;
   final TextEditingController _dobController = TextEditingController();
   final TextEditingController _idNumberController = TextEditingController();
@@ -164,12 +180,17 @@ class _CertificateConfirmationScreenState extends State<CertificateConfirmationS
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           // Certificate type
-                          Text(loc.t('certificate_type_label'), style: TextStyle(color: isDark ? Colors.white : Colors.black87, fontWeight: FontWeight.w600)),
+                          // Required: add red '*' before label
+                          _requiredLabel(loc.t('certificate_type_label'), isDark),
                           const SizedBox(height: 8),
                           DropdownButtonFormField<String>(
                             initialValue: _certificateType,
-                            items: _certificateOptions.map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
-                            onChanged: (v) => setState(() => _certificateType = v),
+                            // Insert a placeholder item as the first option so the dropdown shows "- Chọn loại chứng chỉ -" by default
+                            items: [
+                              DropdownMenuItem(value: '', child: Text(loc.t('choose_certificate_placeholder'))),
+                              ..._certificateOptions.map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
+                            ],
+                            onChanged: (v) => setState(() => _certificateType = v ?? ''),
                             decoration: InputDecoration(
                               filled: true,
                               fillColor: isDark ? Color.fromRGBO(0,0,0,0.3) : Colors.white,
@@ -182,7 +203,8 @@ class _CertificateConfirmationScreenState extends State<CertificateConfirmationS
                           const SizedBox(height: 12),
 
                           // Date of birth
-                          Text(loc.t('date_of_birth'), style: TextStyle(color: isDark ? Colors.white : Colors.black87, fontWeight: FontWeight.w600)),
+                          // Required: add red '*' before label
+                          _requiredLabel(loc.t('date_of_birth'), isDark),
                           const SizedBox(height: 8),
                           TextFormField(
                             controller: _dobController,
@@ -201,7 +223,8 @@ class _CertificateConfirmationScreenState extends State<CertificateConfirmationS
                           const SizedBox(height: 12),
 
                           // ID number
-                          Text(loc.t('id_number_label'), style: TextStyle(color: isDark ? Colors.white : Colors.black87, fontWeight: FontWeight.w600)),
+                          // Required: add red '*' before label
+                          _requiredLabel(loc.t('id_number_label'), isDark),
                           const SizedBox(height: 8),
                           TextFormField(
                             controller: _idNumberController,
@@ -253,42 +276,43 @@ class _CertificateConfirmationScreenState extends State<CertificateConfirmationS
                           const SizedBox(height: 12),
 
                           // File picker
-                          Text(loc.t('upload_file'), style: TextStyle(color: isDark ? Colors.white : Colors.black87, fontWeight: FontWeight.w600)),
-                          const SizedBox(height: 8),
-                          Row(
-                            children: [
-                              ElevatedButton.icon(
-                                onPressed: _pickFile,
-                                icon: const Icon(Icons.attach_file),
-                                label: Text(loc.t('choose_file')),
-                                style: ElevatedButton.styleFrom(backgroundColor: AppTheme.bluePrimary),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Text(
-                                  _selectedFile?.name ?? loc.t('no_file_selected'),
-                                  style: TextStyle(color: isDark ? Colors.white70 : Colors.black87),
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                            ],
-                          ),
+                          // File picker (required)
+                          _requiredLabel(loc.t('upload_file'), isDark),
+                           const SizedBox(height: 8),
+                           Row(
+                             children: [
+                               ElevatedButton.icon(
+                                 onPressed: _pickFile,
+                                 icon: const Icon(Icons.attach_file),
+                                 label: Text(loc.t('choose_file')),
+                                 style: ElevatedButton.styleFrom(backgroundColor: AppTheme.bluePrimary),
+                               ),
+                               const SizedBox(width: 12),
+                               Expanded(
+                                 child: Text(
+                                   _selectedFile?.name ?? loc.t('no_file_selected'),
+                                   style: TextStyle(color: isDark ? Colors.white70 : Colors.black87),
+                                   overflow: TextOverflow.ellipsis,
+                                 ),
+                               ),
+                             ],
+                           ),
 
-                          const SizedBox(height: 18),
+                           const SizedBox(height: 18),
 
-                          // Save button
-                          SizedBox(
-                            width: double.infinity,
-                            child: ElevatedButton(
-                              onPressed: _submit,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: AppTheme.bluePrimary,
-                                padding: const EdgeInsets.symmetric(vertical: 14),
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                              ),
-                              child: Text(loc.t('save'), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
-                            ),
-                          ),
+                           // Save button
+                           SizedBox(
+                             width: double.infinity,
+                             child: ElevatedButton(
+                               onPressed: _submit,
+                               style: ElevatedButton.styleFrom(
+                                 backgroundColor: AppTheme.bluePrimary,
+                                 padding: const EdgeInsets.symmetric(vertical: 14),
+                                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                               ),
+                               child: Text(loc.t('save'), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
+                             ),
+                           ),
                         ],
                       ),
                     ),

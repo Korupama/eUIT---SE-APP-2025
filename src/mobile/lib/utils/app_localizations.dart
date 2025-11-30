@@ -148,6 +148,7 @@ class AppLocalizations {
       'file_pick_error': 'Không thể chọn tệp. Vui lòng thử lại',
       'save': 'Lưu',
       'saved_success': 'Đã lưu (mô phỏng). Đồng bộ với backend sau.',
+      'choose_certificate_placeholder': '- Chọn loại chứng chỉ -',
     },
     'en': {
       'login': 'Login',
@@ -279,6 +280,7 @@ class AppLocalizations {
       'file_pick_error': 'Unable to pick file. Please try again',
       'save': 'Save',
       'saved_success': 'Saved (simulated). Will integrate with backend later.',
+      'choose_certificate_placeholder': '- Choose certificate -',
     },
   };
 
