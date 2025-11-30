@@ -154,6 +154,16 @@ class AppLocalizations {
       'toeic_listening_hint': 'Nhập điểm Nghe',
       'toeic_reading_label': 'Điểm Đọc',
       'toeic_reading_hint': 'Nhập điểm Đọc',
+      'invalid_number': 'Không hợp lệ',
+      // REG / test place and TOEIC speaking/writing
+      'reg_number_label': 'Số REG',
+      'reg_number_hint': 'Nhập số REG',
+      'test_place_label': 'Nơi thi',
+      'test_place_hint': 'Nhập nơi thi',
+      'toeic_speaking_label': 'Điểm Nói',
+      'toeic_speaking_hint': 'Nhập điểm Nói',
+      'toeic_writing_label': 'Điểm Viết',
+      'toeic_writing_hint': 'Nhập điểm Viết',
     },
     'en': {
       'login': 'Login',
@@ -291,6 +301,16 @@ class AppLocalizations {
       'toeic_listening_hint': 'Enter listening score',
       'toeic_reading_label': 'Reading score',
       'toeic_reading_hint': 'Enter reading score',
+      'invalid_number': 'Invalid number',
+      // REG / test place and TOEIC speaking/writing
+      'reg_number_label': 'REG number',
+      'reg_number_hint': 'Enter REG number',
+      'test_place_label': 'Test center',
+      'test_place_hint': 'Enter test center',
+      'toeic_speaking_label': 'Speaking score',
+      'toeic_speaking_hint': 'Enter speaking score',
+      'toeic_writing_label': 'Writing score',
+      'toeic_writing_hint': 'Enter writing score',
     },
   };
 

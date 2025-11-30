@@ -38,6 +38,11 @@ class _CertificateConfirmationScreenState extends State<CertificateConfirmationS
   // TOEIC specific controllers
   final TextEditingController _toeicListeningController = TextEditingController();
   final TextEditingController _toeicReadingController = TextEditingController();
+  // TOEIC speaking/writing + REG/test place
+  final TextEditingController _toeicSpeakingController = TextEditingController();
+  final TextEditingController _toeicWritingController = TextEditingController();
+  final TextEditingController _regNumberController = TextEditingController();
+  final TextEditingController _testPlaceController = TextEditingController();
   DateTime? _dateOfBirth;
   final TextEditingController _dobController = TextEditingController();
   final TextEditingController _idNumberController = TextEditingController();
@@ -76,6 +81,10 @@ class _CertificateConfirmationScreenState extends State<CertificateConfirmationS
     _totalScoreController.dispose();
     _toeicListeningController.dispose();
     _toeicReadingController.dispose();
+    _toeicSpeakingController.dispose();
+    _toeicWritingController.dispose();
+    _regNumberController.dispose();
+    _testPlaceController.dispose();
     _examDateController.dispose();
     super.dispose();
   }
@@ -245,6 +254,77 @@ class _CertificateConfirmationScreenState extends State<CertificateConfirmationS
                           ),
 
                           const SizedBox(height: 12),
+
+                          // Extra fields depending on selected certificate
+                          // If TOEIC (Nói- Viết): show REG number + Speaking + Writing
+                          if (_certificateType == 'Chứng chỉ TOEIC (Nói- Viết)') ...[
+                            Text(loc.t('reg_number_label'), style: TextStyle(color: isDark ? Colors.white : Colors.black87, fontWeight: FontWeight.w600)),
+                            const SizedBox(height: 8),
+                            TextFormField(
+                              controller: _regNumberController,
+                              decoration: InputDecoration(
+                                hintText: loc.t('reg_number_hint'),
+                                filled: true,
+                                fillColor: isDark ? Color.fromRGBO(0,0,0,0.3) : Colors.white,
+                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            Text(loc.t('toeic_speaking_label'), style: TextStyle(color: isDark ? Colors.white : Colors.black87, fontWeight: FontWeight.w600)),
+                            const SizedBox(height: 8),
+                            TextFormField(
+                              controller: _toeicSpeakingController,
+                              keyboardType: TextInputType.numberWithOptions(decimal: true),
+                              decoration: InputDecoration(
+                                hintText: loc.t('toeic_speaking_hint'),
+                                filled: true,
+                                fillColor: isDark ? Color.fromRGBO(0,0,0,0.3) : Colors.white,
+                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                              ),
+                              validator: (v) {
+                                if (v == null || v.trim().isEmpty) return null;
+                                return double.tryParse(v.replaceAll(',', '.')) == null ? 'Không hợp lệ' : null;
+                              },
+                            ),
+                            const SizedBox(height: 12),
+                            Text(loc.t('toeic_writing_label'), style: TextStyle(color: isDark ? Colors.white : Colors.black87, fontWeight: FontWeight.w600)),
+                            const SizedBox(height: 8),
+                            TextFormField(
+                              controller: _toeicWritingController,
+                              keyboardType: TextInputType.numberWithOptions(decimal: true),
+                              decoration: InputDecoration(
+                                hintText: loc.t('toeic_writing_hint'),
+                                filled: true,
+                                fillColor: isDark ? Color.fromRGBO(0,0,0,0.3) : Colors.white,
+                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                              ),
+                              validator: (v) {
+                                if (v == null || v.trim().isEmpty) return null;
+                                return double.tryParse(v.replaceAll(',', '.')) == null ? 'Không hợp lệ' : null;
+                              },
+                            ),
+                            const SizedBox(height: 12),
+                          ],
+
+                          // If selected certificate is Japanese, show test place
+                          if (_certificateType == 'Tiếng Nhật') ...[
+                            Text(loc.t('test_place_label'), style: TextStyle(color: isDark ? Colors.white : Colors.black87, fontWeight: FontWeight.w600)),
+                            const SizedBox(height: 8),
+                            TextFormField(
+                              controller: _testPlaceController,
+                              decoration: InputDecoration(
+                                hintText: loc.t('test_place_hint'),
+                                filled: true,
+                                fillColor: isDark ? Color.fromRGBO(0,0,0,0.3) : Colors.white,
+                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                          ],
 
                           // TOEIC listening/reading fields (only for "Chứng chỉ TOEIC (Nghe-Đọc)")
                           if (_certificateType == 'Chứng chỉ TOEIC (Nghe-Đọc)') ...[
