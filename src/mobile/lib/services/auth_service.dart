@@ -1,15 +1,40 @@
 import 'dart:convert';
 import 'dart:io' show Platform;
+import 'dart:developer' as developer;
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
+  // Notifier shared across all AuthService instances so providers and UI can
+  // listen for token changes (login/logout) and react immediately.
+  static final ValueNotifier<String?> tokenNotifier = ValueNotifier<String?>(null);
+
+  AuthService() {
+    // Initialize notifier with stored token once.
+    _init();
+  }
+
   // Storage key for the auth token
   static const String _tokenKey = 'auth_token';
   static const String _loginPath = '/api/Auth/login';
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
+
+  // Read stored token at startup and update the notifier.
+  Future<void> _init() async {
+    try {
+      final t = await _storage.read(key: _tokenKey);
+      if (tokenNotifier.value != t) {
+        tokenNotifier.value = t;
+        developer.log('AuthService: initialized tokenNotifier with value ${t == null ? 'null' : '***'}', name: 'AuthService');
+      }
+    } catch (_) {
+      // ignore read errors
+    }
+  }
 
   // Keys for storing credentials securely
   static const String _savedUsernameKey = 'saved_username';
@@ -55,8 +80,12 @@ class AuthService {
     final uri = buildUri(_loginPath);
 
     http.Response res;
+    // Use a per-request Client so we can close it to abort the underlying connection
+    final client = http.Client();
+    var clientClosed = false;
     try {
-      res = await http.post(
+      res = await client
+          .post(
         uri,
         // No required headers, but Content-Type helps most backends parse JSON.
         headers: const {'Content-Type': 'application/json'},
@@ -65,10 +94,23 @@ class AuthService {
           'userId': userId,
           'password': password,
         }),
-      );
-    } catch (e) {
-      // Network/connection error
+      )
+          .timeout(const Duration(seconds: 15)); // <-- 15s timeout
+    } on Exception catch (e) {
+      // Ensure the client is closed to abort the underlying connection
+      try {
+        client.close();
+      } catch (_) {}
+      clientClosed = true;
+      // Network/connection error (including TimeoutException)
       throw Exception('network_error');
+    } finally {
+      // Close client if not already closed (successful response still needs client closed)
+      if (!clientClosed) {
+        try {
+          client.close();
+        } catch (_) {}
+      }
     }
 
     if (res.statusCode >= 200 && res.statusCode < 300) {
@@ -109,6 +151,13 @@ class AuthService {
 
   Future<void> saveToken(String token) async {
     await _storage.write(key: _tokenKey, value: token);
+    try {
+      // Notify listeners (e.g., providers) that a new token is available.
+      tokenNotifier.value = token;
+      developer.log('AuthService: saveToken called; token saved and notified', name: 'AuthService');
+    } catch (_) {
+      // ignore notifier errors
+    }
   }
 
   Future<String?> getToken() async {
@@ -117,6 +166,12 @@ class AuthService {
 
   Future<void> deleteToken() async {
     await _storage.delete(key: _tokenKey);
+    try {
+      tokenNotifier.value = null;
+      developer.log('AuthService: deleteToken called; token removed and notified', name: 'AuthService');
+    } catch (_) {
+      // ignore
+    }
   }
 
   // --- Credential helpers ---
@@ -150,5 +205,48 @@ class AuthService {
     } catch (_) {
       // ignore
     }
+  }
+
+  // --- Remember-me flag stored in SharedPreferences (non-sensitive)
+  static const String _rememberMePrefKey = 'remember_me_enabled';
+
+  /// Persist whether "remember me" was enabled. This flag is kept in
+  /// SharedPreferences (non-sensitive) and indicates whether saved
+  /// credentials in secure storage should be loaded at app start.
+  Future<void> setRememberMe(bool enabled) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool(_rememberMePrefKey, enabled);
+    } catch (_) {
+      // ignore
+    }
+  }
+
+  /// Returns whether "remember me" was enabled. Defaults to false.
+  Future<bool> isRememberMeEnabled() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      return prefs.getBool(_rememberMePrefKey) ?? false;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  // --- Transient in-memory last-logged username (not persisted)
+  // Used to prefill username once immediately after logout, without
+  // persisting it across app restarts.
+  String? _transientLastUsername;
+
+  /// Set a transient last-logged-in username (in-memory only).
+  void setTransientLastUsername(String? username) {
+    _transientLastUsername = username;
+  }
+
+  /// Get transient last username (may be null). Not persisted.
+  String? getTransientLastUsername() => _transientLastUsername;
+
+  /// Clear transient username.
+  void clearTransientLastUsername() {
+    _transientLastUsername = null;
   }
 }

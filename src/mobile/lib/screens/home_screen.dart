@@ -5,8 +5,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 import '../providers/home_provider.dart';
 import '../theme/app_theme.dart';
 import '../utils/app_localizations.dart';
-import '../widgets/animated_background.dart';
-import 'package:shimmer/shimmer.dart';
 import 'package:shimmer/shimmer.dart';
 import '../widgets/student_id_card.dart';
 
@@ -48,6 +46,7 @@ class _HomeScreenState extends State<HomeScreen>
   // GPA visibility state
   bool _isGpaVisible = false;
 
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
@@ -56,14 +55,9 @@ class _HomeScreenState extends State<HomeScreen>
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      // Match ModernLoginScreen background so header transparency reveals same AnimatedBackground
-      backgroundColor: isDark ? AppTheme.darkBackground : AppTheme.lightBackground,
+      backgroundColor: Colors.transparent,
       body: Stack(
         children: [
-          // Animated background (match login) - render in both modes
-          Positioned.fill(child: AnimatedBackground(isDark: isDark)),
-
-          // Main scrollable content
           SafeArea(
             child: provider.isLoading
                 ? _buildShimmerLoading(isDark)
@@ -208,7 +202,7 @@ class _HomeScreenState extends State<HomeScreen>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        provider.studentCard?.hoTen ?? 'Họ tên sinh viên',
+                        provider.studentCard?.hoTen ?? loc.t('student_name'),
                         style: TextStyle(
                           color: isDark ? Colors.white : Colors.black87,
                           fontSize: 16,
@@ -216,7 +210,7 @@ class _HomeScreenState extends State<HomeScreen>
                         ),
                       ),
                       Text(
-                        'MSSV: ${provider.studentCard?.mssv?.toString() ?? '12345678'}',
+                        '${loc.t('id')}: ${provider.studentCard?.mssv?.toString()}',
                         style: TextStyle(
                           color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
                           fontSize: 12,
@@ -297,32 +291,35 @@ class _HomeScreenState extends State<HomeScreen>
           width: double.infinity,
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
+            // Reduced opacity so animated background shows through
             gradient: isDark
                 ? LinearGradient(
                     colors: [
-                      const Color(0xFF1E293B).withAlpha(229), // 0.9 opacity
-                      const Color(0xFF1E293B).withAlpha(204), // 0.8 opacity
+                      // lower alpha than before to allow background to be visible
+                      const Color(0xFF1E293B).withAlpha(140), // ~0.55 opacity
+                      const Color(0xFF1E293B).withAlpha(110), // ~0.43 opacity
                     ],
                   )
                 : LinearGradient(
                     colors: [
-                      Colors.white.withAlpha(242), // 0.95 opacity
-                      Colors.white.withAlpha(242),
+                      // Allow more of the animated background in light mode
+                      Colors.white.withAlpha(180), // ~0.7 opacity
+                      Colors.white.withAlpha(160),
                     ],
                   ),
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
               color: isDark
-                  ? AppTheme.bluePrimary.withAlpha(76) // 0.3 opacity
-                  : AppTheme.bluePrimary.withAlpha(51), // 0.2 opacity
+                  ? AppTheme.bluePrimary.withAlpha(40) // reduced from 76 -> ~0.16
+                  : AppTheme.bluePrimary.withAlpha(30), // reduced from 51
               width: 1,
             ),
             boxShadow: [
               BoxShadow(
                 color: isDark
-                    ? AppTheme.bluePrimary.withAlpha(26) // 0.1 opacity
-                    : Colors.black.withAlpha(13),
-                blurRadius: isDark ? 20 : 10,
+                    ? AppTheme.bluePrimary.withAlpha(12) // lighter shadow
+                    : Colors.black.withAlpha(8),
+                blurRadius: isDark ? 16 : 8,
                 offset: const Offset(0, 4),
               ),
             ],
@@ -417,8 +414,9 @@ class _HomeScreenState extends State<HomeScreen>
                 spacing: 8,
                 runSpacing: 8,
                 children: [
-                  _buildDetailChip('Phòng: ${schedule.room}', isDark),
-                  _buildDetailChip('GV: ${schedule.lecturer}', isDark),
+                  // Localize
+                  _buildDetailChip('${loc.t('room')}: ${schedule.room}', isDark),
+                  _buildDetailChip('${loc.t('lecturer')}: ${schedule.lecturer}', isDark),
                 ],
               ),
               const SizedBox(height: 10), // Reduced space
@@ -528,7 +526,6 @@ class _HomeScreenState extends State<HomeScreen>
           // Squircle button
           GestureDetector(
             onTap: () {
-              print('Tapped: ${action.label}');
             },
             child: Container(
               width: 64,
@@ -722,12 +719,12 @@ class _HomeScreenState extends State<HomeScreen>
                       trailing: notification.isUnread
                           ? Container(width: 10, height: 10, decoration: const BoxDecoration(color: AppTheme.bluePrimary, shape: BoxShape.circle))
                           : null,
-                      onTap: () => print('Tapped notification: ${notification.title}'),
+                      onTap: () => {}
                     ),
                   ),
                 ),
               ),
-            )).toList(),
+            )),
 
         // View all button
         Align(
@@ -1086,7 +1083,7 @@ class _EllipsizeAtWord extends StatelessWidget {
     while (low <= high) {
       final mid = (low + high) >> 1;
       final candidate = words.take(mid).join(' ');
-      final candWithEll = candidate.isEmpty ? '…' : candidate + '…';
+      final candWithEll = candidate.isEmpty ? '…' : '$candidate…';
       final tp2 = TextPainter(
         text: TextSpan(text: candWithEll, style: style),
         textDirection: textDirection,
@@ -1112,7 +1109,7 @@ class _EllipsizeAtWord extends StatelessWidget {
     while (lo <= hi) {
       final mid = (lo + hi) >> 1;
       final cand = text.substring(0, mid);
-      final candWithEll = cand + '…';
+      final candWithEll = '$cand…';
       final tp3 = TextPainter(
         text: TextSpan(text: candWithEll, style: style),
         textDirection: textDirection,

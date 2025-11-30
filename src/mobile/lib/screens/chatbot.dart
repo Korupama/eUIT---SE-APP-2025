@@ -11,7 +11,6 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
-import '../theme/app_theme.dart';
 import '../utils/app_localizations.dart';
 import '../providers/home_provider.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
@@ -83,7 +82,7 @@ class _ChatbotScreenState extends State<ChatbotScreen> with TickerProviderStateM
   void _onSend() {
     final text = _textController.text.trim();
     if (text.isEmpty) return;
-    
+
     _textController.clear();
     final homeProvider = Provider.of<HomeProvider>(context, listen: false);
     final userId = homeProvider.studentCard?.mssv?.toString() ?? 'anonymous';
@@ -138,7 +137,7 @@ class _ChatbotScreenState extends State<ChatbotScreen> with TickerProviderStateM
                             child: Container(
                               color: isDark
                                   ? Colors.transparent
-                                  : Colors.white.withOpacity(0.06),
+                                  : const Color(0x0FFFFFFF),
                               child: Consumer<ChatbotProvider>(
                                 builder: (context, provider, _) {
                                   if (provider.messages.isEmpty && !provider.isAiTyping) {
@@ -279,7 +278,8 @@ class _ChatbotScreenState extends State<ChatbotScreen> with TickerProviderStateM
               width: 120,
               height: 120,
               decoration: BoxDecoration(
-                color: isDark ? Colors.white12 : Colors.white.withOpacity(0.12),
+                // Replaced deprecated withOpacity -> explicit ARGB (0.12*255 ≈ 31 -> 0x1F)
+                color: isDark ? Colors.white12 : const Color(0x1FFFFFFF),
                 borderRadius: BorderRadius.circular(24),
               ),
               child: Center(
@@ -307,7 +307,8 @@ class _ChatbotScreenState extends State<ChatbotScreen> with TickerProviderStateM
   }
 
   Widget _buildInputArea(bool isDark) {
-    final provider = Provider.of<ChatbotProvider>(context, listen: false);
+    // Disable due to being unused
+    // final provider = Provider.of<ChatbotProvider>(context, listen: false);
 
     return Container(
       color: isDark ? const Color(0xFF0A0E27) : Colors.white,
@@ -566,7 +567,7 @@ class ChatbotProvider extends ChangeNotifier {
       }
       
       final url = Uri.parse('$baseUrl/api/chat');
-      
+
       final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
@@ -670,7 +671,8 @@ class _MessageTileState extends State<MessageTile> with SingleTickerProviderStat
                 boxShadow: isDark && isUser
                     ? [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.25),
+                    // Replaced deprecated withOpacity -> explicit ARGB (0.25*255 ≈ 64 -> 0x40)
+                    color: const Color(0x40000000),
                     blurRadius: 6,
                     offset: const Offset(0, 2),
                   )
@@ -761,7 +763,7 @@ class _MessageTileState extends State<MessageTile> with SingleTickerProviderStat
 /// Typing indicator (3 dots)
 class _AiTypingIndicator extends StatefulWidget {
   final bool isDark;
-  const _AiTypingIndicator({required this.isDark, super.key});
+  const _AiTypingIndicator({required this.isDark});
 
   @override
   State<_AiTypingIndicator> createState() => _AiTypingIndicatorState();
@@ -799,7 +801,7 @@ class _AiTypingIndicatorState extends State<_AiTypingIndicator> with SingleTicke
 
   @override
   Widget build(BuildContext context) {
-    final bg = widget.isDark ? Colors.white12 : Colors.white.withOpacity(0.08);
+    final bg = widget.isDark ? Colors.white12 : const Color(0x14FFFFFF);
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),

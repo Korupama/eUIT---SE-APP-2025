@@ -3,12 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:mobile/screens/search/plan_screen.dart';
 import 'package:mobile/screens/search/trainingprogram_screen.dart';
 import 'package:mobile/screens/search/trainingregulations_screen.dart';
-import 'package:provider/provider.dart';
-import '../../providers/home_provider.dart';
-import '../../theme/app_theme.dart';
 import '../../utils/app_localizations.dart';
-import '../../widgets/animated_background.dart';
-import 'package:shimmer/shimmer.dart';
 import 'studyresult_screen.dart';
 import 'trainingpoint_screen.dart';
 import 'progress_screen.dart';
@@ -96,7 +91,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
   }
 
   void _navigateToScreen(String route, String title, Color color) {
-    Widget? screen;
+    Widget screen;
 
     switch (route) {
       case '/academic-results':
@@ -133,25 +128,21 @@ class _NavigationScreenState extends State<NavigationScreen> {
     }
 
     // Navigate to the screen
-    if (screen != null) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => screen!),
-      );
-    }
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => screen),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: Color(0xFF0F172A),
+      backgroundColor: Colors.transparent,
       body: SafeArea(
         child: Column(
           children: [
-            // Header with Search
-            _buildHeader(),
-
-            // Content
+            _buildHeader(isDark),
             Expanded(
               child: _filteredItems.isEmpty
                   ? _buildEmptyState()
@@ -163,92 +154,109 @@ class _NavigationScreenState extends State<NavigationScreen> {
     );
   }
 
-  Widget _buildHeader() {
-    return Container(
-      padding: EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Title
-          Text(
-            'Tra cứu thông tin',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 28,
-              fontWeight: FontWeight.bold,
-              letterSpacing: -0.5,
-            ),
-          ),
-          SizedBox(height: 8),
-          Text(
-            'Tìm kiếm thông tin sinh viên',
-            style: TextStyle(
-              color: Colors.white.withOpacity(0.6),
-              fontSize: 15,
-            ),
-          ),
-          SizedBox(height: 20),
+  Widget _buildHeader(bool isDark) {
+    final loc = AppLocalizations.of(context);
 
-          // Search Bar
-          Container(
-            decoration: BoxDecoration(
-              color: Color(0xFF1E293B),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: Colors.white.withOpacity(0.1),
-                width: 1,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.2),
-                  blurRadius: 20,
-                  offset: Offset(0, 4),
+    // Make header taller to include the search bar beneath the title/subtitle
+    return PreferredSize(
+      preferredSize: const Size.fromHeight(140),
+      child: ClipRRect(
+        borderRadius: BorderRadius.zero,
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
+          child: Container(
+            color: Colors.transparent,
+            padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // AppBar-like title area
+                SizedBox(
+                  height: 76,
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.only(top: 6),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                loc.t('search_title'),
+                                style: TextStyle(
+                                  color: isDark ? Colors.white : Colors.black87,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                loc.t('search_subtitle'),
+                                style: TextStyle(
+                                  color: isDark ? Colors.grey.shade400 : Colors.grey.shade700,
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Search bar row
+                Container(
+                  margin: const EdgeInsets.only(top: 8),
+                  decoration: BoxDecoration(
+                    color: isDark ? const Color(0xFF1E293B) : const Color(0xFFEFEFF6),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: isDark ? const Color(0x1FFFFFFF) : const Color(0xFFE6E7F0),
+                      width: 1,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: isDark ? Colors.black.withAlpha(24) : Colors.black.withAlpha(8),
+                        blurRadius: 16,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: TextField(
+                    controller: _searchController,
+                    onChanged: (value) {
+                      setState(() {
+                        _searchQuery = value;
+                      });
+                    },
+                    style: TextStyle(color: isDark ? Colors.white : Colors.black87),
+                    decoration: InputDecoration(
+                      hintText: 'Tìm kiếm...',
+                      hintStyle: TextStyle(color: isDark ? Colors.white54 : Colors.black45),
+                      prefixIcon: Icon(Icons.search, color: isDark ? Colors.white70 : Colors.black38),
+                      suffixIcon: _searchQuery.isNotEmpty
+                          ? IconButton(
+                              icon: Icon(Icons.clear, color: isDark ? Colors.white70 : Colors.black45),
+                              onPressed: () {
+                                setState(() {
+                                  _searchController.clear();
+                                  _searchQuery = '';
+                                });
+                              },
+                            )
+                          : null,
+                      border: InputBorder.none,
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    ),
+                  ),
                 ),
               ],
             ),
-            child: TextField(
-              controller: _searchController,
-              onChanged: (value) {
-                setState(() {
-                  _searchQuery = value;
-                });
-              },
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-              ),
-              decoration: InputDecoration(
-                hintText: 'Tìm kiếm...',
-                hintStyle: TextStyle(
-                  color: Colors.white.withOpacity(0.4),
-                ),
-                prefixIcon: Icon(
-                  Icons.search,
-                  color: Colors.white.withOpacity(0.6),
-                ),
-                suffixIcon: _searchQuery.isNotEmpty
-                    ? IconButton(
-                  icon: Icon(
-                    Icons.clear,
-                    color: Colors.white.withOpacity(0.6),
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      _searchController.clear();
-                      _searchQuery = '';
-                    });
-                  },
-                )
-                    : null,
-                border: InputBorder.none,
-                contentPadding: EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 16,
-                ),
-              ),
-            ),
           ),
-        ],
+        ),
       ),
     );
   }

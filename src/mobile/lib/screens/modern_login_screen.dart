@@ -3,9 +3,11 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../providers/home_provider.dart';
 import '../services/theme_controller.dart';
 import '../services/language_controller.dart';
 import '../services/auth_service.dart';
+import '../providers/home_provider.dart';
 import '../theme/app_theme.dart';
 import '../utils/app_localizations.dart';
 import '../widgets/animated_background.dart';
@@ -25,7 +27,7 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
   final _formKey = GlobalKey<FormState>();
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _authService = AuthService();
+  late AuthService _authService;
 
   bool _obscurePassword = true;
   bool _rememberMe = false;
@@ -34,6 +36,7 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
   String? _errorKey; // holds localization key like 'invalid_credentials'
   bool _shakeUsername = false;
   bool _shakePassword = false;
+  bool _authInitialized = false;
 
   late AnimationController _fadeController;
   late Animation<double> _fadeAnimation;
@@ -52,8 +55,18 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
       curve: Curves.easeOut,
     );
     _fadeController.forward();
+  }
 
-    _loadRememberedUsername();
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Initialize shared AuthService from Provider once when context is available
+    if (!_authInitialized) {
+      _authService = context.read<AuthService>();
+      _authInitialized = true;
+      // Now that _authService is available, load saved credentials (remember me)
+      _loadRememberedUsername();
+    }
   }
 
   @override
@@ -69,25 +82,37 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
   // are not present (for older installs). Auto-login support has been removed.
   Future<void> _loadRememberedUsername() async {
     try {
-      // Try secure storage credentials first
-      final creds = await _authService.getSavedCredentials();
+      // Only load secure-saved credentials if the user previously enabled "remember me"
+      final rememberFlag = await _authService.isRememberMeEnabled();
       final prefs = await SharedPreferences.getInstance();
-
-      if (creds != null) {
-        // we have saved credentials (secure)
-        _usernameController.text = creds['username'] ?? '';
-        _passwordController.text = creds['password'] ?? '';
-        // mark remember me because credentials exist
-        _rememberMe = true;
-        setState(() {});
-        return;
+      if (rememberFlag) {
+        final creds = await _authService.getSavedCredentials();
+        if (creds != null) {
+          _usernameController.text = creds['username'] ?? '';
+          _passwordController.text = creds['password'] ?? '';
+          _rememberMe = true;
+          setState(() {});
+          return;
+        }
       }
 
       // Fallback: previous implementation stored username in SharedPreferences
       final remembered = prefs.getString(_rememberedUsernameKey);
       if (remembered != null && remembered.isNotEmpty) {
         _usernameController.text = remembered;
+        // legacy stored username implies remember checkbox visually
         setState(() => _rememberMe = true);
+        return;
+      }
+
+      // If there's a transient last-username (set at logout), prefill it once (do not persist)
+      final transient = _authService.getTransientLastUsername();
+      if (transient != null && transient.isNotEmpty) {
+        _usernameController.text = transient;
+        // Clear transient so it only shows once in this session
+        _authService.clearTransientLastUsername();
+        setState(() {});
+        return;
       }
     } catch (_) {
       // ignore
@@ -129,6 +154,16 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
 
       await _authService.saveToken(token);
 
+      // Remember current username in-memory for potential one-time prefill after logout
+      _authService.setTransientLastUsername(_usernameController.text.trim());
+
+      // Best-effort: trigger providers to refresh now so Home shows fresh data.
+      try {
+        await context.read<HomeProvider>().refreshAll();
+      } catch (_) {
+        // ignore errors; we'll still navigate
+      }
+
       // Persist or clear remembered credentials based on checkbox.
       try {
         final prefs = await SharedPreferences.getInstance();
@@ -137,12 +172,15 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
             _usernameController.text.trim(),
             _passwordController.text,
           );
+          await _authService.setRememberMe(true);
           // remove legacy username-only pref if exists
           try {
             await prefs.remove(_rememberedUsernameKey);
           } catch (_) {}
         } else {
+          // Ensure we don't keep secure credentials if user opted out
           await _authService.deleteCredentials();
+          await _authService.setRememberMe(false);
           try {
             await prefs.remove(_rememberedUsernameKey);
           } catch (_) {}
@@ -150,6 +188,12 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
       } catch (_) {}
 
       if (mounted) {
+        // Fetch student card và các dữ liệu khác sau khi login thành công
+        final homeProvider = context.read<HomeProvider>();
+        homeProvider.fetchStudentCard();
+        homeProvider.fetchQuickGpa();
+        homeProvider.fetchNextClass();
+        
         Navigator.pushReplacementNamed(context, '/home');
       }
     } catch (e) {
@@ -167,8 +211,16 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
             _errorMessage = errorText; // fallback raw message
             _errorKey = null;
           }
-          _passwordController.clear();
-          _shakePassword = true;
+
+          // Only clear the password for credential/validation related errors.
+          // Do NOT clear the password when the failure is a network error so the
+          // user doesn't have to retype it on intermittent connectivity issues.
+          if (errorText != 'network_error') {
+            _passwordController.clear();
+            _shakePassword = true;
+          } else {
+            _shakePassword = false;
+          }
         });
         Future.delayed(const Duration(milliseconds: 500), () {
           if (mounted) setState(() => _shakePassword = false);

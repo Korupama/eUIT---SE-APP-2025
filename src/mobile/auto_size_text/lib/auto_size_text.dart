@@ -1,4 +1,4 @@
-library auto_size_text;
+library;
 
 import 'package:flutter/material.dart';
 

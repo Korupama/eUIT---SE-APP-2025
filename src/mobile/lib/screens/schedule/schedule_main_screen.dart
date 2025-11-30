@@ -188,42 +188,8 @@ class _ScheduleMainScreenState extends State<ScheduleMainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Get the week containing the selected day
-    List<DayInfo> weekDays = _getWeekDays();
-
     return Scaffold(
-      backgroundColor: const Color(0xFF0A0E27),
-
-      floatingActionButton: selectedTab == 2
-          ? Padding(
-        padding: const EdgeInsets.only(bottom: 80.0, right: 10.0), // tăng bottom để nâng lên
-        child: SpeedDial(
-          icon: Icons.add,
-          activeIcon: Icons.close,
-          backgroundColor: Colors.blueAccent,
-          overlayOpacity: 0.3,
-          spacing: 12,
-          spaceBetweenChildren: 12,
-          children: [
-            SpeedDialChild(
-              child: Icon(Icons.edit_calendar),
-              onTap: () {
-                showModalBottomSheet(
-                  context: context,
-                  isScrollControlled: true,
-                  backgroundColor: Colors.transparent,
-                  builder: (_) => AddScheduleModal(
-                    onSave: (newItem) => _addNewSchedule(newItem),
-                  ),
-                );
-              },
-            ),
-          ],
-        ),
-      )
-          : null,
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-
+      backgroundColor: Colors.transparent,
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -252,7 +218,8 @@ class _ScheduleMainScreenState extends State<ScheduleMainScreen> {
                           child: Container(
                             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                             decoration: BoxDecoration(
-                              color: const Color(0xFF4FFFED).withOpacity(0.2),
+                              // Replaced deprecated `.withOpacity()` with const ARGB color to avoid precision-loss warning
+                              color: const Color(0x334FFFED),
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(
                                 color: const Color(0xFF4FFFED),
@@ -274,7 +241,8 @@ class _ScheduleMainScreenState extends State<ScheduleMainScreen> {
                       Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.1),
+                          // Use explicit ARGB instead of `withOpacity` (deprecated)
+                          color: const Color(0x1AFFFFFF),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: const Icon(
@@ -310,7 +278,8 @@ class _ScheduleMainScreenState extends State<ScheduleMainScreen> {
                         const SizedBox(width: 8),
                         Icon(
                           Icons.keyboard_arrow_down,
-                          color: Colors.white.withOpacity(0.7),
+                          // Replaced deprecated withOpacity -> explicit ARGB
+                          color: const Color(0xB3FFFFFF),
                           size: 20,
                         ),
                       ],
@@ -331,7 +300,7 @@ class _ScheduleMainScreenState extends State<ScheduleMainScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 15),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: weekDays.map((day) {
+                children: _getWeekDays().map((day) {
                   bool isSelected = day.day == selectedDay;
                   return GestureDetector(
                     onTap: () {
@@ -343,8 +312,8 @@ class _ScheduleMainScreenState extends State<ScheduleMainScreen> {
                       children: [
                         Text(
                           day.dayName,
-                          style: TextStyle(
-                            color: Colors.white.withOpacity(0.6),
+                          style: const TextStyle(
+                            color: Color(0x99FFFFFF),
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
                           ),
@@ -409,7 +378,7 @@ class _ScheduleMainScreenState extends State<ScheduleMainScreen> {
                 child: Text(
                   getEmptyMessage(),
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.5),
+                    color: const Color(0x80FFFFFF),
                     fontSize: 16,
                   ),
                 ),
@@ -445,7 +414,7 @@ class _ScheduleMainScreenState extends State<ScheduleMainScreen> {
             label,
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: isSelected ? Colors.black : Colors.white.withOpacity(0.7),
+              color: isSelected ? Colors.black : const Color(0xB3FFFFFF),
               fontSize: 14,
               fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
             ),
@@ -470,12 +439,14 @@ class _ScheduleMainScreenState extends State<ScheduleMainScreen> {
         ),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: const Color(0xFF4FFFED).withOpacity(0.5),
+          // Converted to ARGB (50% alpha)
+          color: const Color(0x7F4FFFED),
           width: 1.5,
         ),
-        boxShadow: [
+        boxShadow: const [
           BoxShadow(
-            color: const Color(0xFF4FFFED).withOpacity(0.2),
+            // Converted to ARGB (~20% alpha)
+            color: Color(0x334FFFED),
             blurRadius: 20,
             spreadRadius: 0,
           ),
@@ -489,16 +460,16 @@ class _ScheduleMainScreenState extends State<ScheduleMainScreen> {
             children: [
               Text(
                 '${item.startTime} - ${item.endTime}',
-                style: TextStyle(
-                  color: Colors.white.withOpacity(0.8),
+                style: const TextStyle(
+                  color: Color(0xCCFFFFFF),
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              Text(
+              const Text(
                 'Phòng',
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.5),
+                  color: Color(0x80FFFFFF),
                   fontSize: 12,
                 ),
               ),
@@ -528,8 +499,8 @@ class _ScheduleMainScreenState extends State<ScheduleMainScreen> {
                       const SizedBox(height: 6),
                       Text(
                         item.teacher,
-                        style: TextStyle(
-                          color: Colors.white.withOpacity(0.7),
+                        style: const TextStyle(
+                          color: Color(0xB3FFFFFF),
                           fontSize: 13,
                           fontWeight: FontWeight.w400,
                         ),

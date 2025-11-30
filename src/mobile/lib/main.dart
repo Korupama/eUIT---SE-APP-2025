@@ -13,7 +13,9 @@ import 'utils/app_colors.dart';
 import 'screens/settings_screen.dart';
 import 'screens/profile_screen.dart';
 import 'screens/notification_preferences.dart';
+import 'screens/services_screen.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'services/auth_service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -25,9 +27,12 @@ Future<void> main() async {
   runApp(
     MultiProvider(
       providers: [
+        // Single shared AuthService instance for the whole app
+        Provider<AuthService>(create: (_) => AuthService(), lazy: false),
         ChangeNotifierProvider(create: (_) => ThemeController()),
         ChangeNotifierProvider(create: (_) => LanguageController()),
-        ChangeNotifierProvider(create: (_) => HomeProvider()),
+        // Inject the shared AuthService into HomeProvider so it doesn't create its own
+        ChangeNotifierProvider(create: (context) => HomeProvider(auth: context.read<AuthService>())),
         ChangeNotifierProvider(create: (_) => ChatbotProvider()),
       ],
       child: const MyApp(),
@@ -74,6 +79,7 @@ class MyApp extends StatelessWidget {
       supportedLocales: AppLocalizations.supportedLocales,
       routes: {
         '/': (context) => const ModernLoginScreen(),
+        '/services': (context) => const ServicesScreen(),
         '/home': (context) => const MainScreen(),
         '/chatbot': (context) => const ChatbotScreen(),
         '/notifications': (context) => const NotificationsScreen(),
@@ -81,7 +87,7 @@ class MyApp extends StatelessWidget {
         '/profile': (context) => const ProfileScreen(),
         '/notification_preferences': (context) => const NotificationPreferencesScreen(),
       },
-      initialRoute: '/home',
+      initialRoute: '/',
     );
   }
 }
