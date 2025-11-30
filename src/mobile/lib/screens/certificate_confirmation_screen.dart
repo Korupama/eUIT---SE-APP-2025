@@ -431,38 +431,41 @@ class _CertificateConfirmationScreenState extends State<CertificateConfirmationS
                             ),
                             const SizedBox(height: 12),
                           ],
-                          Text(loc.t('total_score'), style: TextStyle(color: isDark ? Colors.white : Colors.black87, fontWeight: FontWeight.w600)),
-                          const SizedBox(height: 8),
-                          TextFormField(
-                            controller: _totalScoreController,
-                            keyboardType: TextInputType.numberWithOptions(decimal: true),
-                            decoration: InputDecoration(
-                              hintText: loc.t('total_score_hint'),
-                              filled: true,
-                              fillColor: isDark ? Color.fromRGBO(0,0,0,0.3) : Colors.white,
-                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+
+                          // If the certificate is GDQP&AN we do NOT show total score and exam date
+                          if (_certificateType != 'Chứng chỉ GDQP&AN' && _certificateType != 'Bằng TN THPT' && _certificateType != 'Giấy Khai sinh' && _certificateType != 'Bằng đại học ngoại ngữ' && _certificateType != 'Bằng cao đẳng') ...[
+                            Text(loc.t('total_score'), style: TextStyle(color: isDark ? Colors.white : Colors.black87, fontWeight: FontWeight.w600)),
+                            const SizedBox(height: 8),
+                            TextFormField(
+                              controller: _totalScoreController,
+                              keyboardType: TextInputType.numberWithOptions(decimal: true),
+                              decoration: InputDecoration(
+                                hintText: loc.t('total_score_hint'),
+                                filled: true,
+                                fillColor: isDark ? Color.fromRGBO(0,0,0,0.3) : Colors.white,
+                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                              ),
                             ),
-                          ),
 
-                          const SizedBox(height: 12),
+                            const SizedBox(height: 12),
 
-                          Text(loc.t('exam_date'), style: TextStyle(color: isDark ? Colors.white : Colors.black87, fontWeight: FontWeight.w600)),
-                          const SizedBox(height: 8),
-                          TextFormField(
-                            controller: _examDateController,
-                            readOnly: true,
-                            onTap: () => _pickDate(context, _examDateController, _examDate, (d) => setState(() => _examDate = d)),
-                            decoration: InputDecoration(
-                              hintText: loc.t('select_date'),
-                              filled: true,
-                              fillColor: isDark ? Color.fromRGBO(0,0,0,0.3) : Colors.white,
-                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                            Text(loc.t('exam_date'), style: TextStyle(color: isDark ? Colors.white : Colors.black87, fontWeight: FontWeight.w600)),
+                            const SizedBox(height: 8),
+                            TextFormField(
+                              controller: _examDateController,
+                              readOnly: true,
+                              onTap: () => _pickDate(context, _examDateController, _examDate, (d) => setState(() => _examDate = d)),
+                              decoration: InputDecoration(
+                                hintText: loc.t('select_date'),
+                                filled: true,
+                                fillColor: isDark ? Color.fromRGBO(0,0,0,0.3) : Colors.white,
+                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                              ),
                             ),
-                          ),
-
-                          const SizedBox(height: 12),
+                            const SizedBox(height: 12),
+                          ],
 
                           // File picker
                           // File picker (required)
@@ -487,7 +490,7 @@ class _CertificateConfirmationScreenState extends State<CertificateConfirmationS
                             ],
                           ),
 
-                          // Conditional scholarship regulation checkbox (only for TOEFL iBT)
+                          // Conditional scholarship regulation checkbox
                           if (_certificateType == 'Chứng chỉ TOEFL iBT' || _certificateType == 'Chứng chỉ IELTS' || _certificateType == 'Tiếng Nhật') ...[
                             const SizedBox(height: 12),
                             Row(
