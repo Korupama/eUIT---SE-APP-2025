@@ -53,6 +53,11 @@ class _CertificateConfirmationScreenState extends State<CertificateConfirmationS
   DateTime? _dateOfBirth;
   final TextEditingController _dobController = TextEditingController();
   final TextEditingController _idNumberController = TextEditingController();
+  // BCU-EPT specific controllers
+  final TextEditingController _bcuListeningController = TextEditingController();
+  final TextEditingController _bcuReadingController = TextEditingController();
+  final TextEditingController _bcuSpeakingController = TextEditingController();
+  final TextEditingController _bcuWritingController = TextEditingController();
   final TextEditingController _totalScoreController = TextEditingController();
   DateTime? _examDate;
   final TextEditingController _examDateController = TextEditingController();
@@ -108,6 +113,11 @@ class _CertificateConfirmationScreenState extends State<CertificateConfirmationS
     _testPlaceController.dispose();
     _trfNumberController.dispose();
     _examDateController.dispose();
+    // dispose BCU controllers
+    _bcuListeningController.dispose();
+    _bcuReadingController.dispose();
+    _bcuSpeakingController.dispose();
+    _bcuWritingController.dispose();
     super.dispose();
   }
 
@@ -277,6 +287,88 @@ class _CertificateConfirmationScreenState extends State<CertificateConfirmationS
                           ),
 
                           const SizedBox(height: 12),
+                          // BCU-EPT score fields (Listening, Reading, Speaking, Writing)
+                          if (_certificateType == 'Chứng chỉ BCU-EPT') ...[
+                            Text(loc.t('bcu_listening_label'), style: TextStyle(color: isDark ? Colors.white : Colors.black87, fontWeight: FontWeight.w600)),
+                            const SizedBox(height: 8),
+                            TextFormField(
+                              controller: _bcuListeningController,
+                              keyboardType: TextInputType.numberWithOptions(decimal: true),
+                              decoration: InputDecoration(
+                                hintText: loc.t('bcu_listening_hint'),
+                                filled: true,
+                                fillColor: isDark ? Color.fromRGBO(0,0,0,0.3) : Colors.white,
+                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                              ),
+                              validator: (v) {
+                                if (v == null || v.trim().isEmpty) return null; // optional
+                                final parsed = double.tryParse(v.replaceAll(',', '.'));
+                                return parsed == null ? loc.t('invalid_number') : null;
+                              },
+                            ),
+                            const SizedBox(height: 12),
+
+                            Text(loc.t('bcu_reading_label'), style: TextStyle(color: isDark ? Colors.white : Colors.black87, fontWeight: FontWeight.w600)),
+                            const SizedBox(height: 8),
+                            TextFormField(
+                              controller: _bcuReadingController,
+                              keyboardType: TextInputType.numberWithOptions(decimal: true),
+                              decoration: InputDecoration(
+                                hintText: loc.t('bcu_reading_hint'),
+                                filled: true,
+                                fillColor: isDark ? Color.fromRGBO(0,0,0,0.3) : Colors.white,
+                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                              ),
+                              validator: (v) {
+                                if (v == null || v.trim().isEmpty) return null;
+                                final parsed = double.tryParse(v.replaceAll(',', '.'));
+                                return parsed == null ? loc.t('invalid_number') : null;
+                              },
+                            ),
+                            const SizedBox(height: 12),
+
+                            Text(loc.t('bcu_speaking_label'), style: TextStyle(color: isDark ? Colors.white : Colors.black87, fontWeight: FontWeight.w600)),
+                            const SizedBox(height: 8),
+                            TextFormField(
+                              controller: _bcuSpeakingController,
+                              keyboardType: TextInputType.numberWithOptions(decimal: true),
+                              decoration: InputDecoration(
+                                hintText: loc.t('bcu_speaking_hint'),
+                                filled: true,
+                                fillColor: isDark ? Color.fromRGBO(0,0,0,0.3) : Colors.white,
+                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                              ),
+                              validator: (v) {
+                                if (v == null || v.trim().isEmpty) return null;
+                                final parsed = double.tryParse(v.replaceAll(',', '.'));
+                                return parsed == null ? loc.t('invalid_number') : null;
+                              },
+                            ),
+                            const SizedBox(height: 12),
+
+                            Text(loc.t('bcu_writing_label'), style: TextStyle(color: isDark ? Colors.white : Colors.black87, fontWeight: FontWeight.w600)),
+                            const SizedBox(height: 8),
+                            TextFormField(
+                              controller: _bcuWritingController,
+                              keyboardType: TextInputType.numberWithOptions(decimal: true),
+                              decoration: InputDecoration(
+                                hintText: loc.t('bcu_writing_hint'),
+                                filled: true,
+                                fillColor: isDark ? Color.fromRGBO(0,0,0,0.3) : Colors.white,
+                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                              ),
+                              validator: (v) {
+                                if (v == null || v.trim().isEmpty) return null;
+                                final parsed = double.tryParse(v.replaceAll(',', '.'));
+                                return parsed == null ? loc.t('invalid_number') : null;
+                              },
+                            ),
+                            const SizedBox(height: 12),
+                          ],
 
                           // Extra fields depending on selected certificate
                           // If TOEIC (Nói- Viết): show REG number + Speaking + Writing
