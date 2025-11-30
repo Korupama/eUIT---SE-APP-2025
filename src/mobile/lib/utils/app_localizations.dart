@@ -146,9 +146,16 @@ class AppLocalizations {
       'file_required': 'Vui lòng chọn tệp ảnh (jpg, png, gif, jpeg)',
       'invalid_file_type': 'Định dạng tệp không hợp lệ',
       'file_pick_error': 'Không thể chọn tệp. Vui lòng thử lại',
+      'trf_number_label': 'Số TRF',
+      'trf_number_hint': 'Nhập số TRF',
+      'apply_uit_global_scholarship': 'Đăng ký xét Học bổng ngoại ngữ UIT Global',
+      'view_regulations': 'Xem qui định',
       'save': 'Lưu',
       'saved_success': 'Đã lưu (mô phỏng). Đồng bộ với backend sau.',
       'choose_certificate_placeholder': '- Chọn loại chứng chỉ -',
+      // JLPT specific fields
+      'jlpt_level_label': 'Cấp độ JLPT',
+      'jlpt_level_placeholder': '- Chọn cấp độ -',
       // TOEIC specific fields
       'toeic_listening_label': 'Điểm Nghe',
       'toeic_listening_hint': 'Nhập điểm Nghe',
@@ -293,9 +300,16 @@ class AppLocalizations {
       'file_required': 'Please select an image file (jpg, png, gif, jpeg)',
       'invalid_file_type': 'Invalid file type',
       'file_pick_error': 'Unable to pick file. Please try again',
+      'trf_number_label': 'TRF Number',
+      'trf_number_hint': 'Enter TRF number',
+      'apply_uit_global_scholarship': 'Apply for UIT Global language scholarship',
+      'view_regulations': 'View regulations',
       'save': 'Save',
       'saved_success': 'Saved (simulated). Will integrate with backend later.',
       'choose_certificate_placeholder': '- Choose certificate -',
+      // JLPT specific fields
+      'jlpt_level_label': 'JLPT level',
+      'jlpt_level_placeholder': '- Choose level -',
       // TOEIC specific fields
       'toeic_listening_label': 'Listening score',
       'toeic_listening_hint': 'Enter listening score',

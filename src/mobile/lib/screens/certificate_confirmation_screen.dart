@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../widgets/animated_background.dart';
 import '../utils/app_localizations.dart';
@@ -35,6 +36,8 @@ class _CertificateConfirmationScreenState extends State<CertificateConfirmationS
   // Form fields
   // Default to empty string so the dropdown shows the placeholder item when the screen opens
   String _certificateType = '';
+  // Scholarship checkbox state (only shown for TOEFL iBT)
+  bool _applyUitGlobalScholarship = false;
   // TOEIC specific controllers
   final TextEditingController _toeicListeningController = TextEditingController();
   final TextEditingController _toeicReadingController = TextEditingController();
@@ -43,6 +46,10 @@ class _CertificateConfirmationScreenState extends State<CertificateConfirmationS
   final TextEditingController _toeicWritingController = TextEditingController();
   final TextEditingController _regNumberController = TextEditingController();
   final TextEditingController _testPlaceController = TextEditingController();
+  // JLPT level for Japanese certificates (N1 - N5)
+  String _jlptLevel = '';
+  // IELTS TRF number
+  final TextEditingController _trfNumberController = TextEditingController();
   DateTime? _dateOfBirth;
   final TextEditingController _dobController = TextEditingController();
   final TextEditingController _idNumberController = TextEditingController();
@@ -53,10 +60,24 @@ class _CertificateConfirmationScreenState extends State<CertificateConfirmationS
   // File
   PlatformFile? _selectedFile;
 
+  // TODO: Add API to get newest link for UIT Global scholarship regulation
+  // For now use a placeholder URL; the API should provide the current regulation link.
+  static final Uri _uitGlobalScholarshipUri = Uri.parse('https://ctsv.uit.edu.vn/bai-viet/thong-bao-trien-khai-hoc-bong-uit-global-tu-hoc-ky-1-nam-hoc-2025-2026');
+
+  Future<void> _openScholarshipReg() async {
+    try {
+      if (!await launchUrl(_uitGlobalScholarshipUri, mode: LaunchMode.externalApplication)) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context).t('link_open_failed'))));
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context).t('link_open_failed'))));
+    }
+  }
+
   // Example certificate list (can be extended later)
   final List<String> _certificateOptions = [
     'Chứng chỉ TOEIC (Nghe-Đọc)',
-    'Chứng chỉ TOEIC (Nói- Viết)',
+    'Chứng chỉ TOEIC (Nói-Viết)',
     'Chứng chỉ TOEFL iBT',
     'Chứng chỉ IELTS',
     'Chứng chỉ PTE Academic',
@@ -85,6 +106,7 @@ class _CertificateConfirmationScreenState extends State<CertificateConfirmationS
     _toeicWritingController.dispose();
     _regNumberController.dispose();
     _testPlaceController.dispose();
+    _trfNumberController.dispose();
     _examDateController.dispose();
     super.dispose();
   }
@@ -164,6 +186,7 @@ class _CertificateConfirmationScreenState extends State<CertificateConfirmationS
         iconTheme: IconThemeData(color: isDark ? Colors.white : Colors.black87),
       ),
       body: Stack(
+        fit: StackFit.expand,
         children: [
           Positioned.fill(child: AnimatedBackground(isDark: isDark)),
           SafeArea(
@@ -324,6 +347,28 @@ class _CertificateConfirmationScreenState extends State<CertificateConfirmationS
                               ),
                             ),
                             const SizedBox(height: 12),
+                            // JLPT level selection (N1 - N5)
+                            Text(loc.t('jlpt_level_label'), style: TextStyle(color: isDark ? Colors.white : Colors.black87, fontWeight: FontWeight.w600)),
+                            const SizedBox(height: 8),
+                            DropdownButtonFormField<String>(
+                              initialValue: _jlptLevel,
+                              items: [
+                                DropdownMenuItem(value: '', child: Text(loc.t('jlpt_level_placeholder'))),
+                                DropdownMenuItem(value: 'N1', child: Text('N1')),
+                                DropdownMenuItem(value: 'N2', child: Text('N2')),
+                                DropdownMenuItem(value: 'N3', child: Text('N3')),
+                                DropdownMenuItem(value: 'N4', child: Text('N4')),
+                                DropdownMenuItem(value: 'N5', child: Text('N5')),
+                              ],
+                              onChanged: (v) => setState(() => _jlptLevel = v ?? ''),
+                              decoration: InputDecoration(
+                                filled: true,
+                                fillColor: isDark ? Color.fromRGBO(0,0,0,0.3) : Colors.white,
+                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                              ),
+                            ),
+                            const SizedBox(height: 12),
                           ],
 
                           // TOEIC listening/reading fields (only for "Chứng chỉ TOEIC (Nghe-Đọc)")
@@ -369,6 +414,23 @@ class _CertificateConfirmationScreenState extends State<CertificateConfirmationS
                           ],
 
                           // Default extra fields: total score and exam date
+                          // For IELTS: show TRF Number before total score
+                          if (_certificateType == 'Chứng chỉ IELTS') ...[
+                            Text(loc.t('trf_number_label'), style: TextStyle(color: isDark ? Colors.white : Colors.black87, fontWeight: FontWeight.w600)),
+                            const SizedBox(height: 8),
+                            TextFormField(
+                              controller: _trfNumberController,
+                              keyboardType: TextInputType.text,
+                              decoration: InputDecoration(
+                                hintText: loc.t('trf_number_hint'),
+                                filled: true,
+                                fillColor: isDark ? Color.fromRGBO(0,0,0,0.3) : Colors.white,
+                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                          ],
                           Text(loc.t('total_score'), style: TextStyle(color: isDark ? Colors.white : Colors.black87, fontWeight: FontWeight.w600)),
                           const SizedBox(height: 8),
                           TextFormField(
@@ -424,6 +486,33 @@ class _CertificateConfirmationScreenState extends State<CertificateConfirmationS
                               ),
                             ],
                           ),
+
+                          // Conditional scholarship regulation checkbox (only for TOEFL iBT)
+                          if (_certificateType == 'Chứng chỉ TOEFL iBT' || _certificateType == 'Chứng chỉ IELTS' || _certificateType == 'Tiếng Nhật') ...[
+                            const SizedBox(height: 12),
+                            Row(
+                              children: [
+                                Checkbox(
+                                  value: _applyUitGlobalScholarship,
+                                  onChanged: (v) => setState(() => _applyUitGlobalScholarship = v ?? false),
+                                  activeColor: AppTheme.bluePrimary,
+                                ),
+                                Expanded(
+                                  child: Text(
+                                    loc.t('apply_uit_global_scholarship'),
+                                    style: TextStyle(color: isDark ? Colors.white : Colors.black87, fontWeight: FontWeight.w600),
+                                  ),
+                                ),
+                                TextButton(
+                                  onPressed: _openScholarshipReg,
+                                  child: Text(
+                                    loc.t('view_regulations'),
+                                    style: TextStyle(color: AppTheme.bluePrimary, fontWeight: FontWeight.w500),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
 
                           const SizedBox(height: 18),
 
