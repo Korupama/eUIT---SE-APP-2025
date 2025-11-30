@@ -64,7 +64,7 @@ public class StudentsController : ControllerBase
     private class GroupProgressResult
     {
         // Cấu trúc này phải khớp chính xác với `RETURNS TABLE` của hàm SQL
-        public int student_id_out { get; set; }
+        public int id { get; set; }
         public string nhom_mon_out { get; set; } = string.Empty;
         public int total_completed_credits_out { get; set; }
         public decimal gpa_nhom_mon_out { get; set; }

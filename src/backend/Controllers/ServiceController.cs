@@ -228,7 +228,7 @@ public class ServiceController : ControllerBase
 
     private class ParkingPassResult
     {
-        public int id { get; set; }
+        public int out_id { get; set; }
         public string license_plate { get; set; } = string.Empty;
         public string vehicle_type { get; set; } = string.Empty;
         public DateTime expiry_date { get; set; }
@@ -251,20 +251,12 @@ public class ServiceController : ControllerBase
         var (mssv, error) = GetCurrentMssv();
         if (error != null) return error;
 
-        // Xác định biển số xe dựa trên loại xe
-        string licensePlate;
-        if (requestDto.VehicleType == "bicycle")
+        // For motorbikes, license plate is required.
+        // For bicycles, the SQL function will use the MSSV as the license plate.
+        if (requestDto.VehicleType == "motorbike" && string.IsNullOrWhiteSpace(requestDto.LicensePlate))
         {
-            licensePlate = mssv.Value.ToString();
-        }
-        else // motorbike
-        {
-            if (string.IsNullOrWhiteSpace(requestDto.LicensePlate))
-            {
-                ModelState.AddModelError(nameof(requestDto.LicensePlate), "Biển số xe là bắt buộc cho xe máy.");
-                return BadRequest(ModelState);
-            }
-            licensePlate = requestDto.LicensePlate;
+            ModelState.AddModelError(nameof(requestDto.LicensePlate), "Biển số xe là bắt buộc cho xe máy.");
+            return BadRequest(ModelState);
         }
 
         try
@@ -274,7 +266,7 @@ public class ServiceController : ControllerBase
             var result = await _context.Database
                 .SqlQueryRaw<ParkingPassResult>(sql,
                     new NpgsqlParameter("p_mssv", mssv.Value),
-                    new NpgsqlParameter("p_license_plate", licensePlate),
+                    new NpgsqlParameter("p_license_plate", (object)requestDto.LicensePlate ?? DBNull.Value),
                     new NpgsqlParameter("p_vehicle_type", requestDto.VehicleType),
                     new NpgsqlParameter("p_registration_months", requestDto.RegistrationMonths))
                 .FirstOrDefaultAsync();
@@ -286,18 +278,18 @@ public class ServiceController : ControllerBase
 
             var responseDto = new ParkingPassResponseDto
             {
-                Id = result.id,
+                Id = result.out_id,
                 LicensePlate = result.license_plate,
                 VehicleType = result.vehicle_type,
                 RegisteredAt = result.registered_at.ToString("dd/MM/yyyy HH:mm"),
                 ExpiryDate = result.expiry_date.ToString("dd/MM/yyyy")
             };
 
-            return CreatedAtAction(nameof(RegisterParkingPass), new { id = result.id }, responseDto);
+            return CreatedAtAction(nameof(RegisterParkingPass), new { id = result.out_id }, responseDto);
         }
         catch (PostgresException pgEx) when (pgEx.SqlState == "P0001")
         {
-            // Bắt lỗi 'P0001' từ hàm SQL và trả về 409 Conflict
+            // Catch 'P0001' error from the SQL function and return 409 Conflict
             return Conflict(new { error = pgEx.MessageText });
         }
         catch (Exception ex)

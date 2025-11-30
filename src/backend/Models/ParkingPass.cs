@@ -3,17 +3,18 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace eUIT.API.Models;
 
-[Table("parking_passes")]
+[Table("dang_ky_gui_xe")]
 public class ParkingPass
 {
     [Key]
     [Column("id")]
     public int Id { get; set; }
 
-    [Column("student_id")]
+    [Column("mssv")]
     public int StudentId { get; set; }
 
     [Column("license_plate")]
+    [StringLength(50)]
     public string LicensePlate { get; set; } = string.Empty;
 
     [Column("vehicle_type")]
