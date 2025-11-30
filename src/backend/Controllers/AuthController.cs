@@ -69,7 +69,7 @@ public class AuthController : ControllerBase
 
     [HttpGet("profile")]
     [Authorize] 
-    public IActionResult GetProfile()
+    public async Task<ActionResult<StudentProfileDto>> GetProfile()
     {
         // Lấy thông tin người dùng đã được giải mã từ token
         var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -80,6 +80,82 @@ public class AuthController : ControllerBase
             return Unauthorized();
         }
 
-        return Ok(new { UserId = userId, Role = role });                                                            
+        // Chỉ hỗ trợ sinh viên
+        if (role.ToLower() != "student")
+        {
+            return BadRequest(new { error = "Only students can access this endpoint" });
+        }
+
+        if (!int.TryParse(userId, out int mssv))
+        {
+            return BadRequest(new { error = "Invalid student ID" });
+        }
+
+        // Lấy thông tin sinh viên từ database
+        var sinhVien = await _context.SinhViens
+            .Where(sv => sv.Mssv == mssv)
+            .FirstOrDefaultAsync();
+
+        if (sinhVien == null)
+        {
+            return NotFound(new { error = "Student not found" });
+        }
+
+        // Map sang DTO
+        var profile = new StudentProfileDto
+        {
+            Mssv = sinhVien.Mssv,
+            HoTen = sinhVien.HoTen,
+            NgaySinh = sinhVien.NgaySinh,
+            NganhHoc = sinhVien.NganhHoc,
+            KhoaHoc = sinhVien.KhoaHoc,
+            LopSinhHoat = sinhVien.LopSinhHoat,
+            NoiSinh = sinhVien.NoiSinh,
+            Cccd = sinhVien.Cccd,
+            NgayCapCccd = sinhVien.NgayCapCccd,
+            NoiCapCccd = sinhVien.NoiCapCccd,
+            DanToc = sinhVien.DanToc,
+            TonGiao = sinhVien.TonGiao,
+            SoDienThoai = sinhVien.SoDienThoai,
+            DiaChiThuongTru = sinhVien.DiaChiThuongTru,
+            TinhThanhPho = sinhVien.TinhThanhPho,
+            PhuongXa = sinhVien.PhuongXa,
+            QuaTrinhHocTapCongTac = sinhVien.QuaTrinhHocTapCongTac,
+            ThanhTich = sinhVien.ThanhTich,
+            EmailCaNhan = sinhVien.EmailCaNhan,
+            MaNganHang = sinhVien.MaNganHang,
+            TenNganHang = sinhVien.TenNganHang,
+            SoTaiKhoan = sinhVien.SoTaiKhoan,
+            ChiNhanh = sinhVien.ChiNhanh,
+            HoTenCha = sinhVien.HoTenCha,
+            QuocTichCha = sinhVien.QuocTichCha,
+            DanTocCha = sinhVien.DanTocCha,
+            TonGiaoCha = sinhVien.TonGiaoCha,
+            SdtCha = sinhVien.SdtCha,
+            EmailCha = sinhVien.EmailCha,
+            DiaChiThuongTruCha = sinhVien.DiaChiThuongTruCha,
+            CongViecCha = sinhVien.CongViecCha,
+            HoTenMe = sinhVien.HoTenMe,
+            QuocTichMe = sinhVien.QuocTichMe,
+            DanTocMe = sinhVien.DanTocMe,
+            TonGiaoMe = sinhVien.TonGiaoMe,
+            SdtMe = sinhVien.SdtMe,
+            EmailMe = sinhVien.EmailMe,
+            DiaChiThuongTruMe = sinhVien.DiaChiThuongTruMe,
+            CongViecMe = sinhVien.CongViecMe,
+            HoTenNgh = sinhVien.HoTenNgh,
+            QuocTichNgh = sinhVien.QuocTichNgh,
+            DanTocNgh = sinhVien.DanTocNgh,
+            TonGiaoNgh = sinhVien.TonGiaoNgh,
+            SdtNgh = sinhVien.SdtNgh,
+            EmailNgh = sinhVien.EmailNgh,
+            DiaChiThuongTruNgh = sinhVien.DiaChiThuongTruNgh,
+            CongViecNgh = sinhVien.CongViecNgh,
+            ThongTinNguoiCanBaoTin = sinhVien.ThongTinNguoiCanBaoTin,
+            SoDienThoaiBaoTin = sinhVien.SoDienThoaiBaoTin,
+            AnhTheUrl = sinhVien.AnhTheUrl
+        };
+
+        return Ok(profile);                                                            
     }
 }
