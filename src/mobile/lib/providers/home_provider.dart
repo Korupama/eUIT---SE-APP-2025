@@ -227,6 +227,9 @@ class HomeProvider extends ChangeNotifier {
     for (var sub in _subscriptions) {
       sub.cancel();
     }
+    try {
+      AuthService.tokenNotifier.removeListener(_tokenListener);
+    } catch (_) {}
     _notificationService.disconnect();
     super.dispose();
   }
@@ -440,11 +443,11 @@ class HomeProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  @override
-  void dispose() {
-    try {
-      AuthService.tokenNotifier.removeListener(_tokenListener);
-    } catch (_) {}
-    super.dispose();
-  }
+  // @override
+  // void dispose() {
+  //   try {
+  //     AuthService.tokenNotifier.removeListener(_tokenListener);
+  //   } catch (_) {}
+  //   super.dispose();
+  // }
 }

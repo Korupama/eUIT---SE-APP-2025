@@ -4,6 +4,7 @@ import 'dart:ui';
 import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -549,10 +550,21 @@ class ChatbotProvider extends ChangeNotifier {
     setAiTyping(true);
 
     try {
-      String baseUrl = 'http://localhost:5001';
-      if (Platform.isAndroid) {
-        baseUrl = 'http://10.0.2.2:5001';
+      String baseUrl = dotenv.env['CHATBOT_API_URL'] ?? '';
+      if (baseUrl.isEmpty) {
+        debugPrint('Warning: CHATBOT_API_URL not found in .env');
       }
+      
+      // Android emulator localhost remap
+      if (Platform.isAndroid) {
+         try {
+           final parsed = Uri.parse(baseUrl);
+           if (parsed.host == 'localhost' || parsed.host == '127.0.0.1') {
+             baseUrl = parsed.replace(host: '10.0.2.2').toString();
+           }
+         } catch (_) {}
+      }
+      
       final url = Uri.parse('$baseUrl/api/chat');
 
       final response = await http.post(

@@ -43,12 +43,13 @@ public class ServiceController : ControllerBase
 
         try
         {
-            var sql = "SELECT * FROM func_request_confirmation_letter(@p_mssv, @p_purpose)";
+            var sql = "SELECT * FROM func_request_confirmation_letter(@p_mssv, @p_purpose, @p_language)";
             
             var result = await _context.Database
                 .SqlQueryRaw<ConfirmationLetterResult>(sql,
                     new NpgsqlParameter("p_mssv", mssv.Value),
-                    new NpgsqlParameter("p_purpose", requestDto.Purpose))
+                    new NpgsqlParameter("p_purpose", requestDto.Purpose),
+                    new NpgsqlParameter("p_language", requestDto.Language))
                 .ToListAsync();
 
             var record = result.FirstOrDefault();
@@ -159,7 +160,7 @@ public class ServiceController : ControllerBase
         try
         {
             // Bước 2: Gọi SQL function để lấy lịch sử
-            var sql = "SELECT * FROM func_get_confirmation_letter_status(@p_mssv)";
+            var sql = "SELECT * FROM func_get_confirmation_letter_history(@p_mssv)";
             
             var results = await _context.Database
                 .SqlQueryRaw<ConfirmationLetterHistoryResult>(sql, 
@@ -171,6 +172,8 @@ public class ServiceController : ControllerBase
             {
                 SerialNumber = r.serial_number,
                 Purpose = r.purpose,
+                Language = r.language,
+                Status = r.status,
                 ExpiryDate = r.expiry_date?.ToString("dd/MM/yyyy") ?? "",
                 RequestedAt = r.requested_at.ToString("dd/MM/yyyy HH:mm")
             }).ToList();

@@ -1,0 +1,68 @@
+﻿### Test Confirmation Letter API with Language Support
+
+@baseUrl = http://localhost:5128
+@token = YOUR_JWT_TOKEN_HERE
+
+### 1. Request Confirmation Letter in Vietnamese
+POST {{baseUrl}}/api/service/confirmation-letter
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "purpose": "Xin học bổng",
+  "language": "vi"
+}
+
+### 2. Request Confirmation Letter in English
+POST {{baseUrl}}/api/service/confirmation-letter
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "purpose": "Apply for scholarship",
+  "language": "en"
+}
+
+### 3. Request Confirmation Letter (Default Vietnamese)
+POST {{baseUrl}}/api/service/confirmation-letter
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "purpose": "Xác nhận sinh viên",
+  "language": "vi"
+}
+
+### 4. Get Confirmation Letter History (includes language)
+GET {{baseUrl}}/api/service/confirmation-letter/history
+Authorization: Bearer {{token}}
+
+### 5. Test Invalid Language (Should return 400)
+POST {{baseUrl}}/api/service/confirmation-letter
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "purpose": "Test purpose",
+  "language": "fr"
+}
+
+### 6. Test Missing Purpose (Should return 400)
+POST {{baseUrl}}/api/service/confirmation-letter
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "language": "en"
+}
+
+### 7. Test Empty Purpose (Should return 400)
+POST {{baseUrl}}/api/service/confirmation-letter
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "purpose": "",
+  "language": "vi"
+}
+
