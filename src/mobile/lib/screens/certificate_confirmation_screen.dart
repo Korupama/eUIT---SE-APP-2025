@@ -371,8 +371,8 @@ class _CertificateConfirmationScreenState extends State<CertificateConfirmationS
                           ],
 
                           // Extra fields depending on selected certificate
-                          // If TOEIC (Nói- Viết): show REG number + Speaking + Writing
-                          if (_certificateType == 'Chứng chỉ TOEIC (Nói- Viết)') ...[
+                          // If TOEIC (Nói-Viết): show REG number + Speaking + Writing
+                          if (_certificateType == 'Chứng chỉ TOEIC (Nói-Viết)') ...[
                             Text(loc.t('reg_number_label'), style: TextStyle(color: isDark ? Colors.white : Colors.black87, fontWeight: FontWeight.w600)),
                             const SizedBox(height: 8),
                             TextFormField(
