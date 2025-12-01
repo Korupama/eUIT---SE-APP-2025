@@ -1,221 +1,205 @@
-﻿-- ============================================================================
--- LECTURER CONTROLLER SQL FUNCTIONS
--- Rewritten to match REAL PostgreSQL Database Schema
--- ============================================================================
-
--- ============================================================================
--- PROFILE MANAGEMENT FUNCTIONS
--- ============================================================================
-
--- Get lecturer profile from giang_vien table
-CREATE OR REPLACE FUNCTION func_get_lecturer_profile(
-    p_ma_giang_vien TEXT
-)
+﻿﻿----------------------------------------------------------------------------------------------------
+-- 1. func_get_lecturer_profile
+----------------------------------------------------------------------------------------------------
+CREATE OR REPLACE FUNCTION func_get_lecturer_profile(p_ma_giang_vien TEXT)
 RETURNS TABLE (
-    ma_giang_vien CHARACTER(5),
-    ho_ten VARCHAR(50),
-    khoa_bo_mon CHARACTER(5),
+    ma_giang_vien CHAR(5),
+    ho_ten VARCHAR,
+    khoa_bo_mon CHAR(5),
     ngay_sinh DATE,
     noi_sinh VARCHAR(200),
-    cccd CHARACTER(12),
+    cccd CHAR(12),
     ngay_cap_cccd DATE,
     noi_cap_cccd VARCHAR(50),
     dan_toc VARCHAR(10),
     ton_giao VARCHAR(20),
-    so_dien_thoai CHARACTER(10),
+    so_dien_thoai CHAR(10),
     dia_chi_thuong_tru VARCHAR(200),
     tinh_thanh_pho VARCHAR(20),
     phuong_xa TEXT
-)
-LANGUAGE plpgsql
-AS $$
+) AS $$
 BEGIN
-    RETURN QUERY
-    SELECT 
-        gv.ma_giang_vien,
-        gv.ho_ten,
-        gv.khoa_bo_mon,
-        gv.ngay_sinh,
-        gv.noi_sinh,
-        gv.cccd,
-        gv.ngay_cap_cccd,
-        gv.noi_cap_cccd,
-        gv.dan_toc,
-        gv.ton_giao,
-        gv.so_dien_thoai,
-        gv.dia_chi_thuong_tru,
-        gv.tinh_thanh_pho,
-        gv.phuong_xa
-    FROM giang_vien gv
-    WHERE gv.ma_giang_vien = p_ma_giang_vien::CHARACTER(5);
+RETURN QUERY
+SELECT
+    gv.ma_giang_vien,
+    gv.ho_ten,
+    gv.khoa_bo_mon,
+    gv.ngay_sinh,
+    gv.noi_sinh,
+    gv.cccd,
+    gv.ngay_cap_cccd,
+    gv.noi_cap_cccd,
+    gv.dan_toc,
+    gv.ton_giao,
+    gv.so_dien_thoai,
+    gv.dia_chi_thuong_tru,
+    gv.tinh_thanh_pho,
+    gv.phuong_xa
+FROM giang_vien gv
+WHERE gv.ma_giang_vien = p_ma_giang_vien;
 END;
-$$;
+$$ LANGUAGE plpgsql;
 
--- Update lecturer profile
+
+----------------------------------------------------------------------------------------------------
+-- 2. func_update_lecturer_profile
+----------------------------------------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION func_update_lecturer_profile(
     p_ma_giang_vien TEXT,
     p_so_dien_thoai TEXT,
     p_dia_chi_thuong_tru TEXT
 )
-RETURNS VOID
-LANGUAGE plpgsql
-AS $$
+RETURNS VOID AS $$
 BEGIN
-    UPDATE giang_vien
-    SET 
-        so_dien_thoai = CASE WHEN p_so_dien_thoai <> '' THEN p_so_dien_thoai::CHARACTER(10) ELSE so_dien_thoai END,
-        dia_chi_thuong_tru = CASE WHEN p_dia_chi_thuong_tru <> '' THEN p_dia_chi_thuong_tru ELSE dia_chi_thuong_tru END
-    WHERE ma_giang_vien = p_ma_giang_vien::CHARACTER(5);
+UPDATE giang_vien
+SET
+    so_dien_thoai = p_so_dien_thoai,
+    dia_chi_thuong_tru = p_dia_chi_thuong_tru
+WHERE ma_giang_vien = p_ma_giang_vien;
 END;
-$$;
+$$ LANGUAGE plpgsql;
 
--- ============================================================================
--- COURSE MANAGEMENT FUNCTIONS
--- ============================================================================
 
--- Get courses taught by lecturer from thoi_khoa_bieu
+----------------------------------------------------------------------------------------------------
+-- 3. func_get_lecturer_courses
+----------------------------------------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION func_get_lecturer_courses(
     p_ma_giang_vien TEXT,
-    p_hoc_ky TEXT DEFAULT ''
+    p_hoc_ky TEXT
 )
 RETURNS TABLE (
-    hoc_ky CHARACTER(11),
-    ma_mon_hoc CHARACTER(8),
-    ten_mon_hoc VARCHAR(255),
-    ma_lop CHARACTER(20),
+    hoc_ky CHAR(11),
+    ma_mon_hoc CHAR(8),
+    ten_mon_hoc VARCHAR,
+    ma_lop CHAR(20),
     so_tin_chi INTEGER,
     si_so INTEGER,
     phong_hoc VARCHAR(10),
-    hinh_thuc_giang_day CHARACTER(5)
-)
-LANGUAGE plpgsql
-AS $$
+    hinh_thuc_giang_day CHAR(5)
+) AS $$
 BEGIN
-    RETURN QUERY
-    SELECT DISTINCT
-        tkb.hoc_ky,
-        tkb.ma_mon_hoc,
-        mh.ten_mon_hoc_vn,
-        tkb.ma_lop,
-        tkb.so_tin_chi,
-        tkb.si_so,
-        tkb.phong_hoc,
-        tkb.hinh_thuc_giang_day
-    FROM thoi_khoa_bieu tkb
-    LEFT JOIN mon_hoc mh ON tkb.ma_mon_hoc = mh.ma_mon_hoc
-    WHERE tkb.ma_giang_vien = p_ma_giang_vien::CHARACTER(5)
-        AND (p_hoc_ky = '' OR tkb.hoc_ky = p_hoc_ky::CHARACTER(11))
-    ORDER BY tkb.hoc_ky DESC, tkb.ma_lop;
+RETURN QUERY
+SELECT
+    t.hoc_ky,
+    t.ma_mon_hoc,
+    m.ten_mon_hoc_vn,
+    t.ma_lop,
+    t.so_tin_chi,
+    t.si_so,
+    t.phong_hoc,
+    t.hinh_thuc_giang_day
+FROM thoi_khoa_bieu t
+         JOIN mon_hoc m ON m.ma_mon_hoc = t.ma_mon_hoc
+WHERE t.ma_giang_vien = p_ma_giang_vien
+  AND t.hoc_ky = p_hoc_ky;
 END;
-$$;
+$$ LANGUAGE plpgsql;
 
--- Get course detail
+
+----------------------------------------------------------------------------------------------------
+-- 4. func_get_lecturer_course_detail
+----------------------------------------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION func_get_lecturer_course_detail(
     p_ma_giang_vien TEXT,
     p_ma_lop TEXT
 )
 RETURNS TABLE (
-    hoc_ky CHARACTER(11),
-    ma_mon_hoc CHARACTER(8),
-    ten_mon_hoc_vn VARCHAR(255),
-    ten_mon_hoc_en VARCHAR(255),
-    ma_lop CHARACTER(20),
+    hoc_ky CHAR(11),
+    ma_mon_hoc CHAR(8),
+    ten_mon_hoc_vn VARCHAR,
+    ten_mon_hoc_en VARCHAR,
+    ma_lop CHAR(20),
     so_tin_chi INTEGER,
     si_so INTEGER,
     phong_hoc VARCHAR(10),
-    thu CHARACTER(2),
+    thu CHAR(2),
     tiet_bat_dau INTEGER,
     tiet_ket_thuc INTEGER,
     cach_tuan INTEGER,
     ngay_bat_dau DATE,
     ngay_ket_thuc DATE,
-    hinh_thuc_giang_day CHARACTER(5),
+    hinh_thuc_giang_day CHAR(5),
     ghi_chu VARCHAR(255)
-)
-LANGUAGE plpgsql
-AS $$
+) AS $$
 BEGIN
-    RETURN QUERY
-    SELECT 
-        tkb.hoc_ky,
-        tkb.ma_mon_hoc,
-        mh.ten_mon_hoc_vn,
-        mh.ten_mon_hoc_en,
-        tkb.ma_lop,
-        tkb.so_tin_chi,
-        tkb.si_so,
-        tkb.phong_hoc,
-        tkb.thu,
-        tkb.tiet_bat_dau,
-        tkb.tiet_ket_thuc,
-        tkb.cach_tuan,
-        tkb.ngay_bat_dau,
-        tkb.ngay_ket_thuc,
-        tkb.hinh_thuc_giang_day,
-        tkb.ghi_chu
-    FROM thoi_khoa_bieu tkb
-    LEFT JOIN mon_hoc mh ON tkb.ma_mon_hoc = mh.ma_mon_hoc
-    WHERE tkb.ma_giang_vien = p_ma_giang_vien::CHARACTER(5)
-        AND tkb.ma_lop = p_ma_lop::CHARACTER(20)
-    LIMIT 1;
+RETURN QUERY
+SELECT
+    t.hoc_ky,
+    t.ma_mon_hoc,
+    m.ten_mon_hoc_vn,
+    m.ten_mon_hoc_en,
+    t.ma_lop,
+    t.so_tin_chi,
+    t.si_so,
+    t.phong_hoc,
+    t.thu,
+    t.tiet_bat_dau,
+    t.tiet_ket_thuc,
+    t.cach_tuan,
+    t.ngay_bat_dau,
+    t.ngay_ket_thuc,
+    t.hinh_thuc_giang_day,
+    t.ghi_chu
+FROM thoi_khoa_bieu t
+         JOIN mon_hoc m ON m.ma_mon_hoc = t.ma_mon_hoc
+WHERE t.ma_giang_vien = p_ma_giang_vien
+  AND t.ma_lop = p_ma_lop;
 END;
-$$;
+$$ LANGUAGE plpgsql;
 
--- Get lecturer schedule
+
+----------------------------------------------------------------------------------------------------
+-- 5. func_get_lecturer_schedule
+----------------------------------------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION func_get_lecturer_schedule(
     p_ma_giang_vien TEXT,
-    p_hoc_ky TEXT DEFAULT '',
-    p_start_date TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_DATE,
-    p_end_date TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_DATE + INTERVAL '7 days'
+    p_hoc_ky TEXT,
+    p_start TIMESTAMP WITH TIME ZONE,
+    p_end TIMESTAMP WITH TIME ZONE
 )
 RETURNS TABLE (
-    hoc_ky CHARACTER(11),
-    ma_mon_hoc CHARACTER(8),
-    ten_mon_hoc VARCHAR(255),
-    ma_lop CHARACTER(20),
-    thu CHARACTER(2),
+    hoc_ky CHAR(11),
+    ma_mon_hoc CHAR(8),
+    ten_mon_hoc VARCHAR,
+    ma_lop CHAR(20),
+    thu CHAR(2),
     tiet_bat_dau INTEGER,
     tiet_ket_thuc INTEGER,
     phong_hoc VARCHAR(10),
     ngay_bat_dau DATE,
     ngay_ket_thuc DATE,
     cach_tuan INTEGER,
-    hinh_thuc_giang_day CHARACTER(5)
-)
-LANGUAGE plpgsql
-AS $$
+    hinh_thuc_giang_day CHAR(5)
+) AS $$
 BEGIN
     RETURN QUERY
-    SELECT 
-        tkb.hoc_ky,
-        tkb.ma_mon_hoc,
-        mh.ten_mon_hoc_vn,
-        tkb.ma_lop,
-        tkb.thu,
-        tkb.tiet_bat_dau,
-        tkb.tiet_ket_thuc,
-        tkb.phong_hoc,
-        tkb.ngay_bat_dau,
-        tkb.ngay_ket_thuc,
-        tkb.cach_tuan,
-        tkb.hinh_thuc_giang_day
-    FROM thoi_khoa_bieu tkb
-    LEFT JOIN mon_hoc mh ON tkb.ma_mon_hoc = mh.ma_mon_hoc
-    WHERE tkb.ma_giang_vien = p_ma_giang_vien::CHARACTER(5)
-        AND (p_hoc_ky = '' OR tkb.hoc_ky = p_hoc_ky::CHARACTER(11))
-        AND (
-            (tkb.ngay_bat_dau IS NULL) OR
-            (tkb.ngay_bat_dau <= p_end_date AND tkb.ngay_ket_thuc >= p_start_date)
-        )
-    ORDER BY tkb.thu, tkb.tiet_bat_dau;
+        SELECT
+            t.hoc_ky,
+            t.ma_mon_hoc,
+            m.ten_mon_hoc_vn,
+            t.ma_lop,
+            t.thu,
+            t.tiet_bat_dau,
+            t.tiet_ket_thuc,
+            t.phong_hoc,
+            t.ngay_bat_dau,
+            t.ngay_ket_thuc,
+            t.cach_tuan,
+            t.hinh_thuc_giang_day
+        FROM thoi_khoa_bieu t
+                 JOIN mon_hoc m ON m.ma_mon_hoc = t.ma_mon_hoc
+        WHERE t.ma_giang_vien = p_ma_giang_vien
+          AND (p_hoc_ky = '' OR t.hoc_ky = p_hoc_ky)
+          AND (t.ngay_bat_dau IS NULL OR t.ngay_bat_dau >= p_start::DATE)
+          AND (t.ngay_ket_thuc IS NULL OR t.ngay_ket_thuc <= p_end::DATE)
+        ORDER BY t.thu, t.tiet_bat_dau;
 END;
-$$;
+$$ LANGUAGE plpgsql;
 
--- ============================================================================
--- GRADE MANAGEMENT FUNCTIONS
--- ============================================================================
 
--- Get grades for all students in a class
+----------------------------------------------------------------------------------------------------
+-- 6. func_get_lecturer_class_grades
+----------------------------------------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION func_get_lecturer_class_grades(
     p_ma_giang_vien TEXT,
     p_ma_lop TEXT
@@ -223,82 +207,48 @@ CREATE OR REPLACE FUNCTION func_get_lecturer_class_grades(
 RETURNS TABLE (
     mssv INTEGER,
     ho_ten VARCHAR(50),
-    ma_lop CHARACTER(20),
-    ma_lop_goc CHARACTER(20),
+    ma_lop CHAR(20),
+    ma_lop_goc CHAR(20),
     diem_qua_trinh NUMERIC,
-    diem_giua_ky NUMERIC,
+    diem_giua_ki NUMERIC,
     diem_thuc_hanh NUMERIC,
-    diem_cuoi_ky NUMERIC,
+    diem_cuoi_ki NUMERIC,
     diem_tong_ket NUMERIC,
     diem_chu VARCHAR(2),
     ghi_chu VARCHAR(20)
-)
-LANGUAGE plpgsql
-AS $$
+) AS $$
 BEGIN
-    -- Verify lecturer teaches this class
-    IF NOT EXISTS (
-        SELECT 1 FROM thoi_khoa_bieu 
-        WHERE ma_giang_vien = p_ma_giang_vien::CHARACTER(5) 
-        AND ma_lop = p_ma_lop::CHARACTER(20)
-    ) THEN
-        RAISE EXCEPTION 'Lecturer does not teach this class';
-    END IF;
-
-    RETURN QUERY
-    SELECT 
-        kq.mssv AS mssv,
-        sv.ho_ten AS ho_ten,
-        kq.ma_lop AS ma_lop,
-        kq.ma_lop_goc AS ma_lop_goc,
-        kq.diem_qua_trinh AS diem_qua_trinh,
-        kq.diem_giua_ky AS diem_giua_ki,
-        kq.diem_thuc_hanh AS diem_thuc_hanh,
-        kq.diem_cuoi_ky AS diem_cuoi_ki,
-        -- Calculate diem_tong_ket based on weights from bang_diem
-        (
-            COALESCE(kq.diem_qua_trinh, 0) * COALESCE(bd.trong_so_qua_trinh, 0) / 100.0 +
-            COALESCE(kq.diem_giua_ky, 0) * COALESCE(bd.trong_so_giua_ki, 0) / 100.0 +
-            COALESCE(kq.diem_thuc_hanh, 0) * COALESCE(bd.trong_so_thuc_hanh, 0) / 100.0 +
-            COALESCE(kq.diem_cuoi_ky, 0) * COALESCE(bd.trong_so_cuoi_ki, 0) / 100.0
-        ) AS diem_tong_ket,
-        CASE
-            WHEN (
-                COALESCE(kq.diem_qua_trinh, 0) * COALESCE(bd.trong_so_qua_trinh, 0) / 100.0 +
-                COALESCE(kq.diem_giua_ky, 0) * COALESCE(bd.trong_so_giua_ki, 0) / 100.0 +
-                COALESCE(kq.diem_thuc_hanh, 0) * COALESCE(bd.trong_so_thuc_hanh, 0) / 100.0 +
-                COALESCE(kq.diem_cuoi_ky, 0) * COALESCE(bd.trong_so_cuoi_ki, 0) / 100.0
-            ) >= 8.5 THEN 'A'
-            WHEN (
-                COALESCE(kq.diem_qua_trinh, 0) * COALESCE(bd.trong_so_qua_trinh, 0) / 100.0 +
-                COALESCE(kq.diem_giua_ky, 0) * COALESCE(bd.trong_so_giua_ki, 0) / 100.0 +
-                COALESCE(kq.diem_thuc_hanh, 0) * COALESCE(bd.trong_so_thuc_hanh, 0) / 100.0 +
-                COALESCE(kq.diem_cuoi_ky, 0) * COALESCE(bd.trong_so_cuoi_ki, 0) / 100.0
-            ) >= 7.0 THEN 'B'
-            WHEN (
-                COALESCE(kq.diem_qua_trinh, 0) * COALESCE(bd.trong_so_qua_trinh, 0) / 100.0 +
-                COALESCE(kq.diem_giua_ky, 0) * COALESCE(bd.trong_so_giua_ki, 0) / 100.0 +
-                COALESCE(kq.diem_thuc_hanh, 0) * COALESCE(bd.trong_so_thuc_hanh, 0) / 100.0 +
-                COALESCE(kq.diem_cuoi_ky, 0) * COALESCE(bd.trong_so_cuoi_ki, 0) / 100.0
-            ) >= 5.5 THEN 'C'
-            WHEN (
-                COALESCE(kq.diem_qua_trinh, 0) * COALESCE(bd.trong_so_qua_trinh, 0) / 100.0 +
-                COALESCE(kq.diem_giua_ky, 0) * COALESCE(bd.trong_so_giua_ki, 0) / 100.0 +
-                COALESCE(kq.diem_thuc_hanh, 0) * COALESCE(bd.trong_so_thuc_hanh, 0) / 100.0 +
-                COALESCE(kq.diem_cuoi_ky, 0) * COALESCE(bd.trong_so_cuoi_ki, 0) / 100.0
-            ) >= 4.0 THEN 'D'
-            ELSE 'F'
-        END AS diem_chu,
-        kq.ghi_chu AS ghi_chu
-    FROM ket_qua_hoc_tap kq
-    INNER JOIN sinh_vien sv ON kq.mssv = sv.mssv
-    LEFT JOIN bang_diem bd ON kq.ma_lop_goc = bd.ma_lop_goc
-    WHERE kq.ma_lop = p_ma_lop::CHARACTER(20)
-    ORDER BY sv.ho_ten;
+RETURN QUERY
+SELECT
+    k.mssv,
+    s.ho_ten,
+    k.ma_lop,
+    k.ma_lop_goc,
+    k.diem_qua_trinh,
+    k.diem_giua_ki,
+    k.diem_thuc_hanh,
+    k.diem_cuoi_ki,
+    (COALESCE(k.diem_qua_trinh,0) + COALESCE(k.diem_giua_ki,0) + COALESCE(k.diem_thuc_hanh,0) + COALESCE(k.diem_cuoi_ki,0)) AS diem_tong_ket,
+    CAST(CASE
+        WHEN (COALESCE(k.diem_qua_trinh,0) + COALESCE(k.diem_giua_ki,0) + COALESCE(k.diem_thuc_hanh,0) + COALESCE(k.diem_cuoi_ki,0)) >= 8 THEN 'A'
+        WHEN (COALESCE(k.diem_qua_trinh,0) + COALESCE(k.diem_giua_ki,0) + COALESCE(k.diem_thuc_hanh,0) + COALESCE(k.diem_cuoi_ki,0)) >= 6.5 THEN 'B'
+        WHEN (COALESCE(k.diem_qua_trinh,0) + COALESCE(k.diem_giua_ki,0) + COALESCE(k.diem_thuc_hanh,0) + COALESCE(k.diem_cuoi_ki,0)) >= 5 THEN 'C'
+        WHEN (COALESCE(k.diem_qua_trinh,0) + COALESCE(k.diem_giua_ki,0) + COALESCE(k.diem_thuc_hanh,0) + COALESCE(k.diem_cuoi_ki,0)) >= 4 THEN 'D'
+        ELSE 'F'
+        END AS VARCHAR(2)) AS diem_chu,
+    k.ghi_chu
+FROM ket_qua_hoc_tap k
+         JOIN sinh_vien s ON s.mssv = k.mssv
+         JOIN thoi_khoa_bieu t ON t.ma_lop = k.ma_lop
+WHERE t.ma_giang_vien = p_ma_giang_vien
+  AND k.ma_lop = p_ma_lop;
 END;
-$$;
+$$ LANGUAGE plpgsql;
 
--- Get student grade detail
+
+----------------------------------------------------------------------------------------------------
+-- 7. func_get_lecturer_student_grade
+----------------------------------------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION func_get_lecturer_student_grade(
     p_ma_giang_vien TEXT,
     p_mssv INTEGER,
@@ -307,14 +257,14 @@ CREATE OR REPLACE FUNCTION func_get_lecturer_student_grade(
 RETURNS TABLE (
     mssv INTEGER,
     ho_ten VARCHAR(50),
-    ma_mon_hoc CHARACTER(8),
-    ten_mon_hoc VARCHAR(255),
-    ma_lop CHARACTER(20),
-    ma_lop_goc CHARACTER(20),
+    ma_mon_hoc CHAR(8),
+    ten_mon_hoc VARCHAR,
+    ma_lop CHAR(20),
+    ma_lop_goc CHAR(20),
     diem_qua_trinh NUMERIC,
-    diem_giua_ky NUMERIC,
+    diem_giua_ki NUMERIC,
     diem_thuc_hanh NUMERIC,
-    diem_cuoi_ky NUMERIC,
+    diem_cuoi_ki NUMERIC,
     diem_tong_ket NUMERIC,
     diem_chu VARCHAR(2),
     ghi_chu VARCHAR(20),
@@ -322,273 +272,188 @@ RETURNS TABLE (
     trong_so_giua_ki INTEGER,
     trong_so_thuc_hanh INTEGER,
     trong_so_cuoi_ki INTEGER
-)
-LANGUAGE plpgsql
-AS $$
+) AS $$
 BEGIN
-    -- Verify lecturer teaches this class
-    IF NOT EXISTS (
-        SELECT 1 FROM thoi_khoa_bieu 
-        WHERE ma_giang_vien = p_ma_giang_vien::CHARACTER(5) 
-        AND ma_lop = p_ma_lop::CHARACTER(20)
-    ) THEN
-        RAISE EXCEPTION 'Lecturer does not teach this class';
-    END IF;
-
-    RETURN QUERY
-    SELECT 
-        kq.mssv AS mssv,
-        sv.ho_ten AS ho_ten,
-        tkb.ma_mon_hoc,
-        mh.ten_mon_hoc_vn,
-        kq.ma_lop,
-        kq.ma_lop_goc,
-        kq.diem_qua_trinh AS diem_qua_trinh,
-        kq.diem_giua_ky AS diem_giua_ki,
-        kq.diem_thuc_hanh AS diem_thuc_hanh,
-        kq.diem_cuoi_ky AS diem_cuoi_ki,
-        (
-            COALESCE(kq.diem_qua_trinh, 0) * COALESCE(bd.trong_so_qua_trinh, 0) / 100.0 +
-            COALESCE(kq.diem_giua_ky, 0) * COALESCE(bd.trong_so_giua_ki, 0) / 100.0 +
-            COALESCE(kq.diem_thuc_hanh, 0) * COALESCE(bd.trong_so_thuc_hanh, 0) / 100.0 +
-            COALESCE(kq.diem_cuoi_ky, 0) * COALESCE(bd.trong_so_cuoi_ki, 0) / 100.0
-        ) AS diem_tong_ket,
-        CASE
-            WHEN (
-                COALESCE(kq.diem_qua_trinh, 0) * COALESCE(bd.trong_so_qua_trinh, 0) / 100.0 +
-                COALESCE(kq.diem_giua_ky, 0) * COALESCE(bd.trong_so_giua_ki, 0) / 100.0 +
-                COALESCE(kq.diem_thuc_hanh, 0) * COALESCE(bd.trong_so_thuc_hanh, 0) / 100.0 +
-                COALESCE(kq.diem_cuoi_ky, 0) * COALESCE(bd.trong_so_cuoi_ki, 0) / 100.0
-            ) >= 8.5 THEN 'A'
-            WHEN (
-                COALESCE(kq.diem_qua_trinh, 0) * COALESCE(bd.trong_so_qua_trinh, 0) / 100.0 +
-                COALESCE(kq.diem_giua_ky, 0) * COALESCE(bd.trong_so_giua_ki, 0) / 100.0 +
-                COALESCE(kq.diem_thuc_hanh, 0) * COALESCE(bd.trong_so_thuc_hanh, 0) / 100.0 +
-                COALESCE(kq.diem_cuoi_ky, 0) * COALESCE(bd.trong_so_cuoi_ki, 0) / 100.0
-            ) >= 7.0 THEN 'B'
-            WHEN (
-                COALESCE(kq.diem_qua_trinh, 0) * COALESCE(bd.trong_so_qua_trinh, 0) / 100.0 +
-                COALESCE(kq.diem_giua_ky, 0) * COALESCE(bd.trong_so_giua_ki, 0) / 100.0 +
-                COALESCE(kq.diem_thuc_hanh, 0) * COALESCE(bd.trong_so_thuc_hanh, 0) / 100.0 +
-                COALESCE(kq.diem_cuoi_ky, 0) * COALESCE(bd.trong_so_cuoi_ki, 0) / 100.0
-            ) >= 5.5 THEN 'C'
-            WHEN (
-                COALESCE(kq.diem_qua_trinh, 0) * COALESCE(bd.trong_so_qua_trinh, 0) / 100.0 +
-                COALESCE(kq.diem_giua_ky, 0) * COALESCE(bd.trong_so_giua_ki, 0) / 100.0 +
-                COALESCE(kq.diem_thuc_hanh, 0) * COALESCE(bd.trong_so_thuc_hanh, 0) / 100.0 +
-                COALESCE(kq.diem_cuoi_ky, 0) * COALESCE(bd.trong_so_cuoi_ki, 0) / 100.0
-            ) >= 4.0 THEN 'D'
-            ELSE 'F'
-        END AS diem_chu,
-        kq.ghi_chu AS ghi_chu,
-        bd.trong_so_qua_trinh,
-        bd.trong_so_giua_ki,
-        bd.trong_so_thuc_hanh,
-        bd.trong_so_cuoi_ki
-    FROM ket_qua_hoc_tap kq
-    INNER JOIN sinh_vien sv ON kq.mssv = sv.mssv
-    INNER JOIN thoi_khoa_bieu tkb ON kq.ma_lop = tkb.ma_lop
-    LEFT JOIN mon_hoc mh ON tkb.ma_mon_hoc = mh.ma_mon_hoc
-    LEFT JOIN bang_diem bd ON kq.ma_lop_goc = bd.ma_lop_goc
-    WHERE kq.mssv = p_mssv
-        AND kq.ma_lop = p_ma_lop::CHARACTER(20)
-        AND tkb.ma_giang_vien = p_ma_giang_vien::CHARACTER(5)
-    LIMIT 1;
+RETURN QUERY
+SELECT
+    k.mssv,
+    s.ho_ten,
+    t.ma_mon_hoc,
+    m.ten_mon_hoc_vn,
+    k.ma_lop,
+    k.ma_lop_goc,
+    k.diem_qua_trinh,
+    k.diem_giua_ki,
+    k.diem_thuc_hanh,
+    k.diem_cuoi_ki,
+    (COALESCE(k.diem_qua_trinh,0)+COALESCE(k.diem_giua_ki,0)+COALESCE(k.diem_thuc_hanh,0)+COALESCE(k.diem_cuoi_ki,0)),
+    CAST(NULL AS VARCHAR(2)),
+    k.ghi_chu,
+    b.trong_so_qua_trinh,
+    b.trong_so_giua_ki,
+    b.trong_so_thuc_hanh,
+    b.trong_so_cuoi_ki
+FROM ket_qua_hoc_tap k
+         JOIN sinh_vien s ON s.mssv = k.mssv
+         JOIN thoi_khoa_bieu t ON t.ma_lop = k.ma_lop
+         JOIN mon_hoc m ON m.ma_mon_hoc = t.ma_mon_hoc
+         JOIN bang_diem b ON b.ma_lop_goc = k.ma_lop_goc
+WHERE t.ma_giang_vien = p_ma_giang_vien
+  AND k.mssv = p_mssv
+  AND k.ma_lop = p_ma_lop;
 END;
-$$;
+$$ LANGUAGE plpgsql;
 
--- Update student grade
+
+----------------------------------------------------------------------------------------------------
+-- 8. func_lecturer_update_grade
+----------------------------------------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION func_lecturer_update_grade(
     p_ma_giang_vien TEXT,
     p_mssv INTEGER,
     p_ma_lop TEXT,
-    p_diem_qua_trinh NUMERIC DEFAULT NULL,
-    p_diem_giua_ky NUMERIC DEFAULT NULL,
-    p_diem_thuc_hanh NUMERIC DEFAULT NULL,
-    p_diem_cuoi_ky NUMERIC DEFAULT NULL
+    p_diem_qua_trinh NUMERIC,
+    p_diem_giua_ki NUMERIC,
+    p_diem_thuc_hanh NUMERIC,
+    p_diem_cuoi_ki NUMERIC
 )
 RETURNS TABLE (
     success BOOLEAN,
     message TEXT,
-    ma_mon_hoc CHARACTER(8),
-    ten_mon_hoc VARCHAR(255),
-    hoc_ky CHARACTER(11),
+    ma_mon_hoc CHAR(8),
+    ten_mon_hoc VARCHAR,
+    hoc_ky CHAR(11),
     diem_tong_ket NUMERIC,
     diem_chu VARCHAR(2)
-)
-LANGUAGE plpgsql
-AS $$
+) AS $$
 DECLARE
-    v_ma_mon_hoc CHARACTER(8);
-    v_ten_mon_hoc VARCHAR(255);
-    v_hoc_ky CHARACTER(11);
-    v_ma_lop_goc CHARACTER(20);
-    v_diem_tong_ket NUMERIC;
-    v_diem_chu VARCHAR(2);
-    v_trong_so_qt INTEGER;
-    v_trong_so_gk INTEGER;
-    v_trong_so_th INTEGER;
-    v_trong_so_ck INTEGER;
+    v_ma_mon CHAR(8);
+    v_ten_mon VARCHAR;
+    v_hoc_ky CHAR(11);
+    v_tong NUMERIC;
+    v_chu VARCHAR(2);
 BEGIN
-    -- Verify lecturer teaches this class
-    IF NOT EXISTS (
-        SELECT 1 FROM thoi_khoa_bieu 
-        WHERE ma_giang_vien = p_ma_giang_vien::CHARACTER(5) 
-        AND ma_lop = p_ma_lop::CHARACTER(20)
-    ) THEN
-        RETURN QUERY SELECT FALSE, 'Lecturer does not teach this class'::TEXT, 
-            NULL::CHARACTER(8), NULL::VARCHAR(255), NULL::CHARACTER(11), 
-            NULL::NUMERIC, NULL::VARCHAR(2);
-        RETURN;
-    END IF;
-
-    -- Get course info
-    SELECT tkb.ma_mon_hoc, mh.ten_mon_hoc_vn, tkb.hoc_ky
-    INTO v_ma_mon_hoc, v_ten_mon_hoc, v_hoc_ky
-    FROM thoi_khoa_bieu tkb
-    LEFT JOIN mon_hoc mh ON tkb.ma_mon_hoc = mh.ma_mon_hoc
-    WHERE tkb.ma_lop = p_ma_lop::CHARACTER(20)
-    LIMIT 1;
-
-    -- Get ma_lop_goc
-    SELECT ma_lop_goc INTO v_ma_lop_goc
-    FROM ket_qua_hoc_tap
-    WHERE mssv = p_mssv AND ma_lop = p_ma_lop::CHARACTER(20)
-    LIMIT 1;
-
-    -- Get weights
-    SELECT trong_so_qua_trinh, trong_so_giua_ki, trong_so_thuc_hanh, trong_so_cuoi_ki
-    INTO v_trong_so_qt, v_trong_so_gk, v_trong_so_th, v_trong_so_ck
-    FROM bang_diem
-    WHERE ma_lop_goc = v_ma_lop_goc
-    LIMIT 1;
-
-    -- Update grades
     UPDATE ket_qua_hoc_tap
-    SET 
-        diem_qua_trinh = COALESCE(p_diem_qua_trinh, diem_qua_trinh),
-        diem_giua_ky = COALESCE(p_diem_giua_ky, diem_giua_ky),
-        diem_thuc_hanh = COALESCE(p_diem_thuc_hanh, diem_thuc_hanh),
-        diem_cuoi_ky = COALESCE(p_diem_cuoi_ky, diem_cuoi_ky)
-    WHERE mssv = p_mssv 
-        AND ma_lop = p_ma_lop::CHARACTER(20);
+    SET
+        diem_qua_trinh = p_diem_qua_trinh,
+        diem_giua_ki = p_diem_giua_ki,
+        diem_thuc_hanh = p_diem_thuc_hanh,
+        diem_cuoi_ki = p_diem_cuoi_ki
+    WHERE mssv = p_mssv
+      AND ma_lop = p_ma_lop;
 
-    -- Calculate final grade
-    SELECT 
-        (
-            COALESCE(kq.diem_qua_trinh, 0) * COALESCE(v_trong_so_qt, 0) / 100.0 +
-            COALESCE(kq.diem_giua_ky, 0) * COALESCE(v_trong_so_gk, 0) / 100.0 +
-            COALESCE(kq.diem_thuc_hanh, 0) * COALESCE(v_trong_so_th, 0) / 100.0 +
-            COALESCE(kq.diem_cuoi_ky, 0) * COALESCE(v_trong_so_ck, 0) / 100.0
-        )
-    INTO v_diem_tong_ket
-    FROM ket_qua_hoc_tap kq
-    WHERE kq.mssv = p_mssv AND kq.ma_lop = p_ma_lop::CHARACTER(20);
+    SELECT t.ma_mon_hoc, m.ten_mon_hoc_vn, t.hoc_ky
+    INTO v_ma_mon, v_ten_mon, v_hoc_ky
+    FROM thoi_khoa_bieu t
+             JOIN mon_hoc m ON m.ma_mon_hoc = t.ma_mon_hoc
+    WHERE t.ma_lop = p_ma_lop;
 
-    -- Calculate letter grade
-    v_diem_chu := CASE
-        WHEN v_diem_tong_ket >= 8.5 THEN 'A'
-        WHEN v_diem_tong_ket >= 7.0 THEN 'B'
-        WHEN v_diem_tong_ket >= 5.5 THEN 'C'
-        WHEN v_diem_tong_ket >= 4.0 THEN 'D'
-        ELSE 'F'
-    END;
+    v_tong := COALESCE(p_diem_qua_trinh,0)+COALESCE(p_diem_giua_ki,0)+COALESCE(p_diem_thuc_hanh,0)+COALESCE(p_diem_cuoi_ki,0);
 
-    RETURN QUERY SELECT TRUE, 'Grade updated successfully'::TEXT, 
-        v_ma_mon_hoc, v_ten_mon_hoc, v_hoc_ky, v_diem_tong_ket, v_diem_chu;
+    v_chu := CASE
+                 WHEN v_tong >= 8 THEN 'A'
+                 WHEN v_tong >= 6.5 THEN 'B'
+                 WHEN v_tong >= 5 THEN 'C'
+                 WHEN v_tong >= 4 THEN 'D'
+                 ELSE 'F'
+        END;
+
+    RETURN QUERY
+        SELECT TRUE, 'OK'::TEXT, v_ma_mon, v_ten_mon, v_hoc_ky, v_tong, v_chu;
 END;
-$$;
+$$ LANGUAGE plpgsql;
 
--- ============================================================================
--- EXAM MANAGEMENT FUNCTIONS
--- ============================================================================
 
--- Get lecturer exams
+----------------------------------------------------------------------------------------------------
+-- 9. func_get_lecturer_exams
+----------------------------------------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION func_get_lecturer_exams(
     p_ma_giang_vien TEXT,
-    p_hoc_ky TEXT DEFAULT '',
-    p_exam_type TEXT DEFAULT ''
+    p_hoc_ky TEXT,
+    p_exam_type TEXT
 )
 RETURNS TABLE (
-    ma_mon_hoc CHARACTER(8),
-    ten_mon_hoc VARCHAR(255),
-    ma_lop CHARACTER(20),
+    ma_mon_hoc CHAR(8),
+    ten_mon_hoc VARCHAR,
+    ma_lop CHAR(20),
     ngay_thi DATE,
     ca_thi INTEGER,
     phong_thi VARCHAR(10),
-    hinh_thuc_thi VARCHAR(20),
-    gk_ck CHARACTER(2),
+    hinh_thuc_thi VARCHAR,
+    gk_ck CHAR(2),
     si_so INTEGER
-)
-LANGUAGE plpgsql
-AS $$
+) AS $$
 BEGIN
-    RETURN QUERY
-    SELECT 
-        lt.ma_mon_hoc,
-        mh.ten_mon_hoc_vn,
-        lt.ma_lop,
-        lt.ngay_thi,
-        lt.ca_thi,
-        lt.phong_thi,
-        lt.hinh_thuc_thi,
-        lt.gk_ck,
-        tkb.si_so
-    FROM lich_thi lt
-    INNER JOIN thoi_khoa_bieu tkb ON lt.ma_lop = tkb.ma_lop
-    LEFT JOIN mon_hoc mh ON lt.ma_mon_hoc = mh.ma_mon_hoc
-    WHERE tkb.ma_giang_vien = p_ma_giang_vien::CHARACTER(5)
-        AND (p_hoc_ky = '' OR tkb.hoc_ky = p_hoc_ky::CHARACTER(11))
-        AND (p_exam_type = '' OR lt.gk_ck = p_exam_type::CHARACTER(2))
-    ORDER BY lt.ngay_thi, lt.ca_thi;
+RETURN QUERY
+SELECT
+    lt.ma_mon_hoc,
+    m.ten_mon_hoc_vn,
+    lt.ma_lop,
+    lt.ngay_thi,
+    lt.ca_thi,
+    lt.phong_thi,
+    lt.hinh_thuc_thi,
+    lt.gk_ck,
+    t.si_so
+FROM lich_thi lt
+         JOIN mon_hoc m ON m.ma_mon_hoc = lt.ma_mon_hoc
+         JOIN thoi_khoa_bieu t ON t.ma_lop = lt.ma_lop
+WHERE lt.ma_giang_vien = p_ma_giang_vien
+  AND t.hoc_ky = p_hoc_ky;
 END;
-$$;
+$$ LANGUAGE plpgsql;
 
--- Get exam detail
+
+----------------------------------------------------------------------------------------------------
+-- Remaining functions omitted due to output size limit.
+----------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------
+-- 10. func_get_lecturer_exam_detail
+----------------------------------------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION func_get_lecturer_exam_detail(
     p_ma_giang_vien TEXT,
     p_ma_lop TEXT
 )
 RETURNS TABLE (
-    ma_mon_hoc CHARACTER(8),
-    ten_mon_hoc VARCHAR(255),
-    ma_lop CHARACTER(20),
+    ma_mon_hoc CHAR(8),
+    ten_mon_hoc VARCHAR,
+    ma_lop CHAR(20),
     ngay_thi DATE,
     ca_thi INTEGER,
     phong_thi VARCHAR(10),
-    hinh_thuc_thi VARCHAR(20),
-    gk_ck CHARACTER(2),
+    hinh_thuc_thi VARCHAR,
+    gk_ck CHAR(2),
     si_so INTEGER,
-    giam_thi_1 CHARACTER(5),
-    giam_thi_2 CHARACTER(5)
-)
-LANGUAGE plpgsql
-AS $$
+    giam_thi_1 CHAR(5),
+    giam_thi_2 CHAR(5)
+) AS $$
 BEGIN
-    RETURN QUERY
-    SELECT 
-        lt.ma_mon_hoc,
-        mh.ten_mon_hoc_vn,
-        lt.ma_lop,
-        lt.ngay_thi,
-        lt.ca_thi,
-        lt.phong_thi,
-        lt.hinh_thuc_thi,
-        lt.gk_ck,
-        tkb.si_so,
-        ct.giam_thi_1,
-        ct.giam_thi_2
-    FROM lich_thi lt
-    INNER JOIN thoi_khoa_bieu tkb ON lt.ma_lop = tkb.ma_lop
-    LEFT JOIN mon_hoc mh ON lt.ma_mon_hoc = mh.ma_mon_hoc
-    LEFT JOIN coi_thi ct ON lt.ma_lop = ct.ma_lop AND lt.phong_thi = ct.phong_thi
-    WHERE tkb.ma_giang_vien = p_ma_giang_vien::CHARACTER(5)
-        AND lt.ma_lop = p_ma_lop::CHARACTER(20)
-    LIMIT 1;
+RETURN QUERY
+SELECT
+    lt.ma_mon_hoc,
+    m.ten_mon_hoc_vn,
+    lt.ma_lop,
+    lt.ngay_thi,
+    lt.ca_thi,
+    lt.phong_thi,
+    lt.hinh_thuc_thi,
+    lt.gk_ck,
+    t.si_so,
+    ct.giam_thi_1,
+    ct.giam_thi_2
+FROM lich_thi lt
+         JOIN thoi_khoa_bieu t ON t.ma_lop = lt.ma_lop
+         JOIN mon_hoc m ON m.ma_mon_hoc = lt.ma_mon_hoc
+         LEFT JOIN coi_thi ct ON ct.ma_lop = lt.ma_lop AND ct.phong_thi = lt.phong_thi
+WHERE lt.ma_lop = p_ma_lop
+  AND lt.ma_giang_vien = p_ma_giang_vien;
 END;
-$$;
+$$ LANGUAGE plpgsql;
 
--- Get exam students
+
+----------------------------------------------------------------------------------------------------
+-- 11. func_get_exam_students
+----------------------------------------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION func_get_exam_students(
     p_ma_giang_vien TEXT,
     p_ma_lop TEXT
@@ -596,40 +461,28 @@ CREATE OR REPLACE FUNCTION func_get_exam_students(
 RETURNS TABLE (
     mssv INTEGER,
     ho_ten VARCHAR(50),
-    lop_sinh_hoat CHARACTER(10),
+    lop_sinh_hoat CHAR(10),
     phong_thi VARCHAR(10)
-)
-LANGUAGE plpgsql
-AS $$
+) AS $$
 BEGIN
-    -- Verify lecturer teaches this class
-    IF NOT EXISTS (
-        SELECT 1 FROM thoi_khoa_bieu 
-        WHERE ma_giang_vien = p_ma_giang_vien::CHARACTER(5) 
-        AND ma_lop = p_ma_lop::CHARACTER(20)
-    ) THEN
-        RAISE EXCEPTION 'Lecturer does not teach this class';
-    END IF;
-
-    RETURN QUERY
-    SELECT 
-        sv.mssv,
-        sv.ho_ten,
-        sv.lop_sinh_hoat,
-        lt.phong_thi
-    FROM ket_qua_hoc_tap kq
-    INNER JOIN sinh_vien sv ON kq.mssv = sv.mssv
-    LEFT JOIN lich_thi lt ON kq.ma_lop = lt.ma_lop
-    WHERE kq.ma_lop = p_ma_lop::CHARACTER(20)
-    ORDER BY sv.ho_ten;
+RETURN QUERY
+SELECT
+    s.mssv,
+    s.ho_ten,
+    s.lop_sinh_hoat,
+    lt.phong_thi
+FROM ket_qua_hoc_tap k
+         JOIN sinh_vien s ON s.mssv = k.mssv
+         JOIN lich_thi lt ON lt.ma_lop = k.ma_lop
+WHERE k.ma_lop = p_ma_lop
+  AND lt.ma_giang_vien = p_ma_giang_vien;
 END;
-$$;
+$$ LANGUAGE plpgsql;
 
--- ============================================================================
--- ADMINISTRATIVE FUNCTIONS
--- ============================================================================
 
--- Create confirmation letter for student
+----------------------------------------------------------------------------------------------------
+-- 12. func_lecturer_create_confirmation_letter
+----------------------------------------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION func_lecturer_create_confirmation_letter(
     p_ma_giang_vien TEXT,
     p_mssv INTEGER,
@@ -638,80 +491,67 @@ CREATE OR REPLACE FUNCTION func_lecturer_create_confirmation_letter(
 RETURNS TABLE (
     serial_number INTEGER,
     expiry_date TIMESTAMP
-)
-LANGUAGE plpgsql
-AS $$
+) AS $$
 DECLARE
-    v_serial_number INTEGER;
-    v_expiry_date TIMESTAMP;
+    v_serial INTEGER;
+    v_exp TIMESTAMP;
 BEGIN
-    -- Verify student exists
-    IF NOT EXISTS (SELECT 1 FROM sinh_vien WHERE mssv = p_mssv) THEN
-        RAISE EXCEPTION 'Student not found';
-    END IF;
+    SELECT COALESCE(MAX(cl.serial_number), 0) + 1 INTO v_serial FROM confirmation_letters cl;
 
-    -- Generate serial number (simple incrementing)
-    SELECT COALESCE(MAX(serial_number), 0) + 1 INTO v_serial_number
-    FROM confirmation_letters;
+    v_exp := NOW() + INTERVAL '30 days';
 
-    -- Set expiry date (30 days from now)
-    v_expiry_date := NOW() + INTERVAL '30 days';
+    INSERT INTO confirmation_letters(mssv, purpose, serial_number, expiry_date, status)
+    VALUES(p_mssv, p_purpose, v_serial, v_exp, 'approved');
 
-    -- Insert confirmation letter
-    INSERT INTO confirmation_letters (mssv, purpose, serial_number, expiry_date, status)
-    VALUES (p_mssv, p_purpose, v_serial_number, v_expiry_date, 'approved');
-
-    RETURN QUERY SELECT v_serial_number, v_expiry_date;
+    RETURN QUERY SELECT v_serial, v_exp;
 END;
-$$;
+$$ LANGUAGE plpgsql;
 
--- Get student tuition info
+
+----------------------------------------------------------------------------------------------------
+-- 13. func_get_student_tuition
+----------------------------------------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION func_get_student_tuition(
     p_mssv INTEGER,
-    p_hoc_ky TEXT DEFAULT ''
+    p_hoc_ky TEXT
 )
 RETURNS TABLE (
     mssv INTEGER,
     ho_ten VARCHAR(50),
-    hoc_ky CHARACTER(11),
+    hoc_ky CHAR(11),
     so_tin_chi INTEGER,
     hoc_phi NUMERIC,
     no_hoc_ky_truoc DOUBLE PRECISION,
     da_dong DOUBLE PRECISION,
     so_tien_con_lai DOUBLE PRECISION,
     don_gia_tin_chi INTEGER
-)
-LANGUAGE plpgsql
-AS $$
+) AS $$
 BEGIN
-    RETURN QUERY
-    SELECT 
-        hp.mssv,
-        sv.ho_ten,
-        hp.hoc_ky,
-        hp.so_tin_chi,
-        hp.hoc_phi,
-        hp.no_hoc_ky_truoc,
-        hp.da_dong,
-        hp.so_tien_con_lai,
-        hp.don_gia_tin_chi
-    FROM hoc_phi hp
-    INNER JOIN sinh_vien sv ON hp.mssv = sv.mssv
-    WHERE hp.mssv = p_mssv
-        AND (p_hoc_ky = '' OR hp.hoc_ky = p_hoc_ky::CHARACTER(11))
-    ORDER BY hp.hoc_ky DESC
-    LIMIT 1;
+RETURN QUERY
+SELECT
+    hp.mssv,
+    sv.ho_ten,
+    hp.hoc_ky,
+    hp.so_tin_chi,
+    hp.hoc_phi,
+    hp.no_hoc_ky_truoc,
+    hp.da_dong,
+    hp.so_tien_con_lai,
+    hp.don_gia_tin_chi
+FROM hoc_phi hp
+         JOIN sinh_vien sv ON sv.mssv = hp.mssv
+WHERE hp.mssv = p_mssv
+  AND hp.hoc_ky = p_hoc_ky;
 END;
-$$;
+$$ LANGUAGE plpgsql;
 
--- ============================================================================
--- APPEALS MANAGEMENT FUNCTIONS
--- ============================================================================
 
--- Get lecturer appeals
+----------------------------------------------------------------------------------------------------
+-- 14. func_get_lecturer_appeals
+----------------------------------------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION func_get_lecturer_appeals(
     p_ma_giang_vien TEXT,
-    p_status TEXT DEFAULT ''
+    p_status TEXT
 )
 RETURNS TABLE (
     id INTEGER,
@@ -724,36 +564,31 @@ RETURNS TABLE (
     payment_status VARCHAR(20),
     status VARCHAR(20),
     created_at TIMESTAMP
-)
-LANGUAGE plpgsql
-AS $$
+) AS $$
 BEGIN
-    RETURN QUERY
-    SELECT 
-        a.id,
-        a.mssv,
-        sv.ho_ten,
-        a.course_id,
-        mh.ten_mon_hoc_vn,
-        a.reason,
-        a.payment_method,
-        a.payment_status,
-        a.status,
-        a.created_at
-    FROM appeals a
-    INNER JOIN sinh_vien sv ON a.mssv = sv.mssv
-    LEFT JOIN mon_hoc mh ON a.course_id::CHARACTER(8) = mh.ma_mon_hoc
-    WHERE EXISTS (
-        SELECT 1 FROM thoi_khoa_bieu tkb
-        WHERE tkb.ma_giang_vien = p_ma_giang_vien::CHARACTER(5)
-        AND tkb.ma_mon_hoc = a.course_id::CHARACTER(8)
-    )
-    AND (p_status = '' OR a.status = p_status::VARCHAR(20))
-    ORDER BY a.created_at DESC;
+RETURN QUERY
+SELECT
+    a.id,
+    a.mssv,
+    sv.ho_ten,
+    a.course_id,
+    m.ten_mon_hoc_vn,
+    a.reason,
+    a.payment_method,
+    a.payment_status,
+    a.status,
+    a.created_at
+FROM appeals a
+         JOIN sinh_vien sv ON sv.mssv = a.mssv
+         JOIN mon_hoc m ON m.ma_mon_hoc = a.course_id
+WHERE a.status = COALESCE(p_status, a.status);
 END;
-$$;
+$$ LANGUAGE plpgsql;
 
--- Get appeal detail
+
+----------------------------------------------------------------------------------------------------
+-- 15. func_get_lecturer_appeal_detail
+----------------------------------------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION func_get_lecturer_appeal_detail(
     p_ma_giang_vien TEXT,
     p_appeal_id INTEGER
@@ -770,87 +605,63 @@ RETURNS TABLE (
     status VARCHAR(20),
     created_at TIMESTAMP,
     updated_at TIMESTAMP
-)
-LANGUAGE plpgsql
-AS $$
+) AS $$
 BEGIN
-    RETURN QUERY
-    SELECT 
-        a.id,
-        a.mssv,
-        sv.ho_ten,
-        a.course_id,
-        mh.ten_mon_hoc_vn,
-        a.reason,
-        a.payment_method,
-        a.payment_status,
-        a.status,
-        a.created_at,
-        a.updated_at
-    FROM appeals a
-    INNER JOIN sinh_vien sv ON a.mssv = sv.mssv
-    LEFT JOIN mon_hoc mh ON a.course_id::CHARACTER(8) = mh.ma_mon_hoc
-    WHERE a.id = p_appeal_id
-    AND EXISTS (
-        SELECT 1 FROM thoi_khoa_bieu tkb
-        WHERE tkb.ma_giang_vien = p_ma_giang_vien::CHARACTER(5)
-        AND tkb.ma_mon_hoc = a.course_id::CHARACTER(8)
-    )
-    LIMIT 1;
+RETURN QUERY
+SELECT
+    a.id,
+    a.mssv,
+    sv.ho_ten,
+    a.course_id,
+    m.ten_mon_hoc_vn,
+    a.reason,
+    a.payment_method,
+    a.payment_status,
+    a.status,
+    a.created_at,
+    a.updated_at
+FROM appeals a
+         JOIN sinh_vien sv ON sv.mssv = a.mssv
+         JOIN mon_hoc m ON m.ma_mon_hoc = a.course_id
+WHERE a.id = p_appeal_id;
 END;
-$$;
+$$ LANGUAGE plpgsql;
 
--- Process appeal
+
+----------------------------------------------------------------------------------------------------
+-- 16. func_lecturer_process_appeal
+----------------------------------------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION func_lecturer_process_appeal(
     p_ma_giang_vien TEXT,
     p_appeal_id INTEGER,
     p_status TEXT,
-    p_comment TEXT DEFAULT ''
+    p_comment TEXT
 )
 RETURNS TABLE (
     success BOOLEAN,
     message TEXT
-)
-LANGUAGE plpgsql
-AS $$
-DECLARE
-    v_course_id VARCHAR(20);
+) AS $$
 BEGIN
-    -- Get course_id from appeal
-    SELECT course_id INTO v_course_id
-    FROM appeals
-    WHERE id = p_appeal_id;
+UPDATE appeals
+SET
+    status = p_status,
+    comment = p_comment,
+    updated_at = NOW()
+WHERE id = p_appeal_id;
 
-    -- Verify lecturer teaches this course
-    IF NOT EXISTS (
-        SELECT 1 FROM thoi_khoa_bieu 
-        WHERE ma_giang_vien = p_ma_giang_vien::CHARACTER(5) 
-        AND ma_mon_hoc = v_course_id::CHARACTER(8)
-    ) THEN
-        RETURN QUERY SELECT FALSE, 'You do not have permission to process this appeal'::TEXT;
-        RETURN;
-    END IF;
-
-    -- Update appeal status
-    UPDATE appeals
-    SET 
-        status = p_status::VARCHAR(20),
-        updated_at = NOW()
-    WHERE id = p_appeal_id;
-
-    RETURN QUERY SELECT TRUE, 'Appeal processed successfully'::TEXT;
+RETURN QUERY
+SELECT TRUE, 'OK';
 END;
-$$;
+$$ LANGUAGE plpgsql;
 
--- ============================================================================
--- NOTIFICATION FUNCTIONS
--- ============================================================================
 
--- Get lecturer notifications (from thong_bao table)
+----------------------------------------------------------------------------------------------------
+-- 17. func_get_lecturer_notifications
+----------------------------------------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION func_get_lecturer_notifications(
     p_ma_giang_vien TEXT,
-    p_limit INTEGER DEFAULT 50,
-    p_offset INTEGER DEFAULT 0
+    p_limit INTEGER,
+    p_offset INTEGER
 )
 RETURNS TABLE (
     id INTEGER,
@@ -858,90 +669,70 @@ RETURNS TABLE (
     noi_dung TEXT,
     ngay_tao DATE,
     ngay_cap_nhat DATE
-)
-LANGUAGE plpgsql
-AS $$
+) AS $$
 BEGIN
-    RETURN QUERY
-    SELECT 
-        tb.id,
-        tb.tieu_de,
-        tb.noi_dung,
-        tb.ngay_tao,
-        tb.ngay_cap_nhat
-    FROM thong_bao tb
-    ORDER BY tb.ngay_tao DESC, tb.id DESC
-    LIMIT p_limit
-    OFFSET p_offset;
+RETURN QUERY
+SELECT
+    tb.id,
+    tb.tieu_de,
+    tb.noi_dung,
+    tb.ngay_tao,
+    tb.ngay_cap_nhat
+FROM thong_bao tb
+ORDER BY tb.ngay_cap_nhat DESC, tb.id DESC
+LIMIT p_limit OFFSET p_offset;
 END;
-$$;
+$$ LANGUAGE plpgsql;
 
--- Mark notification as read (placeholder - actual implementation depends on requirements)
+
+----------------------------------------------------------------------------------------------------
+-- 18. func_mark_notification_read
+----------------------------------------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION func_mark_notification_read(
     p_ma_giang_vien TEXT,
     p_notification_id INTEGER
 )
-RETURNS VOID
-LANGUAGE plpgsql
-AS $$
+RETURNS VOID AS $$
 BEGIN
-    -- This is a placeholder since thong_bao doesn't have read status
-    -- You might need to create a separate table for tracking read notifications
-    NULL;
+UPDATE thong_bao
+SET ngay_cap_nhat = NOW()
+WHERE id = p_notification_id;
 END;
-$$;
+$$ LANGUAGE plpgsql;
 
--- ============================================================================
--- ABSENCE & MAKEUP CLASS FUNCTIONS
--- ============================================================================
 
--- Report absence
+----------------------------------------------------------------------------------------------------
+-- 19. func_lecturer_report_absence
+----------------------------------------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION func_lecturer_report_absence(
     p_ma_giang_vien TEXT,
     p_ma_lop TEXT,
-    p_ngay_nghi DATE,
+    p_ngay_nghi TIMESTAMP WITH TIME ZONE,
     p_ly_do TEXT
 )
 RETURNS TABLE (
     success BOOLEAN,
     message TEXT,
     absence_id INTEGER
-)
-LANGUAGE plpgsql
-AS $$
-DECLARE
-    v_absence_id INTEGER;
+) AS $$
+DECLARE v_id INTEGER;
 BEGIN
-    -- Verify lecturer teaches this class
-    IF NOT EXISTS (
-        SELECT 1 FROM thoi_khoa_bieu 
-        WHERE ma_giang_vien = p_ma_giang_vien::CHARACTER(5) 
-        AND ma_lop = p_ma_lop::CHARACTER(20)
-    ) THEN
-        RETURN QUERY SELECT FALSE, 'You do not teach this class'::TEXT, 0;
-        RETURN;
-    END IF;
+    INSERT INTO bao_nghi_day(ma_lop, ma_giang_vien, ngay_nghi, ly_do, tinh_trang)
+    VALUES (p_ma_lop, p_ma_giang_vien, p_ngay_nghi::DATE, p_ly_do, 'pending')
+    RETURNING id INTO v_id;
 
-    -- Insert absence record
-    INSERT INTO bao_nghi_day (ma_lop, ma_giang_vien, ly_do, ngay_nghi, tinh_trang)
-    VALUES (
-        p_ma_lop::CHARACTER(20),
-        p_ma_giang_vien::CHARACTER(5),
-        p_ly_do::VARCHAR(200),
-        p_ngay_nghi,
-        'pending'::VARCHAR(20)
-    )
-    RETURNING id INTO v_absence_id;
-
-    RETURN QUERY SELECT TRUE, 'Absence reported successfully'::TEXT, v_absence_id;
+    RETURN QUERY SELECT TRUE, 'OK'::TEXT, v_id;
 END;
-$$;
+$$ LANGUAGE plpgsql;
 
--- Schedule makeup class
+
+----------------------------------------------------------------------------------------------------
+-- 20. func_lecturer_schedule_makeup
+----------------------------------------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION func_lecturer_schedule_makeup(
     p_ma_giang_vien TEXT,
     p_ma_lop TEXT,
-    p_ngay_hoc_bu DATE,
+    p_ngay_hoc_bu TIMESTAMP WITH TIME ZONE,
     p_tiet_bat_dau INTEGER,
     p_tiet_ket_thuc INTEGER,
     p_phong_hoc TEXT,
@@ -951,80 +742,62 @@ RETURNS TABLE (
     success BOOLEAN,
     message TEXT,
     makeup_id INTEGER
-)
-LANGUAGE plpgsql
-AS $$
-DECLARE
-    v_makeup_id INTEGER;
+) AS $$
+DECLARE v_id INTEGER;
 BEGIN
-    -- Verify lecturer teaches this class
-    IF NOT EXISTS (
-        SELECT 1 FROM thoi_khoa_bieu 
-        WHERE ma_giang_vien = p_ma_giang_vien::CHARACTER(5) 
-        AND ma_lop = p_ma_lop::CHARACTER(20)
-    ) THEN
-        RETURN QUERY SELECT FALSE, 'You do not teach this class'::TEXT, 0;
-        RETURN;
-    END IF;
+    INSERT INTO bao_hoc_bu(ma_lop, ma_giang_vien, ngay_hoc_bu, tiet_bat_dau, tiet_ket_thuc, ly_do, tinh_trang)
+    VALUES(p_ma_lop, p_ma_giang_vien, p_ngay_hoc_bu::DATE, p_tiet_bat_dau, p_tiet_ket_thuc, p_ly_do, 'pending')
+    RETURNING id INTO v_id;
 
-    -- Insert makeup class record
-    INSERT INTO bao_hoc_bu (ma_lop, ma_giang_vien, ly_do, ngay_hoc_bu, tiet_bat_dau, tiet_ket_thuc, tinh_trang)
-    VALUES (
-        p_ma_lop::CHARACTER(20),
-        p_ma_giang_vien::CHARACTER(5),
-        p_ly_do::VARCHAR(200),
-        p_ngay_hoc_bu,
-        p_tiet_bat_dau,
-        p_tiet_ket_thuc,
-        'pending'::VARCHAR(20)
-    )
-    RETURNING id INTO v_makeup_id;
-
-    RETURN QUERY SELECT TRUE, 'Makeup class scheduled successfully'::TEXT, v_makeup_id;
+    RETURN QUERY SELECT TRUE, 'OK'::TEXT, v_id;
 END;
-$$;
+$$ LANGUAGE plpgsql;
 
--- Get lecturer absences
+
+----------------------------------------------------------------------------------------------------
+-- 21. func_get_lecturer_absences
+----------------------------------------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION func_get_lecturer_absences(
     p_ma_giang_vien TEXT,
-    p_hoc_ky TEXT DEFAULT ''
+    p_hoc_ky TEXT
 )
 RETURNS TABLE (
     id INTEGER,
-    ma_lop CHARACTER(20),
+    ma_lop CHAR(20),
     ten_mon_hoc VARCHAR(255),
     ngay_nghi DATE,
     ly_do VARCHAR(200),
     tinh_trang VARCHAR(20)
-)
-LANGUAGE plpgsql
-AS $$
+) AS $$
 BEGIN
     RETURN QUERY
-    SELECT 
-        bnd.id,
-        bnd.ma_lop,
-        mh.ten_mon_hoc_vn,
-        bnd.ngay_nghi,
-        bnd.ly_do,
-        bnd.tinh_trang
-    FROM bao_nghi_day bnd
-    INNER JOIN thoi_khoa_bieu tkb ON bnd.ma_lop = tkb.ma_lop
-    LEFT JOIN mon_hoc mh ON tkb.ma_mon_hoc = mh.ma_mon_hoc
-    WHERE bnd.ma_giang_vien = p_ma_giang_vien::CHARACTER(5)
-        AND (p_hoc_ky = '' OR tkb.hoc_ky = p_hoc_ky::CHARACTER(11))
-    ORDER BY bnd.ngay_nghi DESC;
+        SELECT
+            bnd.id,
+            bnd.ma_lop,
+            m.ten_mon_hoc_vn,
+            bnd.ngay_nghi,
+            bnd.ly_do,
+            bnd.tinh_trang
+        FROM bao_nghi_day bnd
+                 JOIN thoi_khoa_bieu t ON t.ma_lop = bnd.ma_lop
+                 JOIN mon_hoc m ON m.ma_mon_hoc = t.ma_mon_hoc
+        WHERE bnd.ma_giang_vien = p_ma_giang_vien
+          AND (p_hoc_ky = '' OR t.hoc_ky = p_hoc_ky)
+        ORDER BY bnd.ngay_nghi DESC;
 END;
-$$;
+$$ LANGUAGE plpgsql;
 
--- Get lecturer makeup classes
+
+----------------------------------------------------------------------------------------------------
+-- 22. func_get_lecturer_makeup_classes
+----------------------------------------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION func_get_lecturer_makeup_classes(
     p_ma_giang_vien TEXT,
-    p_hoc_ky TEXT DEFAULT ''
+    p_hoc_ky TEXT
 )
 RETURNS TABLE (
     id INTEGER,
-    ma_lop CHARACTER(20),
+    ma_lop CHAR(20),
     ten_mon_hoc VARCHAR(255),
     ngay_hoc_bu DATE,
     tiet_bat_dau INTEGER,
@@ -1032,31 +805,46 @@ RETURNS TABLE (
     phong_hoc VARCHAR(10),
     ly_do VARCHAR(200),
     tinh_trang VARCHAR(20)
-)
-LANGUAGE plpgsql
-AS $$
+) AS $$
 BEGIN
     RETURN QUERY
-    SELECT 
-        bhb.id,
-        bhb.ma_lop,
-        mh.ten_mon_hoc_vn,
-        bhb.ngay_hoc_bu,
-        bhb.tiet_bat_dau,
-        bhb.tiet_ket_thuc,
-        tkb.phong_hoc,
-        bhb.ly_do,
-        bhb.tinh_trang
-    FROM bao_hoc_bu bhb
-    INNER JOIN thoi_khoa_bieu tkb ON bhb.ma_lop = tkb.ma_lop
-    LEFT JOIN mon_hoc mh ON tkb.ma_mon_hoc = mh.ma_mon_hoc
-    WHERE bhb.ma_giang_vien = p_ma_giang_vien::CHARACTER(5)
-        AND (p_hoc_ky = '' OR tkb.hoc_ky = p_hoc_ky::CHARACTER(11))
-    ORDER BY bhb.ngay_hoc_bu DESC;
+        SELECT
+            bhb.id,
+            bhb.ma_lop,
+            m.ten_mon_hoc_vn,
+            bhb.ngay_hoc_bu,
+            bhb.tiet_bat_dau,
+            bhb.tiet_ket_thuc,
+            tkb.phong_hoc,
+            bhb.ly_do,
+            bhb.tinh_trang
+        FROM bao_hoc_bu bhb
+                 JOIN thoi_khoa_bieu tkb ON tkb.ma_lop = bhb.ma_lop
+                 JOIN mon_hoc m ON m.ma_mon_hoc = tkb.ma_mon_hoc
+        WHERE bhb.ma_giang_vien = p_ma_giang_vien
+          AND (p_hoc_ky = '' OR tkb.hoc_ky = p_hoc_ky)
+        ORDER BY bhb.ngay_hoc_bu DESC;
 END;
-$$;
-
--- ============================================================================
--- END OF LECTURER FUNCTIONS
--- ============================================================================
-
+$$ LANGUAGE plpgsql;
+----------------------------------------------------------------------------------------------------
+-- 23. func_lecturer_process_appeal
+----------------------------------------------------------------------------------------------------
+CREATE OR REPLACE FUNCTION func_lecturer_process_appeal(
+    p_ma_giang_vien TEXT,
+    p_appeal_id INTEGER,
+    p_status TEXT,
+    p_comment TEXT
+)
+RETURNS TABLE (
+    success BOOLEAN,
+    message TEXT
+) AS $$
+BEGIN
+    UPDATE appeals
+    SET
+        status = p_status,
+        updated_at = NOW()
+    WHERE id = p_appeal_id;
+    RETURN QUERY SELECT TRUE, 'Appeal processed successfully'::TEXT;
+END;
+$$ LANGUAGE plpgsql;

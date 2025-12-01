@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using eUIT.API.Data;
@@ -694,7 +694,7 @@ public sealed class LecturerController : ControllerBase
                     "SELECT * FROM func_lecturer_report_absence({0}, {1}, {2}, {3})",
                     lecturerId,
                     request.MaLop,
-                    request.NgayNghi,
+                    DateTime.SpecifyKind(request.NgayNghi, DateTimeKind.Utc),
                     request.LyDo ?? "")
                 .FirstOrDefaultAsync();
 
@@ -733,7 +733,7 @@ public sealed class LecturerController : ControllerBase
                     "SELECT * FROM func_lecturer_schedule_makeup({0}, {1}, {2}, {3}, {4}, {5}, {6})",
                     lecturerId,
                     request.MaLop,
-                    request.NgayHocBu,
+                    DateTime.SpecifyKind(request.NgayHocBu, DateTimeKind.Utc),
                     request.TietBatDau,
                     request.TietKetThuc,
                     request.PhongHoc ?? "",
