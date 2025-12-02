@@ -87,8 +87,14 @@ class _LecturerAppealsScreenState extends State<LecturerAppealsScreen>
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: isDark
-                  ? [const Color(0xFF1E2746), const Color(0xFF2A3F7D)]
-                  : [Colors.white, const Color(0xFFE3F2FD)],
+                  ? [
+                      const Color(0xFF1E2746).withOpacity(0.5),
+                      const Color(0xFF2A3F7D).withOpacity(0.5),
+                    ]
+                  : [
+                      Colors.white.withOpacity(0.6),
+                      const Color(0xFFE3F2FD).withOpacity(0.6),
+                    ],
             ),
           ),
         ),
@@ -105,8 +111,14 @@ class _LecturerAppealsScreenState extends State<LecturerAppealsScreen>
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: isDark
-              ? [const Color(0xFF1E2746), const Color(0xFF2A3F7D)]
-              : [Colors.white, const Color(0xFFE3F2FD)],
+              ? [
+                  const Color(0xFF1E2746).withOpacity(0.7),
+                  const Color(0xFF2A3F7D).withOpacity(0.7),
+                ]
+              : [
+                  Colors.white.withOpacity(0.75),
+                  const Color(0xFFE3F2FD).withOpacity(0.75),
+                ],
         ),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [

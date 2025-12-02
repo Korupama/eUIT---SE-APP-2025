@@ -498,11 +498,14 @@ class _LecturerHomeScreenState extends State<LecturerHomeScreen>
       case 'edit_document':
         icon = Icons.edit_document;
         break;
-      case 'check_box_outlined':
-        icon = Icons.check_box_outlined;
+      case 'rate_review':
+        icon = Icons.rate_review;
         break;
       case 'description_outlined':
         icon = Icons.description_outlined;
+        break;
+      case 'event_note':
+        icon = Icons.event_note;
         break;
       default:
         icon = Icons.circle_outlined;
@@ -520,14 +523,14 @@ class _LecturerHomeScreenState extends State<LecturerHomeScreen>
               height: 64,
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: gradient,
+                  colors: gradient.map((c) => c.withOpacity(0.85)).toList(),
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: gradient[0].withAlpha(76),
+                    color: gradient[0].withAlpha(51),
                     blurRadius: 8,
                     offset: const Offset(0, 4),
                   ),
