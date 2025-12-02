@@ -5,6 +5,7 @@ import 'screens/modern_login_screen.dart';
 import 'screens/main_screen.dart';
 import 'screens/lecturer/lecturer_main_screen.dart';
 import 'screens/lecturer/lecturer_profile_screen.dart';
+import 'screens/lecturer/lecturer_class_detail_screen.dart';
 import 'screens/chatbot.dart';
 import 'screens/notifications_screen.dart';
 import 'services/theme_controller.dart';
@@ -19,6 +20,7 @@ import 'screens/notification_preferences.dart';
 import 'screens/services_screen.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'services/auth_service.dart';
+import 'models/teaching_class.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -92,6 +94,15 @@ class MyApp extends StatelessWidget {
         '/settings': (context) => const SettingsScreen(),
         '/profile': (context) => const ProfileScreen(),
         '/notification_preferences': (context) => const NotificationPreferencesScreen(),
+      },
+      onGenerateRoute: (settings) {
+        if (settings.name == '/lecturer_class_detail') {
+          final classInfo = settings.arguments as TeachingClass;
+          return MaterialPageRoute(
+            builder: (context) => LecturerClassDetailScreen(classInfo: classInfo),
+          );
+        }
+        return null;
       },
       initialRoute: '/',
     );

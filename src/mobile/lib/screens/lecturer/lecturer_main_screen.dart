@@ -25,10 +25,10 @@ class _LecturerMainScreenState extends State<LecturerMainScreen> {
   void initState() {
     super.initState();
     _pages = [
-      const _PlaceholderScreen(title: 'Lịch giảng'),
-      const LecturerHomeScreen(),
-      const LecturerClassListScreen(),
-      const SettingsScreen(),
+      const KeepAliveWrapper(child: _PlaceholderScreen(title: 'Lịch giảng')),
+      const KeepAliveWrapper(child: LecturerHomeScreen()),
+      const KeepAliveWrapper(child: LecturerClassListScreen()),
+      const KeepAliveWrapper(child: SettingsScreen()),
     ];
     _pageController = PageController(initialPage: _selectedIndex);
   }
@@ -415,5 +415,26 @@ class _PlaceholderScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+// Wrapper to keep pages alive when navigating away
+class KeepAliveWrapper extends StatefulWidget {
+  final Widget child;
+  
+  const KeepAliveWrapper({super.key, required this.child});
+  
+  @override
+  State<KeepAliveWrapper> createState() => _KeepAliveWrapperState();
+}
+
+class _KeepAliveWrapperState extends State<KeepAliveWrapper> with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+  
+  @override
+  Widget build(BuildContext context) {
+    super.build(context);
+    return widget.child;
   }
 }

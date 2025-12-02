@@ -433,6 +433,7 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
               child: TextFormField(
                 controller: _usernameController,
                 style: TextStyle(color: textColor),
+                keyboardType: TextInputType.text, // Allow both text and numbers
                 textInputAction: TextInputAction.next, // Added for Enter key
                 onFieldSubmitted: (_) {
                   // Move focus to password field when Enter is pressed
@@ -461,6 +462,7 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
                 controller: _passwordController,
                 obscureText: _obscurePassword,
                 style: TextStyle(color: textColor),
+                keyboardType: TextInputType.visiblePassword, // Allow numbers in password
                 textInputAction: TextInputAction.done, // Added for Enter key
                 onFieldSubmitted: (_) {
                   // Trigger login when Enter is pressed on password field
