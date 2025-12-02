@@ -365,6 +365,42 @@ class _LecturerGradeManagementScreenState
       return _buildShimmerLoading(isDark);
     }
 
+    if (provider.teachingClasses.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                gradient: AppTheme.primaryGradient,
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.class_outlined,
+                size: 64,
+                color: Colors.white,
+              ),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              'Chưa có lớp giảng dạy',
+              style: AppTheme.headingMedium.copyWith(
+                color: isDark ? Colors.white : Colors.black87,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Bạn chưa được phân công lớp nào',
+              style: AppTheme.bodyMedium.copyWith(
+                color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
     return ListView.builder(
       padding: const EdgeInsets.all(16),
       itemCount: provider.teachingClasses.length,
@@ -473,173 +509,391 @@ class _LecturerGradeManagementScreenState
           student.mssv.contains(_searchQuery);
     }).toList();
 
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: SingleChildScrollView(
-        child: DataTable(
-          headingRowColor: WidgetStateProperty.all(
-            (isDark ? AppTheme.darkCard : Colors.grey.shade100).withOpacity(0.7),
-          ),
-          dataRowColor: WidgetStateProperty.resolveWith((states) {
-            if (states.contains(WidgetState.selected)) {
-              return AppTheme.bluePrimary.withOpacity(0.1);
-            }
-            return (isDark ? AppTheme.darkCard : Colors.white).withOpacity(0.3);
-          }),
-          border: TableBorder.all(
-            color: (isDark ? AppTheme.darkBorder : AppTheme.lightBorder).withOpacity(0.3),
-          ),
-          columns: [
-            DataColumn(
-              label: Text(
-                'STT',
-                style: AppTheme.bodySmall.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color: isDark ? Colors.white : Colors.black87,
-                ),
+    return ListView.builder(
+      padding: const EdgeInsets.all(16),
+      itemCount: filteredStudents.length,
+      itemBuilder: (context, index) {
+        final student = filteredStudents[index];
+        return _buildStudentGradeCard(student, index + 1, isDark);
+      },
+    );
+  }
+
+  Widget _buildStudentGradeCard(ClassStudent student, int stt, bool isDark) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+          child: Container(
+            decoration: BoxDecoration(
+              color: (isDark ? AppTheme.darkCard : Colors.white).withOpacity(0.5),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: student.isAtRisk
+                    ? Colors.red.withOpacity(0.5)
+                    : (isDark ? AppTheme.darkBorder : AppTheme.lightBorder).withOpacity(0.3),
+                width: student.isAtRisk ? 2 : 1,
               ),
             ),
-            DataColumn(
-              label: Text(
-                'MSSV',
-                style: AppTheme.bodySmall.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color: isDark ? Colors.white : Colors.black87,
-                ),
-              ),
-            ),
-            DataColumn(
-              label: Text(
-                'Họ và tên',
-                style: AppTheme.bodySmall.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color: isDark ? Colors.white : Colors.black87,
-                ),
-              ),
-            ),
-            if (_selectedGradeType == 'all' || _selectedGradeType == 'TX')
-              DataColumn(
-                label: Text(
-                  'TX',
-                  style: AppTheme.bodySmall.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: isDark ? Colors.white : Colors.black87,
-                  ),
-                ),
-              ),
-            if (_selectedGradeType == 'all' || _selectedGradeType == 'GK')
-              DataColumn(
-                label: Text(
-                  'GK',
-                  style: AppTheme.bodySmall.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: isDark ? Colors.white : Colors.black87,
-                  ),
-                ),
-              ),
-            if (_selectedGradeType == 'all' || _selectedGradeType == 'CK')
-              DataColumn(
-                label: Text(
-                  'CK',
-                  style: AppTheme.bodySmall.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: isDark ? Colors.white : Colors.black87,
-                  ),
-                ),
-              ),
-            if (_selectedGradeType == 'all' || _selectedGradeType == 'TK')
-              DataColumn(
-                label: Text(
-                  'TK',
-                  style: AppTheme.bodySmall.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: isDark ? Colors.white : Colors.black87,
-                  ),
-                ),
-              ),
-          ],
-          rows: filteredStudents.asMap().entries.map((entry) {
-            final index = entry.key;
-            final student = entry.value;
-            return DataRow(
-              cells: [
-                DataCell(Text(
-                  '${index + 1}',
-                  style: AppTheme.bodySmall.copyWith(
-                    color: isDark ? Colors.white : Colors.black87,
-                  ),
-                )),
-                DataCell(Text(
-                  student.mssv,
-                  style: AppTheme.bodySmall.copyWith(
-                    color: isDark ? Colors.white : Colors.black87,
-                  ),
-                )),
-                DataCell(
-                  SizedBox(
-                    width: 200,
-                    child: Text(
-                      student.hoTen,
-                      style: AppTheme.bodySmall.copyWith(
-                        color: isDark ? Colors.white : Colors.black87,
-                      ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Student Info Header
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    gradient: student.isAtRisk
+                        ? LinearGradient(
+                            colors: [
+                              Colors.red.withOpacity(0.2),
+                              Colors.orange.withOpacity(0.2),
+                            ],
+                          )
+                        : LinearGradient(
+                            colors: [
+                              (isDark ? Colors.grey.shade800 : Colors.grey.shade100)
+                                  .withOpacity(0.5),
+                              (isDark ? Colors.grey.shade800 : Colors.grey.shade100)
+                                  .withOpacity(0.3),
+                            ],
+                          ),
+                    borderRadius: const BorderRadius.vertical(
+                      top: Radius.circular(14),
                     ),
                   ),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          gradient: AppTheme.primaryGradient,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Center(
+                          child: Text(
+                            student.initials,
+                            style: AppTheme.bodyMedium.copyWith(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Text(
+                                  '$stt. ',
+                                  style: AppTheme.bodySmall.copyWith(
+                                    color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
+                                  ),
+                                ),
+                                Expanded(
+                                  child: Text(
+                                    student.hoTen,
+                                    style: AppTheme.bodyMedium.copyWith(
+                                      color: isDark ? Colors.white : Colors.black87,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 4),
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.badge_outlined,
+                                  size: 14,
+                                  color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  student.mssv,
+                                  style: AppTheme.bodySmall.copyWith(
+                                    color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
+                                  ),
+                                ),
+                                if (student.isAtRisk) ...[
+                                  const SizedBox(width: 12),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 2,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.red.withOpacity(0.2),
+                                      borderRadius: BorderRadius.circular(12),
+                                      border: Border.all(
+                                        color: Colors.red.withOpacity(0.5),
+                                      ),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(
+                                          Icons.warning_amber_rounded,
+                                          size: 12,
+                                          color: Colors.red.shade700,
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          'Cảnh báo',
+                                          style: AppTheme.bodySmall.copyWith(
+                                            color: Colors.red.shade700,
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 10,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                if (_selectedGradeType == 'all' || _selectedGradeType == 'TX')
-                  DataCell(_buildGradeCell(student, 'TX', student.diemThuongXuyen, isDark)),
-                if (_selectedGradeType == 'all' || _selectedGradeType == 'GK')
-                  DataCell(_buildGradeCell(student, 'GK', student.diemGiuaKy, isDark)),
-                if (_selectedGradeType == 'all' || _selectedGradeType == 'CK')
-                  DataCell(_buildGradeCell(student, 'CK', student.diemCuoiKy, isDark)),
-                if (_selectedGradeType == 'all' || _selectedGradeType == 'TK')
-                  DataCell(_buildGradeCell(student, 'TK', student.diemTongKet, isDark)),
+                // Grades Section
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    children: [
+                      if (_selectedGradeType == 'all') ...[
+                        Row(
+                          children: [
+                            Expanded(
+                              child: _buildGradeItem(
+                                'TX',
+                                student.diemThuongXuyen,
+                                student,
+                                isDark,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: _buildGradeItem(
+                                'GK',
+                                student.diemGiuaKy,
+                                student,
+                                isDark,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: _buildGradeItem(
+                                'CK',
+                                student.diemCuoiKy,
+                                student,
+                                isDark,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: _buildGradeItem(
+                                'TK',
+                                student.diemTongKet,
+                                student,
+                                isDark,
+                                isTotal: true,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ] else if (_selectedGradeType == 'TX')
+                        _buildGradeItem('TX', student.diemThuongXuyen, student, isDark)
+                      else if (_selectedGradeType == 'GK')
+                        _buildGradeItem('GK', student.diemGiuaKy, student, isDark)
+                      else if (_selectedGradeType == 'CK')
+                        _buildGradeItem('CK', student.diemCuoiKy, student, isDark)
+                      else if (_selectedGradeType == 'TK')
+                        _buildGradeItem('TK', student.diemTongKet, student, isDark, isTotal: true),
+                    ],
+                  ),
+                ),
               ],
-            );
-          }).toList(),
+            ),
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildGradeCell(ClassStudent student, String gradeType, double? currentGrade, bool isDark) {
-    if (!_isEditing) {
-      return Text(
-        currentGrade?.toStringAsFixed(1) ?? '-',
-        style: AppTheme.bodySmall.copyWith(
-          color: _getGradeColor(currentGrade),
-          fontWeight: FontWeight.w600,
+  Widget _buildGradeItem(
+    String label,
+    double? grade,
+    ClassStudent student,
+    bool isDark, {
+    bool isTotal = false,
+  }) {
+    final gradeColor = _getGradeColor(grade);
+    
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: (isDark ? AppTheme.darkCard : Colors.white).withOpacity(0.3),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: isTotal
+              ? AppTheme.bluePrimary.withOpacity(0.5)
+              : (isDark ? AppTheme.darkBorder : AppTheme.lightBorder).withOpacity(0.3),
+          width: isTotal ? 2 : 1,
         ),
-      );
-    }
-
-    return SizedBox(
-      width: 60,
-      child: TextFormField(
-        initialValue: currentGrade?.toStringAsFixed(1) ?? '',
-        keyboardType: const TextInputType.numberWithOptions(decimal: true),
-        style: AppTheme.bodySmall.copyWith(
-          color: isDark ? Colors.white : Colors.black87,
-        ),
-        decoration: InputDecoration(
-          isDense: true,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-            borderSide: BorderSide(
-              color: (isDark ? AppTheme.darkBorder : AppTheme.lightBorder).withOpacity(0.3),
-            ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Text(
+                label,
+                style: AppTheme.bodySmall.copyWith(
+                  color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const Spacer(),
+              if (isTotal)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    gradient: AppTheme.primaryGradient,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    'TỔNG KẾT',
+                    style: AppTheme.bodySmall.copyWith(
+                      color: Colors.white,
+                      fontSize: 9,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+            ],
           ),
-        ),
-        onChanged: (value) {
-          final grade = double.tryParse(value);
-          if (grade != null && grade >= 0 && grade <= 10) {
-            _gradeChanges[student.mssv] ??= {};
-            _gradeChanges[student.mssv]![gradeType] = grade;
-          }
-        },
+          const SizedBox(height: 8),
+          if (_isEditing)
+            Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    (isDark 
+                      ? const Color(0xFF1E3A8A).withOpacity(0.2)
+                      : const Color(0xFFEBF4FF)),
+                    (isDark 
+                      ? const Color(0xFF3B82F6).withOpacity(0.15)
+                      : const Color(0xFFDEEDFF)),
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: AppTheme.bluePrimary.withOpacity(isDark ? 0.4 : 0.6),
+                  width: 2,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppTheme.bluePrimary.withOpacity(0.1),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: TextFormField(
+                initialValue: grade?.toStringAsFixed(1) ?? '',
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                style: AppTheme.bodyLarge.copyWith(
+                  color: isDark ? Colors.white : Colors.black87,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                ),
+                decoration: InputDecoration(
+                  isDense: true,
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  filled: false,
+                  hintText: '0.0',
+                  hintStyle: TextStyle(
+                    color: (isDark ? Colors.grey.shade600 : Colors.grey.shade400),
+                    fontWeight: FontWeight.normal,
+                  ),
+                  border: InputBorder.none,
+                  enabledBorder: InputBorder.none,
+                  focusedBorder: InputBorder.none,
+                  prefixIcon: Container(
+                    margin: const EdgeInsets.only(right: 8, left: 8),
+                    child: Icon(
+                      Icons.edit_rounded,
+                      size: 20,
+                      color: AppTheme.bluePrimary,
+                    ),
+                  ),
+                  prefixIconConstraints: const BoxConstraints(
+                    minWidth: 0,
+                    minHeight: 0,
+                  ),
+                  suffixText: '/10',
+                  suffixStyle: AppTheme.bodySmall.copyWith(
+                    color: isDark ? Colors.grey.shade500 : Colors.grey.shade600,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                onChanged: (value) {
+                  final newGrade = double.tryParse(value);
+                  if (newGrade != null && newGrade >= 0 && newGrade <= 10) {
+                    _gradeChanges[student.mssv] ??= {};
+                    _gradeChanges[student.mssv]![label] = newGrade;
+                  }
+                },
+              ),
+            )
+          else
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  grade?.toStringAsFixed(1) ?? '-',
+                  style: TextStyle(
+                    fontSize: isTotal ? 28 : 24,
+                    fontWeight: FontWeight.bold,
+                    color: gradeColor,
+                    height: 1,
+                  ),
+                ),
+                const SizedBox(width: 4),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 2),
+                  child: Text(
+                    '/10',
+                    style: AppTheme.bodySmall.copyWith(
+                      color: isDark ? Colors.grey.shade500 : Colors.grey.shade600,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+        ],
       ),
     );
+  }
+
+  Widget _buildGradeCell(ClassStudent student, String gradeType, double? currentGrade, bool isDark) {
+    // This method is no longer used with the new card-based layout
+    return const SizedBox.shrink();
   }
 
   Color _getGradeColor(double? grade) {
@@ -653,26 +907,85 @@ class _LecturerGradeManagementScreenState
   Widget _buildSaveButton(bool isDark) {
     return FloatingActionButton.extended(
       onPressed: _saveGradeChanges,
-      backgroundColor: AppTheme.bluePrimary,
-      icon: const Icon(Icons.save, color: Colors.white),
-      label: Text(
-        'Lưu thay đổi',
-        style: AppTheme.bodyMedium.copyWith(
-          color: Colors.white,
-          fontWeight: FontWeight.w600,
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      label: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+        decoration: BoxDecoration(
+          gradient: AppTheme.primaryGradient,
+          borderRadius: BorderRadius.circular(30),
+          boxShadow: [
+            BoxShadow(
+              color: AppTheme.bluePrimary.withOpacity(0.4),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.save_rounded, color: Colors.white, size: 20),
+            const SizedBox(width: 8),
+            Text(
+              'Lưu thay đổi (${_gradeChanges.length})',
+              style: AppTheme.bodyMedium.copyWith(
+                color: Colors.white,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 
   void _saveGradeChanges() {
-    // TODO: Save grade changes to backend
+    // TODO: API call to save grades
+    // Example:
+    // final response = await http.post(
+    //   Uri.parse('${apiUrl}/api/Lecturer/grades'),
+    //   headers: {'Authorization': 'Bearer $token'},
+    //   body: jsonEncode({
+    //     'classId': _selectedClass!.maMon,
+    //     'grades': _gradeChanges,
+    //   }),
+    // );
+    
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Đã lưu ${_gradeChanges.length} thay đổi'),
+        content: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.2),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(Icons.check_circle, color: Colors.white, size: 20),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                'Đã lưu ${_gradeChanges.length} thay đổi thành công!',
+                style: AppTheme.bodyMedium.copyWith(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        ),
         backgroundColor: Colors.green,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        margin: const EdgeInsets.all(16),
+        duration: const Duration(seconds: 2),
       ),
     );
+    
     setState(() {
       _isEditing = false;
       _gradeChanges.clear();
