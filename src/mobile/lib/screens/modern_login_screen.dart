@@ -36,7 +36,6 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
   bool _shakeUsername = false;
   bool _shakePassword = false;
   bool _authInitialized = false;
-  String _selectedRole = 'student'; // 'student' or 'lecturer'
 
   late AnimationController _fadeController;
   late Animation<double> _fadeAnimation;
@@ -147,10 +146,14 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
     setState(() => _isLoading = true);
 
     try {
+      // Determine role based on username length
+      final username = _usernameController.text.trim();
+      final role = username.length == 8 ? 'student' : (username.length == 5 ? 'lecturer' : 'student');
+      
       final token = await _authService.login(
-        _usernameController.text.trim(),
+        username,
         _passwordController.text,
-        role: _selectedRole,
+        role: role,
       );
 
       await _authService.saveToken(token);
@@ -190,7 +193,7 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
 
       if (mounted) {
         // Navigate based on role
-        if (_selectedRole == 'lecturer') {
+        if (role == 'lecturer') {
           Navigator.pushReplacementNamed(context, '/lecturer_home');
         } else {
           // Fetch student card và các dữ liệu khác sau khi login thành công
@@ -409,29 +412,6 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
               style: AppTheme.headingMedium.copyWith(color: textColor),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 20),
-
-            // Role Selection
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                _buildRoleButton(
-                  label: 'Sinh viên',
-                  isSelected: _selectedRole == 'student',
-                  onTap: () => setState(() => _selectedRole = 'student'),
-                  isDark: isDark,
-                  textColor: textColor,
-                ),
-                const SizedBox(width: 12),
-                _buildRoleButton(
-                  label: 'Giảng viên',
-                  isSelected: _selectedRole == 'lecturer',
-                  onTap: () => setState(() => _selectedRole = 'lecturer'),
-                  isDark: isDark,
-                  textColor: textColor,
-                ),
-              ],
-            ),
             const SizedBox(height: 28), // Reduced from 32
 
             // Username Field with Enter key navigation
@@ -617,48 +597,6 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
         borderSide: const BorderSide(color: AppTheme.error, width: 2),
       ),
       floatingLabelBehavior: FloatingLabelBehavior.auto,
-    );
-  }
-
-  Widget _buildRoleButton({
-    required String label,
-    required bool isSelected,
-    required VoidCallback onTap,
-    required bool isDark,
-    required Color textColor,
-  }) {
-    return Expanded(
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          padding: const EdgeInsets.symmetric(vertical: 12),
-          decoration: BoxDecoration(
-            gradient: isSelected
-                ? AppTheme.primaryGradient
-                : null,
-            color: isSelected
-                ? null
-                : (isDark ? Colors.white.withAlpha(26) : Colors.grey.shade200),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: isSelected
-                  ? Colors.transparent
-                  : (isDark ? Colors.white.withAlpha(51) : Colors.grey.shade300),
-            ),
-          ),
-          child: Text(
-            label,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: isSelected ? Colors.white : textColor,
-              fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-              fontSize: 14,
-            ),
-          ),
-        ),
-      ),
     );
   }
 
