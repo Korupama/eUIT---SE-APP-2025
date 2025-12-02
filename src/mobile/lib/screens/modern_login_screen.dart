@@ -288,7 +288,9 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
       body: Stack(
         children: [
           // Animated Background
-          AnimatedBackground(isDark: isDark),
+          Positioned.fill(
+            child: AnimatedBackground(isDark: isDark),
+          ),
 
           // Main Content
           SafeArea(

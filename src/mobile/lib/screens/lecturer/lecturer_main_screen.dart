@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../utils/app_localizations.dart';
 import '../../theme/app_theme.dart';
 import 'lecturer_home_screen.dart';
+import 'lecturer_class_list_screen.dart';
 import '../settings_screen.dart';
 import '../../widgets/draggable_chatbot_overlay.dart';
 import '../../widgets/animated_background.dart';
@@ -26,7 +27,7 @@ class _LecturerMainScreenState extends State<LecturerMainScreen> {
     _pages = [
       const _PlaceholderScreen(title: 'Lịch giảng'),
       const LecturerHomeScreen(),
-      const _PlaceholderScreen(title: 'Danh sách lớp'),
+      const LecturerClassListScreen(),
       const SettingsScreen(),
     ];
     _pageController = PageController(initialPage: _selectedIndex);

@@ -38,6 +38,39 @@ class _LecturerHomeScreenState extends State<LecturerHomeScreen>
   bool _hoverLecturerCard = false;
   bool _hoverClassCard = false;
 
+  void _handleQuickAction(String actionType) {
+    switch (actionType) {
+      case 'lecturer_card':
+        final loc = AppLocalizations.of(context);
+        final isDark = Theme.of(context).brightness == Brightness.dark;
+        _showLecturerCardDialog(loc, isDark);
+        break;
+      case 'lecturer_classes':
+        // Navigate to class list screen
+        final mainScreenState =
+            context.findAncestorStateOfType<State<StatefulWidget>>();
+        if (mainScreenState != null && mainScreenState.mounted) {
+          // Change to class list tab (index 2)
+          (mainScreenState as dynamic)._onNavTap(2);
+        }
+        break;
+      case 'lecturer_schedule':
+        // TODO: Navigate to schedule screen
+        break;
+      case 'lecturer_grading':
+        // TODO: Navigate to grading screen
+        break;
+      case 'lecturer_attendance':
+        // TODO: Navigate to attendance screen
+        break;
+      case 'lecturer_documents':
+        // TODO: Navigate to documents screen
+        break;
+      default:
+        break;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
@@ -462,7 +495,7 @@ class _LecturerHomeScreenState extends State<LecturerHomeScreen>
         mainAxisSize: MainAxisSize.min,
         children: [
           GestureDetector(
-            onTap: () {},
+            onTap: () => _handleQuickAction(action.type),
             child: Container(
               width: 64,
               height: 64,

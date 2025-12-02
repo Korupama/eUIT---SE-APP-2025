@@ -3,6 +3,7 @@ import 'dart:developer' as developer;
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../models/lecturer_models.dart';
+import '../models/teaching_class.dart';
 import '../models/notification_item.dart';
 import '../models/quick_action.dart';
 import '../services/auth_service.dart';
@@ -28,6 +29,9 @@ class LecturerProvider extends ChangeNotifier {
 
   TeachingScheduleItem? _nextClass;
   TeachingScheduleItem? get nextClass => _nextClass;
+
+  List<TeachingClass> _teachingClasses = [];
+  List<TeachingClass> get teachingClasses => _teachingClasses;
 
   List<NotificationItem> _notifications = [];
   List<NotificationItem> get notifications => _notifications;
@@ -229,6 +233,103 @@ class LecturerProvider extends ChangeNotifier {
           body: 'Họp khoa vào thứ 5 tuần sau lúc 14:00',
           isUnread: true,
           time: '1 ngày trước',
+        ),
+      ];
+    }
+  }
+
+  Future<void> fetchTeachingClasses() async {
+    try {
+      final token = await auth.getToken();
+      if (token == null) return;
+
+      final uri = auth.buildUri('/api/Lecturer/classes');
+      final res = await http.get(
+        uri,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      ).timeout(const Duration(seconds: 10));
+
+      if (res.statusCode == 200) {
+        final data = jsonDecode(res.body) as List;
+        _teachingClasses = data.map((item) => TeachingClass.fromJson(item)).toList();
+        notifyListeners();
+      }
+    } catch (e) {
+      developer.log('Error fetching teaching classes: $e', name: 'LecturerProvider');
+      // Mock data for development
+      _teachingClasses = [
+        TeachingClass(
+          maMon: 'NT101',
+          tenMon: 'Mạng máy tính',
+          nhom: 'O11',
+          siSo: 45,
+          soTinChi: 4,
+          phong: 'E4.1',
+          thu: '2',
+          tietBatDau: '1',
+          tietKetThuc: '3',
+          hocKy: 'hk1',
+          namHoc: '2024-2025',
+          trangThai: 'Đang học',
+        ),
+        TeachingClass(
+          maMon: 'NT106',
+          tenMon: 'Lập trình mạng căn bản',
+          nhom: 'O21',
+          siSo: 40,
+          soTinChi: 4,
+          phong: 'E4.2',
+          thu: '4',
+          tietBatDau: '4',
+          tietKetThuc: '6',
+          hocKy: 'hk1',
+          namHoc: '2024-2025',
+          trangThai: 'Đang học',
+        ),
+        TeachingClass(
+          maMon: 'NT131',
+          tenMon: 'Lập trình hướng đối tượng',
+          nhom: 'O12',
+          siSo: 50,
+          soTinChi: 4,
+          phong: 'E3.5',
+          thu: '5',
+          tietBatDau: '7',
+          tietKetThuc: '9',
+          hocKy: 'hk1',
+          namHoc: '2024-2025',
+          trangThai: 'Đang học',
+        ),
+        TeachingClass(
+          maMon: 'NT118',
+          tenMon: 'Phát triển ứng dụng trên thiết bị di động',
+          nhom: 'O11',
+          siSo: 35,
+          soTinChi: 4,
+          phong: 'E4.3',
+          thu: '3',
+          tietBatDau: '1',
+          tietKetThuc: '3',
+          hocKy: 'hk2',
+          namHoc: '2024-2025',
+          trangThai: 'Sắp bắt đầu',
+        ),
+        TeachingClass(
+          maMon: 'NT209',
+          tenMon: 'Nhập môn trí tuệ nhân tạo',
+          nhom: 'O13',
+          siSo: 42,
+          soTinChi: 4,
+          phong: 'E4.4',
+          thu: '6',
+          tietBatDau: '4',
+          tietKetThuc: '6',
+          hocKy: 'hk2',
+          namHoc: '2024-2025',
+          trangThai: 'Sắp bắt đầu',
         ),
       ];
     }
