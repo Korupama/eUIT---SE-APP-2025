@@ -16,7 +16,6 @@ class LecturerConfirmationLetterScreen extends StatefulWidget {
 class _LecturerConfirmationLetterScreenState
     extends State<LecturerConfirmationLetterScreen> {
   String _selectedType = 'working'; // working, salary, insurance
-  String _selectedLanguage = 'vi'; // vi, en
   final _purposeController = TextEditingController();
   final _recipientController = TextEditingController();
   bool _isLoading = false;
@@ -148,8 +147,6 @@ class _LecturerConfirmationLetterScreenState
         children: [
           _buildTypeSelection(isDark),
           const SizedBox(height: 16),
-          _buildLanguageSelection(isDark),
-          const SizedBox(height: 16),
           _buildInfoSection(profile, isDark),
           const SizedBox(height: 16),
           _buildPurposeSection(isDark),
@@ -277,120 +274,6 @@ class _LecturerConfirmationLetterScreenState
             ),
             if (isSelected)
               const Icon(Icons.check_circle, color: AppTheme.bluePrimary),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildLanguageSelection(bool isDark) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(20),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-        child: Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: isDark
-                  ? [
-                      const Color(0xFF1E2746).withOpacity(0.7),
-                      const Color(0xFF2A3F7D).withOpacity(0.7),
-                    ]
-                  : [
-                      Colors.white.withOpacity(0.75),
-                      const Color(0xFFE3F2FD).withOpacity(0.75),
-                    ],
-            ),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: isDark
-                  ? Colors.white.withOpacity(0.1)
-                  : Colors.grey.withOpacity(0.2),
-            ),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Ngôn ngữ',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: isDark ? Colors.white : Colors.black87,
-                ),
-              ),
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildLanguageOption(
-                      value: 'vi',
-                      title: 'Tiếng Việt',
-                      flag: '🇻🇳',
-                      isDark: isDark,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: _buildLanguageOption(
-                      value: 'en',
-                      title: 'English',
-                      flag: '🇬🇧',
-                      isDark: isDark,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildLanguageOption({
-    required String value,
-    required String title,
-    required String flag,
-    required bool isDark,
-  }) {
-    final isSelected = _selectedLanguage == value;
-    return InkWell(
-      onTap: () => setState(() => _selectedLanguage = value),
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: isSelected
-              ? AppTheme.bluePrimary.withOpacity(0.2)
-              : Colors.transparent,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: isSelected
-                ? AppTheme.bluePrimary
-                : (isDark
-                      ? Colors.white.withOpacity(0.1)
-                      : Colors.grey.withOpacity(0.3)),
-          ),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(flag, style: const TextStyle(fontSize: 20)),
-            const SizedBox(width: 8),
-            Text(
-              title,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-                color: isSelected
-                    ? AppTheme.bluePrimary
-                    : (isDark ? Colors.white : Colors.black87),
-              ),
-            ),
           ],
         ),
       ),
