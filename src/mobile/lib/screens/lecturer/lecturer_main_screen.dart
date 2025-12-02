@@ -241,7 +241,7 @@ class _NavItem extends StatelessWidget {
           onTap: onTap,
           borderRadius: BorderRadius.circular(12),
           child: Container(
-            padding: const EdgeInsets.only(top: 1, bottom: 2, left: 4, right: 4),
+            padding: const EdgeInsets.only(top: 0, bottom: 0, left: 2, right: 2),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -320,7 +320,7 @@ class _NavItem extends StatelessWidget {
                     ),
                   ),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 2),
                 TweenAnimationBuilder<Color?>(
                   duration: const Duration(milliseconds: 200),
                   tween: ColorTween(
@@ -339,12 +339,12 @@ class _NavItem extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       maxLines: 1,
                       style: TextStyle(
-                        fontSize: 11,
+                        fontSize: 10,
                         fontWeight: selectedIndex == index
                             ? FontWeight.w600
                             : FontWeight.normal,
                         color: color,
-                        height: 0.7,
+                        height: 1.0,
                       ),
                     );
                   },

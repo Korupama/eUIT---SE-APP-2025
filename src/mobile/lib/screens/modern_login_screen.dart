@@ -292,54 +292,65 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
 
           // Main Content
           SafeArea(
-            child: SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                child: FadeTransition(
-                  opacity: _fadeAnimation,
-                  child: Column(
-                    children: [
-                      const SizedBox(height: 16), // Reduced from 20
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                return SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      minHeight: constraints.maxHeight,
+                    ),
+                    child: IntrinsicHeight(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                        child: FadeTransition(
+                          opacity: _fadeAnimation,
+                          child: Column(
+                            children: [
+                              const SizedBox(height: 16), // Reduced from 20
 
-                      // Control buttons (Top Right)
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          LanguageSwitch(
-                            isVietnamese: isVietnamese,
-                            onToggle: () => languageController.toggleLanguage(),
+                              // Control buttons (Top Right)
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  LanguageSwitch(
+                                    isVietnamese: isVietnamese,
+                                    onToggle: () => languageController.toggleLanguage(),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  ThemeSwitch(
+                                    isDark: isDark,
+                                    onToggle: () => themeController.toggleTheme(),
+                                  ),
+                                ],
+                              ),
+
+                              const SizedBox(height: 24), // Reduced from 40
+
+                              // Logo & Title
+                              _buildLogoSection(textColor, secondaryTextColor, loc, isDark),
+
+                              const SizedBox(height: 24), // Reduced from 40
+
+                              // Login Form
+                              _buildLoginForm(
+                                isDark: isDark,
+                                textColor: textColor,
+                                cardColor: cardColor,
+                                borderColor: borderColor,
+                                secondaryTextColor: secondaryTextColor,
+                                loc: loc,
+                              ),
+
+                              const SizedBox(height: 24), // Reduced from 32
+                            ],
                           ),
-                          const SizedBox(width: 12),
-                          ThemeSwitch(
-                            isDark: isDark,
-                            onToggle: () => themeController.toggleTheme(),
-                          ),
-                        ],
+                        ),
                       ),
-
-                      const SizedBox(height: 40), // Reduced from 60
-
-                      // Logo & Title
-                      _buildLogoSection(textColor, secondaryTextColor, loc, isDark),
-
-                      const SizedBox(height: 40), // Reduced from 60
-
-                      // Login Form
-                      _buildLoginForm(
-                        isDark: isDark,
-                        textColor: textColor,
-                        cardColor: cardColor,
-                        borderColor: borderColor,
-                        secondaryTextColor: secondaryTextColor,
-                        loc: loc,
-                      ),
-
-                      const SizedBox(height: 32), // Reduced from 40
-                    ],
+                    ),
                   ),
-                ),
-              ),
+                );
+              },
             ),
           ),
         ],

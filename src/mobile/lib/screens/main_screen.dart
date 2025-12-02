@@ -363,10 +363,10 @@ class _NavItem extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       maxLines: 1,
                       style: TextStyle(
-                        fontSize: 11,
+                        fontSize: 10,
                         fontWeight: selectedIndex == index ? FontWeight.w600 : FontWeight.normal,
                         color: color,
-                        height: 0.7,
+                        height: 1.0,
                       ),
                     );
                   },
