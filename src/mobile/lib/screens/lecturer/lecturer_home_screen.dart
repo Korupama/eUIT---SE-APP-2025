@@ -55,10 +55,16 @@ class _LecturerHomeScreenState extends State<LecturerHomeScreen>
         }
         break;
       case 'lecturer_schedule':
-        // TODO: Navigate to schedule screen
+        // Navigate to schedule screen
+        final mainScreenState =
+            context.findAncestorStateOfType<State<StatefulWidget>>();
+        if (mainScreenState != null && mainScreenState.mounted) {
+          // Change to schedule tab (index 0)
+          (mainScreenState as dynamic)._onNavTap(0);
+        }
         break;
       case 'lecturer_grading':
-        // TODO: Navigate to grading screen
+        Navigator.pushNamed(context, '/lecturer_grade_management');
         break;
       case 'lecturer_attendance':
         // TODO: Navigate to attendance screen

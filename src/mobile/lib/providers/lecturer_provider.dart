@@ -26,6 +26,7 @@ class LecturerProvider extends ChangeNotifier {
 
   List<TeachingScheduleItem> _teachingSchedule = [];
   List<TeachingScheduleItem> get teachingSchedule => _teachingSchedule;
+  List<TeachingScheduleItem> get schedule => _teachingSchedule; // Alias for compatibility
 
   TeachingScheduleItem? _nextClass;
   TeachingScheduleItem? get nextClass => _nextClass;
@@ -239,6 +240,9 @@ class LecturerProvider extends ChangeNotifier {
   }
 
   Future<void> fetchTeachingClasses() async {
+    _isLoading = true;
+    notifyListeners();
+    
     try {
       final token = await auth.getToken();
       if (token == null) return;
@@ -332,7 +336,22 @@ class LecturerProvider extends ChangeNotifier {
           trangThai: 'Sắp bắt đầu',
         ),
       ];
+    } finally {
+      _isLoading = false;
+      notifyListeners();
     }
+  }
+
+  Future<void> fetchSchedule() async {
+    // Fetch schedule - for now use mock data from _teachingSchedule
+    // This is a placeholder for future API integration
+    _isLoading = true;
+    notifyListeners();
+    
+    await Future.delayed(const Duration(milliseconds: 500));
+    
+    _isLoading = false;
+    notifyListeners();
   }
 
   Future<void> refresh() async {

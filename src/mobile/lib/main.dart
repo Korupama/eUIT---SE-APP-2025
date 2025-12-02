@@ -6,6 +6,7 @@ import 'screens/main_screen.dart';
 import 'screens/lecturer/lecturer_main_screen.dart';
 import 'screens/lecturer/lecturer_profile_screen.dart';
 import 'screens/lecturer/lecturer_class_detail_screen.dart';
+import 'screens/lecturer/lecturer_grade_management_screen.dart';
 import 'screens/chatbot.dart';
 import 'screens/notifications_screen.dart';
 import 'services/theme_controller.dart';
@@ -89,6 +90,7 @@ class MyApp extends StatelessWidget {
         '/home': (context) => const MainScreen(),
         '/lecturer_home': (context) => const LecturerMainScreen(),
         '/lecturer_profile': (context) => const LecturerProfileScreen(),
+        '/lecturer_grade_management': (context) => const LecturerGradeManagementScreen(),
         '/chatbot': (context) => const ChatbotScreen(),
         '/notifications': (context) => const NotificationsScreen(),
         '/settings': (context) => const SettingsScreen(),

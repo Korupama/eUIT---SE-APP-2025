@@ -4,6 +4,7 @@ import '../../utils/app_localizations.dart';
 import '../../theme/app_theme.dart';
 import 'lecturer_home_screen.dart';
 import 'lecturer_class_list_screen.dart';
+import 'lecturer_schedule_screen.dart';
 import '../settings_screen.dart';
 import '../../widgets/draggable_chatbot_overlay.dart';
 import '../../widgets/animated_background.dart';
@@ -25,7 +26,7 @@ class _LecturerMainScreenState extends State<LecturerMainScreen> {
   void initState() {
     super.initState();
     _pages = [
-      const KeepAliveWrapper(child: _PlaceholderScreen(title: 'Lịch giảng')),
+      const KeepAliveWrapper(child: LecturerScheduleScreen()),
       const KeepAliveWrapper(child: LecturerHomeScreen()),
       const KeepAliveWrapper(child: LecturerClassListScreen()),
       const KeepAliveWrapper(child: SettingsScreen()),
