@@ -3,11 +3,14 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'screens/modern_login_screen.dart';
 import 'screens/main_screen.dart';
+import 'screens/lecturer/lecturer_main_screen.dart';
+import 'screens/lecturer/lecturer_profile_screen.dart';
 import 'screens/chatbot.dart';
 import 'screens/notifications_screen.dart';
 import 'services/theme_controller.dart';
 import 'services/language_controller.dart';
 import 'providers/home_provider.dart';
+import 'providers/lecturer_provider.dart';
 import 'utils/app_localizations.dart';
 import 'utils/app_colors.dart';
 import 'screens/settings_screen.dart';
@@ -33,6 +36,7 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (_) => LanguageController()),
         // Inject the shared AuthService into HomeProvider so it doesn't create its own
         ChangeNotifierProvider(create: (context) => HomeProvider(auth: context.read<AuthService>())),
+        ChangeNotifierProvider(create: (context) => LecturerProvider(auth: context.read<AuthService>())),
         ChangeNotifierProvider(create: (_) => ChatbotProvider()),
       ],
       child: const MyApp(),
@@ -81,6 +85,8 @@ class MyApp extends StatelessWidget {
         '/': (context) => const ModernLoginScreen(),
         '/services': (context) => const ServicesScreen(),
         '/home': (context) => const MainScreen(),
+        '/lecturer_home': (context) => const LecturerMainScreen(),
+        '/lecturer_profile': (context) => const LecturerProfileScreen(),
         '/chatbot': (context) => const ChatbotScreen(),
         '/notifications': (context) => const NotificationsScreen(),
         '/settings': (context) => const SettingsScreen(),
