@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'dart:ui';
 import '../../providers/lecturer_provider.dart';
 import '../../models/document.dart';
+import '../../widgets/animated_background.dart';
 
 class LecturerDocumentsScreen extends StatefulWidget {
   const LecturerDocumentsScreen({super.key});
@@ -20,7 +21,6 @@ class _LecturerDocumentsScreenState extends State<LecturerDocumentsScreen>
   String? _selectedMaMon;
   String? _selectedLoaiTaiLieu;
   final TextEditingController _searchController = TextEditingController();
-  bool _isGridView = true;
 
   @override
   void initState() {
@@ -42,14 +42,16 @@ class _LecturerDocumentsScreenState extends State<LecturerDocumentsScreen>
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: isDark
-          ? const Color(0xFF0A0E21)
-          : const Color(0xFFF5F7FA),
-      body: CustomScrollView(
-        slivers: [
-          _buildAppBar(isDark),
-          SliverToBoxAdapter(child: _buildFilters(isDark)),
-          _buildDocumentsList(isDark),
+      body: Stack(
+        children: [
+          AnimatedBackground(isDark: isDark),
+          CustomScrollView(
+            slivers: [
+              _buildAppBar(isDark),
+              SliverToBoxAdapter(child: _buildFilters(isDark)),
+              _buildDocumentsList(isDark),
+            ],
+          ),
         ],
       ),
       floatingActionButton: _buildUploadButton(isDark),
@@ -63,16 +65,6 @@ class _LecturerDocumentsScreenState extends State<LecturerDocumentsScreen>
       pinned: true,
       backgroundColor: isDark ? const Color(0xFF1E2746) : Colors.white,
       elevation: 0,
-      actions: [
-        IconButton(
-          icon: Icon(_isGridView ? Icons.list : Icons.grid_view),
-          onPressed: () {
-            setState(() {
-              _isGridView = !_isGridView;
-            });
-          },
-        ),
-      ],
       flexibleSpace: FlexibleSpaceBar(
         title: const Text(
           'Tài liệu giảng dạy',
@@ -286,26 +278,18 @@ class _LecturerDocumentsScreenState extends State<LecturerDocumentsScreen>
         if (provider.isLoading) {
           return SliverPadding(
             padding: const EdgeInsets.all(16),
-            sliver: _isGridView
-                ? SliverGrid(
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          childAspectRatio: 0.75,
-                          crossAxisSpacing: 16,
-                          mainAxisSpacing: 16,
-                        ),
-                    delegate: SliverChildBuilderDelegate(
-                      (context, index) => _buildShimmerCard(isDark),
-                      childCount: 4,
-                    ),
-                  )
-                : SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                      (context, index) => _buildShimmerCard(isDark),
-                      childCount: 3,
-                    ),
-                  ),
+            sliver: SliverGrid(
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                childAspectRatio: 0.75,
+                crossAxisSpacing: 16,
+                mainAxisSpacing: 16,
+              ),
+              delegate: SliverChildBuilderDelegate(
+                (context, index) => _buildShimmerCard(isDark),
+                childCount: 4,
+              ),
+            ),
           );
         }
 
@@ -328,25 +312,18 @@ class _LecturerDocumentsScreenState extends State<LecturerDocumentsScreen>
 
         return SliverPadding(
           padding: const EdgeInsets.all(16),
-          sliver: _isGridView
-              ? SliverGrid(
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    childAspectRatio: 0.75,
-                    crossAxisSpacing: 16,
-                    mainAxisSpacing: 16,
-                  ),
-                  delegate: SliverChildBuilderDelegate((context, index) {
-                    final document = documents[index];
-                    return _buildDocumentGridCard(document, isDark);
-                  }, childCount: documents.length),
-                )
-              : SliverList(
-                  delegate: SliverChildBuilderDelegate((context, index) {
-                    final document = documents[index];
-                    return _buildDocumentListCard(document, isDark);
-                  }, childCount: documents.length),
-                ),
+          sliver: SliverGrid(
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              childAspectRatio: 0.75,
+              crossAxisSpacing: 16,
+              mainAxisSpacing: 16,
+            ),
+            delegate: SliverChildBuilderDelegate((context, index) {
+              final document = documents[index];
+              return _buildDocumentGridCard(document, isDark);
+            }, childCount: documents.length),
+          ),
         );
       },
     );
@@ -378,96 +355,92 @@ class _LecturerDocumentsScreenState extends State<LecturerDocumentsScreen>
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(20),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-            child: Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    isDark
-                        ? Colors.white.withOpacity(0.05)
-                        : Colors.white.withOpacity(0.7),
-                    isDark
-                        ? Colors.white.withOpacity(0.02)
-                        : Colors.white.withOpacity(0.3),
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  isDark
+                      ? Colors.white.withOpacity(0.05)
+                      : Colors.white.withOpacity(0.7),
+                  isDark
+                      ? Colors.white.withOpacity(0.02)
+                      : Colors.white.withOpacity(0.3),
+                ],
+              ),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: isDark
+                    ? Colors.white.withOpacity(0.1)
+                    : Colors.white.withOpacity(0.5),
+              ),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // File icon and type badge
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(
+                      width: 50,
+                      height: 50,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [typeColor.withOpacity(0.8), typeColor],
+                        ),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Icon(fileIcon, color: Colors.white, size: 28),
+                    ),
+                    PopupMenuButton<String>(
+                      icon: Icon(
+                        Icons.more_vert,
+                        color: isDark ? Colors.white70 : Colors.black54,
+                      ),
+                      itemBuilder: (context) => [
+                        const PopupMenuItem(
+                          value: 'share',
+                          child: Row(
+                            children: [
+                              Icon(Icons.share, size: 20),
+                              SizedBox(width: 8),
+                              Text('Chia sẻ'),
+                            ],
+                          ),
+                        ),
+                        const PopupMenuItem(
+                          value: 'download',
+                          child: Row(
+                            children: [
+                              Icon(Icons.download, size: 20),
+                              SizedBox(width: 8),
+                              Text('Tải xuống'),
+                            ],
+                          ),
+                        ),
+                        const PopupMenuItem(
+                          value: 'delete',
+                          child: Row(
+                            children: [
+                              Icon(Icons.delete, size: 20, color: Colors.red),
+                              SizedBox(width: 8),
+                              Text('Xóa', style: TextStyle(color: Colors.red)),
+                            ],
+                          ),
+                        ),
+                      ],
+                      onSelected: (value) => _handleMenuAction(value, document),
+                    ),
                   ],
                 ),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(
-                  color: isDark
-                      ? Colors.white.withOpacity(0.1)
-                      : Colors.white.withOpacity(0.5),
-                ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // File icon and type badge
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Container(
-                        width: 50,
-                        height: 50,
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [typeColor.withOpacity(0.8), typeColor],
-                          ),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Icon(fileIcon, color: Colors.white, size: 28),
-                      ),
-                      PopupMenuButton<String>(
-                        icon: Icon(
-                          Icons.more_vert,
-                          color: isDark ? Colors.white70 : Colors.black54,
-                        ),
-                        itemBuilder: (context) => [
-                          const PopupMenuItem(
-                            value: 'share',
-                            child: Row(
-                              children: [
-                                Icon(Icons.share, size: 20),
-                                SizedBox(width: 8),
-                                Text('Chia sẻ'),
-                              ],
-                            ),
-                          ),
-                          const PopupMenuItem(
-                            value: 'download',
-                            child: Row(
-                              children: [
-                                Icon(Icons.download, size: 20),
-                                SizedBox(width: 8),
-                                Text('Tải xuống'),
-                              ],
-                            ),
-                          ),
-                          const PopupMenuItem(
-                            value: 'delete',
-                            child: Row(
-                              children: [
-                                Icon(Icons.delete, size: 20, color: Colors.red),
-                                SizedBox(width: 8),
-                                Text(
-                                  'Xóa',
-                                  style: TextStyle(color: Colors.red),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                        onSelected: (value) =>
-                            _handleMenuAction(value, document),
-                      ),
-                    ],
-                  ),
-                  const Spacer(),
-                  // Title
-                  Text(
+                const SizedBox(height: 12),
+                // Title
+                Flexible(
+                  child: Text(
                     document.tieuDe,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
@@ -478,60 +451,60 @@ class _LecturerDocumentsScreenState extends State<LecturerDocumentsScreen>
                       height: 1.3,
                     ),
                   ),
-                  const SizedBox(height: 8),
-                  // Course
-                  Text(
-                    document.maMon,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: isDark ? Colors.white60 : Colors.black54,
-                    ),
+                ),
+                const SizedBox(height: 8),
+                // Course
+                Text(
+                  document.maMon,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: isDark ? Colors.white60 : Colors.black54,
                   ),
-                  const SizedBox(height: 8),
-                  // Stats
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.visibility_outlined,
-                        size: 14,
+                ),
+                const SizedBox(height: 8),
+                // Stats
+                Row(
+                  children: [
+                    Icon(
+                      Icons.visibility_outlined,
+                      size: 14,
+                      color: isDark ? Colors.white54 : Colors.black45,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      '${document.luotXem}',
+                      style: TextStyle(
+                        fontSize: 11,
                         color: isDark ? Colors.white54 : Colors.black45,
                       ),
-                      const SizedBox(width: 4),
-                      Text(
-                        '${document.luotXem}',
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: isDark ? Colors.white54 : Colors.black45,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Icon(
-                        Icons.download_outlined,
-                        size: 14,
+                    ),
+                    const SizedBox(width: 12),
+                    Icon(
+                      Icons.download_outlined,
+                      size: 14,
+                      color: isDark ? Colors.white54 : Colors.black45,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      '${document.luotTai}',
+                      style: TextStyle(
+                        fontSize: 11,
                         color: isDark ? Colors.white54 : Colors.black45,
                       ),
-                      const SizedBox(width: 4),
-                      Text(
-                        '${document.luotTai}',
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: isDark ? Colors.white54 : Colors.black45,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  // Size
-                  Text(
-                    document.formattedSize,
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
-                      color: typeColor,
                     ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                // Size
+                Text(
+                  document.formattedSize,
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: typeColor,
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),
