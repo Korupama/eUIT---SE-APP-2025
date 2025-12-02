@@ -5,6 +5,8 @@ import 'screens/modern_login_screen.dart';
 import 'screens/main_screen.dart';
 import 'screens/lecturer/lecturer_main_screen.dart';
 import 'screens/lecturer/lecturer_profile_screen.dart';
+import 'screens/lecturer/lecturer_class_list_screen.dart';
+import 'screens/lecturer/lecturer_schedule_screen.dart';
 import 'screens/lecturer/lecturer_class_detail_screen.dart';
 import 'screens/lecturer/lecturer_grade_management_screen.dart';
 import 'screens/lecturer/lecturer_appeals_screen.dart';
@@ -104,6 +106,8 @@ class MyApp extends StatelessWidget {
         '/home': (context) => const MainScreen(),
         '/lecturer_home': (context) => const LecturerMainScreen(),
         '/lecturer_profile': (context) => const LecturerProfileScreen(),
+        '/lecturer_class_list': (context) => const LecturerClassListScreen(),
+        '/lecturer_schedule': (context) => const LecturerScheduleScreen(),
         '/lecturer_grade_management': (context) =>
             const LecturerGradeManagementScreen(),
         '/lecturer_appeals': (context) => const LecturerAppealsScreen(),

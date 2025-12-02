@@ -67,7 +67,7 @@ class _LecturerExamScheduleScreenState extends State<LecturerExamScheduleScreen>
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
-              Icons.assignment_turned_in,
+              Icons.event_note,
               size: 24,
               color: isDark ? Colors.white : Colors.black87,
             ),

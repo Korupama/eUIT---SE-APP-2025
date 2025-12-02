@@ -47,21 +47,11 @@ class _LecturerHomeScreenState extends State<LecturerHomeScreen>
         break;
       case 'lecturer_classes':
         // Navigate to class list screen
-        final mainScreenState = context
-            .findAncestorStateOfType<State<StatefulWidget>>();
-        if (mainScreenState != null && mainScreenState.mounted) {
-          // Change to class list tab (index 2)
-          (mainScreenState as dynamic)._onNavTap(2);
-        }
+        Navigator.pushNamed(context, '/lecturer_class_list');
         break;
       case 'lecturer_schedule':
         // Navigate to schedule screen
-        final mainScreenState = context
-            .findAncestorStateOfType<State<StatefulWidget>>();
-        if (mainScreenState != null && mainScreenState.mounted) {
-          // Change to schedule tab (index 1)
-          (mainScreenState as dynamic)._onNavTap(1);
-        }
+        Navigator.pushNamed(context, '/lecturer_schedule');
         break;
       case 'lecturer_grading':
         Navigator.pushNamed(context, '/lecturer_grade_management');
