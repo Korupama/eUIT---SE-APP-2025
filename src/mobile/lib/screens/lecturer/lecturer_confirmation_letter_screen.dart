@@ -202,19 +202,19 @@ class _LecturerConfirmationLetterScreenState
               const SizedBox(height: 12),
               _buildTypeOption(
                 value: 'working',
-                title: 'Xác nhận đang công tác',
+                title: 'Giấy xác nhận A',
                 icon: Icons.work,
                 isDark: isDark,
               ),
               _buildTypeOption(
                 value: 'salary',
-                title: 'Xác nhận lương',
+                title: 'Giấy xác nhận B',
                 icon: Icons.attach_money,
                 isDark: isDark,
               ),
               _buildTypeOption(
                 value: 'insurance',
-                title: 'Xác nhận bảo hiểm',
+                title: 'Giấy xác nhận C',
                 icon: Icons.health_and_safety,
                 isDark: isDark,
               ),
@@ -507,13 +507,9 @@ class _LecturerConfirmationLetterScreenState
 
   Widget _buildHistorySection(bool isDark) {
     final mockHistory = [
-      {
-        'type': 'Xác nhận đang công tác',
-        'date': '15/11/2025',
-        'status': 'approved',
-      },
-      {'type': 'Xác nhận lương', 'date': '10/10/2025', 'status': 'approved'},
-      {'type': 'Xác nhận bảo hiểm', 'date': '28/11/2025', 'status': 'pending'},
+      {'type': 'Giấy xác nhận A', 'date': '15/11/2025', 'status': 'approved'},
+      {'type': 'Giấy xác nhận B', 'date': '10/10/2025', 'status': 'approved'},
+      {'type': 'Giấy xác nhận C', 'date': '28/11/2025', 'status': 'pending'},
     ];
 
     return ClipRRect(
