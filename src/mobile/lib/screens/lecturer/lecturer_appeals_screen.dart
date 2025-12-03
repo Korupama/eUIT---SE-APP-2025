@@ -274,10 +274,6 @@ class _LecturerAppealsScreenState extends State<LecturerAppealsScreen>
         statusColor = Colors.green;
         statusIcon = Icons.check_circle_outline;
         break;
-      case 'rejected':
-        statusColor = Colors.red;
-        statusIcon = Icons.cancel_outlined;
-        break;
       default:
         statusColor = Colors.grey;
         statusIcon = Icons.help_outline;
