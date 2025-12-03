@@ -19,7 +19,6 @@ class _LecturerAppealsScreenState extends State<LecturerAppealsScreen>
 
   String? _selectedMaMon;
   String? _selectedNhom;
-  String? _selectedTrangThai;
   final TextEditingController _searchController = TextEditingController();
 
   @override
@@ -172,60 +171,6 @@ class _LecturerAppealsScreenState extends State<LecturerAppealsScreen>
             ),
           ),
           const SizedBox(height: 12),
-          // Filter chips
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              _buildFilterChip(
-                'Tất cả trạng thái',
-                _selectedTrangThai == null,
-                () {
-                  setState(() {
-                    _selectedTrangThai = null;
-                  });
-                  _applyFilters();
-                },
-                isDark,
-              ),
-              _buildFilterChip(
-                'Chờ xử lý',
-                _selectedTrangThai == 'pending',
-                () {
-                  setState(() {
-                    _selectedTrangThai = 'pending';
-                  });
-                  _applyFilters();
-                },
-                isDark,
-                color: Colors.orange,
-              ),
-              _buildFilterChip(
-                'Đã duyệt',
-                _selectedTrangThai == 'approved',
-                () {
-                  setState(() {
-                    _selectedTrangThai = 'approved';
-                  });
-                  _applyFilters();
-                },
-                isDark,
-                color: Colors.green,
-              ),
-              _buildFilterChip(
-                'Từ chối',
-                _selectedTrangThai == 'rejected',
-                () {
-                  setState(() {
-                    _selectedTrangThai = 'rejected';
-                  });
-                  _applyFilters();
-                },
-                isDark,
-                color: Colors.red,
-              ),
-            ],
-          ),
         ],
       ),
     );
@@ -535,82 +480,6 @@ class _LecturerAppealsScreenState extends State<LecturerAppealsScreen>
                   ],
                 ),
                 const SizedBox(height: 12),
-                // Reason
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: isDark
-                        ? const Color(0xFF0A0E21).withOpacity(0.5)
-                        : const Color(0xFFF5F7FA).withOpacity(0.8),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Lý do phúc khảo:',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          color: isDark ? Colors.white70 : Colors.black54,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        appeal.lyDo,
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: isDark ? Colors.white : Colors.black87,
-                          height: 1.4,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                if (appeal.ghiChu != null && appeal.ghiChu!.isNotEmpty) ...[
-                  const SizedBox(height: 12),
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: statusColor.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: statusColor.withOpacity(0.3)),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.note_outlined,
-                              size: 14,
-                              color: statusColor,
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              'Ghi chú của giảng viên:',
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                                color: statusColor,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          appeal.ghiChu!,
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: isDark ? Colors.white : Colors.black87,
-                            height: 1.4,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-                const SizedBox(height: 12),
                 // Date info
                 Row(
                   children: [
@@ -645,33 +514,18 @@ class _LecturerAppealsScreenState extends State<LecturerAppealsScreen>
                     ],
                   ],
                 ),
-                // Action buttons for pending appeals
-                if (appeal.trangThai == 'pending') ...[
-                  const SizedBox(height: 16),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _buildActionButton(
-                          'Từ chối',
-                          Icons.close,
-                          Colors.red,
-                          () => _handleAppeal(appeal, 'rejected'),
-                          isDark,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: _buildActionButton(
-                          'Duyệt',
-                          Icons.check,
-                          Colors.green,
-                          () => _handleAppeal(appeal, 'approved'),
-                          isDark,
-                        ),
-                      ),
-                    ],
+                // Action button to enter grade
+                const SizedBox(height: 16),
+                SizedBox(
+                  width: double.infinity,
+                  child: _buildActionButton(
+                    'Nhập điểm',
+                    Icons.edit,
+                    const Color(0xFF2196F3),
+                    () => _handleGradeInput(appeal),
+                    isDark,
                   ),
-                ],
+                ),
               ],
             ),
           ),
@@ -805,21 +659,21 @@ class _LecturerAppealsScreenState extends State<LecturerAppealsScreen>
   }
 
   void _applyFilters() {
-    Provider.of<LecturerProvider>(context, listen: false).fetchAppeals(
-      maMon: _selectedMaMon,
-      nhom: _selectedNhom,
-      trangThai: _selectedTrangThai,
-    );
+    Provider.of<LecturerProvider>(
+      context,
+      listen: false,
+    ).fetchAppeals(maMon: _selectedMaMon, nhom: _selectedNhom);
   }
 
-  void _handleAppeal(Appeal appeal, String action) {
+  void _handleGradeInput(Appeal appeal) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     showDialog(
       context: context,
       builder: (context) {
-        final ghiChuController = TextEditingController();
-        final diemMoiController = TextEditingController();
+        final diemMoiController = TextEditingController(
+          text: appeal.diemMoi?.toString() ?? '',
+        );
 
         return AlertDialog(
           backgroundColor: isDark ? const Color(0xFF1E2746) : Colors.white,
@@ -827,7 +681,7 @@ class _LecturerAppealsScreenState extends State<LecturerAppealsScreen>
             borderRadius: BorderRadius.circular(20),
           ),
           title: Text(
-            action == 'approved' ? 'Duyệt phúc khảo' : 'Từ chối phúc khảo',
+            'Nhập điểm phúc khảo',
             style: TextStyle(
               color: isDark ? Colors.white : Colors.black87,
               fontWeight: FontWeight.bold,
@@ -858,49 +712,30 @@ class _LecturerAppealsScreenState extends State<LecturerAppealsScreen>
                     color: isDark ? Colors.white70 : Colors.black87,
                   ),
                 ),
-                const SizedBox(height: 16),
-                if (action == 'approved') ...[
-                  TextField(
-                    controller: diemMoiController,
-                    keyboardType: const TextInputType.numberWithOptions(
-                      decimal: true,
-                    ),
-                    style: TextStyle(
-                      color: isDark ? Colors.white : Colors.black87,
-                    ),
-                    decoration: InputDecoration(
-                      labelText: 'Điểm mới',
-                      labelStyle: TextStyle(
-                        color: isDark ? Colors.white70 : Colors.black54,
-                      ),
-                      hintText: 'Nhập điểm mới (0-10)',
-                      hintStyle: TextStyle(
-                        color: isDark ? Colors.white38 : Colors.black38,
-                      ),
-                      filled: true,
-                      fillColor: isDark
-                          ? const Color(0xFF0A0E21)
-                          : const Color(0xFFF5F7FA),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide.none,
-                      ),
-                    ),
+                const SizedBox(height: 8),
+                Text(
+                  'Điểm cũ: ${appeal.diemCu ?? 'N/A'}',
+                  style: TextStyle(
+                    color: isDark ? Colors.white70 : Colors.black87,
+                    fontWeight: FontWeight.bold,
                   ),
-                  const SizedBox(height: 16),
-                ],
+                ),
+                const SizedBox(height: 16),
                 TextField(
-                  controller: ghiChuController,
-                  maxLines: 3,
+                  controller: diemMoiController,
+                  autofocus: true,
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
                   style: TextStyle(
                     color: isDark ? Colors.white : Colors.black87,
                   ),
                   decoration: InputDecoration(
-                    labelText: 'Ghi chú',
+                    labelText: 'Điểm mới',
                     labelStyle: TextStyle(
                       color: isDark ? Colors.white70 : Colors.black54,
                     ),
-                    hintText: 'Nhập ghi chú (tùy chọn)',
+                    hintText: 'Nhập điểm mới (0-10)',
                     hintStyle: TextStyle(
                       color: isDark ? Colors.white38 : Colors.black38,
                     ),
@@ -929,49 +764,47 @@ class _LecturerAppealsScreenState extends State<LecturerAppealsScreen>
             ),
             ElevatedButton(
               onPressed: () async {
-                double? diemMoi;
-                if (action == 'approved' && diemMoiController.text.isNotEmpty) {
-                  diemMoi = double.tryParse(diemMoiController.text);
-                  if (diemMoi == null || diemMoi < 0 || diemMoi > 10) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: const Text('Điểm phải từ 0 đến 10'),
-                        backgroundColor: Colors.red,
-                        behavior: SnackBarBehavior.floating,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
+                if (diemMoiController.text.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: const Text('Vui lòng nhập điểm'),
+                      backgroundColor: Colors.orange,
+                      behavior: SnackBarBehavior.floating,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
                       ),
-                    );
-                    return;
-                  }
+                    ),
+                  );
+                  return;
+                }
+
+                final diemMoi = double.tryParse(diemMoiController.text);
+                if (diemMoi == null || diemMoi < 0 || diemMoi > 10) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: const Text('Điểm phải từ 0 đến 10'),
+                      backgroundColor: Colors.red,
+                      behavior: SnackBarBehavior.floating,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  );
+                  return;
                 }
 
                 await Provider.of<LecturerProvider>(
                   context,
                   listen: false,
-                ).handleAppeal(
-                  appeal.id,
-                  action,
-                  ghiChu: ghiChuController.text.isEmpty
-                      ? null
-                      : ghiChuController.text,
-                  diemMoi: diemMoi,
-                );
+                ).handleAppeal(appeal.id, 'approved', diemMoi: diemMoi);
 
                 if (!mounted) return;
                 Navigator.pop(context);
 
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text(
-                      action == 'approved'
-                          ? 'Đã duyệt phúc khảo thành công'
-                          : 'Đã từ chối phúc khảo',
-                    ),
-                    backgroundColor: action == 'approved'
-                        ? Colors.green
-                        : Colors.red,
+                    content: const Text('Đã cập nhật điểm thành công'),
+                    backgroundColor: Colors.green,
                     behavior: SnackBarBehavior.floating,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -980,15 +813,13 @@ class _LecturerAppealsScreenState extends State<LecturerAppealsScreen>
                 );
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: action == 'approved'
-                    ? Colors.green
-                    : Colors.red,
+                backgroundColor: const Color(0xFF2196F3),
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              child: Text(action == 'approved' ? 'Duyệt' : 'Từ chối'),
+              child: const Text('Lưu'),
             ),
           ],
         );

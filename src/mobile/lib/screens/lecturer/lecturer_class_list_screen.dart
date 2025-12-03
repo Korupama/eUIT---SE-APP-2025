@@ -25,6 +25,7 @@ class _LecturerClassListScreenState extends State<LecturerClassListScreen>
 
   late ScrollController _scrollController;
   String _selectedSemester = 'all';
+  String _selectedYear = '2024-2025';
   String _searchQuery = '';
   final TextEditingController _searchController = TextEditingController();
 
@@ -195,6 +196,74 @@ class _LecturerClassListScreenState extends State<LecturerClassListScreen>
                 ),
               ),
             ),
+          ),
+          const SizedBox(height: 12),
+
+          // Year and Semester filters
+          Row(
+            children: [
+              // Year dropdown
+              Expanded(
+                flex: 2,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  decoration: BoxDecoration(
+                    color: (isDark ? AppTheme.darkCard : AppTheme.lightCard)
+                        .withOpacity(0.8),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color:
+                          (isDark ? AppTheme.darkBorder : AppTheme.lightBorder)
+                              .withOpacity(0.3),
+                    ),
+                  ),
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<String>(
+                      value: _selectedYear,
+                      isExpanded: true,
+                      icon: Icon(
+                        Icons.arrow_drop_down,
+                        color: isDark ? AppTheme.darkText : AppTheme.lightText,
+                      ),
+                      style: TextStyle(
+                        color: isDark ? AppTheme.darkText : AppTheme.lightText,
+                        fontSize: 14,
+                      ),
+                      dropdownColor: isDark ? AppTheme.darkCard : Colors.white,
+                      items:
+                          [
+                            '2024-2025',
+                            '2023-2024',
+                            '2022-2023',
+                            '2021-2022',
+                          ].map((String year) {
+                            return DropdownMenuItem<String>(
+                              value: year,
+                              child: Text('Năm học $year'),
+                            );
+                          }).toList(),
+                      onChanged: (String? newValue) {
+                        if (newValue != null) {
+                          setState(() {
+                            _selectedYear = newValue;
+                          });
+                        }
+                      },
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              // Semester label
+              Text(
+                'Học kỳ:',
+                style: TextStyle(
+                  color: isDark ? AppTheme.darkText : AppTheme.lightText,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 12),
 
