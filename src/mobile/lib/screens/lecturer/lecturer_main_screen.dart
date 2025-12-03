@@ -1,24 +1,23 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:mobile/screens/schedule/schedule_main_screen.dart';
-import '../utils/app_localizations.dart';
-import '../theme/app_theme.dart';
-import 'home_screen.dart';
-import 'search/navigation_screen.dart';
-import 'settings_screen.dart';
-import '../widgets/draggable_chatbot_overlay.dart';
-import 'services_screen.dart';
-import '../widgets/animated_background.dart';
+import '../../utils/app_localizations.dart';
+import '../../theme/app_theme.dart';
+import 'lecturer_home_screen.dart';
+import 'lecturer_class_list_screen.dart';
+import 'lecturer_schedule_screen.dart';
+import '../settings_screen.dart';
+import '../../widgets/draggable_chatbot_overlay.dart';
+import '../../widgets/animated_background.dart';
 
-class MainScreen extends StatefulWidget {
-  const MainScreen({super.key});
+class LecturerMainScreen extends StatefulWidget {
+  const LecturerMainScreen({super.key});
 
   @override
-  State<MainScreen> createState() => _MainScreenState();
+  State<LecturerMainScreen> createState() => _LecturerMainScreenState();
 }
 
-class _MainScreenState extends State<MainScreen> {
-  int _selectedIndex = 2; // home
+class _LecturerMainScreenState extends State<LecturerMainScreen> {
+  int _selectedIndex = 0; // home (index 0 is now home)
 
   late final List<Widget> _pages;
   late final PageController _pageController;
@@ -27,11 +26,10 @@ class _MainScreenState extends State<MainScreen> {
   void initState() {
     super.initState();
     _pages = [
-      const ServicesScreen(),
-      const NavigationScreen(),
-      const HomeScreen(),
-      const ScheduleMainScreen(),
-      const SettingsScreen(),
+      const KeepAliveWrapper(child: LecturerHomeScreen()),
+      const KeepAliveWrapper(child: LecturerScheduleScreen()),
+      const KeepAliveWrapper(child: LecturerClassListScreen()),
+      const KeepAliveWrapper(child: SettingsScreen()),
     ];
     _pageController = PageController(initialPage: _selectedIndex);
   }
@@ -61,26 +59,21 @@ class _MainScreenState extends State<MainScreen> {
 
     return WillPopScope(
       onWillPop: () async {
-        // Khi không ở tab Home, back sẽ đưa về Home thay vì thoát app
-        if (_selectedIndex != 2) {
-          _onNavTap(2);
+        if (_selectedIndex != 0) {
+          _onNavTap(0);
           return false;
         }
         return true;
       },
       child: Scaffold(
-        backgroundColor:
-            isDark ? AppTheme.darkBackground : const Color(0xFF020617),
+        backgroundColor: isDark ? AppTheme.darkBackground : const Color(0xFF020617),
         body: Stack(
           children: [
-            // Nền động chung cho tất cả tab
             Positioned.fill(
               child: IgnorePointer(
                 child: AnimatedBackground(isDark: isDark),
               ),
             ),
-
-            // Nội dung các tab (PageView)
             PageView(
               controller: _pageController,
               physics: const BouncingScrollPhysics(),
@@ -93,15 +86,12 @@ class _MainScreenState extends State<MainScreen> {
               },
               children: _pages,
             ),
-
-            // Bottom Navigation Bar
             Positioned(
               left: 0,
               right: 0,
               bottom: 0,
               child: _buildCustomBottomNav(loc, isDark),
             ),
-            // Global Chatbot Overlay
             const DraggableChatbotOverlay(),
           ],
         ),
@@ -110,18 +100,10 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   Widget _buildCustomBottomNav(AppLocalizations loc, bool isDark) {
-    // Bottom nav background: frosted schedule-card-like look but slightly more transparent.
-    // Fix the background height so it doesn't change when children animate.
-    final double baseHeight = 75.0; // base bar height (content)
-    final double bottomInset = MediaQuery.of(context).padding.bottom; // device inset
+    final double baseHeight = 75.0;
+    final double bottomInset = MediaQuery.of(context).padding.bottom;
     final double barHeight = baseHeight + bottomInset;
-
-    // We want the background to be visually lower than the nav items.
-    // We'll render a fixed-height container (barHeight) as the background and shift it down by bgShift.
-    // The foreground (nav items) will remain in the original position.
-    final double bgShift = 12.0; // how many pixels to push the background down
-
-    // Outer height must accommodate the shifted background so it doesn't clip.
+    final double bgShift = 12.0;
     final double outerHeight = barHeight + bgShift;
 
     return SizedBox(
@@ -129,7 +111,6 @@ class _MainScreenState extends State<MainScreen> {
       child: Stack(
         clipBehavior: Clip.none,
         children: [
-          // Shifted background layer
           Positioned(
             top: bgShift,
             left: 0,
@@ -177,8 +158,6 @@ class _MainScreenState extends State<MainScreen> {
               ),
             ),
           ),
-
-          // Foreground: nav items stay in original position (not shifted)
           Positioned.fill(
             child: SafeArea(
               child: Padding(
@@ -190,42 +169,34 @@ class _MainScreenState extends State<MainScreen> {
                     _NavItem(
                       index: 0,
                       selectedIndex: _selectedIndex,
-                      iconData: Icons.home_repair_service_outlined,
-                      label: loc.t('services'),
+                      iconData: Icons.home_rounded,
+                      label: 'Trang chủ',
                       isDark: isDark,
                       onTap: () => _onNavTap(0),
                     ),
                     _NavItem(
                       index: 1,
                       selectedIndex: _selectedIndex,
-                      iconData: Icons.search_rounded,
-                      label: loc.t('search'),
+                      iconData: Icons.calendar_month_rounded,
+                      label: 'Lịch giảng',
                       isDark: isDark,
                       onTap: () => _onNavTap(1),
                     ),
                     _NavItem(
                       index: 2,
                       selectedIndex: _selectedIndex,
-                      iconData: Icons.home_rounded,
-                      label: loc.t('home'),
+                      iconData: Icons.groups_rounded,
+                      label: 'Lớp học',
                       isDark: isDark,
                       onTap: () => _onNavTap(2),
                     ),
                     _NavItem(
                       index: 3,
                       selectedIndex: _selectedIndex,
-                      iconData: Icons.calendar_month_rounded,
-                      label: loc.t('schedule'),
+                      iconData: Icons.settings_rounded,
+                      label: 'Cài đặt',
                       isDark: isDark,
                       onTap: () => _onNavTap(3),
-                    ),
-                    _NavItem(
-                      index: 4,
-                      selectedIndex: _selectedIndex,
-                      iconData: Icons.settings_rounded,
-                      label: loc.t('settings'),
-                      isDark: isDark,
-                      onTap: () => _onNavTap(4),
                     ),
                   ],
                 ),
@@ -238,7 +209,6 @@ class _MainScreenState extends State<MainScreen> {
   }
 }
 
-// Custom Nav Item Widget
 class _NavItem extends StatelessWidget {
   final int index;
   final int selectedIndex;
@@ -258,7 +228,6 @@ class _NavItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Each item expands evenly; bubble size depends on distance from selectedIndex: nearer => larger.
     return Expanded(
       child: TweenAnimationBuilder<double>(
         duration: const Duration(milliseconds: 200),
@@ -274,25 +243,20 @@ class _NavItem extends StatelessWidget {
           onTap: onTap,
           borderRadius: BorderRadius.circular(12),
           child: Container(
-            // Reduce top padding so bubbles sit closer to the top of the navbar
-            padding: const EdgeInsets.only(top: 1, bottom: 2, left: 4, right: 4),
+            padding: const EdgeInsets.only(top: 0, bottom: 0, left: 2, right: 2),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Use the 'Next Schedule' card visual style (small frosted gradient with border)
                 ClipRRect(
                   borderRadius: BorderRadius.circular(12),
                   child: BackdropFilter(
                     filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 200),
-                      // Size interpolates based on distance from selectedIndex
-                      // sizes range from maxSize (48) to minSize (36)
                       width: _computeBubbleSize(index, selectedIndex),
                       height: _computeBubbleSize(index, selectedIndex),
                       padding: const EdgeInsets.all(0),
                       decoration: BoxDecoration(
-                        // Default background (frosted card look). No special-case background for Home.
                         gradient: isDark
                             ? LinearGradient(
                                 colors: [
@@ -309,13 +273,21 @@ class _NavItem extends StatelessWidget {
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
                           color: selectedIndex == index
-                              ? (isDark ? AppTheme.bluePrimary.withAlpha(200) : AppTheme.bluePrimary)
-                              : (index == 2 ? AppTheme.bluePrimary : (isDark ? Colors.white.withAlpha(200) : Colors.black45)),
+                              ? (isDark
+                                  ? AppTheme.bluePrimary.withAlpha(200)
+                                  : AppTheme.bluePrimary)
+                              : (index == 0
+                                  ? AppTheme.bluePrimary
+                                  : (isDark
+                                      ? Colors.white.withAlpha(200)
+                                      : Colors.black45)),
                           width: selectedIndex == index ? 1.4 : 1.0,
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: isDark ? AppTheme.bluePrimary.withAlpha(20) : Colors.black.withAlpha(10),
+                            color: isDark
+                                ? AppTheme.bluePrimary.withAlpha(20)
+                                : Colors.black.withAlpha(10),
                             blurRadius: selectedIndex == index ? 12 : 6,
                             offset: const Offset(0, 3),
                           ),
@@ -327,13 +299,17 @@ class _NavItem extends StatelessWidget {
                           tween: ColorTween(
                             begin: Colors.grey.shade600,
                             end: selectedIndex == index
-                                ? (isDark ? Colors.blue.shade300 : AppTheme.bluePrimary)
-                                : (index == 2 ? AppTheme.bluePrimary : (isDark ? Colors.white.withAlpha(200)  : Colors.black45)),
+                                ? (isDark
+                                    ? Colors.blue.shade300
+                                    : AppTheme.bluePrimary)
+                                : (index == 0
+                                    ? AppTheme.bluePrimary
+                                    : (isDark
+                                        ? Colors.white.withAlpha(200)
+                                        : Colors.black45)),
                           ),
                           builder: (context, iconColor, _) {
                             final bubbleSize = _computeBubbleSize(index, selectedIndex);
-                            // Make icon proportional to bubble to avoid overflow.
-                            // Use ~50% of bubble size, clamped to [12, 20].
                             final iconSize = (bubbleSize * 0.5).clamp(12.0, 20.0);
                             return Icon(
                               iconData,
@@ -346,16 +322,18 @@ class _NavItem extends StatelessWidget {
                     ),
                   ),
                 ),
-
-                const SizedBox(height: 4),
-                // Label under the bubble
+                const SizedBox(height: 2),
                 TweenAnimationBuilder<Color?>(
                   duration: const Duration(milliseconds: 200),
                   tween: ColorTween(
                     begin: Colors.grey.shade600,
                     end: selectedIndex == index
                         ? (isDark ? Colors.blue.shade300 : AppTheme.bluePrimary)
-                        : (index == 2 ? AppTheme.bluePrimary : (isDark ? Colors.white.withAlpha(200)  : Colors.black45)),
+                        : (index == 0
+                            ? AppTheme.bluePrimary
+                            : (isDark
+                                ? Colors.white.withAlpha(200)
+                                : Colors.black45)),
                   ),
                   builder: (context, color, child) {
                     return Text(
@@ -364,7 +342,9 @@ class _NavItem extends StatelessWidget {
                       maxLines: 1,
                       style: TextStyle(
                         fontSize: 10,
-                        fontWeight: selectedIndex == index ? FontWeight.w600 : FontWeight.normal,
+                        fontWeight: selectedIndex == index
+                            ? FontWeight.w600
+                            : FontWeight.normal,
                         color: color,
                         height: 1.0,
                       ),
@@ -379,18 +359,83 @@ class _NavItem extends StatelessWidget {
     );
   }
 
-  // Helper: interpolate bubble size based on distance from selected index
   static double _computeBubbleSize(int index, int selectedIndex) {
-    // New rule: max 48. For the first two steps (distance 1-2) reduce 4 per step.
-    // For any additional distance beyond 2, reduce only 2 per extra step.
     const double maxSize = 48.0;
-    const double primaryStep = 4.0; // for distance 1..2
-    const double secondaryStep = 2.0; // for distance >2
+    const double primaryStep = 4.0;
+    const double secondaryStep = 2.0;
     final int distance = (selectedIndex - index).abs();
     final int primarySteps = distance.clamp(0, 2);
     final int extraSteps = (distance > 2) ? (distance - 2) : 0;
-    final double size = maxSize - primarySteps * primaryStep - extraSteps * secondaryStep;
-    // Clamp to avoid too small values
+    final double size =
+        maxSize - primarySteps * primaryStep - extraSteps * secondaryStep;
     return size.clamp(24.0, maxSize);
+  }
+}
+
+// Placeholder screen for unimplemented pages
+class _PlaceholderScreen extends StatelessWidget {
+  final String title;
+
+  const _PlaceholderScreen({required this.title});
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      body: SafeArea(
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.construction_outlined,
+                size: 64,
+                color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                title,
+                style: TextStyle(
+                  color: isDark ? Colors.white : Colors.black87,
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Đang phát triển',
+                style: TextStyle(
+                  color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
+                  fontSize: 16,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// Wrapper to keep pages alive when navigating away
+class KeepAliveWrapper extends StatefulWidget {
+  final Widget child;
+  
+  const KeepAliveWrapper({super.key, required this.child});
+  
+  @override
+  State<KeepAliveWrapper> createState() => _KeepAliveWrapperState();
+}
+
+class _KeepAliveWrapperState extends State<KeepAliveWrapper> with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+  
+  @override
+  Widget build(BuildContext context) {
+    super.build(context);
+    return widget.child;
   }
 }
