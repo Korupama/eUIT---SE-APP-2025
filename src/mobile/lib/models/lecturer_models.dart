@@ -146,14 +146,40 @@ class TeachingScheduleItem {
   });
 
   factory TeachingScheduleItem.fromJson(Map<String, dynamic> json) {
+    // Parse nhom from maLop (e.g., "DS005.Q11" -> "Q11")
+    String? nhom;
+    final maLop = json['maLop'] as String?;
+    if (maLop != null && maLop.contains('.')) {
+      final parts = maLop.split('.');
+      if (parts.length >= 2) {
+        nhom = parts[1];
+      }
+    }
+    
+    // Map backend field names (maMonHoc, tenMonHoc, phongHoc, tietBatDau, tietKetThuc)
+    final maMon = json['maMonHoc'] as String? ?? json['maMon'] as String? ?? '';
+    final tenMon = json['tenMonHoc'] as String? ?? json['tenMon'] as String? ?? '';
+    final phong = json['phongHoc'] as String? ?? json['phong'] as String?;
+    
+    // Handle tietBatDau and tietKetThuc which can be int or String
+    String? tietBatDau;
+    String? tietKetThuc;
+    
+    if (json['tietBatDau'] != null) {
+      tietBatDau = json['tietBatDau'].toString();
+    }
+    if (json['tietKetThuc'] != null) {
+      tietKetThuc = json['tietKetThuc'].toString();
+    }
+    
     return TeachingScheduleItem(
-      maMon: json['maMon'] as String,
-      tenMon: json['tenMon'] as String,
-      nhom: json['nhom'] as String?,
-      phong: json['phong'] as String?,
+      maMon: maMon,
+      tenMon: tenMon,
+      nhom: json['nhom'] as String? ?? nhom,
+      phong: phong,
       thu: json['thu'] as String?,
-      tietBatDau: json['tietBatDau'] as String?,
-      tietKetThuc: json['tietKetThuc'] as String?,
+      tietBatDau: tietBatDau,
+      tietKetThuc: tietKetThuc,
       ngayBatDau: json['ngayBatDau'] != null
           ? DateTime.tryParse(json['ngayBatDau'] as String)
           : null,

@@ -73,8 +73,13 @@ class LecturerProvider extends ChangeNotifier {
       print('Starting API calls...');
       await Future.wait([
         fetchLecturerProfile(),
+        fetchTeachingClasses(),
+        fetchTeachingSchedule(),
         _fetchNotifications(),
       ]);
+      
+      print('=== LECTURER PROVIDER INIT COMPLETED ===');
+      developer.log('=== LECTURER PROVIDER INIT COMPLETED ===', name: 'LecturerProvider');
     } catch (e) {
       print('LecturerProvider init error: $e');
       developer.log(
@@ -239,7 +244,16 @@ class LecturerProvider extends ChangeNotifier {
   Future<void> fetchTeachingSchedule() async {
     try {
       developer.log('Fetching teaching schedule...', name: 'LecturerProvider');
-      final uri = auth.buildUri('/api/lecturer/schedule');
+      // Fetch entire academic year (Aug 1 to Jul 31 next year)
+      final now = DateTime.now();
+      final startDate = DateTime(now.month >= 8 ? now.year : now.year - 1, 8, 1);
+      final endDate = DateTime(now.month >= 8 ? now.year + 1 : now.year, 7, 31);
+      
+      final queryParams = {
+        'startDate': startDate.toIso8601String(),
+        'endDate': endDate.toIso8601String(),
+      };
+      final uri = auth.buildUri('/api/lecturer/schedule').replace(queryParameters: queryParams);
       
       final res = await _makeAuthenticatedRequest(
         requestFn: (token) => http.get(
@@ -391,7 +405,16 @@ class LecturerProvider extends ChangeNotifier {
 
     try {
       developer.log('Fetching teaching schedule...', name: 'LecturerProvider');
-      final uri = auth.buildUri('/api/lecturer/schedule');
+      // Fetch entire academic year (Aug 1 to Jul 31 next year)
+      final now = DateTime.now();
+      final startDate = DateTime(now.month >= 8 ? now.year : now.year - 1, 8, 1);
+      final endDate = DateTime(now.month >= 8 ? now.year + 1 : now.year, 7, 31);
+      
+      final queryParams = {
+        'startDate': startDate.toIso8601String(),
+        'endDate': endDate.toIso8601String(),
+      };
+      final uri = auth.buildUri('/api/lecturer/schedule').replace(queryParameters: queryParams);
       
       final res = await _makeAuthenticatedRequest(
         requestFn: (token) => http.get(
@@ -410,6 +433,9 @@ class LecturerProvider extends ChangeNotifier {
             .map((item) => TeachingScheduleItem.fromJson(item))
             .toList();
         developer.log('Found ${_teachingSchedule.length} schedule items', name: 'LecturerProvider');
+        
+        // Find next class from schedule
+        _findNextClass();
       } else {
         developer.log('Failed to fetch schedule: ${res?.statusCode}', name: 'LecturerProvider');
       }
@@ -1044,6 +1070,155 @@ class LecturerProvider extends ChangeNotifier {
       developer.log('Error fetching makeup classes: $e', name: 'LecturerProvider');
     }
     return [];
+  }
+
+  // GET /api/lecturer/appeals/{appealId} - Xem chi tiết đơn phúc khảo
+  Future<Map<String, dynamic>?> fetchAppealDetail(int appealId) async {
+    try {
+      developer.log('Fetching appeal detail $appealId...', name: 'LecturerProvider');
+      final uri = auth.buildUri('/api/lecturer/appeals/$appealId');
+      
+      final res = await _makeAuthenticatedRequest(
+        requestFn: (token) => http.get(
+          uri,
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+        ).timeout(const Duration(seconds: 10)),
+      );
+
+      if (res != null && res.statusCode == 200) {
+        developer.log('Appeal detail fetched successfully', name: 'LecturerProvider');
+        return jsonDecode(res.body) as Map<String, dynamic>;
+      } else {
+        developer.log('Failed to fetch appeal detail: ${res?.statusCode}', name: 'LecturerProvider');
+      }
+    } catch (e) {
+      developer.log('Error fetching appeal detail: $e', name: 'LecturerProvider');
+    }
+    return null;
+  }
+
+  // PUT /api/lecturer/appeals/{appealId} - Phản hồi đơn phúc khảo
+  Future<bool> respondToAppeal({
+    required int appealId,
+    required String status, // 'approved' or 'rejected'
+    String? comment,
+  }) async {
+    try {
+      developer.log('Responding to appeal $appealId with status: $status', name: 'LecturerProvider');
+      final uri = auth.buildUri('/api/lecturer/appeals/$appealId');
+      final body = {
+        'status': status,
+        if (comment != null && comment.isNotEmpty) 'comment': comment,
+      };
+
+      final res = await _makeAuthenticatedRequest(
+        requestFn: (token) => http.put(
+          uri,
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+          body: jsonEncode(body),
+        ).timeout(const Duration(seconds: 10)),
+      );
+
+      if (res != null && res.statusCode == 200) {
+        developer.log('Appeal response submitted successfully', name: 'LecturerProvider');
+        // Refresh appeals list
+        await fetchAppeals();
+        return true;
+      } else {
+        developer.log('Failed to respond to appeal: ${res?.statusCode}', name: 'LecturerProvider');
+      }
+    } catch (e) {
+      developer.log('Error responding to appeal: $e', name: 'LecturerProvider');
+    }
+    return false;
+  }
+
+  // POST /api/lecturer/absence - Đăng ký báo nghỉ
+  Future<bool> createAbsence({
+    required String maLop,
+    required DateTime ngayNghi,
+    String? lyDo,
+  }) async {
+    try {
+      developer.log('Creating absence for class $maLop on $ngayNghi...', name: 'LecturerProvider');
+      final uri = auth.buildUri('/api/lecturer/absence');
+      final body = {
+        'maLop': maLop,
+        'ngayNghi': ngayNghi.toIso8601String(),
+        if (lyDo != null && lyDo.isNotEmpty) 'lyDo': lyDo,
+      };
+
+      final res = await _makeAuthenticatedRequest(
+        requestFn: (token) => http.post(
+          uri,
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+          body: jsonEncode(body),
+        ).timeout(const Duration(seconds: 10)),
+      );
+
+      if (res != null && res.statusCode == 200) {
+        developer.log('Absence created successfully', name: 'LecturerProvider');
+        return true;
+      } else {
+        developer.log('Failed to create absence: ${res?.statusCode}', name: 'LecturerProvider');
+      }
+    } catch (e) {
+      developer.log('Error creating absence: $e', name: 'LecturerProvider');
+    }
+    return false;
+  }
+
+  // POST /api/lecturer/makeup-class - Đăng ký lịch học bù
+  Future<bool> createMakeupClass({
+    required String maLop,
+    required DateTime ngayHocBu,
+    required int tietBatDau,
+    required int tietKetThuc,
+    String? phongHoc,
+    String? lyDo,
+  }) async {
+    try {
+      developer.log('Creating makeup class for $maLop on $ngayHocBu...', name: 'LecturerProvider');
+      final uri = auth.buildUri('/api/lecturer/makeup-class');
+      final body = {
+        'maLop': maLop,
+        'ngayHocBu': ngayHocBu.toIso8601String(),
+        'tietBatDau': tietBatDau,
+        'tietKetThuc': tietKetThuc,
+        if (phongHoc != null && phongHoc.isNotEmpty) 'phongHoc': phongHoc,
+        if (lyDo != null && lyDo.isNotEmpty) 'lyDo': lyDo,
+      };
+
+      final res = await _makeAuthenticatedRequest(
+        requestFn: (token) => http.post(
+          uri,
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+          body: jsonEncode(body),
+        ).timeout(const Duration(seconds: 10)),
+      );
+
+      if (res != null && res.statusCode == 200) {
+        developer.log('Makeup class created successfully', name: 'LecturerProvider');
+        return true;
+      } else {
+        developer.log('Failed to create makeup class: ${res?.statusCode}', name: 'LecturerProvider');
+      }
+    } catch (e) {
+      developer.log('Error creating makeup class: $e', name: 'LecturerProvider');
+    }
+    return false;
   }
 
   // POST /api/lecturer/confirmation-letter - Tạo giấy xác nhận cho sinh viên

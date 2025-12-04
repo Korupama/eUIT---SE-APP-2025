@@ -111,6 +111,12 @@ class _LecturerAbsencesScreenState extends State<LecturerAbsencesScreen> {
           ),
         ],
       ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => _showCreateAbsenceDialog(),
+        backgroundColor: const Color(0xFF2196F3),
+        icon: const Icon(Icons.add),
+        label: const Text('Báo nghỉ'),
+      ),
     );
   }
 
@@ -478,6 +484,312 @@ class _LecturerAbsencesScreenState extends State<LecturerAbsencesScreen> {
                   ),
                 ),
               ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showCreateAbsenceDialog() async {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final provider = context.read<LecturerProvider>();
+    
+    // Get classes list
+    final classes = provider.teachingClasses;
+    
+    if (classes.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Không có lớp học để báo nghỉ'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
+    String? selectedClass;
+    DateTime selectedDate = DateTime.now();
+    final reasonController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => Dialog(
+          backgroundColor: Colors.transparent,
+          child: Container(
+            constraints: const BoxConstraints(maxWidth: 500),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: isDark
+                    ? [const Color(0xFF1E2746), const Color(0xFF2A3F7D)]
+                    : [Colors.white, const Color(0xFFE3F2FD)],
+              ),
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.3),
+                  blurRadius: 30,
+                  offset: const Offset(0, 15),
+                ),
+              ],
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(20),
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                child: Container(
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        isDark
+                            ? Colors.white.withOpacity(0.05)
+                            : Colors.white.withOpacity(0.7),
+                        isDark
+                            ? Colors.white.withOpacity(0.02)
+                            : Colors.white.withOpacity(0.3),
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: isDark
+                          ? Colors.white.withOpacity(0.1)
+                          : Colors.white.withOpacity(0.5),
+                    ),
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              gradient: const LinearGradient(
+                                colors: [Color(0xFF2196F3), Color(0xFF1976D2)],
+                              ),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: const Icon(
+                              Icons.event_busy,
+                              color: Colors.white,
+                              size: 24,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              'Đăng ký báo nghỉ',
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: isDark ? Colors.white : Colors.black87,
+                              ),
+                            ),
+                          ),
+                          IconButton(
+                            onPressed: () => Navigator.pop(context),
+                            icon: Icon(
+                              Icons.close,
+                              color: isDark ? Colors.white70 : Colors.black54,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 20),
+                      // Class dropdown
+                      Text(
+                        'Chọn lớp:',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: isDark ? Colors.white : Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        decoration: BoxDecoration(
+                          color: isDark
+                              ? const Color(0xFF0A0E21).withOpacity(0.5)
+                              : const Color(0xFFF5F7FA).withOpacity(0.8),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: DropdownButtonHideUnderline(
+                          child: DropdownButton<String>(
+                            value: selectedClass,
+                            isExpanded: true,
+                            hint: Text(
+                              'Chọn lớp học',
+                              style: TextStyle(
+                                color: isDark ? Colors.white38 : Colors.black38,
+                              ),
+                            ),
+                            dropdownColor: isDark
+                                ? const Color(0xFF1E2746)
+                                : Colors.white,
+                            style: TextStyle(
+                              color: isDark ? Colors.white : Colors.black87,
+                            ),
+                            items: classes.map((cls) {
+                              return DropdownMenuItem<String>(
+                                value: cls.maLop,
+                                child: Text('${cls.maMon} - ${cls.tenMon} (${cls.nhom})'),
+                              );
+                            }).toList(),
+                            onChanged: (value) {
+                              setState(() {
+                                selectedClass = value;
+                              });
+                            },
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      // Date picker
+                      Text(
+                        'Ngày nghỉ:',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: isDark ? Colors.white : Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      InkWell(
+                        onTap: () async {
+                          final date = await showDatePicker(
+                            context: context,
+                            initialDate: selectedDate,
+                            firstDate: DateTime.now(),
+                            lastDate: DateTime.now().add(const Duration(days: 365)),
+                          );
+                          if (date != null) {
+                            setState(() {
+                              selectedDate = date;
+                            });
+                          }
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: isDark
+                                ? const Color(0xFF0A0E21).withOpacity(0.5)
+                                : const Color(0xFFF5F7FA).withOpacity(0.8),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.calendar_today,
+                                color: isDark ? Colors.white70 : Colors.black54,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 12),
+                              Text(
+                                '${selectedDate.day}/${selectedDate.month}/${selectedDate.year}',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: isDark ? Colors.white : Colors.black87,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      // Reason
+                      Text(
+                        'Lý do:',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: isDark ? Colors.white : Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      TextField(
+                        controller: reasonController,
+                        maxLines: 3,
+                        decoration: InputDecoration(
+                          hintText: 'Nhập lý do nghỉ...',
+                          hintStyle: TextStyle(
+                            color: isDark ? Colors.white38 : Colors.black38,
+                          ),
+                          filled: true,
+                          fillColor: isDark
+                              ? const Color(0xFF0A0E21).withOpacity(0.5)
+                              : const Color(0xFFF5F7FA).withOpacity(0.8),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide.none,
+                          ),
+                        ),
+                        style: TextStyle(
+                          color: isDark ? Colors.white : Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      // Submit button
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: selectedClass == null
+                              ? null
+                              : () async {
+                                  final success = await provider.createAbsence(
+                                    maLop: selectedClass!,
+                                    ngayNghi: selectedDate,
+                                    lyDo: reasonController.text.trim(),
+                                  );
+
+                                  if (!context.mounted) return;
+                                  Navigator.pop(context);
+
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        success
+                                            ? 'Đã đăng ký báo nghỉ thành công'
+                                            : 'Lỗi khi đăng ký báo nghỉ',
+                                      ),
+                                      backgroundColor:
+                                          success ? Colors.green : Colors.red,
+                                      behavior: SnackBarBehavior.floating,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                    ),
+                                  );
+
+                                  if (success) {
+                                    _loadAbsences();
+                                  }
+                                },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF2196F3),
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: const Text(
+                            'Xác nhận đăng ký',
+                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ),
           ),
         ),

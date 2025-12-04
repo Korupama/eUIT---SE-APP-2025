@@ -3,6 +3,7 @@ class TeachingClass {
   final String maMon;
   final String tenMon;
   final String nhom;
+  final String maLop; // Full class code (e.g., DS005.Q11)
   final int siSo;
   final int soTinChi;
   final String? phong;
@@ -19,6 +20,7 @@ class TeachingClass {
     required this.maMon,
     required this.tenMon,
     required this.nhom,
+    required this.maLop,
     required this.siSo,
     required this.soTinChi,
     this.phong,
@@ -33,13 +35,41 @@ class TeachingClass {
   });
 
   factory TeachingClass.fromJson(Map<String, dynamic> json) {
+    // Parse namHoc from hocKy format: "2025_2026_1" -> "2025-2026"
+    String? namHoc;
+    final hocKy = json['hocKy'] as String?;
+    if (hocKy != null && hocKy.contains('_')) {
+      final parts = hocKy.split('_');
+      if (parts.length >= 2) {
+        namHoc = '${parts[0]}-${parts[1]}';
+      }
+    }
+    
+    // Parse nhom from maLop (e.g., "DS005.Q11" -> "Q11", "IE104.Q11.2" -> "Q11")
+    String nhom = '';
+    final maLop = json['maLop'] as String?;
+    if (maLop != null && maLop.contains('.')) {
+      final parts = maLop.split('.');
+      if (parts.length >= 2) {
+        nhom = parts[1]; // Get the group part
+      }
+    }
+    
+    // Map backend field names to frontend
+    // Backend: maMonHoc, tenMonHoc, phongHoc
+    // Frontend: maMon, tenMon, phong
+    final maMon = json['maMonHoc'] as String? ?? json['maMon'] as String? ?? '';
+    final tenMon = json['tenMonHoc'] as String? ?? json['tenMon'] as String? ?? '';
+    final phong = json['phongHoc'] as String? ?? json['phong'] as String?;
+    
     return TeachingClass(
-      maMon: json['maMon'] as String,
-      tenMon: json['tenMon'] as String,
-      nhom: json['nhom'] as String,
+      maMon: maMon,
+      tenMon: tenMon,
+      nhom: json['nhom'] as String? ?? nhom,
+      maLop: maLop ?? '$maMon.$nhom', // Store maLop from backend or reconstruct it
       siSo: json['siSo'] as int? ?? 0,
       soTinChi: json['soTinChi'] as int? ?? 3,
-      phong: json['phong'] as String?,
+      phong: phong,
       thu: json['thu'] as String?,
       tietBatDau: json['tietBatDau'] as String?,
       tietKetThuc: json['tietKetThuc'] as String?,
@@ -49,8 +79,8 @@ class TeachingClass {
       ngayKetThuc: json['ngayKetThuc'] != null
           ? DateTime.tryParse(json['ngayKetThuc'] as String)
           : null,
-      hocKy: json['hocKy'] as String?,
-      namHoc: json['namHoc'] as String?,
+      hocKy: hocKy,
+      namHoc: namHoc ?? json['namHoc'] as String?,
       trangThai: json['trangThai'] as String?,
     );
   }
@@ -60,6 +90,7 @@ class TeachingClass {
       'maMon': maMon,
       'tenMon': tenMon,
       'nhom': nhom,
+      'maLop': maLop,
       'siSo': siSo,
       'soTinChi': soTinChi,
       'phong': phong,

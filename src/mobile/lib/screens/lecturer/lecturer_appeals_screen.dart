@@ -515,10 +515,10 @@ class _LecturerAppealsScreenState extends State<LecturerAppealsScreen>
                 SizedBox(
                   width: double.infinity,
                   child: _buildActionButton(
-                    'Nhập điểm',
-                    Icons.edit,
+                    'Xem chi tiết',
+                    Icons.visibility,
                     const Color(0xFF2196F3),
-                    () => _handleGradeInput(appeal),
+                    () => _showAppealDetailDialog(appeal),
                     isDark,
                   ),
                 ),
@@ -820,6 +820,379 @@ class _LecturerAppealsScreenState extends State<LecturerAppealsScreen>
           ],
         );
       },
+    );
+  }
+
+  void _showAppealDetailDialog(Appeal appeal) async {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final provider = Provider.of<LecturerProvider>(context, listen: false);
+    
+    // Fetch appeal detail from API
+    final detail = await provider.fetchAppealDetail(int.parse(appeal.id));
+    
+    if (!mounted) return;
+    
+    if (detail == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Không thể tải chi tiết đơn phúc khảo'),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+      );
+      return;
+    }
+
+    final commentController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        backgroundColor: Colors.transparent,
+        child: Container(
+          constraints: const BoxConstraints(maxWidth: 500),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: isDark
+                  ? [const Color(0xFF1E2746), const Color(0xFF2A3F7D)]
+                  : [Colors.white, const Color(0xFFE3F2FD)],
+            ),
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.3),
+                blurRadius: 30,
+                offset: const Offset(0, 15),
+              ),
+            ],
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(20),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+              child: Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      isDark
+                          ? Colors.white.withOpacity(0.05)
+                          : Colors.white.withOpacity(0.7),
+                      isDark
+                          ? Colors.white.withOpacity(0.02)
+                          : Colors.white.withOpacity(0.3),
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: isDark
+                        ? Colors.white.withOpacity(0.1)
+                        : Colors.white.withOpacity(0.5),
+                  ),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Header
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [Color(0xFF2196F3), Color(0xFF1976D2)],
+                            ),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Icon(
+                            Icons.rate_review,
+                            color: Colors.white,
+                            size: 24,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Chi tiết đơn phúc khảo',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: isDark ? Colors.white : Colors.black87,
+                                ),
+                              ),
+                              Text(
+                                '${appeal.tenSinhVien} - ${appeal.mssv}',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: isDark ? Colors.white60 : Colors.black54,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: () => Navigator.pop(context),
+                          icon: Icon(
+                            Icons.close,
+                            color: isDark ? Colors.white70 : Colors.black54,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                    // Course info
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: isDark
+                            ? const Color(0xFF0A0E21).withOpacity(0.5)
+                            : const Color(0xFFF5F7FA).withOpacity(0.8),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '${appeal.maMon} - ${appeal.tenMon}',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: isDark ? Colors.white : Colors.black87,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Nhóm ${appeal.nhom} • Loại điểm: ${appeal.loaiDiem}',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: isDark ? Colors.white70 : Colors.black54,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    // Grade comparison
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildGradeBox(
+                            'Điểm cũ',
+                            appeal.diemCu?.toString() ?? 'N/A',
+                            Colors.orange,
+                            isDark,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: _buildGradeBox(
+                            'Điểm mới',
+                            appeal.diemMoi?.toString() ?? 'Chưa có',
+                            appeal.diemMoi != null ? Colors.green : Colors.grey,
+                            isDark,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    // Student's reason
+                    if (detail['lyDo'] != null) ...[
+                      Text(
+                        'Lý do phúc khảo:',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: isDark ? Colors.white : Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: isDark
+                              ? const Color(0xFF0A0E21).withOpacity(0.5)
+                              : const Color(0xFFF5F7FA).withOpacity(0.8),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          detail['lyDo'],
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: isDark ? Colors.white70 : Colors.black87,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                    ],
+                    // Response section (only if pending)
+                    if (appeal.trangThai == 'pending') ...[
+                      Text(
+                        'Nhận xét của giảng viên:',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: isDark ? Colors.white : Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      TextField(
+                        controller: commentController,
+                        maxLines: 3,
+                        decoration: InputDecoration(
+                          hintText: 'Nhập nhận xét (tùy chọn)...',
+                          hintStyle: TextStyle(
+                            color: isDark ? Colors.white38 : Colors.black38,
+                          ),
+                          filled: true,
+                          fillColor: isDark
+                              ? const Color(0xFF0A0E21).withOpacity(0.5)
+                              : const Color(0xFFF5F7FA).withOpacity(0.8),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide.none,
+                          ),
+                        ),
+                        style: TextStyle(
+                          color: isDark ? Colors.white : Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      // Action buttons
+                      Row(
+                        children: [
+                          Expanded(
+                            child: ElevatedButton.icon(
+                              onPressed: () async {
+                                final success = await provider.respondToAppeal(
+                                  appealId: int.parse(appeal.id),
+                                  status: 'rejected',
+                                  comment: commentController.text.trim(),
+                                );
+                                
+                                if (!context.mounted) return;
+                                Navigator.pop(context);
+                                
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      success
+                                          ? 'Đã từ chối đơn phúc khảo'
+                                          : 'Lỗi khi xử lý đơn',
+                                    ),
+                                    backgroundColor:
+                                        success ? Colors.orange : Colors.red,
+                                    behavior: SnackBarBehavior.floating,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                  ),
+                                );
+                              },
+                              icon: const Icon(Icons.close),
+                              label: const Text('Từ chối'),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.red,
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(vertical: 12),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: ElevatedButton.icon(
+                              onPressed: () async {
+                                final success = await provider.respondToAppeal(
+                                  appealId: int.parse(appeal.id),
+                                  status: 'approved',
+                                  comment: commentController.text.trim(),
+                                );
+                                
+                                if (!context.mounted) return;
+                                Navigator.pop(context);
+                                
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      success
+                                          ? 'Đã chấp nhận đơn phúc khảo'
+                                          : 'Lỗi khi xử lý đơn',
+                                    ),
+                                    backgroundColor:
+                                        success ? Colors.green : Colors.red,
+                                    behavior: SnackBarBehavior.floating,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                  ),
+                                );
+                              },
+                              icon: const Icon(Icons.check),
+                              label: const Text('Chấp nhận'),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.green,
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(vertical: 12),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ] else ...[
+                      // Show response if already processed
+                      if (detail['comment'] != null) ...[
+                        Text(
+                          'Nhận xét:',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: isDark ? Colors.white : Colors.black87,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: isDark
+                                ? const Color(0xFF0A0E21).withOpacity(0.5)
+                                : const Color(0xFFF5F7FA).withOpacity(0.8),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            detail['comment'],
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: isDark ? Colors.white70 : Colors.black87,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

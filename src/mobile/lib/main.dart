@@ -18,6 +18,7 @@ import 'screens/lecturer/lecturer_confirmation_letter_screen.dart';
 import 'screens/lecturer/lecturer_tuition_screen.dart';
 import 'screens/lecturer/lecturer_absences_screen.dart';
 import 'screens/lecturer/lecturer_makeup_classes_screen.dart';
+import 'screens/lecturer/lecturer_debug_screen.dart';
 import 'screens/chatbot.dart';
 import 'screens/notifications_screen.dart';
 import 'services/theme_controller.dart';
@@ -128,6 +129,7 @@ class MyApp extends StatelessWidget {
         '/lecturer_absences': (context) => const LecturerAbsencesScreen(),
         '/lecturer_makeup_classes': (context) =>
             const LecturerMakeupClassesScreen(),
+        '/lecturer_debug': (context) => const LecturerDebugScreen(),
         '/chatbot': (context) => const ChatbotScreen(),
         '/notifications': (context) => const NotificationsScreen(),
         '/settings': (context) => const SettingsScreen(),
