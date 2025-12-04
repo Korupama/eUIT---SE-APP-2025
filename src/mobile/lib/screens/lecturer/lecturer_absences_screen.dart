@@ -62,10 +62,27 @@ class _LecturerAbsencesScreenState extends State<LecturerAbsencesScreen> {
   }
 
   List<Map<String, dynamic>> get _filteredAbsences {
-    if (_searchQuery.isEmpty) return _absences;
-    return _absences.where((absence) {
-      final hoTen = (absence['hoTen'] as String? ?? '').toLowerCase();
-      final mssv = (absence['mssv'] as String? ?? '').toLowerCase();
+    var filtered = _absences;
+    
+    // Lọc bỏ các record không có data hợp lệ
+    filtered = filtered.where((absence) {
+      final mssv = absence['mssv']?.toString() ?? '';
+      final hoTen = absence['hoTen']?.toString() ?? '';
+      final maMon = absence['maMon']?.toString() ?? '';
+      final tenMon = absence['tenMon']?.toString() ?? '';
+      
+      // Chỉ giữ lại nếu có đủ thông tin
+      return mssv.isNotEmpty && 
+             hoTen.isNotEmpty && 
+             hoTen != 'N/A' && 
+             (maMon.isNotEmpty || (tenMon.isNotEmpty && tenMon != 'N/A'));
+    }).toList();
+    
+    // Lọc theo search query
+    if (_searchQuery.isEmpty) return filtered;
+    return filtered.where((absence) {
+      final hoTen = (absence['hoTen']?.toString() ?? '').toLowerCase();
+      final mssv = (absence['mssv']?.toString() ?? '').toLowerCase();
       final query = _searchQuery.toLowerCase();
       return hoTen.contains(query) || mssv.contains(query);
     }).toList();
@@ -256,7 +273,13 @@ class _LecturerAbsencesScreenState extends State<LecturerAbsencesScreen> {
     final tongSoTiet = absence['tongSoTiet'] is int
         ? absence['tongSoTiet'] as int
         : int.tryParse(absence['tongSoTiet']?.toString() ?? '45') ?? 45;
-    final tiLeVang = (soTietVang / tongSoTiet * 100);
+
+    // Không hiển thị card nếu thiếu thông tin quan trọng
+    if (mssv.isEmpty || hoTen == 'N/A' || (tenMon == 'N/A' && maMon.isEmpty)) {
+      return const SizedBox.shrink();
+    }
+
+    final tiLeVang = tongSoTiet > 0 ? (soTietVang / tongSoTiet * 100) : 0.0;
 
     final isWarning = tiLeVang > 20; // Cảnh báo nếu vắng > 20%
 

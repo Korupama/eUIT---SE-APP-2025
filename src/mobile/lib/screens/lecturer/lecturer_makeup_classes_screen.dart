@@ -191,9 +191,19 @@ class _LecturerMakeupClassesScreenState
     final lyDo = makeupClass['lyDo']?.toString() ?? '';
     final trangThai = makeupClass['trangThai']?.toString() ?? 'Chưa học';
 
+    // Không hiển thị nếu thiếu thông tin quan trọng
+    if (maMon.isEmpty || tenMon == 'N/A' || ngayHocBu == null || ngayHocBu.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
     DateTime? dateTime;
     if (ngayHocBu != null) {
       dateTime = DateTime.tryParse(ngayHocBu);
+    }
+    
+    // Nếu không parse được ngày thì không hiển thị
+    if (dateTime == null) {
+      return const SizedBox.shrink();
     }
 
     final isPast = dateTime != null && dateTime.isBefore(DateTime.now());

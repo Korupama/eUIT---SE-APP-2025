@@ -306,6 +306,11 @@ class _LecturerTuitionScreenState extends State<LecturerTuitionScreen> {
     final conLai = tongHocPhi - daDong;
     final trangThai = tuition['trangThai']?.toString() ?? '';
 
+    // Không hiển thị nếu thiếu thông tin học kỳ hoặc không có số tiền
+    if (hocKy == 'N/A' || (tongHocPhi == 0 && daDong == 0)) {
+      return const SizedBox.shrink();
+    }
+
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
