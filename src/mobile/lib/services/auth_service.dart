@@ -73,7 +73,9 @@ class AuthService {
   ///
   /// Contract:
   /// - Inputs: userId, password; optional role defaults to 'student'.
-  /// - Output: token string.
+  /// - Output: accessToken string. The backend now returns two keys: `accessToken` and `refreshToken`.
+  ///   `accessToken` is treated the same as the old `token` and is returned. The `refreshToken` is
+  ///   accepted if present but not persisted/used yet.
   /// - Errors: throws Exception with a stable key 'invalid_credentials' for authentication failures,
   ///   or other message keys like 'login_failed'/'invalid_response' for other cases.
   Future<String> login(String userId, String password, {String role = 'student'}) async {
@@ -96,7 +98,7 @@ class AuthService {
         }),
       )
           .timeout(const Duration(seconds: 15)); // <-- 15s timeout
-    } on Exception catch (e) {
+    } on Exception {
       // Ensure the client is closed to abort the underlying connection
       try {
         client.close();
@@ -116,12 +118,19 @@ class AuthService {
     if (res.statusCode >= 200 && res.statusCode < 300) {
       try {
         final Map<String, dynamic> body = jsonDecode(res.body) as Map<String, dynamic>;
-        final token = body['token'] as String?;
-        if (token == null || token.isEmpty) {
+        // New response format: { "accessToken": "...", "refreshToken": "..." }
+        // Keep backward compatibility with old key 'token'.
+        final accessToken = (body['accessToken'] as String?) ?? (body['token'] as String?);
+        final refreshToken = body['refreshToken'] as String?;
+        if (accessToken == null || accessToken.isEmpty) {
           throw Exception('invalid_response');
         }
+        // We accept refreshToken but do not persist or use it yet; log presence for debugging.
+        if (refreshToken != null && refreshToken.isNotEmpty) {
+          developer.log('AuthService: received refreshToken (not persisted)', name: 'AuthService');
+        }
         // Do not persist here to avoid double-write; caller may decide.
-        return token;
+        return accessToken;
       } catch (_) {
         throw Exception('invalid_response');
       }
