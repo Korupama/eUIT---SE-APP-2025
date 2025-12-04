@@ -37,7 +37,8 @@ public sealed class TokenService : ITokenService
         };
         
         // 2. Lấy key từ appsettings.json
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"] ?? throw new InvalidOperationException("Jwt:Key not configured")));
+        var jwtKey = _config["Jwt:Key"] ?? throw new InvalidOperationException("JWT:Key is not configured");
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
 
         // 3. Tạo "chứng thực ký" bằng thuật toán an toàn
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
