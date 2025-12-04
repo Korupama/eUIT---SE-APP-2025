@@ -249,11 +249,15 @@ class LecturerProvider extends ChangeNotifier {
       final startDate = DateTime(now.month >= 8 ? now.year : now.year - 1, 8, 1);
       final endDate = DateTime(now.month >= 8 ? now.year + 1 : now.year, 7, 31);
       
+      developer.log('Schedule date range: $startDate to $endDate', name: 'LecturerProvider');
+      
       final queryParams = {
         'startDate': startDate.toIso8601String(),
         'endDate': endDate.toIso8601String(),
       };
       final uri = auth.buildUri('/api/lecturer/schedule').replace(queryParameters: queryParams);
+      
+      developer.log('Schedule API URL: $uri', name: 'LecturerProvider');
       
       final res = await _makeAuthenticatedRequest(
         requestFn: (token) => http.get(
@@ -267,16 +271,23 @@ class LecturerProvider extends ChangeNotifier {
 
       if (res != null && res.statusCode == 200) {
         developer.log('Teaching schedule fetched successfully', name: 'LecturerProvider');
+        developer.log('Schedule response body: ${res.body}', name: 'LecturerProvider');
         final data = jsonDecode(res.body) as List;
+        developer.log('Schedule data count: ${data.length}', name: 'LecturerProvider');
         _teachingSchedule = data
             .map((item) => TeachingScheduleItem.fromJson(item))
             .toList();
+        
+        developer.log('Parsed ${_teachingSchedule.length} schedule items', name: 'LecturerProvider');
         
         // Find next class from schedule
         _findNextClass();
         notifyListeners();
       } else {
         developer.log('Failed to fetch teaching schedule: ${res?.statusCode}', name: 'LecturerProvider');
+        if (res != null) {
+          developer.log('Error response: ${res.body}', name: 'LecturerProvider');
+        }
       }
     } catch (e) {
       developer.log(
@@ -367,6 +378,8 @@ class LecturerProvider extends ChangeNotifier {
       developer.log('Fetching teaching classes...', name: 'LecturerProvider');
       final uri = auth.buildUri('/api/lecturer/courses');
       
+      developer.log('Classes API URL: $uri', name: 'LecturerProvider');
+      
       final res = await _makeAuthenticatedRequest(
         requestFn: (token) => http.get(
           uri,
@@ -379,6 +392,7 @@ class LecturerProvider extends ChangeNotifier {
 
       if (res != null && res.statusCode == 200) {
         developer.log('Teaching classes fetched successfully', name: 'LecturerProvider');
+        developer.log('Classes response body: ${res.body}', name: 'LecturerProvider');
         final data = jsonDecode(res.body) as List;
         _teachingClasses = data
             .map((item) => TeachingClass.fromJson(item))
@@ -387,6 +401,9 @@ class LecturerProvider extends ChangeNotifier {
         notifyListeners();
       } else {
         developer.log('Failed to fetch teaching classes: ${res?.statusCode}', name: 'LecturerProvider');
+        if (res != null) {
+          developer.log('Error response: ${res.body}', name: 'LecturerProvider');
+        }
       }
     } catch (e) {
       developer.log(
