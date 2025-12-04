@@ -183,6 +183,44 @@ class AuthService {
     }
   }
 
+  // Logout: clear token and notify
+  Future<void> logout() async {
+    await deleteToken();
+    developer.log('AuthService: User logged out', name: 'AuthService');
+  }
+
+  // Refresh access token using refresh token
+  Future<String?> refreshAccessToken() async {
+    try {
+      developer.log('AuthService: Attempting to refresh access token', name: 'AuthService');
+      
+      final uri = buildUri('/api/Auth/refresh');
+      final res = await http.post(
+        uri,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'refreshToken': 'dummy'}), // Backend will validate from DB
+      ).timeout(const Duration(seconds: 10));
+
+      if (res.statusCode == 200) {
+        final body = jsonDecode(res.body) as Map<String, dynamic>;
+        final newToken = body['accessToken'] as String?;
+        
+        if (newToken != null && newToken.isNotEmpty) {
+          await _storage.write(key: _tokenKey, value: newToken);
+          tokenNotifier.value = newToken;
+          developer.log('AuthService: Access token refreshed successfully', name: 'AuthService');
+          return newToken;
+        }
+      }
+      
+      developer.log('AuthService: Failed to refresh token: ${res.statusCode}', name: 'AuthService');
+      return null;
+    } catch (e) {
+      developer.log('AuthService: Error refreshing token: $e', name: 'AuthService');
+      return null;
+    }
+  }
+
   // --- Credential helpers ---
   /// Save username and password securely. Password is stored in secure storage.
   Future<void> saveCredentials(String username, String password) async {

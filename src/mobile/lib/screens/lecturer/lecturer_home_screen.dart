@@ -207,7 +207,7 @@ class _LecturerHomeScreenState extends State<LecturerHomeScreen>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        provider.lecturerCard?.hoTen ?? 'Giảng viên',
+                        provider.lecturerProfile?.hoTen ?? 'Giảng viên',
                         style: TextStyle(
                           color: isDark ? Colors.white : Colors.black87,
                           fontSize: 16,
@@ -215,7 +215,7 @@ class _LecturerHomeScreenState extends State<LecturerHomeScreen>
                         ),
                       ),
                       Text(
-                        'Mã GV: ${provider.lecturerCard?.maGv ?? ''}',
+                        'Mã GV: ${provider.lecturerProfile?.maGv ?? ''}',
                         style: TextStyle(
                           color: isDark
                               ? Colors.grey.shade400
@@ -999,10 +999,10 @@ class _LecturerHomeScreenState extends State<LecturerHomeScreen>
           child: ConstrainedBox(
             constraints: BoxConstraints(maxWidth: screenWidth - 24),
             child: LecturerIdCard(
-              lecturerName: provider.lecturerCard?.hoTen ?? 'Giảng viên',
-              lecturerId: provider.lecturerCard?.maGv ?? '',
-              department: provider.lecturerCard?.khoa ?? '',
-              email: provider.lecturerCard?.email ?? '',
+              lecturerName: provider.lecturerProfile?.hoTen ?? 'Giảng viên',
+              lecturerId: provider.lecturerProfile?.maGv ?? '',
+              department: provider.lecturerProfile?.khoaBoMon ?? '',
+              email: provider.lecturerProfile?.email ?? '',
             ),
           ),
         );

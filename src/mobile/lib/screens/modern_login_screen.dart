@@ -3,7 +3,9 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:developer' as developer;
 import '../providers/home_provider.dart';
+import '../providers/lecturer_provider.dart';
 import '../services/theme_controller.dart';
 import '../services/language_controller.dart';
 import '../services/auth_service.dart';
@@ -150,21 +152,42 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
       final username = _usernameController.text.trim();
       final role = username.length == 8 ? 'student' : (username.length == 5 ? 'lecturer' : 'student');
       
+      print('=== LOGIN ATTEMPT ===');
+      print('Username: $username (${username.length} chars)');
+      print('Detected role: $role');
+      developer.log('Attempting login: username=$username, role=$role', name: 'LoginScreen');
+      
       final token = await _authService.login(
         username,
         _passwordController.text,
         role: role,
       );
 
+      print('Login successful! Got token');
+      developer.log('Login successful, saving token...', name: 'LoginScreen');
       await _authService.saveToken(token);
+      print('Token saved');
+      developer.log('Token saved successfully', name: 'LoginScreen');
 
       // Remember current username in-memory for potential one-time prefill after logout
       _authService.setTransientLastUsername(_usernameController.text.trim());
 
       // Best-effort: trigger providers to refresh now so Home shows fresh data.
       try {
-        await context.read<HomeProvider>().refreshAll();
-      } catch (_) {
+        if (role == 'student') {
+          print('Refreshing HomeProvider for student login...');
+          await context.read<HomeProvider>().refreshAll();
+          print('HomeProvider refreshed successfully');
+        } else if (role == 'lecturer') {
+          print('Refreshing LecturerProvider for lecturer login...');
+          developer.log('Refreshing LecturerProvider...', name: 'LoginScreen');
+          await context.read<LecturerProvider>().refresh();
+          print('LecturerProvider refreshed successfully');
+          developer.log('LecturerProvider refreshed', name: 'LoginScreen');
+        }
+      } catch (e) {
+        print('Error refreshing provider: $e');
+        developer.log('Error refreshing provider: $e', name: 'LoginScreen');
         // ignore errors; we'll still navigate
       }
 

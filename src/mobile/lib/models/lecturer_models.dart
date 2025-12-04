@@ -40,7 +40,7 @@ class LecturerProfile {
 
   factory LecturerProfile.fromJson(Map<String, dynamic> json) {
     return LecturerProfile(
-      maGv: json['maGv'] as String,
+      maGv: (json['maGiangVien'] ?? json['maGv']) as String,
       hoTen: json['hoTen'] as String,
       khoaBoMon: json['khoaBoMon'] as String?,
       ngaySinh: json['ngaySinh'] != null
