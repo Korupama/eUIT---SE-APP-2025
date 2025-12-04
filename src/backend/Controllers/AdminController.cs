@@ -49,8 +49,12 @@ public class AdminController : ControllerBase
                 WHERE ma_lop = @p4 AND mssv = @p5";
 
             var rowsAffected = await _context.Database.ExecuteSqlRawAsync(sql,
-                request.DiemQuaTrinh, request.DiemGiuaKy, request.DiemThucHanh, 
-                request.DiemCuoiKy, maLop, mssv);
+                request.DiemQuaTrinh as object ?? DBNull.Value,
+                request.DiemGiuaKy as object ?? DBNull.Value,
+                request.DiemThucHanh as object ?? DBNull.Value,
+                request.DiemCuoiKy as object ?? DBNull.Value,
+                maLop ?? string.Empty,
+                mssv);
 
             if (rowsAffected == 0)
                 return NotFound(new { message = "Không tìm thấy bản ghi" });
@@ -65,7 +69,7 @@ public class AdminController : ControllerBase
                     JOIN thoi_khoa_bieu tkb ON kqht.ma_lop = tkb.ma_lop
                     JOIN mon_hoc mh ON tkb.ma_mon_hoc = mh.ma_mon_hoc
                     WHERE kqht.ma_lop = @p0 AND kqht.mssv = @p1
-                    LIMIT 1", maLop, mssv)
+                    LIMIT 1", maLop!, mssv)
                 .FirstOrDefaultAsync();
 
             // Parse học kỳ: "2023-2024_1" -> HocKy="1", NamHoc="2023-2024"
@@ -74,8 +78,8 @@ public class AdminController : ControllerBase
             // Gửi notification
             await _notificationClient.NotifyKetQuaHocTapAsync(mssv.ToString(), new KetQuaHocTapNotification(
                 MaMonHoc: courseInfo?.mamonhoc ?? "",
-                TenMonHoc: courseInfo?.tenmonhoc ?? maLop,
-                MaLopHocPhan: maLop,
+                TenMonHoc: courseInfo?.tenmonhoc ?? maLop ?? string.Empty,
+                MaLopHocPhan: maLop ?? string.Empty,
                 DiemQuaTrinh: request.DiemQuaTrinh,
                 DiemGiuaKy: request.DiemGiuaKy,
                 DiemCuoiKy: request.DiemCuoiKy,
@@ -132,13 +136,17 @@ public class AdminController : ControllerBase
                     WHERE ma_lop = @p3 AND mssv = @p4";
 
                 await _context.Database.ExecuteSqlRawAsync(sql,
-                    item.DiemQuaTrinh, item.DiemGiuaKy, item.DiemCuoiKy, maLop, item.Mssv);
+                    item.DiemQuaTrinh as object ?? DBNull.Value,
+                    item.DiemGiuaKy as object ?? DBNull.Value,
+                    item.DiemCuoiKy as object ?? DBNull.Value,
+                    maLop ?? string.Empty,
+                    item.Mssv);
 
                 // Gửi notification
                 await _notificationClient.NotifyKetQuaHocTapAsync(item.Mssv.ToString(), new KetQuaHocTapNotification(
                     MaMonHoc: courseInfo?.mamonhoc ?? "",
-                    TenMonHoc: courseInfo?.tenmonhoc ?? maLop,
-                    MaLopHocPhan: maLop,
+                    TenMonHoc: courseInfo?.tenmonhoc ?? maLop ?? string.Empty,
+                    MaLopHocPhan: maLop ?? string.Empty,
                     DiemQuaTrinh: item.DiemQuaTrinh,
                     DiemGiuaKy: item.DiemGiuaKy,
                     DiemCuoiKy: item.DiemCuoiKy,
@@ -199,14 +207,14 @@ public class AdminController : ControllerBase
                     FROM thoi_khoa_bieu tkb
                     JOIN mon_hoc mh ON tkb.ma_mon_hoc = mh.ma_mon_hoc
                     WHERE tkb.ma_lop = @p0
-                    LIMIT 1", request.MaLop)
+                    LIMIT 1", request.MaLop ?? string.Empty)
                 .FirstOrDefaultAsync();
             var courseName = courseNameResult?.Value ?? request.MaLop;
 
             // Gửi notification tới tất cả sinh viên
             var notification = new BaoBuNotification(
-                MaLopHocPhan: request.MaLop,
-                TenMonHoc: courseName,
+                MaLopHocPhan: request.MaLop ?? string.Empty,
+                TenMonHoc: courseName ?? string.Empty,
                 NgayBu: request.NgayHocBu,
                 TietBatDau: request.TietBatDau.ToString(),
                 TietKetThuc: request.TietKetThuc.ToString(),
@@ -268,14 +276,17 @@ public class AdminController : ControllerBase
                 VALUES (@p0, @p1, @p2, @p3, 'Da duyet')";
 
             await _context.Database.ExecuteSqlRawAsync(sql,
-                request.MaLop, maGv, request.LyDo, request.NgayNghi);
+                request.MaLop ?? string.Empty,
+                maGv ?? string.Empty,
+                request.LyDo ?? string.Empty,
+                request.NgayNghi);
 
             // Lấy danh sách sinh viên trong lớp
             var students = await _context.Database
                 .SqlQueryRaw<StudentMssv>(@"
                     SELECT DISTINCT mssv as Mssv
                     FROM ket_qua_hoc_tap
-                    WHERE ma_lop = @p0 OR ma_lop_goc = @p0", request.MaLop)
+                    WHERE ma_lop = @p0 OR ma_lop_goc = @p0", request.MaLop ?? string.Empty)
                 .ToListAsync();
 
             // Lấy tên môn học
@@ -285,16 +296,16 @@ public class AdminController : ControllerBase
                     FROM thoi_khoa_bieu tkb
                     JOIN mon_hoc mh ON tkb.ma_mon_hoc = mh.ma_mon_hoc
                     WHERE tkb.ma_lop = @p0
-                    LIMIT 1", request.MaLop)
+                    LIMIT 1", request.MaLop ?? string.Empty)
                 .FirstOrDefaultAsync();
             var courseName = courseNameResult?.Value ?? request.MaLop;
 
             // Gửi notification tới tất cả sinh viên
             var notification = new BaoNghiNotification(
-                MaLopHocPhan: request.MaLop,
-                TenMonHoc: courseName,
+                MaLopHocPhan: request.MaLop ?? string.Empty,
+                TenMonHoc: courseName ?? string.Empty,
                 NgayNghi: request.NgayNghi,
-                LyDo: request.LyDo,
+                LyDo: request.LyDo ?? string.Empty,
                 GhiChu: request.GhiChu
             );
 
