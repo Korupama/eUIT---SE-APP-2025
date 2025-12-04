@@ -125,7 +125,7 @@ public class AuthController : ControllerBase
         await using var reader = await cmd.ExecuteReaderAsync();
         if (!await reader.ReadAsync())
         {
-            throw new InvalidOperationException("Invalid or expired refresh token");
+            return Unauthorized(new { message = "Invalid or expired refresh token" });
         }
         
         var role = reader.GetString(0);

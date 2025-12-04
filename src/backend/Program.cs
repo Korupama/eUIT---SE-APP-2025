@@ -17,18 +17,15 @@ builder.Services.AddControllers();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
-        var jwtKey = builder.Configuration["Jwt:Key"] ?? throw new InvalidOperationException("JWT:Key is not configured");
-        var issuer = builder.Configuration["Jwt:Issuer"] ?? throw new InvalidOperationException("JWT:Issuer is not configured");
-        var audience = builder.Configuration["Jwt:Audience"] ?? throw new InvalidOperationException("JWT:Audience is not configured");
-        
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8
+                .GetBytes(builder.Configuration["Jwt:Key"])),
             ValidateIssuer = true,
-            ValidIssuer = issuer,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
             ValidateAudience = true,
-            ValidAudience = audience
+            ValidAudience = builder.Configuration["Jwt:Audience"]
         };
     });
 

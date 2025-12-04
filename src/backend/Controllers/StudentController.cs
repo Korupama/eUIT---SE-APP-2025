@@ -415,15 +415,17 @@ public class StudentsController : ControllerBase
         // The database function func_get_student_tuition is expected to exist.
         // It should accept mssv (student id) and an optional year filter.
         // Use parameterized queries to prevent SQL injection.
-        var mssvParam = new NpgsqlParameter("p_mssv", mssv ?? 0);
-        var yearParam = new NpgsqlParameter("p_year_filter", (object?)filter_by_year ?? DBNull.Value);
+        var mssvParam = new NpgsqlParameter("p_mssv", mssv);
+        var yearParam = new NpgsqlParameter("p_year_filter", (object)filter_by_year ?? DBNull.Value);
 
         var tuitionInfos = await _context.Database
             .SqlQueryRaw<TuitionInfo>("SELECT * FROM func_get_student_tuition(@p_mssv, @p_year_filter)", mssvParam, yearParam)
             .ToListAsync();
 
         if (!tuitionInfos.Any())
-            return NotFound("Không tìm thấy thông tin học phí.");
+        {
+            return NotFound("Chưa phát sinh học phí");
+        }
 
         var detailedTuition = tuitionInfos.Select(t => new TuitionDto
         {
@@ -487,7 +489,7 @@ public class StudentsController : ControllerBase
 
         // Lấy thông tin ngành học của sinh viên để tính tiến độ tốt nghiệp
         var studentMajor = await _context.Database
-            .SqlQueryRaw<StudentMajorInfo>("SELECT nganh_hoc FROM sinh_vien WHERE mssv = {0}", mssv ?? 0)
+            .SqlQueryRaw<StudentMajorInfo>("SELECT nganh_hoc FROM sinh_vien WHERE mssv = {0}", mssv)
             .FirstOrDefaultAsync();
 
         if (studentMajor == null)
