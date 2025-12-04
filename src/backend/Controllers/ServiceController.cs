@@ -47,8 +47,8 @@ public class ServiceController : ControllerBase
             
             var result = await _context.Database
                 .SqlQueryRaw<ConfirmationLetterResult>(sql,
-                    new NpgsqlParameter("p_mssv", mssv.Value),
-                    new NpgsqlParameter("p_purpose", requestDto.Purpose),
+                    new NpgsqlParameter("p_mssv", mssv.Value ?? 0 ),
+                    new NpgsqlParameter("p_purpose", requestDto.Purpose ?? string.Empty),
                     new NpgsqlParameter("p_language", requestDto.Language))
                 .ToListAsync();
 
@@ -117,9 +117,9 @@ public class ServiceController : ControllerBase
 
             await _context.Database.ExecuteSqlRawAsync(
                 sql,
-                new NpgsqlParameter("mssv", mssv.Value), // Không cần ToString(), giữ nguyên integer
-                new NpgsqlParameter("type", requestDto.CertificateType),
-                new NpgsqlParameter("score", (float)requestDto.Score),
+                new NpgsqlParameter("mssv", mssv ?? 0),
+                new NpgsqlParameter("type", requestDto.CertificateType ?? string.Empty),
+                new NpgsqlParameter("score", requestDto.Score),
                 new NpgsqlParameter("issue", requestDto.IssueDate),
                 new NpgsqlParameter("expiry", requestDto.ExpiryDate.HasValue ? (object)requestDto.ExpiryDate.Value : DBNull.Value),
                 new NpgsqlParameter("path", $"uploads/certificates/{unique}")
@@ -164,7 +164,7 @@ public class ServiceController : ControllerBase
             
             var results = await _context.Database
                 .SqlQueryRaw<ConfirmationLetterHistoryResult>(sql, 
-                    new NpgsqlParameter("p_mssv", mssv.Value))
+                    new NpgsqlParameter("p_mssv", mssv ?? 0))
                 .ToListAsync();
 
             // Bước 3: Mapping từ SQL result sang DTO
@@ -204,7 +204,7 @@ public class ServiceController : ControllerBase
             
             var results = await _context.Database
                 .SqlQueryRaw<LanguageCertificateHistoryResult>(sql,
-                    new NpgsqlParameter("p_mssv", mssv.Value))
+                    new NpgsqlParameter("p_mssv", mssv ?? 0))
                 .ToListAsync();
 
             // Bước 3: Mapping từ SQL result sang DTO
@@ -231,7 +231,7 @@ public class ServiceController : ControllerBase
 
     private class ParkingPassResult
     {
-        public int id { get; set; }
+        public int out_id { get; set; }
         public string license_plate { get; set; } = string.Empty;
         public string vehicle_type { get; set; } = string.Empty;
         public DateTime expiry_date { get; set; }
@@ -258,16 +258,12 @@ public class ServiceController : ControllerBase
         string licensePlate;
         if (requestDto.VehicleType == "bicycle")
         {
-            licensePlate = mssv.Value.ToString();
+            licensePlate = (mssv ?? 0).ToString();
         }
         else // motorbike
         {
-            if (string.IsNullOrWhiteSpace(requestDto.LicensePlate))
-            {
-                ModelState.AddModelError(nameof(requestDto.LicensePlate), "Biển số xe là bắt buộc cho xe máy.");
-                return BadRequest(ModelState);
-            }
-            licensePlate = requestDto.LicensePlate;
+            ModelState.AddModelError(nameof(requestDto.LicensePlate), "Biển số xe là bắt buộc cho xe máy.");
+            return BadRequest(ModelState);
         }
 
         try
@@ -276,9 +272,9 @@ public class ServiceController : ControllerBase
 
             var result = await _context.Database
                 .SqlQueryRaw<ParkingPassResult>(sql,
-                    new NpgsqlParameter("p_mssv", mssv.Value),
-                    new NpgsqlParameter("p_license_plate", licensePlate),
-                    new NpgsqlParameter("p_vehicle_type", requestDto.VehicleType),
+                    new NpgsqlParameter("p_mssv", mssv ?? 0),
+                    new NpgsqlParameter("p_license_plate", licensePlate ?? string.Empty),
+                    new NpgsqlParameter("p_vehicle_type", requestDto.VehicleType ?? string.Empty),
                     new NpgsqlParameter("p_registration_months", requestDto.RegistrationMonths))
                 .FirstOrDefaultAsync();
 
@@ -289,18 +285,18 @@ public class ServiceController : ControllerBase
 
             var responseDto = new ParkingPassResponseDto
             {
-                Id = result.id,
+                Id = result.out_id,
                 LicensePlate = result.license_plate,
                 VehicleType = result.vehicle_type,
                 RegisteredAt = result.registered_at.ToString("dd/MM/yyyy HH:mm"),
                 ExpiryDate = result.expiry_date.ToString("dd/MM/yyyy")
             };
 
-            return CreatedAtAction(nameof(RegisterParkingPass), new { id = result.id }, responseDto);
+            return CreatedAtAction(nameof(RegisterParkingPass), new { id = result.out_id }, responseDto);
         }
         catch (PostgresException pgEx) when (pgEx.SqlState == "P0001")
         {
-            // Bắt lỗi 'P0001' từ hàm SQL và trả về 409 Conflict
+            // Catch 'P0001' error from the SQL function and return 409 Conflict
             return Conflict(new { error = pgEx.MessageText });
         }
         catch (Exception ex)
@@ -335,7 +331,7 @@ public class ServiceController : ControllerBase
             
             // Kiểm tra xem đã nộp phúc khảo cho môn này chưa
             var existingAppeal = await _context.Appeals
-                .Where(a => a.Mssv == mssv.Value && a.CourseId == requestDto.CourseId)
+                .Where(a => a.Mssv == (mssv ?? 0) && a.CourseId == (requestDto.CourseId ?? string.Empty))
                 .FirstOrDefaultAsync();
 
             if (existingAppeal != null)
@@ -360,10 +356,10 @@ public class ServiceController : ControllerBase
             // Tạo đơn phúc khảo
             var appeal = new Appeal
             {
-                Mssv = mssv.Value,
-                CourseId = requestDto.CourseId,
-                Reason = requestDto.Reason,
-                PaymentMethod = requestDto.PaymentMethod,
+                Mssv = mssv ?? 0,
+                CourseId = requestDto.CourseId ?? string.Empty,
+                Reason = requestDto.Reason ?? string.Empty,
+                PaymentMethod = requestDto.PaymentMethod ?? "cash",
                 PaymentStatus = paymentStatus,
                 Status = paymentStatus == "completed" ? "pending" : "awaiting_payment",
                 CreatedAt = DateTime.UtcNow,
@@ -462,8 +458,8 @@ public class ServiceController : ControllerBase
             // Tạo đơn gia hạn
             var extension = new TuitionExtension
             {
-                Mssv = mssv.Value,
-                Reason = requestDto.Reason,
+                Mssv = mssv ?? 0,
+                Reason = requestDto.Reason ?? string.Empty,
                 DesiredTime = requestDto.DesiredTime,
                 SupportingDocs = filePath,
                 Status = "pending",
@@ -511,7 +507,7 @@ public class ServiceController : ControllerBase
         {
             // Tìm đơn gia hạn
             var extension = await _context.TuitionExtensions
-                .FirstOrDefaultAsync(e => e.Id == request_id && e.Mssv == mssv.Value);
+                .FirstOrDefaultAsync(e => e.Id == request_id && e.Mssv == (mssv ?? 0));
 
             if (extension == null)
             {

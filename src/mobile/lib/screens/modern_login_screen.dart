@@ -7,7 +7,6 @@ import '../providers/home_provider.dart';
 import '../services/theme_controller.dart';
 import '../services/language_controller.dart';
 import '../services/auth_service.dart';
-import '../providers/home_provider.dart';
 import '../theme/app_theme.dart';
 import '../utils/app_localizations.dart';
 import '../widgets/animated_background.dart';
@@ -147,9 +146,14 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
     setState(() => _isLoading = true);
 
     try {
+      // Determine role based on username length
+      final username = _usernameController.text.trim();
+      final role = username.length == 8 ? 'student' : (username.length == 5 ? 'lecturer' : 'student');
+      
       final token = await _authService.login(
-        _usernameController.text.trim(),
+        username,
         _passwordController.text,
+        role: role,
       );
 
       await _authService.saveToken(token);
@@ -188,13 +192,18 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
       } catch (_) {}
 
       if (mounted) {
-        // Fetch student card và các dữ liệu khác sau khi login thành công
-        final homeProvider = context.read<HomeProvider>();
-        homeProvider.fetchStudentCard();
-        homeProvider.fetchQuickGpa();
-        homeProvider.fetchNextClass();
-        
-        Navigator.pushReplacementNamed(context, '/home');
+        // Navigate based on role
+        if (role == 'lecturer') {
+          Navigator.pushReplacementNamed(context, '/lecturer_home');
+        } else {
+          // Fetch student card và các dữ liệu khác sau khi login thành công
+          final homeProvider = context.read<HomeProvider>();
+          homeProvider.fetchStudentCard();
+          homeProvider.fetchQuickGpa();
+          homeProvider.fetchNextClass();
+          
+          Navigator.pushReplacementNamed(context, '/home');
+        }
       }
     } catch (e) {
       if (mounted) {
@@ -279,58 +288,71 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
       body: Stack(
         children: [
           // Animated Background
-          AnimatedBackground(isDark: isDark),
+          Positioned.fill(
+            child: AnimatedBackground(isDark: isDark),
+          ),
 
           // Main Content
           SafeArea(
-            child: SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                child: FadeTransition(
-                  opacity: _fadeAnimation,
-                  child: Column(
-                    children: [
-                      const SizedBox(height: 16), // Reduced from 20
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                return SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      minHeight: constraints.maxHeight,
+                    ),
+                    child: IntrinsicHeight(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                        child: FadeTransition(
+                          opacity: _fadeAnimation,
+                          child: Column(
+                            children: [
+                              const SizedBox(height: 16), // Reduced from 20
 
-                      // Control buttons (Top Right)
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          LanguageSwitch(
-                            isVietnamese: isVietnamese,
-                            onToggle: () => languageController.toggleLanguage(),
+                              // Control buttons (Top Right)
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  LanguageSwitch(
+                                    isVietnamese: isVietnamese,
+                                    onToggle: () => languageController.toggleLanguage(),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  ThemeSwitch(
+                                    isDark: isDark,
+                                    onToggle: () => themeController.toggleTheme(),
+                                  ),
+                                ],
+                              ),
+
+                              const SizedBox(height: 24), // Reduced from 40
+
+                              // Logo & Title
+                              _buildLogoSection(textColor, secondaryTextColor, loc, isDark),
+
+                              const SizedBox(height: 24), // Reduced from 40
+
+                              // Login Form
+                              _buildLoginForm(
+                                isDark: isDark,
+                                textColor: textColor,
+                                cardColor: cardColor,
+                                borderColor: borderColor,
+                                secondaryTextColor: secondaryTextColor,
+                                loc: loc,
+                              ),
+
+                              const SizedBox(height: 24), // Reduced from 32
+                            ],
                           ),
-                          const SizedBox(width: 12),
-                          ThemeSwitch(
-                            isDark: isDark,
-                            onToggle: () => themeController.toggleTheme(),
-                          ),
-                        ],
+                        ),
                       ),
-
-                      const SizedBox(height: 40), // Reduced from 60
-
-                      // Logo & Title
-                      _buildLogoSection(textColor, secondaryTextColor, loc, isDark),
-
-                      const SizedBox(height: 40), // Reduced from 60
-
-                      // Login Form
-                      _buildLoginForm(
-                        isDark: isDark,
-                        textColor: textColor,
-                        cardColor: cardColor,
-                        borderColor: borderColor,
-                        secondaryTextColor: secondaryTextColor,
-                        loc: loc,
-                      ),
-
-                      const SizedBox(height: 32), // Reduced from 40
-                    ],
+                    ),
                   ),
-                ),
-              ),
+                );
+              },
             ),
           ),
         ],
@@ -411,6 +433,7 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
               child: TextFormField(
                 controller: _usernameController,
                 style: TextStyle(color: textColor),
+                keyboardType: TextInputType.text, // Allow both text and numbers
                 textInputAction: TextInputAction.next, // Added for Enter key
                 onFieldSubmitted: (_) {
                   // Move focus to password field when Enter is pressed
@@ -439,6 +462,7 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
                 controller: _passwordController,
                 obscureText: _obscurePassword,
                 style: TextStyle(color: textColor),
+                keyboardType: TextInputType.visiblePassword, // Allow numbers in password
                 textInputAction: TextInputAction.done, // Added for Enter key
                 onFieldSubmitted: (_) {
                   // Trigger login when Enter is pressed on password field
