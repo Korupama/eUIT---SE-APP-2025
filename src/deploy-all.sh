@@ -28,11 +28,11 @@ if [ -z "$GOOGLE_API_KEY" ] || [ "$GOOGLE_API_KEY" = "your_google_api_key_here" 
     exit 1
 fi
 
-if [ -z "$POSTGRES_PASSWORD" ] || [ "$POSTGRES_PASSWORD" = "your_secure_password_here" ]; then
-    echo ""
-    echo "ERROR: POSTGRES_PASSWORD is not configured in .env"
-    exit 1
-fi
+# if [ -z "$POSTGRES_PASSWORD" ] || [ "$POSTGRES_PASSWORD" = "your_secure_password_here" ]; then
+#     echo ""
+#     echo "ERROR: POSTGRES_PASSWORD is not configured in .env"
+#     exit 1
+# fi
 
 # Check Docker
 if ! command -v docker &> /dev/null; then
@@ -78,11 +78,10 @@ echo "  Deployment Complete!"
 echo "=========================================="
 echo ""
 echo "Services running:"
-echo "  - Backend API:    http://YOUR_VM_IP:8080"
-echo "  - Swagger UI:     http://YOUR_VM_IP:8080/swagger"
-echo "  - Chatbot API:    http://YOUR_VM_IP:5001"
-echo "  - WebSocket:      ws://YOUR_VM_IP:5000/ws"
-echo "  - PostgreSQL:     YOUR_VM_IP:5432"
+echo "  - Backend API:    http://34.133.214.97:8080"
+echo "  - Swagger UI:     http://34.133.214.97:8080/swagger"
+echo "  - Chatbot API:    http://34.133.214.97:5001"
+echo "  - WebSocket:      ws://34.133.214.97:5000/ws"
 echo ""
 echo "Useful commands:"
 echo "  - View logs:        docker compose logs -f"

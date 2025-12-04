@@ -47,7 +47,7 @@ public class ServiceController : ControllerBase
             
             var result = await _context.Database
                 .SqlQueryRaw<ConfirmationLetterResult>(sql,
-                    new NpgsqlParameter("p_mssv", mssv.Value ?? 0 ),
+                    new NpgsqlParameter("p_mssv", mssv ?? 0),
                     new NpgsqlParameter("p_purpose", requestDto.Purpose ?? string.Empty),
                     new NpgsqlParameter("p_language", requestDto.Language))
                 .ToListAsync();

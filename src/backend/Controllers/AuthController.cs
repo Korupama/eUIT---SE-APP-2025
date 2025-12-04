@@ -125,10 +125,7 @@ public class AuthController : ControllerBase
         await using var reader = await cmd.ExecuteReaderAsync();
         if (!await reader.ReadAsync())
         {
-            if (string.IsNullOrEmpty(loginRequest.userId))
-                throw new InvalidOperationException("User ID is required");
-            var token = _tokenService.CreateToken(loginRequest.userId, loginRequest.role ?? "student");
-            return Ok(new { token = token });
+            throw new InvalidOperationException("Invalid or expired refresh token");
         }
         
         var role = reader.GetString(0);

@@ -80,11 +80,9 @@ builder.Services.AddSwaggerGen(options =>
 var app = builder.Build();
 
 // --- Cấu hình pipeline xử lý request ---
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+// Enable Swagger in all environments for API documentation
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseStaticFiles(new StaticFileOptions
 {

@@ -125,3 +125,5 @@ TestResults/
 
 # temp 
 temp.*
+
+src/rerun.sh
