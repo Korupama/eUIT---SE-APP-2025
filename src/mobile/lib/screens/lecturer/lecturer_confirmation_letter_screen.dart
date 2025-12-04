@@ -594,64 +594,9 @@ class _LecturerConfirmationLetterScreenState
   }
 
   Widget _buildHistorySection(bool isDark) {
-    final mockHistory = [
-      {'type': 'Giấy xác nhận A', 'date': '15/11/2025', 'status': 'approved'},
-      {'type': 'Giấy xác nhận B', 'date': '10/10/2025', 'status': 'approved'},
-      {'type': 'Giấy xác nhận C', 'date': '28/11/2025', 'status': 'pending'},
-    ];
-
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(20),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-        child: Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: isDark
-                  ? [
-                      const Color(0xFF1E2746).withOpacity(0.7),
-                      const Color(0xFF2A3F7D).withOpacity(0.7),
-                    ]
-                  : [
-                      Colors.white.withOpacity(0.75),
-                      const Color(0xFFE3F2FD).withOpacity(0.75),
-                    ],
-            ),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: isDark
-                  ? Colors.white.withOpacity(0.1)
-                  : Colors.grey.withOpacity(0.2),
-            ),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Lịch sử yêu cầu',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: isDark ? Colors.white : Colors.black87,
-                ),
-              ),
-              const SizedBox(height: 12),
-              ...mockHistory.map(
-                (item) => _buildHistoryItem(
-                  type: item['type'] as String,
-                  date: item['date'] as String,
-                  status: item['status'] as String,
-                  isDark: isDark,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
+    // TODO: Implement history API when backend is ready
+    // For now, hide history section
+    return const SizedBox.shrink();
   }
 
   Widget _buildHistoryItem({
