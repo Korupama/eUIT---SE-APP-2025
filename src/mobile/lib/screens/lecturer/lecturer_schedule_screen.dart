@@ -113,24 +113,11 @@ class _LecturerScheduleScreenState extends State<LecturerScheduleScreen>
               ),
               const SizedBox(width: 12),
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Lịch giảng dạy',
-                      style: AppTheme.headingMedium.copyWith(
-                        color: isDark ? Colors.white : Colors.black87,
-                      ),
-                    ),
-                    Text(
-                      'Học kỳ 1 - Năm học 2024-2025',
-                      style: AppTheme.bodySmall.copyWith(
-                        color: isDark
-                            ? Colors.grey.shade400
-                            : Colors.grey.shade600,
-                      ),
-                    ),
-                  ],
+                child: Text(
+                  'Lịch giảng dạy',
+                  style: AppTheme.headingMedium.copyWith(
+                    color: isDark ? Colors.white : Colors.black87,
+                  ),
                 ),
               ),
               if (!_isCurrentWeek())

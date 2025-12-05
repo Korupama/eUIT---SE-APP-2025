@@ -46,36 +46,54 @@ class _LecturerClassDetailScreenState extends State<LecturerClassDetailScreen>
   Future<void> _loadStudents() async {
     setState(() => _isLoading = true);
     
-    // Mock data - sẽ thay bằng API call thật
-    await Future.delayed(const Duration(milliseconds: 500));
-    
-    _students = List.generate(
-      widget.classInfo.siSo,
-      (index) => ClassStudent(
-        mssv: '2352${(index + 1).toString().padLeft(4, '0')}',
-        hoTen: _generateVietnameseName(index),
-        ngaySinh: DateTime(2005, 1 + (index % 12), 1 + (index % 28)),
-        gioiTinh: index % 2 == 0 ? 'Nam' : 'Nữ',
-        email: '2352${(index + 1).toString().padLeft(4, '0')}@gm.uit.edu.vn',
-        lopSinhHoat: 'CNTT${2023 + (index % 2)}.${(index % 10 + 1).toString().padLeft(2, '0')}',
-        diemThuongXuyen: index % 5 == 0 ? null : 5.5 + (index % 5),
-        diemGiuaKy: index % 4 == 0 ? null : 6.0 + (index % 4),
-        diemCuoiKy: index % 3 == 0 ? null : 6.5 + (index % 4),
-        diemTongKet: index % 3 == 0 ? null : 6.0 + (index % 5) * 0.8,
-        soTietVang: index % 10,
-        trangThai: index % 15 == 0 ? 'Bảo lưu' : 'Đang học',
-      ),
-    );
-    
-    setState(() => _isLoading = false);
-  }
+    try {
+      // Call API to get students in this class
+      final provider = context.read<LecturerProvider>();
+      final studentsData = await provider.fetchExamStudents(
+        widget.classInfo.maMon,
+      );
 
-  String _generateVietnameseName(int index) {
-    final lastNames = ['Nguyễn', 'Trần', 'Lê', 'Phạm', 'Hoàng', 'Huỳnh', 'Võ', 'Phan', 'Đặng', 'Bùi'];
-    final middleNames = ['Văn', 'Thị', 'Hữu', 'Minh', 'Quốc', 'Đức', 'Anh', 'Thanh', 'Tuấn', 'Phương'];
-    final firstNames = ['An', 'Bình', 'Chi', 'Dũng', 'Hà', 'Hùng', 'Linh', 'Mai', 'Nam', 'Phúc', 'Quân', 'Sơn', 'Tâm', 'Thảo', 'Tú'];
-    
-    return '${lastNames[index % lastNames.length]} ${middleNames[index % middleNames.length]} ${firstNames[index % firstNames.length]}';
+      if (!mounted) return;
+
+      _students = studentsData.map((data) {
+        return ClassStudent(
+          mssv: data['mssv']?.toString() ?? '',
+          hoTen: data['hoTen'] as String? ?? '',
+          ngaySinh: data['ngaySinh'] != null
+              ? DateTime.tryParse(data['ngaySinh'] as String)
+              : null,
+          gioiTinh: data['gioiTinh'] as String?,
+          email: data['email'] as String?,
+          soDienThoai: data['soDienThoai'] as String?,
+          lopSinhHoat: data['lopSinhHoat'] as String?,
+          diemThuongXuyen: data['diemQuaTrinh'] != null
+              ? (data['diemQuaTrinh'] as num).toDouble()
+              : null,
+          diemGiuaKy: data['diemGiuaKy'] != null
+              ? (data['diemGiuaKy'] as num).toDouble()
+              : null,
+          diemCuoiKy: data['diemCuoiKy'] != null
+              ? (data['diemCuoiKy'] as num).toDouble()
+              : null,
+          diemTongKet: data['diemTongKet'] != null
+              ? (data['diemTongKet'] as num).toDouble()
+              : null,
+          soTietVang: data['soTietVang'] as int?,
+          trangThai: data['trangThai'] as String?,
+        );
+      }).toList();
+      
+      setState(() => _isLoading = false);
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _isLoading = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Lỗi khi tải danh sách sinh viên: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   @override

@@ -68,6 +68,15 @@ class _LecturerHomeScreenState extends State<LecturerHomeScreen>
       case 'lecturer_confirmation_letter':
         Navigator.pushNamed(context, '/lecturer_confirmation_letter');
         break;
+      case 'lecturer_tuition':
+        Navigator.pushNamed(context, '/lecturer_tuition');
+        break;
+      case 'lecturer_absences':
+        Navigator.pushNamed(context, '/lecturer_absences');
+        break;
+      case 'lecturer_makeup_classes':
+        Navigator.pushNamed(context, '/lecturer_makeup_classes');
+        break;
       default:
         break;
     }
@@ -207,7 +216,7 @@ class _LecturerHomeScreenState extends State<LecturerHomeScreen>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        provider.lecturerCard?.hoTen ?? 'Giảng viên',
+                        provider.lecturerProfile?.hoTen ?? 'Giảng viên',
                         style: TextStyle(
                           color: isDark ? Colors.white : Colors.black87,
                           fontSize: 16,
@@ -215,7 +224,7 @@ class _LecturerHomeScreenState extends State<LecturerHomeScreen>
                         ),
                       ),
                       Text(
-                        'Mã GV: ${provider.lecturerCard?.maGv ?? ''}',
+                        'Mã GV: ${provider.lecturerProfile?.maGv ?? ''}',
                         style: TextStyle(
                           color: isDark
                               ? Colors.grey.shade400
@@ -597,12 +606,16 @@ class _LecturerHomeScreenState extends State<LecturerHomeScreen>
 
   Widget _buildSquircleActionButton(dynamic action, bool isDark, int index) {
     final gradients = [
-      [const Color(0xFF4D7FFF), const Color(0xFF2F6BFF)],
-      [const Color(0xFF60A5FA), const Color(0xFF3B82F6)],
-      [const Color(0xFFA855F7), const Color(0xFF9333EA)],
-      [const Color(0xFF22C55E), const Color(0xFF16A34A)],
-      [const Color(0xFFF97316), const Color(0xFFEA580C)],
-      [const Color(0xFFEC4899), const Color(0xFFDB2777)],
+      [const Color(0xFF4D7FFF), const Color(0xFF2F6BFF)], // Blue
+      [const Color(0xFF60A5FA), const Color(0xFF3B82F6)], // Light Blue
+      [const Color(0xFFA855F7), const Color(0xFF9333EA)], // Purple
+      [const Color(0xFF22C55E), const Color(0xFF16A34A)], // Green
+      [const Color(0xFFF97316), const Color(0xFFEA580C)], // Orange
+      [const Color(0xFFEC4899), const Color(0xFFDB2777)], // Pink
+      [const Color(0xFF0EA5E9), const Color(0xFF0284C7)], // Sky Blue
+      [const Color(0xFFEF4444), const Color(0xFFDC2626)], // Red
+      [const Color(0xFF10B981), const Color(0xFF059669)], // Emerald
+      [const Color(0xFFFBBF24), const Color(0xFFF59E0B)], // Amber
     ];
 
     final gradient = index < gradients.length
@@ -634,6 +647,15 @@ class _LecturerHomeScreenState extends State<LecturerHomeScreen>
         break;
       case 'verified':
         icon = Icons.verified;
+        break;
+      case 'event_busy':
+        icon = Icons.event_busy;
+        break;
+      case 'event_available':
+        icon = Icons.event_available;
+        break;
+      case 'payment':
+        icon = Icons.payment;
         break;
       default:
         icon = Icons.circle_outlined;
@@ -999,10 +1021,10 @@ class _LecturerHomeScreenState extends State<LecturerHomeScreen>
           child: ConstrainedBox(
             constraints: BoxConstraints(maxWidth: screenWidth - 24),
             child: LecturerIdCard(
-              lecturerName: provider.lecturerCard?.hoTen ?? 'Giảng viên',
-              lecturerId: provider.lecturerCard?.maGv ?? '',
-              department: provider.lecturerCard?.khoa ?? '',
-              email: provider.lecturerCard?.email ?? '',
+              lecturerName: provider.lecturerProfile?.hoTen ?? 'Giảng viên',
+              lecturerId: provider.lecturerProfile?.maGv ?? '',
+              department: provider.lecturerProfile?.khoaBoMon ?? '',
+              email: provider.lecturerProfile?.email ?? '',
             ),
           ),
         );

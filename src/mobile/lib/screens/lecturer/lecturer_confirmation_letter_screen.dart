@@ -17,17 +17,29 @@ class _LecturerConfirmationLetterScreenState
     extends State<LecturerConfirmationLetterScreen> {
   String _selectedType = 'working'; // working, salary, insurance
   final _purposeController = TextEditingController();
+  final _mssvController = TextEditingController(); // Thêm controller cho MSSV
   final _recipientController = TextEditingController();
   bool _isLoading = false;
 
   @override
   void dispose() {
     _purposeController.dispose();
+    _mssvController.dispose();
     _recipientController.dispose();
     super.dispose();
   }
 
   Future<void> _requestConfirmationLetter() async {
+    if (_mssvController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Vui lòng nhập MSSV sinh viên'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
     if (_purposeController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -38,39 +50,81 @@ class _LecturerConfirmationLetterScreenState
       return;
     }
 
+    final mssv = int.tryParse(_mssvController.text);
+    if (mssv == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('MSSV không hợp lệ'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
     setState(() => _isLoading = true);
 
-    // TODO: Call API to request confirmation letter
-    await Future.delayed(const Duration(seconds: 1));
+    try {
+      final result = await context.read<LecturerProvider>().createConfirmationLetter(
+        mssv: mssv,
+        purpose: _purposeController.text,
+      );
 
-    if (!mounted) return;
+      if (!mounted) return;
+      setState(() => _isLoading = false);
 
-    setState(() => _isLoading = false);
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Row(
-          children: [
-            Icon(Icons.check_circle, color: Colors.green),
-            SizedBox(width: 8),
-            Text('Thành công'),
-          ],
-        ),
-        content: const Text(
-          'Yêu cầu giấy xác nhận đã được gửi.\nBạn sẽ nhận được thông báo khi giấy xác nhận được phê duyệt.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              Navigator.pop(context);
-            },
-            child: const Text('Đóng'),
+      if (result != null) {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Row(
+              children: [
+                Icon(Icons.check_circle, color: Colors.green),
+                SizedBox(width: 8),
+                Text('Thành công'),
+              ],
+            ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('Giấy xác nhận đã được tạo thành công.'),
+                const SizedBox(height: 12),
+                if (result['serialNumber'] != null)
+                  Text('Số sê-ri: ${result['serialNumber']}'),
+                if (result['expiryDate'] != null)
+                  Text('Ngày hết hạn: ${result['expiryDate']}'),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  _mssvController.clear();
+                  _purposeController.clear();
+                },
+                child: const Text('Đóng'),
+              ),
+            ],
           ),
-        ],
-      ),
-    );
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Không thể tạo giấy xác nhận. Vui lòng thử lại.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _isLoading = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Lỗi: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   @override
@@ -322,8 +376,9 @@ class _LecturerConfirmationLetterScreenState
               const SizedBox(height: 12),
               _buildInfoRow('Họ tên', profile?.hoTen ?? 'N/A', isDark),
               _buildInfoRow('Mã GV', profile?.maGv ?? 'N/A', isDark),
-              _buildInfoRow('Khoa', profile?.khoa ?? 'N/A', isDark),
-              _buildInfoRow('Chức danh', profile?.chucDanh ?? 'N/A', isDark),
+              _buildInfoRow('Khoa/Bộ môn', profile?.khoaBoMon ?? 'N/A', isDark),
+              if (profile?.email != null)
+                _buildInfoRow('Email', profile!.email!, isDark),
             ],
           ),
         ),
@@ -402,12 +457,45 @@ class _LecturerConfirmationLetterScreenState
               ),
               const SizedBox(height: 12),
               TextFormField(
+                controller: _mssvController,
+                keyboardType: TextInputType.number,
+                style: TextStyle(color: isDark ? Colors.white : Colors.black87),
+                decoration: InputDecoration(
+                  labelText: 'MSSV sinh viên *',
+                  hintText: 'Nhập MSSV sinh viên cần xác nhận',
+                  filled: true,
+                  fillColor: isDark
+                      ? Colors.white.withOpacity(0.05)
+                      : Colors.grey.withOpacity(0.1),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(
+                      color: isDark
+                          ? Colors.white.withOpacity(0.1)
+                          : Colors.grey.withOpacity(0.3),
+                    ),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(
+                      color: AppTheme.bluePrimary,
+                      width: 2,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
                 controller: _purposeController,
                 maxLines: 3,
                 style: TextStyle(color: isDark ? Colors.white : Colors.black87),
                 decoration: InputDecoration(
                   labelText: 'Mục đích sử dụng *',
-                  hintText: 'Ví dụ: Xin vay ngân hàng, Xin visa...',
+                  hintText: 'Ví dụ: Xác nhận đang học, Học bổng, Hoãn nghĩa vụ quân sự...',
                   filled: true,
                   fillColor: isDark
                       ? Colors.white.withOpacity(0.05)
@@ -506,64 +594,9 @@ class _LecturerConfirmationLetterScreenState
   }
 
   Widget _buildHistorySection(bool isDark) {
-    final mockHistory = [
-      {'type': 'Giấy xác nhận A', 'date': '15/11/2025', 'status': 'approved'},
-      {'type': 'Giấy xác nhận B', 'date': '10/10/2025', 'status': 'approved'},
-      {'type': 'Giấy xác nhận C', 'date': '28/11/2025', 'status': 'pending'},
-    ];
-
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(20),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-        child: Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: isDark
-                  ? [
-                      const Color(0xFF1E2746).withOpacity(0.7),
-                      const Color(0xFF2A3F7D).withOpacity(0.7),
-                    ]
-                  : [
-                      Colors.white.withOpacity(0.75),
-                      const Color(0xFFE3F2FD).withOpacity(0.75),
-                    ],
-            ),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: isDark
-                  ? Colors.white.withOpacity(0.1)
-                  : Colors.grey.withOpacity(0.2),
-            ),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Lịch sử yêu cầu',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: isDark ? Colors.white : Colors.black87,
-                ),
-              ),
-              const SizedBox(height: 12),
-              ...mockHistory.map(
-                (item) => _buildHistoryItem(
-                  type: item['type'] as String,
-                  date: item['date'] as String,
-                  status: item['status'] as String,
-                  isDark: isDark,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
+    // TODO: Implement history API when backend is ready
+    // For now, hide history section
+    return const SizedBox.shrink();
   }
 
   Widget _buildHistoryItem({

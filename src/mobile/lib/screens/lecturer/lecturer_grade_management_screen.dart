@@ -43,46 +43,63 @@ class _LecturerGradeManagementScreenState
     super.dispose();
   }
 
-  void _loadStudents() {
+  Future<void> _loadStudents() async {
     if (_selectedClass == null) return;
 
     setState(() {
       _isLoading = true;
     });
 
-    // Mock data - replace with API call
-    Future.delayed(const Duration(milliseconds: 500), () {
+    try {
+      // Call API to get grades for selected class
+      final provider = context.read<LecturerProvider>();
+      final gradesData = await provider.fetchGrades(
+        courseId: _selectedClass!.maMon,
+      );
+
       if (!mounted) return;
+
       setState(() {
-        _students = List.generate(45, (index) {
-          final names = [
-            'Nguyễn Văn A',
-            'Trần Thị B',
-            'Lê Văn C',
-            'Phạm Thị D',
-            'Hoàng Văn E',
-            'Vũ Thị F',
-            'Đặng Văn G',
-            'Bùi Thị H',
-            'Đỗ Văn I',
-            'Ngô Thị K',
-          ];
+        _students = gradesData.map((data) {
           return ClassStudent(
-            mssv: '${21520000 + index}',
-            hoTen: names[index % names.length] + ' ${index + 1}',
-            ngaySinh: DateTime(2003, 1 + index % 12, 1 + index % 28),
-            email: 'student${index + 1}@gm.uit.edu.vn',
-            diemThuongXuyen: 7.0 + (index % 3) * 0.5,
-            diemGiuaKy: 6.5 + (index % 4) * 0.75,
-            diemCuoiKy: 7.5 + (index % 3) * 0.5,
-            diemTongKet: 7.2 + (index % 3) * 0.4,
-            soTietVang: index % 5,
-            trangThai: index % 10 == 0 ? 'Cảnh báo' : 'Bình thường',
+            mssv: data['mssv']?.toString() ?? '',
+            hoTen: data['hoTen'] as String? ?? '',
+            ngaySinh: data['ngaySinh'] != null
+                ? DateTime.tryParse(data['ngaySinh'] as String)
+                : null,
+            email: data['email'] as String?,
+            gioiTinh: data['gioiTinh'] as String?,
+            lopSinhHoat: data['lopSinhHoat'] as String?,
+            diemThuongXuyen: data['diemQuaTrinh'] != null
+                ? (data['diemQuaTrinh'] as num).toDouble()
+                : null,
+            diemGiuaKy: data['diemGiuaKy'] != null
+                ? (data['diemGiuaKy'] as num).toDouble()
+                : null,
+            diemCuoiKy: data['diemCuoiKy'] != null
+                ? (data['diemCuoiKy'] as num).toDouble()
+                : null,
+            diemTongKet: data['diemTongKet'] != null
+                ? (data['diemTongKet'] as num).toDouble()
+                : null,
+            soTietVang: data['soTietVang'] as int?,
+            trangThai: data['trangThai'] as String?,
           );
-        });
+        }).toList();
         _isLoading = false;
       });
-    });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _isLoading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Lỗi khi tải danh sách sinh viên: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   @override
@@ -1028,34 +1045,53 @@ class _LecturerGradeManagementScreenState
     );
   }
 
-  void _saveGradeChanges() {
-    // TODO: API call to save grades
-    // Example:
-    // final response = await http.post(
-    //   Uri.parse('${apiUrl}/api/Lecturer/grades'),
-    //   headers: {'Authorization': 'Bearer $token'},
-    //   body: jsonEncode({
-    //     'classId': _selectedClass!.maMon,
-    //     'grades': _gradeChanges,
-    //   }),
-    // );
+  Future<void> _saveGradeChanges() async {
+    if (_selectedClass == null || _gradeChanges.isEmpty) return;
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.2),
-                borderRadius: BorderRadius.circular(8),
+    try {
+      final provider = context.read<LecturerProvider>();
+      
+      // Save each grade change
+      for (final entry in _gradeChanges.entries) {
+        final mssv = entry.key;
+        final grades = entry.value;
+        
+        await provider.updateGrade(
+          mssv: mssv,
+          maLop: _selectedClass!.maMon,
+          diemQuaTrinh: grades['diemThuongXuyen'],
+          diemGiuaKy: grades['diemGiuaKy'],
+          diemCuoiKy: grades['diemCuoiKy'],
+        );
+      }
+
+      if (!mounted) return;
+
+      // Clear changes and reload
+      setState(() {
+        _gradeChanges.clear();
+        _isEditing = false;
+      });
+
+      // Reload students to get updated data
+      await _loadStudents();
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(
+                  Icons.check_circle,
+                  color: Colors.white,
+                  size: 20,
+                ),
               ),
-              child: const Icon(
-                Icons.check_circle,
-                color: Colors.white,
-                size: 20,
-              ),
-            ),
             const SizedBox(width: 12),
             Expanded(
               child: Text(
@@ -1075,11 +1111,15 @@ class _LecturerGradeManagementScreenState
         duration: const Duration(seconds: 2),
       ),
     );
-
-    setState(() {
-      _isEditing = false;
-      _gradeChanges.clear();
-    });
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Lỗi khi lưu điểm: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   void _showImportDialog() {

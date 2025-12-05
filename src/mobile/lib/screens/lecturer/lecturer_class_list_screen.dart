@@ -25,7 +25,7 @@ class _LecturerClassListScreenState extends State<LecturerClassListScreen>
 
   late ScrollController _scrollController;
   String _selectedSemester = 'all';
-  String _selectedYear = '2024-2025';
+  String _selectedYear = 'all';
   String _searchQuery = '';
   final TextEditingController _searchController = TextEditingController();
 
@@ -60,7 +60,7 @@ class _LecturerClassListScreenState extends State<LecturerClassListScreen>
             child: Column(
               children: [
                 // Header with search and filter
-                _buildHeader(isDark),
+                _buildHeader(provider, isDark),
 
                 // Class list
                 Expanded(
@@ -76,7 +76,7 @@ class _LecturerClassListScreenState extends State<LecturerClassListScreen>
     );
   }
 
-  Widget _buildHeader(bool isDark) {
+  Widget _buildHeader(LecturerProvider provider, bool isDark) {
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
       decoration: BoxDecoration(
@@ -230,16 +230,13 @@ class _LecturerClassListScreenState extends State<LecturerClassListScreen>
                         fontSize: 14,
                       ),
                       dropdownColor: isDark ? AppTheme.darkCard : Colors.white,
-                      items:
-                          [
-                            '2024-2025',
-                            '2023-2024',
-                            '2022-2023',
-                            '2021-2022',
-                          ].map((String year) {
+                      items: _getAvailableYears(provider)
+                          .map((String year) {
                             return DropdownMenuItem<String>(
                               value: year,
-                              child: Text('Năm học $year'),
+                              child: Text(
+                                year == 'all' ? 'Tất cả năm học' : 'Năm học $year',
+                              ),
                             );
                           }).toList(),
                       onChanged: (String? newValue) {
@@ -287,6 +284,21 @@ class _LecturerClassListScreenState extends State<LecturerClassListScreen>
     );
   }
 
+  List<String> _getAvailableYears(LecturerProvider provider) {
+    // Get unique years from teaching classes
+    final years = provider.teachingClasses
+        .map((c) => c.namHoc)
+        .where((year) => year != null && year.isNotEmpty)
+        .toSet()
+        .toList();
+    
+    // Sort years in descending order (newest first)
+    years.sort((a, b) => b!.compareTo(a!));
+    
+    // Add 'all' option at the beginning
+    return ['all', ...years.map((y) => y!).toList()];
+  }
+
   Widget _buildFilterChip(String label, String value, bool isDark) {
     final isSelected = _selectedSemester == value;
 
@@ -332,6 +344,12 @@ class _LecturerClassListScreenState extends State<LecturerClassListScreen>
     List<TeachingClass> classes = provider.teachingClasses;
 
     // Apply filters
+    if (_selectedYear != 'all') {
+      classes = classes
+          .where((c) => c.namHoc == _selectedYear)
+          .toList();
+    }
+
     if (_selectedSemester != 'all') {
       classes = classes
           .where((c) => c.hocKy?.toLowerCase() == _selectedSemester)

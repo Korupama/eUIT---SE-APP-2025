@@ -55,21 +55,33 @@ class _LecturerEditProfileScreenState extends State<LecturerEditProfileScreen> {
 
     setState(() => _isLoading = true);
 
-    // TODO: Call API to update profile
-    await Future.delayed(const Duration(seconds: 1));
+    final provider = Provider.of<LecturerProvider>(context, listen: false);
+    final success = await provider.updateProfile(
+      email: _emailController.text.trim(),
+      soDienThoai: _phoneController.text.trim(),
+      diaChiThuongTru: _addressController.text.trim(),
+    );
 
     if (!mounted) return;
 
     setState(() => _isLoading = false);
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Cập nhật thông tin thành công'),
-        backgroundColor: Colors.green,
-      ),
-    );
-
-    Navigator.pop(context);
+    if (success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Cập nhật thông tin thành công'),
+          backgroundColor: Colors.green,
+        ),
+      );
+      Navigator.pop(context);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Cập nhật thất bại. Vui lòng thử lại'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   @override
@@ -321,9 +333,12 @@ class _LecturerEditProfileScreenState extends State<LecturerEditProfileScreen> {
                 icon: Icons.phone,
                 keyboardType: TextInputType.phone,
                 validator: (value) {
-                  if (value?.isEmpty ?? true)
+                  if (value?.isEmpty ?? true) {
                     return 'Vui lòng nhập số điện thoại';
-                  if (value!.length < 10) return 'Số điện thoại không hợp lệ';
+                  }
+                  if (value!.length < 10) {
+                    return 'Số điện thoại không hợp lệ';
+                  }
                   return null;
                 },
                 isDark: isDark,

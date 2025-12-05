@@ -12,16 +12,30 @@ class AuthService {
   // Notifier shared across all AuthService instances so providers and UI can
   // listen for token changes (login/logout) and react immediately.
   static final ValueNotifier<String?> tokenNotifier = ValueNotifier<String?>(null);
+  
+  static bool _initialized = false;
 
   AuthService() {
-    // Initialize notifier with stored token once.
-    _init();
+    // Defer initialization to avoid plugin errors at startup
+    if (!_initialized) {
+      _initialized = true;
+      Future.microtask(() => _init());
+    }
   }
 
   // Storage key for the auth token
   static const String _tokenKey = 'auth_token';
   static const String _loginPath = '/api/Auth/login';
-  final FlutterSecureStorage _storage = const FlutterSecureStorage();
+  
+  FlutterSecureStorage? _storageInstance;
+  FlutterSecureStorage get _storage {
+    _storageInstance ??= const FlutterSecureStorage(
+      aOptions: AndroidOptions(
+        encryptedSharedPreferences: true,
+      ),
+    );
+    return _storageInstance!;
+  }
 
   // Read stored token at startup and update the notifier.
   Future<void> _init() async {
@@ -31,8 +45,9 @@ class AuthService {
         tokenNotifier.value = t;
         developer.log('AuthService: initialized tokenNotifier with value ${t == null ? 'null' : '***'}', name: 'AuthService');
       }
-    } catch (_) {
-      // ignore read errors
+    } catch (e) {
+      developer.log('AuthService: Error reading token during init: $e', name: 'AuthService');
+      // ignore read errors during initialization
     }
   }
 
@@ -159,27 +174,108 @@ class AuthService {
   }
 
   Future<void> saveToken(String token) async {
-    await _storage.write(key: _tokenKey, value: token);
-    try {
-      // Notify listeners (e.g., providers) that a new token is available.
-      tokenNotifier.value = token;
-      developer.log('AuthService: saveToken called; token saved and notified', name: 'AuthService');
-    } catch (_) {
-      // ignore notifier errors
+    // Retry mechanism for plugin initialization issues
+    int retries = 3;
+    while (retries > 0) {
+      try {
+        await _storage.write(key: _tokenKey, value: token);
+        // Notify listeners (e.g., providers) that a new token is available.
+        tokenNotifier.value = token;
+        developer.log('AuthService: saveToken called; token saved and notified', name: 'AuthService');
+        return;
+      } catch (e) {
+        retries--;
+        if (retries > 0) {
+          developer.log('AuthService: Retry saving token, attempts left: $retries', name: 'AuthService');
+          await Future.delayed(const Duration(milliseconds: 100));
+        } else {
+          developer.log('AuthService: Error saving token after retries: $e', name: 'AuthService', error: e);
+          // Still set the token in memory even if storage fails
+          tokenNotifier.value = token;
+          // Don't throw - allow login to continue
+          return;
+        }
+      }
     }
   }
 
   Future<String?> getToken() async {
-    return _storage.read(key: _tokenKey);
+    // First try to get from memory
+    if (tokenNotifier.value != null) {
+      developer.log('AuthService: getToken from memory', name: 'AuthService');
+      return tokenNotifier.value;
+    }
+    
+    // Then try storage with retry
+    int retries = 3;
+    while (retries > 0) {
+      try {
+        final token = await _storage.read(key: _tokenKey);
+        if (token != null) {
+          tokenNotifier.value = token;
+        }
+        return token;
+      } catch (e) {
+        retries--;
+        if (retries > 0) {
+          developer.log('AuthService: Retry reading token, attempts left: $retries', name: 'AuthService');
+          await Future.delayed(const Duration(milliseconds: 100));
+        } else {
+          developer.log('AuthService: Error reading token after retries: $e', name: 'AuthService', error: e);
+          return null;
+        }
+      }
+    }
+    return null;
   }
 
   Future<void> deleteToken() async {
-    await _storage.delete(key: _tokenKey);
     try {
+      await _storage.delete(key: _tokenKey);
       tokenNotifier.value = null;
       developer.log('AuthService: deleteToken called; token removed and notified', name: 'AuthService');
-    } catch (_) {
-      // ignore
+    } catch (e) {
+      developer.log('AuthService: Error deleting token: $e', name: 'AuthService', error: e);
+      // Still set notifier to null even if delete fails
+      tokenNotifier.value = null;
+    }
+  }
+
+  // Logout: clear token and notify
+  Future<void> logout() async {
+    await deleteToken();
+    developer.log('AuthService: User logged out', name: 'AuthService');
+  }
+
+  // Refresh access token using refresh token
+  Future<String?> refreshAccessToken() async {
+    try {
+      developer.log('AuthService: Attempting to refresh access token', name: 'AuthService');
+      
+      final uri = buildUri('/api/Auth/refresh');
+      final res = await http.post(
+        uri,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'refreshToken': 'dummy'}), // Backend will validate from DB
+      ).timeout(const Duration(seconds: 10));
+
+      if (res.statusCode == 200) {
+        final body = jsonDecode(res.body) as Map<String, dynamic>;
+        final newToken = body['accessToken'] as String?;
+        
+        if (newToken != null && newToken.isNotEmpty) {
+          await _storage.write(key: _tokenKey, value: newToken);
+          tokenNotifier.value = newToken;
+          developer.log('AuthService: Access token refreshed successfully', name: 'AuthService');
+          return newToken;
+        }
+      }
+      
+      developer.log('AuthService: Failed to refresh token: ${res.statusCode}', name: 'AuthService');
+      return null;
+    } catch (e) {
+      developer.log('AuthService: Error refreshing token: $e', name: 'AuthService');
+      return null;
     }
   }
 

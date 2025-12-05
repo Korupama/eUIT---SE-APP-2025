@@ -21,9 +21,6 @@ class LecturerProvider extends ChangeNotifier {
   bool _isLoading = true;
   bool get isLoading => _isLoading;
 
-  LecturerCard? _lecturerCard;
-  LecturerCard? get lecturerCard => _lecturerCard;
-
   LecturerProfile? _lecturerProfile;
   LecturerProfile? get lecturerProfile => _lecturerProfile;
 
@@ -54,16 +51,37 @@ class LecturerProvider extends ChangeNotifier {
   List<ExamSchedule> get examSchedules => _examSchedules;
 
   Future<void> _init() async {
+    print('=== LECTURER PROVIDER INIT STARTED ===');
+    developer.log('=== LECTURER PROVIDER INIT STARTED ===', name: 'LecturerProvider');
     _isLoading = true;
     notifyListeners();
 
     try {
+      // Check if we have a token first
+      final token = await auth.getToken();
+      print('Token available: ${token != null}');
+      developer.log('Token available: ${token != null}', name: 'LecturerProvider');
+      
+      if (token == null) {
+        print('No token found, skipping API calls');
+        developer.log('No token found, skipping API calls', name: 'LecturerProvider');
+        _isLoading = false;
+        notifyListeners();
+        return;
+      }
+
+      print('Starting API calls...');
       await Future.wait([
-        _fetchLecturerCard(),
-        _fetchNextClass(),
+        fetchLecturerProfile(),
+        fetchTeachingClasses(),
+        fetchTeachingSchedule(),
         _fetchNotifications(),
       ]);
+      
+      print('=== LECTURER PROVIDER INIT COMPLETED ===');
+      developer.log('=== LECTURER PROVIDER INIT COMPLETED ===', name: 'LecturerProvider');
     } catch (e) {
+      print('LecturerProvider init error: $e');
       developer.log(
         'LecturerProvider init error: $e',
         name: 'LecturerProvider',
@@ -73,6 +91,8 @@ class LecturerProvider extends ChangeNotifier {
     _initQuickActions();
     _isLoading = false;
     notifyListeners();
+    print('=== LECTURER PROVIDER INIT COMPLETED ===');
+    developer.log('=== LECTURER PROVIDER INIT COMPLETED ===', name: 'LecturerProvider');
   }
 
   void _initQuickActions() {
@@ -112,179 +132,162 @@ class LecturerProvider extends ChangeNotifier {
         type: 'lecturer_confirmation_letter',
         iconName: 'verified',
       ),
+      QuickAction(
+        label: 'Vắng mặt',
+        type: 'lecturer_absences',
+        iconName: 'event_busy',
+      ),
+      QuickAction(
+        label: 'Lớp học bù',
+        type: 'lecturer_makeup_classes',
+        iconName: 'event_available',
+      ),
+      QuickAction(
+        label: 'Học phí',
+        type: 'lecturer_tuition',
+        iconName: 'payment',
+      ),
     ];
   }
 
-  Future<void> _fetchLecturerCard() async {
+  // Helper method để tự động refresh token khi gặp 401
+  Future<http.Response?> _makeAuthenticatedRequest({
+    required Future<http.Response> Function(String token) requestFn,
+    int retryCount = 0,
+  }) async {
     try {
       final token = await auth.getToken();
-      if (token == null) return;
-
-      final uri = auth.buildUri('/api/Lecturer/card');
-      final res = await http
-          .get(
-            uri,
-            headers: {
-              'Authorization': 'Bearer $token',
-              'Content-Type': 'application/json',
-            },
-          )
-          .timeout(const Duration(seconds: 10));
-
-      if (res.statusCode == 200) {
-        final data = jsonDecode(res.body) as Map<String, dynamic>;
-        _lecturerCard = LecturerCard.fromJson(data);
-        notifyListeners();
+      if (token == null) {
+        developer.log('No token available', name: 'LecturerProvider');
+        return null;
       }
+
+      // Make request with current token
+      final response = await requestFn(token);
+
+      // If 401 and haven't retried yet, try to refresh token
+      if (response.statusCode == 401 && retryCount == 0) {
+        developer.log(
+          'Got 401, attempting to refresh token',
+          name: 'LecturerProvider',
+        );
+
+        final newToken = await auth.refreshAccessToken();
+        if (newToken != null) {
+          developer.log(
+            'Token refreshed successfully, retrying request',
+            name: 'LecturerProvider',
+          );
+          // Retry with new token
+          return await _makeAuthenticatedRequest(
+            requestFn: requestFn,
+            retryCount: retryCount + 1,
+          );
+        } else {
+          developer.log(
+            'Token refresh failed, logging out',
+            name: 'LecturerProvider',
+          );
+          await auth.logout();
+          return null;
+        }
+      }
+
+      return response;
     } catch (e) {
       developer.log(
-        'Error fetching lecturer card: $e',
+        'Error in authenticated request: $e',
         name: 'LecturerProvider',
       );
+      return null;
     }
   }
+
+
 
   Future<void> fetchLecturerProfile() async {
     _isLoading = true;
     notifyListeners();
 
     try {
-      final token = await auth.getToken();
-      if (token == null) {
-        _isLoading = false;
-        notifyListeners();
-        return;
-      }
+      developer.log('Fetching lecturer profile...', name: 'LecturerProvider');
+      final uri = auth.buildUri('/api/lecturer/profile');
+      
+      final res = await _makeAuthenticatedRequest(
+        requestFn: (token) => http.get(
+          uri,
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+        ).timeout(const Duration(seconds: 10)),
+      );
 
-      final uri = auth.buildUri('/api/Lecturer/profile');
-      final res = await http
-          .get(
-            uri,
-            headers: {
-              'Authorization': 'Bearer $token',
-              'Content-Type': 'application/json',
-            },
-          )
-          .timeout(const Duration(seconds: 10));
-
-      if (res.statusCode == 200) {
+      if (res != null && res.statusCode == 200) {
+        developer.log('Lecturer profile fetched successfully', name: 'LecturerProvider');
         final data = jsonDecode(res.body) as Map<String, dynamic>;
         _lecturerProfile = LecturerProfile.fromJson(data);
       } else {
-        // Mock data when API fails
-        _createMockProfile();
+        developer.log('Failed to fetch lecturer profile: ${res?.statusCode}', name: 'LecturerProvider');
       }
     } catch (e) {
       developer.log(
         'Error fetching lecturer profile: $e',
         name: 'LecturerProvider',
       );
-      // Mock data for development
-      _createMockProfile();
     } finally {
       _isLoading = false;
       notifyListeners();
     }
   }
 
-  void _createMockProfile() {
-    _lecturerProfile = LecturerProfile(
-      maGv: '80001',
-      hoTen: 'Nguyễn Minh Nam',
-      khoaBoMon: 'HTTT',
-      ngaySinh: DateTime(1970, 12, 9),
-      noiSinh: 'Tỉnh Lạng Sơn',
-      email: 'nguyenminhnam@uit.edu.vn',
-      soDienThoai: '0901338908',
-      cccd: '048170181960',
-      ngayCapCccd: DateTime(1991, 2, 26),
-      noiCapCccd: 'Công an tỉnh Bình Dương',
-      danToc: 'Tày',
-      tonGiao: 'Phật giáo',
-      diaChiThuongTru: '734 đường Cách Mạng Tháng 8, Xã Ba Sơn',
-      tinhThanhPho: 'Tỉnh Lạng Sơn',
-      phuongXa: 'Xã Ba Sơn',
-    );
-  }
-
-  Future<void> _fetchNextClass() async {
-    try {
-      final token = await auth.getToken();
-      if (token == null) {
-        _createMockNextClass();
-        return;
-      }
-
-      final uri = auth.buildUri('/api/Lecturer/next-class');
-      final res = await http
-          .get(
-            uri,
-            headers: {
-              'Authorization': 'Bearer $token',
-              'Content-Type': 'application/json',
-            },
-          )
-          .timeout(const Duration(seconds: 10));
-
-      if (res.statusCode == 200) {
-        final data = jsonDecode(res.body) as Map<String, dynamic>;
-        _nextClass = TeachingScheduleItem.fromJson(data);
-        notifyListeners();
-      } else {
-        // Mock data when API returns non-200
-        _createMockNextClass();
-      }
-    } catch (e) {
-      developer.log('Error fetching next class: $e', name: 'LecturerProvider');
-      // Mock data for development
-      _createMockNextClass();
-    }
-  }
-
-  void _createMockNextClass() {
-    final now = DateTime.now();
-    // Tính ngày thứ 2 tiếp theo
-    final daysUntilMonday = (DateTime.monday - now.weekday + 7) % 7;
-    final nextMonday = now.add(
-      Duration(days: daysUntilMonday == 0 ? 7 : daysUntilMonday),
-    );
-
-    _nextClass = TeachingScheduleItem(
-      maMon: 'NT101',
-      tenMon: 'Mạng máy tính',
-      nhom: 'O11',
-      phong: 'E4.1',
-      thu: '2',
-      tietBatDau: '1',
-      tietKetThuc: '3',
-      ngayBatDau: nextMonday,
-      siSo: 45,
-    );
-    notifyListeners();
-  }
-
   Future<void> fetchTeachingSchedule() async {
     try {
-      final token = await auth.getToken();
-      if (token == null) return;
+      developer.log('Fetching teaching schedule...', name: 'LecturerProvider');
+      // Fetch entire academic year (Aug 1 to Jul 31 next year)
+      final now = DateTime.now();
+      final startDate = DateTime(now.month >= 8 ? now.year : now.year - 1, 8, 1);
+      final endDate = DateTime(now.month >= 8 ? now.year + 1 : now.year, 7, 31);
+      
+      developer.log('Schedule date range: $startDate to $endDate', name: 'LecturerProvider');
+      
+      final queryParams = {
+        'startDate': startDate.toIso8601String(),
+        'endDate': endDate.toIso8601String(),
+      };
+      final uri = auth.buildUri('/api/lecturer/schedule').replace(queryParameters: queryParams);
+      
+      developer.log('Schedule API URL: $uri', name: 'LecturerProvider');
+      
+      final res = await _makeAuthenticatedRequest(
+        requestFn: (token) => http.get(
+          uri,
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+        ).timeout(const Duration(seconds: 10)),
+      );
 
-      final uri = auth.buildUri('/api/Lecturer/schedule');
-      final res = await http
-          .get(
-            uri,
-            headers: {
-              'Authorization': 'Bearer $token',
-              'Content-Type': 'application/json',
-            },
-          )
-          .timeout(const Duration(seconds: 10));
-
-      if (res.statusCode == 200) {
+      if (res != null && res.statusCode == 200) {
+        developer.log('Teaching schedule fetched successfully', name: 'LecturerProvider');
+        developer.log('Schedule response body: ${res.body}', name: 'LecturerProvider');
         final data = jsonDecode(res.body) as List;
+        developer.log('Schedule data count: ${data.length}', name: 'LecturerProvider');
         _teachingSchedule = data
             .map((item) => TeachingScheduleItem.fromJson(item))
             .toList();
+        
+        developer.log('Parsed ${_teachingSchedule.length} schedule items', name: 'LecturerProvider');
+        
+        // Find next class from schedule
+        _findNextClass();
         notifyListeners();
+      } else {
+        developer.log('Failed to fetch teaching schedule: ${res?.statusCode}', name: 'LecturerProvider');
+        if (res != null) {
+          developer.log('Error response: ${res.body}', name: 'LecturerProvider');
+        }
       }
     } catch (e) {
       developer.log(
@@ -294,23 +297,57 @@ class LecturerProvider extends ChangeNotifier {
     }
   }
 
+  void _findNextClass() {
+    if (_teachingSchedule.isEmpty) {
+      _nextClass = null;
+      return;
+    }
+
+    final now = DateTime.now();
+    TeachingScheduleItem? upcoming;
+    Duration? shortestDuration;
+
+    for (final item in _teachingSchedule) {
+      // Skip if no date information
+      if (item.ngayBatDau == null) continue;
+
+      final classDateTime = item.ngayBatDau!;
+      
+      // Only consider future classes
+      if (classDateTime.isAfter(now)) {
+        final duration = classDateTime.difference(now);
+        
+        if (shortestDuration == null || duration < shortestDuration) {
+          shortestDuration = duration;
+          upcoming = item;
+        }
+      }
+    }
+
+    _nextClass = upcoming;
+    developer.log(
+      'Next class found: ${_nextClass?.tenMon ?? 'None'}',
+      name: 'LecturerProvider',
+    );
+  }
+
   Future<void> _fetchNotifications() async {
     try {
-      final token = await auth.getToken();
-      if (token == null) return;
+      developer.log('Fetching notifications...', name: 'LecturerProvider');
+      final uri = auth.buildUri('/api/lecturer/notifications');
+      
+      final res = await _makeAuthenticatedRequest(
+        requestFn: (token) => http.get(
+          uri,
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+        ).timeout(const Duration(seconds: 10)),
+      );
 
-      final uri = auth.buildUri('/api/Lecturer/notifications');
-      final res = await http
-          .get(
-            uri,
-            headers: {
-              'Authorization': 'Bearer $token',
-              'Content-Type': 'application/json',
-            },
-          )
-          .timeout(const Duration(seconds: 10));
-
-      if (res.statusCode == 200) {
+      if (res != null && res.statusCode == 200) {
+        developer.log('Notifications fetched successfully', name: 'LecturerProvider');
         final data = jsonDecode(res.body) as List;
         _notifications = data.map((item) {
           return NotificationItem(
@@ -322,29 +359,14 @@ class LecturerProvider extends ChangeNotifier {
           );
         }).toList();
         notifyListeners();
+      } else {
+        developer.log('Failed to fetch notifications: ${res?.statusCode}', name: 'LecturerProvider');
       }
     } catch (e) {
       developer.log(
         'Error fetching notifications: $e',
         name: 'LecturerProvider',
       );
-      // Mock data for development
-      _notifications = [
-        NotificationItem(
-          id: '1',
-          title: 'Nhắc nhở nhập điểm',
-          body: 'Vui lòng nhập điểm cho lớp NT101.O11 trước 15/12/2025',
-          isUnread: true,
-          time: '2 giờ trước',
-        ),
-        NotificationItem(
-          id: '2',
-          title: 'Lịch họp khoa',
-          body: 'Họp khoa vào thứ 5 tuần sau lúc 14:00',
-          isUnread: true,
-          time: '1 ngày trước',
-        ),
-      ];
     }
   }
 
@@ -353,105 +375,41 @@ class LecturerProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final token = await auth.getToken();
-      if (token == null) return;
+      developer.log('Fetching teaching classes...', name: 'LecturerProvider');
+      final uri = auth.buildUri('/api/lecturer/courses');
+      
+      developer.log('Classes API URL: $uri', name: 'LecturerProvider');
+      
+      final res = await _makeAuthenticatedRequest(
+        requestFn: (token) => http.get(
+          uri,
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+        ).timeout(const Duration(seconds: 10)),
+      );
 
-      final uri = auth.buildUri('/api/Lecturer/classes');
-      final res = await http
-          .get(
-            uri,
-            headers: {
-              'Authorization': 'Bearer $token',
-              'Content-Type': 'application/json',
-            },
-          )
-          .timeout(const Duration(seconds: 10));
-
-      if (res.statusCode == 200) {
+      if (res != null && res.statusCode == 200) {
+        developer.log('Teaching classes fetched successfully', name: 'LecturerProvider');
+        developer.log('Classes response body: ${res.body}', name: 'LecturerProvider');
         final data = jsonDecode(res.body) as List;
         _teachingClasses = data
             .map((item) => TeachingClass.fromJson(item))
             .toList();
+        developer.log('Found ${_teachingClasses.length} classes', name: 'LecturerProvider');
         notifyListeners();
+      } else {
+        developer.log('Failed to fetch teaching classes: ${res?.statusCode}', name: 'LecturerProvider');
+        if (res != null) {
+          developer.log('Error response: ${res.body}', name: 'LecturerProvider');
+        }
       }
     } catch (e) {
       developer.log(
         'Error fetching teaching classes: $e',
         name: 'LecturerProvider',
       );
-      // Mock data for development
-      _teachingClasses = [
-        TeachingClass(
-          maMon: 'NT101',
-          tenMon: 'Mạng máy tính',
-          nhom: 'O11',
-          siSo: 45,
-          soTinChi: 4,
-          phong: 'E4.1',
-          thu: '2',
-          tietBatDau: '1',
-          tietKetThuc: '3',
-          hocKy: 'hk1',
-          namHoc: '2024-2025',
-          trangThai: 'Đang học',
-        ),
-        TeachingClass(
-          maMon: 'NT106',
-          tenMon: 'Lập trình mạng căn bản',
-          nhom: 'O21',
-          siSo: 40,
-          soTinChi: 4,
-          phong: 'E4.2',
-          thu: '4',
-          tietBatDau: '4',
-          tietKetThuc: '6',
-          hocKy: 'hk1',
-          namHoc: '2024-2025',
-          trangThai: 'Đang học',
-        ),
-        TeachingClass(
-          maMon: 'NT131',
-          tenMon: 'Lập trình hướng đối tượng',
-          nhom: 'O12',
-          siSo: 50,
-          soTinChi: 4,
-          phong: 'E3.5',
-          thu: '5',
-          tietBatDau: '7',
-          tietKetThuc: '9',
-          hocKy: 'hk1',
-          namHoc: '2024-2025',
-          trangThai: 'Đang học',
-        ),
-        TeachingClass(
-          maMon: 'NT118',
-          tenMon: 'Phát triển ứng dụng trên thiết bị di động',
-          nhom: 'O11',
-          siSo: 35,
-          soTinChi: 4,
-          phong: 'E4.3',
-          thu: '3',
-          tietBatDau: '1',
-          tietKetThuc: '3',
-          hocKy: 'hk2',
-          namHoc: '2024-2025',
-          trangThai: 'Sắp bắt đầu',
-        ),
-        TeachingClass(
-          maMon: 'NT209',
-          tenMon: 'Nhập môn trí tuệ nhân tạo',
-          nhom: 'O13',
-          siSo: 42,
-          soTinChi: 4,
-          phong: 'E4.4',
-          thu: '6',
-          tietBatDau: '4',
-          tietKetThuc: '6',
-          hocKy: 'hk2',
-          namHoc: '2024-2025',
-          trangThai: 'Sắp bắt đầu',
-        ),
-      ];
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -459,15 +417,51 @@ class LecturerProvider extends ChangeNotifier {
   }
 
   Future<void> fetchSchedule() async {
-    // Fetch schedule - for now use mock data from _teachingSchedule
-    // This is a placeholder for future API integration
     _isLoading = true;
     notifyListeners();
 
-    await Future.delayed(const Duration(milliseconds: 500));
+    try {
+      developer.log('Fetching teaching schedule...', name: 'LecturerProvider');
+      // Fetch entire academic year (Aug 1 to Jul 31 next year)
+      final now = DateTime.now();
+      final startDate = DateTime(now.month >= 8 ? now.year : now.year - 1, 8, 1);
+      final endDate = DateTime(now.month >= 8 ? now.year + 1 : now.year, 7, 31);
+      
+      final queryParams = {
+        'startDate': startDate.toIso8601String(),
+        'endDate': endDate.toIso8601String(),
+      };
+      final uri = auth.buildUri('/api/lecturer/schedule').replace(queryParameters: queryParams);
+      
+      final res = await _makeAuthenticatedRequest(
+        requestFn: (token) => http.get(
+          uri,
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+        ).timeout(const Duration(seconds: 10)),
+      );
 
-    _isLoading = false;
-    notifyListeners();
+      if (res != null && res.statusCode == 200) {
+        developer.log('Teaching schedule fetched successfully', name: 'LecturerProvider');
+        final data = jsonDecode(res.body) as List;
+        _teachingSchedule = data
+            .map((item) => TeachingScheduleItem.fromJson(item))
+            .toList();
+        developer.log('Found ${_teachingSchedule.length} schedule items', name: 'LecturerProvider');
+        
+        // Find next class from schedule
+        _findNextClass();
+      } else {
+        developer.log('Failed to fetch schedule: ${res?.statusCode}', name: 'LecturerProvider');
+      }
+    } catch (e) {
+      developer.log('Error fetching schedule: $e', name: 'LecturerProvider');
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
   }
 
   // Fetch appeals
@@ -476,104 +470,46 @@ class LecturerProvider extends ChangeNotifier {
     String? nhom,
     String? trangThai,
   }) async {
-    // TODO: Implement API integration
-    // For now, return mock data
     _isLoading = true;
     notifyListeners();
 
-    await Future.delayed(const Duration(milliseconds: 500));
-
     try {
-      _appeals = [
-        Appeal(
-          id: 'A001',
-          mssv: '22520001',
-          tenSinhVien: 'Nguyễn Văn A',
-          maMon: 'NT101',
-          tenMon: 'Mạng máy tính',
-          nhom: 'O13',
-          loaiDiem: 'GK',
-          diemCu: 5.5,
-          diemMoi: null,
-          lyDo:
-              'Em xin phúc khảo điểm giữa kỳ môn Mạng máy tính vì em thấy bài thi của em có nhiều câu đúng nhưng điểm không tương xứng.',
-          trangThai: 'pending',
-          ngayGui: DateTime.now().subtract(const Duration(days: 2)),
-        ),
-        Appeal(
-          id: 'A002',
-          mssv: '22520015',
-          tenSinhVien: 'Trần Thị B',
-          maMon: 'NT101',
-          tenMon: 'Mạng máy tính',
-          nhom: 'O13',
-          loaiDiem: 'CK',
-          diemCu: 6.0,
-          diemMoi: 7.5,
-          lyDo: 'Em muốn phúc khảo câu 5 và câu 8 trong đề thi cuối kỳ.',
-          trangThai: 'approved',
-          ngayGui: DateTime.now().subtract(const Duration(days: 5)),
-          ngayXuLy: DateTime.now().subtract(const Duration(days: 1)),
-          ghiChu: 'Đã kiểm tra lại bài thi, điểm được cập nhật từ 6.0 lên 7.5',
-        ),
-        Appeal(
-          id: 'A003',
-          mssv: '22520032',
-          tenSinhVien: 'Lê Văn C',
-          maMon: 'NT106',
-          tenMon: 'Lập trình mạng căn bản',
-          nhom: 'N13',
-          loaiDiem: 'TX',
-          diemCu: 4.0,
-          diemMoi: null,
-          lyDo:
-              'Em đã làm đầy đủ các bài thực hành nhưng điểm TX chỉ có 4.0. Em xin được kiểm tra lại.',
-          trangThai: 'rejected',
-          ngayGui: DateTime.now().subtract(const Duration(days: 7)),
-          ngayXuLy: DateTime.now().subtract(const Duration(days: 3)),
-          ghiChu:
-              'Điểm TX đã được chấm chính xác, sinh viên thiếu 2 bài thực hành.',
-        ),
-        Appeal(
-          id: 'A004',
-          mssv: '22520048',
-          tenSinhVien: 'Phạm Thị D',
-          maMon: 'NT131',
-          tenMon: 'Phân tích thiết kế hệ thống thông tin',
-          nhom: 'M13',
-          loaiDiem: 'GK',
-          diemCu: 7.0,
-          diemMoi: null,
-          lyDo: 'Em xin phúc khảo câu 3 phần tự luận.',
-          trangThai: 'pending',
-          ngayGui: DateTime.now().subtract(const Duration(hours: 12)),
-        ),
-        Appeal(
-          id: 'A005',
-          mssv: '22520055',
-          tenSinhVien: 'Hoàng Văn E',
-          maMon: 'NT118',
-          tenMon: 'Phát triển ứng dụng trên thiết bị di động',
-          nhom: 'N13',
-          loaiDiem: 'CK',
-          diemCu: 8.0,
-          diemMoi: null,
-          lyDo: 'Em thấy bài thi của em đạt yêu cầu tốt hơn điểm hiện tại.',
-          trangThai: 'pending',
-          ngayGui: DateTime.now().subtract(const Duration(days: 1)),
-        ),
-      ];
-
-      // Apply filters
+      var path = '/api/lecturer/appeals';
+      final queryParams = <String>[];
       if (maMon != null && maMon.isNotEmpty) {
-        _appeals = _appeals.where((a) => a.maMon == maMon).toList();
+        queryParams.add('course_id=$maMon');
       }
-      if (nhom != null && nhom.isNotEmpty) {
-        _appeals = _appeals.where((a) => a.nhom == nhom).toList();
-      }
+      if (nhom != null && nhom.isNotEmpty) queryParams.add('nhom=$nhom');
       if (trangThai != null && trangThai.isNotEmpty) {
-        _appeals = _appeals.where((a) => a.trangThai == trangThai).toList();
+        queryParams.add('status=$trangThai');
       }
+      if (queryParams.isNotEmpty) {
+        path += '?${queryParams.join('&')}';
+      }
+
+      developer.log('Fetching appeals with path: $path', name: 'LecturerProvider');
+      final uri = auth.buildUri(path);
+      
+      final res = await _makeAuthenticatedRequest(
+        requestFn: (token) => http.get(
+          uri,
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+        ).timeout(const Duration(seconds: 10)),
+      );
+
+      if (res != null && res.statusCode == 200) {
+        developer.log('Appeals fetched successfully', name: 'LecturerProvider');
+        final data = jsonDecode(res.body) as List;
+        _appeals = data.map((item) => Appeal.fromJson(item)).toList();
+        developer.log('Found ${_appeals.length} appeals', name: 'LecturerProvider');
+      } else {
+        developer.log('Failed to fetch appeals: ${res?.statusCode}', name: 'LecturerProvider');
+      }
+    } catch (e) {
+      developer.log('Error fetching appeals: $e', name: 'LecturerProvider');
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -587,330 +523,197 @@ class LecturerProvider extends ChangeNotifier {
     String? ghiChu,
     double? diemMoi,
   }) async {
-    // TODO: Implement API integration
-    // For now, update mock data
-    await Future.delayed(const Duration(milliseconds: 500));
+    try {
+      developer.log('Handling appeal $appealId with action: $action', name: 'LecturerProvider');
+      final uri = auth.buildUri('/api/lecturer/appeals/$appealId');
+      final body = {
+        'status': action, // Backend expects 'status' not 'result'
+        if (ghiChu != null) 'comment': ghiChu,
+        // Note: Backend doesn't handle diemMoi in this endpoint
+        // Điểm mới sẽ được cập nhật qua grades endpoint sau khi approve
+      };
 
-    final index = _appeals.indexWhere((a) => a.id == appealId);
-    if (index != -1) {
-      final oldAppeal = _appeals[index];
-      _appeals[index] = Appeal(
-        id: oldAppeal.id,
-        mssv: oldAppeal.mssv,
-        tenSinhVien: oldAppeal.tenSinhVien,
-        maMon: oldAppeal.maMon,
-        tenMon: oldAppeal.tenMon,
-        nhom: oldAppeal.nhom,
-        loaiDiem: oldAppeal.loaiDiem,
-        diemCu: oldAppeal.diemCu,
-        diemMoi: action == 'approved' ? diemMoi : null,
-        lyDo: oldAppeal.lyDo,
-        trangThai: action,
-        ngayGui: oldAppeal.ngayGui,
-        ngayXuLy: DateTime.now(),
-        ghiChu: ghiChu,
+      final res = await _makeAuthenticatedRequest(
+        requestFn: (token) => http.put(
+          uri,
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+          body: jsonEncode(body),
+        ).timeout(const Duration(seconds: 10)),
       );
-      notifyListeners();
+
+      if (res != null && res.statusCode == 200) {
+        developer.log('Appeal handled successfully', name: 'LecturerProvider');
+        // Refresh appeals list
+        await fetchAppeals();
+      } else {
+        developer.log('Failed to handle appeal: ${res?.statusCode}', name: 'LecturerProvider');
+      }
+    } catch (e) {
+      developer.log('Error handling appeal: $e', name: 'LecturerProvider');
     }
   }
 
   // Fetch documents
   Future<void> fetchDocuments({String? maMon, String? loaiTaiLieu}) async {
-    // TODO: Implement API integration
-    // For now, return mock data
     _isLoading = true;
     notifyListeners();
 
-    await Future.delayed(const Duration(milliseconds: 500));
-
     try {
-      _documents = [
-        Document(
-          id: 'D001',
-          tieuDe: 'Slide bài 1: Giới thiệu mạng máy tính',
-          moTa:
-              'Slide giới thiệu tổng quan về mạng máy tính, mô hình OSI và TCP/IP',
-          maMon: 'NT101',
-          tenMon: 'Mạng máy tính',
-          loaiTaiLieu: 'slide',
-          duongDan: 'documents/NT101/slide_bai1.pdf',
-          dungLuong: 2548736, // ~2.4 MB
-          ngayTao: DateTime.now().subtract(const Duration(days: 30)),
-          ngayCapNhat: DateTime.now().subtract(const Duration(days: 5)),
-          luotXem: 156,
-          luotTai: 89,
-          tags: ['OSI', 'TCP/IP', 'Mạng'],
-        ),
-        Document(
-          id: 'D002',
-          tieuDe: 'Bài tập tuần 3: Địa chỉ IP và Subnetting',
-          moTa:
-              'Bài tập về cách tính toán địa chỉ IP, subnet mask và chia mạng con',
-          maMon: 'NT101',
-          tenMon: 'Mạng máy tính',
-          loaiTaiLieu: 'baitap',
-          duongDan: 'documents/NT101/baitap_tuan3.docx',
-          dungLuong: 524288, // 512 KB
-          ngayTao: DateTime.now().subtract(const Duration(days: 20)),
-          ngayCapNhat: DateTime.now().subtract(const Duration(days: 20)),
-          luotXem: 124,
-          luotTai: 98,
-          tags: ['IP', 'Subnetting'],
-        ),
-        Document(
-          id: 'D003',
-          tieuDe: 'Đề thi giữa kỳ năm 2023',
-          moTa: 'Đề thi tham khảo cho kỳ thi giữa kỳ',
-          maMon: 'NT101',
-          tenMon: 'Mạng máy tính',
-          loaiTaiLieu: 'dethi',
-          duongDan: 'documents/NT101/dethi_giuaky_2023.pdf',
-          dungLuong: 1048576, // 1 MB
-          ngayTao: DateTime.now().subtract(const Duration(days: 365)),
-          ngayCapNhat: DateTime.now().subtract(const Duration(days: 365)),
-          luotXem: 234,
-          luotTai: 187,
-          tags: ['Đề thi', 'Giữa kỳ'],
-        ),
-        Document(
-          id: 'D004',
-          tieuDe: 'Slide bài 1: Socket Programming',
-          moTa: 'Giới thiệu về lập trình socket với C#',
-          maMon: 'NT106',
-          tenMon: 'Lập trình mạng căn bản',
-          loaiTaiLieu: 'slide',
-          duongDan: 'documents/NT106/slide_socket.pptx',
-          dungLuong: 3145728, // 3 MB
-          ngayTao: DateTime.now().subtract(const Duration(days: 25)),
-          ngayCapNhat: DateTime.now().subtract(const Duration(days: 10)),
-          luotXem: 189,
-          luotTai: 134,
-          tags: ['Socket', 'C#', 'Network Programming'],
-        ),
-        Document(
-          id: 'D005',
-          tieuDe: 'Tài liệu tham khảo: HTTP Protocol',
-          moTa: 'Tài liệu chi tiết về giao thức HTTP và HTTPS',
-          maMon: 'NT106',
-          tenMon: 'Lập trình mạng căn bản',
-          loaiTaiLieu: 'tailieu',
-          duongDan: 'documents/NT106/http_protocol.pdf',
-          dungLuong: 4194304, // 4 MB
-          ngayTao: DateTime.now().subtract(const Duration(days: 40)),
-          ngayCapNhat: DateTime.now().subtract(const Duration(days: 15)),
-          luotXem: 167,
-          luotTai: 112,
-          tags: ['HTTP', 'HTTPS', 'Protocol'],
-        ),
-        Document(
-          id: 'D006',
-          tieuDe: 'Slide bài 1: UML và Use Case',
-          moTa: 'Giới thiệu về ngôn ngữ mô hình hóa UML và Use Case Diagram',
-          maMon: 'NT131',
-          tenMon: 'Phân tích thiết kế hệ thống thông tin',
-          loaiTaiLieu: 'slide',
-          duongDan: 'documents/NT131/slide_uml.pdf',
-          dungLuong: 2097152, // 2 MB
-          ngayTao: DateTime.now().subtract(const Duration(days: 28)),
-          ngayCapNhat: DateTime.now().subtract(const Duration(days: 7)),
-          luotXem: 145,
-          luotTai: 98,
-          tags: ['UML', 'Use Case'],
-        ),
-        Document(
-          id: 'D007',
-          tieuDe: 'Bài tập: Vẽ Class Diagram',
-          moTa: 'Bài tập thực hành vẽ Class Diagram cho hệ thống quản lý',
-          maMon: 'NT131',
-          tenMon: 'Phân tích thiết kế hệ thống thông tin',
-          loaiTaiLieu: 'baitap',
-          duongDan: 'documents/NT131/baitap_class_diagram.docx',
-          dungLuong: 786432, // 768 KB
-          ngayTao: DateTime.now().subtract(const Duration(days: 15)),
-          ngayCapNhat: DateTime.now().subtract(const Duration(days: 15)),
-          luotXem: 112,
-          luotTai: 89,
-          tags: ['Class Diagram', 'UML'],
-        ),
-        Document(
-          id: 'D008',
-          tieuDe: 'Slide bài 1: Flutter Basics',
-          moTa: 'Giới thiệu cơ bản về Flutter và Dart',
-          maMon: 'NT118',
-          tenMon: 'Phát triển ứng dụng trên thiết bị di động',
-          loaiTaiLieu: 'slide',
-          duongDan: 'documents/NT118/flutter_basics.pptx',
-          dungLuong: 5242880, // 5 MB
-          ngayTao: DateTime.now().subtract(const Duration(days: 22)),
-          ngayCapNhat: DateTime.now().subtract(const Duration(days: 3)),
-          luotXem: 201,
-          luotTai: 156,
-          tags: ['Flutter', 'Dart', 'Mobile'],
-        ),
-      ];
-
-      // Apply filters
+      var path = '/api/lecturer/materials';
+      final queryParams = <String>[];
       if (maMon != null && maMon.isNotEmpty) {
-        _documents = _documents.where((d) => d.maMon == maMon).toList();
+        queryParams.add('course_id=$maMon');
       }
       if (loaiTaiLieu != null && loaiTaiLieu.isNotEmpty) {
-        _documents = _documents
-            .where((d) => d.loaiTaiLieu == loaiTaiLieu)
-            .toList();
+        queryParams.add('type=$loaiTaiLieu');
       }
+      if (queryParams.isNotEmpty) {
+        path += '?${queryParams.join('&')}';
+      }
+
+      developer.log('Fetching documents with path: $path', name: 'LecturerProvider');
+      final uri = auth.buildUri(path);
+      
+      final res = await _makeAuthenticatedRequest(
+        requestFn: (token) => http.get(
+          uri,
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+        ).timeout(const Duration(seconds: 10)),
+      );
+
+      if (res != null && res.statusCode == 200) {
+        developer.log('Documents fetched successfully', name: 'LecturerProvider');
+        final data = jsonDecode(res.body) as List;
+        _documents = data.map((item) => Document.fromJson(item)).toList();
+        developer.log('Found ${_documents.length} documents', name: 'LecturerProvider');
+      } else {
+        developer.log('Failed to fetch documents: ${res?.statusCode}', name: 'LecturerProvider');
+      }
+    } catch (e) {
+      developer.log('Error fetching documents: $e', name: 'LecturerProvider');
     } finally {
       _isLoading = false;
       notifyListeners();
     }
   }
 
-  // Upload document (mock)
+  // Upload document
   Future<void> uploadDocument(Document document) async {
-    // TODO: Implement API integration
-    await Future.delayed(const Duration(milliseconds: 500));
+    try {
+      developer.log('Uploading document: ${document.tieuDe}', name: 'LecturerProvider');
+      final uri = auth.buildUri('/api/lecturer/materials');
+      final body = {
+        'tieuDe': document.tieuDe,
+        'moTa': document.moTa,
+        'maMon': document.maMon,
+        'loaiTaiLieu': document.loaiTaiLieu,
+      };
 
-    _documents.insert(0, document);
-    notifyListeners();
+      final res = await _makeAuthenticatedRequest(
+        requestFn: (token) => http.post(
+          uri,
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+          body: jsonEncode(body),
+        ).timeout(const Duration(seconds: 10)),
+      );
+
+      if (res != null && (res.statusCode == 200 || res.statusCode == 201)) {
+        developer.log('Document uploaded successfully', name: 'LecturerProvider');
+        // Refresh documents list
+        await fetchDocuments();
+      } else {
+        developer.log('Failed to upload document: ${res?.statusCode}', name: 'LecturerProvider');
+      }
+    } catch (e) {
+      developer.log('Error uploading document: $e', name: 'LecturerProvider');
+    }
   }
 
-  // Delete document (mock)
+  // Delete document
   Future<void> deleteDocument(String documentId) async {
-    // TODO: Implement API integration
-    await Future.delayed(const Duration(milliseconds: 500));
+    try {
+      developer.log('Deleting document: $documentId', name: 'LecturerProvider');
+      final uri = auth.buildUri('/api/lecturer/materials/$documentId');
+      
+      final res = await _makeAuthenticatedRequest(
+        requestFn: (token) => http.delete(
+          uri,
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+        ).timeout(const Duration(seconds: 10)),
+      );
 
-    _documents.removeWhere((d) => d.id == documentId);
-    notifyListeners();
+      if (res != null && (res.statusCode == 200 || res.statusCode == 204)) {
+        developer.log('Document deleted successfully', name: 'LecturerProvider');
+        _documents.removeWhere((d) => d.id == documentId);
+        notifyListeners();
+      } else {
+        developer.log('Failed to delete document: ${res?.statusCode}', name: 'LecturerProvider');
+      }
+    } catch (e) {
+      developer.log('Error deleting document: $e', name: 'LecturerProvider');
+    }
   }
 
   // Fetch exam schedules
   Future<void> fetchExamSchedules({String? loaiThi, String? vaiTro}) async {
-    // TODO: Implement API integration
-    // For now, return mock data
     _isLoading = true;
     notifyListeners();
 
-    await Future.delayed(const Duration(milliseconds: 500));
-
     try {
-      _examSchedules = [
-        ExamSchedule(
-          id: 'E001',
-          maMon: 'NT101',
-          tenMon: 'Mạng máy tính',
-          nhom: 'O13',
-          loaiThi: 'giuaky',
-          ngayThi: DateTime.now().add(const Duration(days: 5)),
-          gioBatDau: '07:30',
-          gioKetThuc: '09:00',
-          phong: 'E4.1',
-          toaNha: 'Nhà E4',
-          siSo: 42,
-          vaiTro: 'coithi',
-          ghiChu: 'Mang theo CCCD',
-        ),
-        ExamSchedule(
-          id: 'E002',
-          maMon: 'NT106',
-          tenMon: 'Lập trình mạng căn bản',
-          nhom: 'N13',
-          loaiThi: 'cuoiky',
-          ngayThi: DateTime.now().add(const Duration(days: 12)),
-          gioBatDau: '09:30',
-          gioKetThuc: '11:30',
-          phong: 'E4.2',
-          toaNha: 'Nhà E4',
-          siSo: 38,
-          vaiTro: 'coithi',
-        ),
-        ExamSchedule(
-          id: 'E003',
-          maMon: 'NT131',
-          tenMon: 'Phân tích thiết kế hệ thống thông tin',
-          nhom: 'M13',
-          loaiThi: 'giuaky',
-          ngayThi: DateTime.now().add(const Duration(days: 7)),
-          gioBatDau: '13:30',
-          gioKetThuc: '15:00',
-          phong: 'E3.3',
-          toaNha: 'Nhà E3',
-          siSo: 35,
-          vaiTro: 'coithi',
-        ),
-        ExamSchedule(
-          id: 'E004',
-          maMon: 'NT118',
-          tenMon: 'Phát triển ứng dụng trên thiết bị di động',
-          nhom: 'N13',
-          loaiThi: 'cuoiky',
-          ngayThi: DateTime.now().add(const Duration(days: 15)),
-          gioBatDau: '07:30',
-          gioKetThuc: '09:30',
-          phong: 'E4.4',
-          toaNha: 'Nhà E4',
-          siSo: 40,
-          vaiTro: 'coithi',
-        ),
-        ExamSchedule(
-          id: 'E005',
-          maMon: 'NT101',
-          tenMon: 'Mạng máy tính',
-          nhom: 'O13',
-          loaiThi: 'giuaky',
-          ngayThi: DateTime.now().add(const Duration(days: 8)),
-          gioBatDau: '14:00',
-          gioKetThuc: '16:00',
-          phong: 'Phòng giảng viên',
-          toaNha: 'Nhà E4',
-          siSo: 42,
-          vaiTro: 'chamthi',
-          ghiChu: 'Chấm bài thi giữa kỳ',
-        ),
-        ExamSchedule(
-          id: 'E006',
-          maMon: 'NT209',
-          tenMon: 'An toàn và bảo mật thông tin',
-          nhom: 'N13',
-          loaiThi: 'cuoiky',
-          ngayThi: DateTime.now().add(const Duration(days: 18)),
-          gioBatDau: '09:30',
-          gioKetThuc: '11:30',
-          phong: 'E3.1',
-          toaNha: 'Nhà E3',
-          siSo: 37,
-          vaiTro: 'coithi',
-        ),
-        // Past exam for testing
-        ExamSchedule(
-          id: 'E007',
-          maMon: 'NT106',
-          tenMon: 'Lập trình mạng căn bản',
-          nhom: 'N13',
-          loaiThi: 'giuaky',
-          ngayThi: DateTime.now().subtract(const Duration(days: 10)),
-          gioBatDau: '07:30',
-          gioKetThuc: '09:00',
-          phong: 'E4.1',
-          toaNha: 'Nhà E4',
-          siSo: 38,
-          vaiTro: 'chamthi',
-          ghiChu: 'Đã hoàn thành chấm thi',
-        ),
-      ];
-
-      // Apply filters
+      var path = '/api/lecturer/exams';
+      final queryParams = <String>[];
       if (loaiThi != null && loaiThi.isNotEmpty) {
-        _examSchedules = _examSchedules
-            .where((e) => e.loaiThi == loaiThi)
-            .toList();
+        queryParams.add('loaiThi=$loaiThi');
       }
       if (vaiTro != null && vaiTro.isNotEmpty) {
-        _examSchedules = _examSchedules
-            .where((e) => e.vaiTro == vaiTro)
-            .toList();
+        queryParams.add('vaiTro=$vaiTro');
+      }
+      if (queryParams.isNotEmpty) {
+        path += '?${queryParams.join('&')}';
       }
 
-      // Sort by date
-      _examSchedules.sort((a, b) => a.ngayThi.compareTo(b.ngayThi));
+      developer.log('Fetching exam schedules with path: $path', name: 'LecturerProvider');
+      final uri = auth.buildUri(path);
+      
+      final res = await _makeAuthenticatedRequest(
+        requestFn: (token) => http.get(
+          uri,
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+        ).timeout(const Duration(seconds: 10)),
+      );
+
+      if (res != null && res.statusCode == 200) {
+        developer.log('Exam schedules fetched successfully', name: 'LecturerProvider');
+        final data = jsonDecode(res.body) as List;
+        _examSchedules = data
+            .map((item) => ExamSchedule.fromJson(item))
+            .toList();
+        // Sort by exam date
+        _examSchedules.sort((a, b) => a.ngayThi.compareTo(b.ngayThi));
+        developer.log('Found ${_examSchedules.length} exam schedules', name: 'LecturerProvider');
+      } else {
+        developer.log('Failed to fetch exam schedules: ${res?.statusCode}', name: 'LecturerProvider');
+      }
+    } catch (e) {
+      developer.log(
+        'Error fetching exam schedules: $e',
+        name: 'LecturerProvider',
+      );
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -919,5 +722,557 @@ class LecturerProvider extends ChangeNotifier {
 
   Future<void> refresh() async {
     await _init();
+  }
+
+  // Update profile method
+  Future<bool> updateProfile({
+    String? email,
+    String? soDienThoai,
+    String? diaChiThuongTru,
+  }) async {
+    try {
+      developer.log('Updating profile...', name: 'LecturerProvider');
+      final uri = auth.buildUri('/api/lecturer/profile');
+      final body = {
+        if (email != null) 'email': email,
+        if (soDienThoai != null) 'phone': soDienThoai,
+        if (diaChiThuongTru != null) 'address': diaChiThuongTru,
+      };
+
+      final res = await _makeAuthenticatedRequest(
+        requestFn: (token) => http.put(
+          uri,
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+          body: jsonEncode(body),
+        ).timeout(const Duration(seconds: 10)),
+      );
+
+      if (res != null && res.statusCode == 200) {
+        developer.log('Profile updated successfully', name: 'LecturerProvider');
+        // Refresh profile
+        await fetchLecturerProfile();
+        return true;
+      } else {
+        developer.log('Failed to update profile: ${res?.statusCode}', name: 'LecturerProvider');
+      }
+      return false;
+    } catch (e) {
+      developer.log('Error updating profile: $e', name: 'LecturerProvider');
+      return false;
+    }
+  }
+
+  // GET /api/lecturer/courses/{classCode} - Lấy chi tiết lớp học
+  Future<TeachingClass?> fetchCourseDetail(String classCode) async {
+    try {
+      developer.log('Fetching course detail for $classCode...', name: 'LecturerProvider');
+      final uri = auth.buildUri('/api/lecturer/courses/$classCode');
+      
+      final res = await _makeAuthenticatedRequest(
+        requestFn: (token) => http.get(
+          uri,
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+        ).timeout(const Duration(seconds: 10)),
+      );
+
+      if (res != null && res.statusCode == 200) {
+        developer.log('Course detail fetched successfully', name: 'LecturerProvider');
+        final data = jsonDecode(res.body) as Map<String, dynamic>;
+        return TeachingClass.fromJson(data);
+      } else {
+        developer.log('Failed to fetch course detail: ${res?.statusCode}', name: 'LecturerProvider');
+      }
+    } catch (e) {
+      developer.log('Error fetching course detail: $e', name: 'LecturerProvider');
+    }
+    return null;
+  }
+
+  // GET /api/lecturer/grades - Tra cứu điểm học tập của lớp
+  Future<List<Map<String, dynamic>>> fetchGrades({String? courseId, String? semester}) async {
+    try {
+      developer.log('Fetching grades...', name: 'LecturerProvider');
+      var queryParams = <String, String>{};
+      if (courseId != null) queryParams['courseId'] = courseId;
+      if (semester != null) queryParams['semester'] = semester;
+      
+      final uri = auth.buildUri('/api/lecturer/grades').replace(queryParameters: queryParams);
+      
+      final res = await _makeAuthenticatedRequest(
+        requestFn: (token) => http.get(
+          uri,
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+        ).timeout(const Duration(seconds: 10)),
+      );
+
+      if (res != null && res.statusCode == 200) {
+        developer.log('Grades fetched successfully', name: 'LecturerProvider');
+        final data = jsonDecode(res.body) as List;
+        return List<Map<String, dynamic>>.from(data);
+      } else {
+        developer.log('Failed to fetch grades: ${res?.statusCode}', name: 'LecturerProvider');
+      }
+    } catch (e) {
+      developer.log('Error fetching grades: $e', name: 'LecturerProvider');
+    }
+    return [];
+  }
+
+  // GET /api/lecturer/grades/{mssv} - Xem chi tiết điểm của 1 sinh viên
+  Future<Map<String, dynamic>?> fetchStudentGrade(String mssv) async {
+    try {
+      developer.log('Fetching grade for student $mssv...', name: 'LecturerProvider');
+      final uri = auth.buildUri('/api/lecturer/grades/$mssv');
+      
+      final res = await _makeAuthenticatedRequest(
+        requestFn: (token) => http.get(
+          uri,
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+        ).timeout(const Duration(seconds: 10)),
+      );
+
+      if (res != null && res.statusCode == 200) {
+        developer.log('Student grade fetched successfully', name: 'LecturerProvider');
+        return jsonDecode(res.body) as Map<String, dynamic>;
+      } else {
+        developer.log('Failed to fetch student grade: ${res?.statusCode}', name: 'LecturerProvider');
+      }
+    } catch (e) {
+      developer.log('Error fetching student grade: $e', name: 'LecturerProvider');
+    }
+    return null;
+  }
+
+  // PUT /api/lecturer/grades/{mssv} - Nhập/chỉnh sửa điểm
+  Future<bool> updateGrade({
+    required String mssv,
+    required String maLop,
+    double? diemQuaTrinh,
+    double? diemGiuaKy,
+    double? diemCuoiKy,
+  }) async {
+    try {
+      developer.log('Updating grade for student $mssv...', name: 'LecturerProvider');
+      final uri = auth.buildUri('/api/lecturer/grades/$mssv');
+      final body = {
+        'maLop': maLop,
+        if (diemQuaTrinh != null) 'diemQuaTrinh': diemQuaTrinh,
+        if (diemGiuaKy != null) 'diemGiuaKy': diemGiuaKy,
+        if (diemCuoiKy != null) 'diemCuoiKy': diemCuoiKy,
+      };
+
+      final res = await _makeAuthenticatedRequest(
+        requestFn: (token) => http.put(
+          uri,
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+          body: jsonEncode(body),
+        ).timeout(const Duration(seconds: 10)),
+      );
+
+      if (res != null && res.statusCode == 200) {
+        developer.log('Grade updated successfully', name: 'LecturerProvider');
+        return true;
+      } else {
+        developer.log('Failed to update grade: ${res?.statusCode}', name: 'LecturerProvider');
+      }
+      return false;
+    } catch (e) {
+      developer.log('Error updating grade: $e', name: 'LecturerProvider');
+      return false;
+    }
+  }
+
+  // GET /api/lecturer/exams/{maLop} - Chi tiết lịch thi của 1 lớp
+  Future<Map<String, dynamic>?> fetchExamDetail(String maLop) async {
+    try {
+      developer.log('Fetching exam detail for class $maLop...', name: 'LecturerProvider');
+      final uri = auth.buildUri('/api/lecturer/exams/$maLop');
+      
+      final res = await _makeAuthenticatedRequest(
+        requestFn: (token) => http.get(
+          uri,
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+        ).timeout(const Duration(seconds: 10)),
+      );
+
+      if (res != null && res.statusCode == 200) {
+        developer.log('Exam detail fetched successfully', name: 'LecturerProvider');
+        return jsonDecode(res.body) as Map<String, dynamic>;
+      } else {
+        developer.log('Failed to fetch exam detail: ${res?.statusCode}', name: 'LecturerProvider');
+      }
+    } catch (e) {
+      developer.log('Error fetching exam detail: $e', name: 'LecturerProvider');
+    }
+    return null;
+  }
+
+  // GET /api/lecturer/exams/{maLop}/students - Danh sách sinh viên thi
+  Future<List<Map<String, dynamic>>> fetchExamStudents(String maLop) async {
+    try {
+      developer.log('Fetching exam students for class $maLop...', name: 'LecturerProvider');
+      final uri = auth.buildUri('/api/lecturer/exams/$maLop/students');
+      
+      final res = await _makeAuthenticatedRequest(
+        requestFn: (token) => http.get(
+          uri,
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+        ).timeout(const Duration(seconds: 10)),
+      );
+
+      if (res != null && res.statusCode == 200) {
+        developer.log('Exam students fetched successfully', name: 'LecturerProvider');
+        final data = jsonDecode(res.body) as List;
+        return List<Map<String, dynamic>>.from(data);
+      } else {
+        developer.log('Failed to fetch exam students: ${res?.statusCode}', name: 'LecturerProvider');
+      }
+    } catch (e) {
+      developer.log('Error fetching exam students: $e', name: 'LecturerProvider');
+    }
+    return [];
+  }
+
+  // GET /api/lecturer/tuition - Thông tin học phí
+  Future<List<Map<String, dynamic>>> fetchTuition({String? studentId, String? semester}) async {
+    try {
+      developer.log('Fetching tuition info...', name: 'LecturerProvider');
+      var queryParams = <String, String>{};
+      if (studentId != null) queryParams['studentId'] = studentId;
+      if (semester != null) queryParams['semester'] = semester;
+      
+      final uri = auth.buildUri('/api/lecturer/tuition').replace(queryParameters: queryParams);
+      
+      final res = await _makeAuthenticatedRequest(
+        requestFn: (token) => http.get(
+          uri,
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+        ).timeout(const Duration(seconds: 10)),
+      );
+
+      if (res != null && res.statusCode == 200) {
+        developer.log('Tuition info fetched successfully', name: 'LecturerProvider');
+        final data = jsonDecode(res.body) as List;
+        return List<Map<String, dynamic>>.from(data);
+      } else {
+        developer.log('Failed to fetch tuition: ${res?.statusCode}', name: 'LecturerProvider');
+      }
+    } catch (e) {
+      developer.log('Error fetching tuition: $e', name: 'LecturerProvider');
+    }
+    return [];
+  }
+
+  // PUT /api/lecturer/notifications/{id}/read - Đánh dấu thông báo đã đọc
+  Future<bool> markNotificationAsRead(String notificationId) async {
+    try {
+      developer.log('Marking notification $notificationId as read...', name: 'LecturerProvider');
+      final uri = auth.buildUri('/api/lecturer/notifications/$notificationId/read');
+      
+      final res = await _makeAuthenticatedRequest(
+        requestFn: (token) => http.put(
+          uri,
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+        ).timeout(const Duration(seconds: 10)),
+      );
+
+      if (res != null && res.statusCode == 200) {
+        developer.log('Notification marked as read', name: 'LecturerProvider');
+        // Update local state
+        final index = _notifications.indexWhere((n) => n.id == notificationId);
+        if (index != -1) {
+          _notifications[index] = NotificationItem(
+            id: _notifications[index].id,
+            title: _notifications[index].title,
+            body: _notifications[index].body,
+            time: _notifications[index].time,
+            isUnread: false,
+            category: _notifications[index].category,
+            createdAt: _notifications[index].createdAt,
+            data: _notifications[index].data,
+          );
+          notifyListeners();
+        }
+        return true;
+      } else {
+        developer.log('Failed to mark notification as read: ${res?.statusCode}', name: 'LecturerProvider');
+      }
+      return false;
+    } catch (e) {
+      developer.log('Error marking notification as read: $e', name: 'LecturerProvider');
+      return false;
+    }
+  }
+
+  // GET /api/lecturer/absences - Danh sách vắng mặt
+  Future<List<Map<String, dynamic>>> fetchAbsences() async {
+    try {
+      developer.log('Fetching absences...', name: 'LecturerProvider');
+      final uri = auth.buildUri('/api/lecturer/absences');
+      
+      final res = await _makeAuthenticatedRequest(
+        requestFn: (token) => http.get(
+          uri,
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+        ).timeout(const Duration(seconds: 10)),
+      );
+
+      if (res != null && res.statusCode == 200) {
+        developer.log('Absences fetched successfully', name: 'LecturerProvider');
+        final data = jsonDecode(res.body) as List;
+        return List<Map<String, dynamic>>.from(data);
+      } else {
+        developer.log('Failed to fetch absences: ${res?.statusCode}', name: 'LecturerProvider');
+      }
+    } catch (e) {
+      developer.log('Error fetching absences: $e', name: 'LecturerProvider');
+    }
+    return [];
+  }
+
+  // GET /api/lecturer/makeup-classes - Danh sách lớp học bù
+  Future<List<Map<String, dynamic>>> fetchMakeupClasses() async {
+    try {
+      developer.log('Fetching makeup classes...', name: 'LecturerProvider');
+      final uri = auth.buildUri('/api/lecturer/makeup-classes');
+      
+      final res = await _makeAuthenticatedRequest(
+        requestFn: (token) => http.get(
+          uri,
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+        ).timeout(const Duration(seconds: 10)),
+      );
+
+      if (res != null && res.statusCode == 200) {
+        developer.log('Makeup classes fetched successfully', name: 'LecturerProvider');
+        final data = jsonDecode(res.body) as List;
+        return List<Map<String, dynamic>>.from(data);
+      } else {
+        developer.log('Failed to fetch makeup classes: ${res?.statusCode}', name: 'LecturerProvider');
+      }
+    } catch (e) {
+      developer.log('Error fetching makeup classes: $e', name: 'LecturerProvider');
+    }
+    return [];
+  }
+
+  // GET /api/lecturer/appeals/{appealId} - Xem chi tiết đơn phúc khảo
+  Future<Map<String, dynamic>?> fetchAppealDetail(int appealId) async {
+    try {
+      developer.log('Fetching appeal detail $appealId...', name: 'LecturerProvider');
+      final uri = auth.buildUri('/api/lecturer/appeals/$appealId');
+      
+      final res = await _makeAuthenticatedRequest(
+        requestFn: (token) => http.get(
+          uri,
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+        ).timeout(const Duration(seconds: 10)),
+      );
+
+      if (res != null && res.statusCode == 200) {
+        developer.log('Appeal detail fetched successfully', name: 'LecturerProvider');
+        return jsonDecode(res.body) as Map<String, dynamic>;
+      } else {
+        developer.log('Failed to fetch appeal detail: ${res?.statusCode}', name: 'LecturerProvider');
+      }
+    } catch (e) {
+      developer.log('Error fetching appeal detail: $e', name: 'LecturerProvider');
+    }
+    return null;
+  }
+
+  // PUT /api/lecturer/appeals/{appealId} - Phản hồi đơn phúc khảo
+  Future<bool> respondToAppeal({
+    required int appealId,
+    required String status, // 'approved' or 'rejected'
+    String? comment,
+  }) async {
+    try {
+      developer.log('Responding to appeal $appealId with status: $status', name: 'LecturerProvider');
+      final uri = auth.buildUri('/api/lecturer/appeals/$appealId');
+      final body = {
+        'status': status,
+        if (comment != null && comment.isNotEmpty) 'comment': comment,
+      };
+
+      final res = await _makeAuthenticatedRequest(
+        requestFn: (token) => http.put(
+          uri,
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+          body: jsonEncode(body),
+        ).timeout(const Duration(seconds: 10)),
+      );
+
+      if (res != null && res.statusCode == 200) {
+        developer.log('Appeal response submitted successfully', name: 'LecturerProvider');
+        // Refresh appeals list
+        await fetchAppeals();
+        return true;
+      } else {
+        developer.log('Failed to respond to appeal: ${res?.statusCode}', name: 'LecturerProvider');
+      }
+    } catch (e) {
+      developer.log('Error responding to appeal: $e', name: 'LecturerProvider');
+    }
+    return false;
+  }
+
+  // POST /api/lecturer/absence - Đăng ký báo nghỉ
+  Future<bool> createAbsence({
+    required String maLop,
+    required DateTime ngayNghi,
+    String? lyDo,
+  }) async {
+    try {
+      developer.log('Creating absence for class $maLop on $ngayNghi...', name: 'LecturerProvider');
+      final uri = auth.buildUri('/api/lecturer/absence');
+      final body = {
+        'maLop': maLop,
+        'ngayNghi': ngayNghi.toIso8601String(),
+        if (lyDo != null && lyDo.isNotEmpty) 'lyDo': lyDo,
+      };
+
+      final res = await _makeAuthenticatedRequest(
+        requestFn: (token) => http.post(
+          uri,
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+          body: jsonEncode(body),
+        ).timeout(const Duration(seconds: 10)),
+      );
+
+      if (res != null && res.statusCode == 200) {
+        developer.log('Absence created successfully', name: 'LecturerProvider');
+        return true;
+      } else {
+        developer.log('Failed to create absence: ${res?.statusCode}', name: 'LecturerProvider');
+      }
+    } catch (e) {
+      developer.log('Error creating absence: $e', name: 'LecturerProvider');
+    }
+    return false;
+  }
+
+  // POST /api/lecturer/makeup-class - Đăng ký lịch học bù
+  Future<bool> createMakeupClass({
+    required String maLop,
+    required DateTime ngayHocBu,
+    required int tietBatDau,
+    required int tietKetThuc,
+    String? phongHoc,
+    String? lyDo,
+  }) async {
+    try {
+      developer.log('Creating makeup class for $maLop on $ngayHocBu...', name: 'LecturerProvider');
+      final uri = auth.buildUri('/api/lecturer/makeup-class');
+      final body = {
+        'maLop': maLop,
+        'ngayHocBu': ngayHocBu.toIso8601String(),
+        'tietBatDau': tietBatDau,
+        'tietKetThuc': tietKetThuc,
+        if (phongHoc != null && phongHoc.isNotEmpty) 'phongHoc': phongHoc,
+        if (lyDo != null && lyDo.isNotEmpty) 'lyDo': lyDo,
+      };
+
+      final res = await _makeAuthenticatedRequest(
+        requestFn: (token) => http.post(
+          uri,
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+          body: jsonEncode(body),
+        ).timeout(const Duration(seconds: 10)),
+      );
+
+      if (res != null && res.statusCode == 200) {
+        developer.log('Makeup class created successfully', name: 'LecturerProvider');
+        return true;
+      } else {
+        developer.log('Failed to create makeup class: ${res?.statusCode}', name: 'LecturerProvider');
+      }
+    } catch (e) {
+      developer.log('Error creating makeup class: $e', name: 'LecturerProvider');
+    }
+    return false;
+  }
+
+  // POST /api/lecturer/confirmation-letter - Tạo giấy xác nhận cho sinh viên
+  Future<Map<String, dynamic>?> createConfirmationLetter({
+    required int mssv,
+    required String purpose,
+  }) async {
+    try {
+      developer.log('Creating confirmation letter for student $mssv...', name: 'LecturerProvider');
+      final uri = auth.buildUri('/api/lecturer/confirmation-letter');
+      final body = {
+        'mssv': mssv,
+        'purpose': purpose,
+      };
+
+      final res = await _makeAuthenticatedRequest(
+        requestFn: (token) => http.post(
+          uri,
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+          body: jsonEncode(body),
+        ).timeout(const Duration(seconds: 10)),
+      );
+
+      if (res != null && res.statusCode == 200) {
+        developer.log('Confirmation letter created successfully', name: 'LecturerProvider');
+        final data = jsonDecode(res.body) as Map<String, dynamic>;
+        return data;
+      } else {
+        developer.log('Failed to create confirmation letter: ${res?.statusCode}', name: 'LecturerProvider');
+      }
+      return null;
+    } catch (e) {
+      developer.log('Error creating confirmation letter: $e', name: 'LecturerProvider');
+      return null;
+    }
   }
 }

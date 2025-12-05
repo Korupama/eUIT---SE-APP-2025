@@ -49,7 +49,7 @@ dependencies:
   # SignalR for real-time notifications
   signalr_netcore: ^1.3.7
   # File picker for certificate image upload
-  file_picker: ^5.2.5
+  file_picker: ^8.0.0
 
 dev_dependencies:
   flutter_test:
