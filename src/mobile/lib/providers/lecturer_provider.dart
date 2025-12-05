@@ -31,6 +31,8 @@ class LecturerProvider extends ChangeNotifier {
 
   TeachingScheduleItem? _nextClass;
   TeachingScheduleItem? get nextClass => _nextClass;
+  DateTime? _nextClassDate; // Ngày cụ thể của buổi học tiếp theo
+  DateTime? get nextClassDate => _nextClassDate;
 
   List<TeachingClass> _teachingClasses = [];
   List<TeachingClass> get teachingClasses => _teachingClasses;
@@ -302,6 +304,7 @@ class LecturerProvider extends ChangeNotifier {
   void _findNextClass() {
     if (_teachingSchedule.isEmpty) {
       _nextClass = null;
+      _nextClassDate = null;
       return;
     }
 
@@ -320,34 +323,91 @@ class LecturerProvider extends ChangeNotifier {
       // Convert Vietnamese day numbering to Dart weekday (1=Mon, 2=Tue, ..., 7=Sun)
       final targetWeekday = thuInt == 8 ? 7 : thuInt - 1;
 
-      // Find next occurrence of this weekday
-      DateTime nextOccurrence = now;
-      while (nextOccurrence.weekday != targetWeekday || 
-             nextOccurrence.isBefore(item.ngayBatDau!) ||
-             nextOccurrence.isAfter(item.ngayKetThuc!)) {
-        nextOccurrence = nextOccurrence.add(const Duration(days: 1));
-        
-        // If we've passed the end date, this class has no upcoming sessions
-        if (nextOccurrence.isAfter(item.ngayKetThuc!)) {
-          break;
+      // Find next occurrence of this weekday starting from today
+      var daysUntilTarget = targetWeekday - now.weekday;
+      if (daysUntilTarget < 0) {
+        daysUntilTarget += 7; // Next week
+      }
+      
+      var nextOccurrence = DateTime(now.year, now.month, now.day).add(Duration(days: daysUntilTarget));
+      
+      // Make sure it's within the course date range
+      if (nextOccurrence.isBefore(item.ngayBatDau!)) {
+        nextOccurrence = item.ngayBatDau!;
+        // Adjust to the correct weekday if needed
+        while (nextOccurrence.weekday != targetWeekday) {
+          nextOccurrence = nextOccurrence.add(const Duration(days: 1));
+        }
+      }
+      
+      // Skip if past the end date
+      if (nextOccurrence.isAfter(item.ngayKetThuc!)) {
+        continue;
+      }
+
+      // Check cachTuan (1 = every week, 2 = every 2 weeks, etc.)
+      final cachTuan = item.cachTuan ?? 1;
+      if (cachTuan > 1) {
+        // Calculate weeks from start date
+        final weeksDiff = nextOccurrence.difference(item.ngayBatDau!).inDays ~/ 7;
+        if (weeksDiff % cachTuan != 0) {
+          // Not on the correct week cycle, find next occurrence
+          final weeksToAdd = cachTuan - (weeksDiff % cachTuan);
+          nextOccurrence = nextOccurrence.add(Duration(days: weeksToAdd * 7));
+          
+          // Skip if past the end date
+          if (nextOccurrence.isAfter(item.ngayKetThuc!)) {
+            continue;
+          }
         }
       }
 
-      // Check if this is a valid future class
-      if (nextOccurrence.isAfter(now) && 
-          !nextOccurrence.isAfter(item.ngayKetThuc!)) {
-        if (nearestDateTime == null || nextOccurrence.isBefore(nearestDateTime)) {
-          nearestDateTime = nextOccurrence;
-          upcoming = item;
+      // Check if class has already ended today
+      final endPeriod = int.tryParse(item.tietKetThuc ?? '0') ?? 0;
+      final classEndTime = _getClassEndTime(nextOccurrence, endPeriod);
+      
+      // If today and class already ended, skip to next week
+      if (nextOccurrence.year == now.year && 
+          nextOccurrence.month == now.month && 
+          nextOccurrence.day == now.day && 
+          now.isAfter(classEndTime)) {
+        nextOccurrence = nextOccurrence.add(Duration(days: 7 * cachTuan));
+        
+        // Skip if past the end date
+        if (nextOccurrence.isAfter(item.ngayKetThuc!)) {
+          continue;
         }
+      }
+
+      // This is a valid future class session
+      if (nearestDateTime == null || nextOccurrence.isBefore(nearestDateTime)) {
+        nearestDateTime = nextOccurrence;
+        upcoming = item;
       }
     }
 
     _nextClass = upcoming;
+    _nextClassDate = nearestDateTime;
     developer.log(
       'Next class found: ${_nextClass?.tenMon ?? 'None'} on ${nearestDateTime?.toString() ?? 'N/A'}',
       name: 'LecturerProvider',
     );
+  }
+
+  DateTime _getClassEndTime(DateTime date, int period) {
+    const Map<int, int> periodEndHour = {
+      1: 8, 2: 9, 3: 9, 4: 10, 5: 11,
+      6: 13, 7: 14, 8: 15, 9: 16, 0: 17,
+    };
+    const Map<int, int> periodEndMinute = {
+      1: 15, 2: 0, 3: 45, 4: 45, 5: 30,
+      6: 45, 7: 30, 8: 30, 9: 15, 0: 0,
+    };
+
+    final hour = periodEndHour[period] ?? 17;
+    final minute = periodEndMinute[period] ?? 0;
+
+    return DateTime(date.year, date.month, date.day, hour, minute);
   }
 
   Future<void> _fetchNotifications() async {
