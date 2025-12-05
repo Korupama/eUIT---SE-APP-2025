@@ -466,7 +466,9 @@ class _LecturerHomeScreenState extends State<LecturerHomeScreen>
               Align(
                 alignment: Alignment.centerLeft,
                 child: TextButton.icon(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/lecturer_schedule');
+                  },
                   style: TextButton.styleFrom(
                     foregroundColor: AppTheme.bluePrimary,
                     padding: const EdgeInsets.symmetric(
