@@ -21,7 +21,7 @@ class LecturerClassListScreen extends StatefulWidget {
 class _LecturerClassListScreenState extends State<LecturerClassListScreen> {
   late ScrollController _scrollController;
   String _selectedSemester = 'hk1'; // Default to HK1
-  String _selectedYear = '2024-2025'; // Default to current year
+  String _selectedYear = '2025-2026'; // Default to current year
   String _searchQuery = '';
   final TextEditingController _searchController = TextEditingController();
 
@@ -293,9 +293,16 @@ class _LecturerClassListScreenState extends State<LecturerClassListScreen> {
   }
 
   List<String> _getAvailableYears(LecturerProvider provider) {
-    // Extract unique years from teaching classes
-    final yearSet = <String>{};
+    // Start with default years
+    final yearSet = <String>{
+      '2025-2026',
+      '2024-2025',
+      '2023-2024', 
+      '2022-2023',
+      '2021-2022',
+    };
     
+    // Add years from teaching classes
     for (final classItem in provider.teachingClasses) {
       if (classItem.hocKy != null && classItem.hocKy!.contains('_')) {
         final parts = classItem.hocKy!.split('_');
@@ -311,11 +318,6 @@ class _LecturerClassListScreenState extends State<LecturerClassListScreen> {
       final yearB = int.tryParse(b.split('-')[0]) ?? 0;
       return yearB.compareTo(yearA); // Descending order (newest first)
     });
-    
-    // If no years found, return default years sorted newest first
-    if (years.isEmpty) {
-      return ['2024-2025', '2023-2024', '2022-2023', '2021-2022'];
-    }
     
     return years;
   }
