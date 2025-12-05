@@ -43,6 +43,13 @@ class _LecturerAbsencesScreenState extends State<LecturerAbsencesScreen> {
 
       if (!mounted) return;
 
+      print('=== ABSENCES DEBUG ===');
+      print('Total received: ${data.length}');
+      if (data.isNotEmpty) {
+        print('First item keys: ${data.first.keys.toList()}');
+        print('First item: ${data.first}');
+      }
+
       setState(() {
         _absences = data;
         _isLoading = false;
@@ -64,27 +71,16 @@ class _LecturerAbsencesScreenState extends State<LecturerAbsencesScreen> {
   List<Map<String, dynamic>> get _filteredAbsences {
     var filtered = _absences;
     
-    // Lọc bỏ các record không có data hợp lệ
-    filtered = filtered.where((absence) {
-      final mssv = absence['mssv']?.toString() ?? '';
-      final hoTen = absence['hoTen']?.toString() ?? '';
-      final maMon = absence['maMon']?.toString() ?? '';
-      final tenMon = absence['tenMon']?.toString() ?? '';
-      
-      // Chỉ giữ lại nếu có đủ thông tin
-      return mssv.isNotEmpty && 
-             hoTen.isNotEmpty && 
-             hoTen != 'N/A' && 
-             (maMon.isNotEmpty || (tenMon.isNotEmpty && tenMon != 'N/A'));
-    }).toList();
-    
     // Lọc theo search query
     if (_searchQuery.isEmpty) return filtered;
     return filtered.where((absence) {
       final hoTen = (absence['hoTen']?.toString() ?? '').toLowerCase();
       final mssv = (absence['mssv']?.toString() ?? '').toLowerCase();
+      final maMon = (absence['maMon']?.toString() ?? absence['maLop']?.toString() ?? '').toLowerCase();
+      final tenMon = (absence['tenMon']?.toString() ?? '').toLowerCase();
       final query = _searchQuery.toLowerCase();
-      return hoTen.contains(query) || mssv.contains(query);
+      return hoTen.contains(query) || mssv.contains(query) || 
+             maMon.contains(query) || tenMon.contains(query);
     }).toList();
   }
 
@@ -265,29 +261,43 @@ class _LecturerAbsencesScreenState extends State<LecturerAbsencesScreen> {
   }
 
   Widget _buildAbsenceCard(Map<String, dynamic> absence, bool isDark) {
-    final mssv = absence['mssv']?.toString() ?? '';
-    final hoTen = absence['hoTen']?.toString() ?? 'N/A';
-    final maMon = absence['maMon']?.toString() ?? '';
-    final tenMon = absence['tenMon']?.toString() ?? 'N/A';
-    final soTietVang = absence['soTietVang'] is int 
-        ? absence['soTietVang'] as int 
-        : int.tryParse(absence['soTietVang']?.toString() ?? '0') ?? 0;
-    final soTietCoPhep = absence['soTietCoPhep'] is int
-        ? absence['soTietCoPhep'] as int
-        : int.tryParse(absence['soTietCoPhep']?.toString() ?? '0') ?? 0;
-    final soTietKhongPhep = soTietVang - soTietCoPhep;
-    final tongSoTiet = absence['tongSoTiet'] is int
-        ? absence['tongSoTiet'] as int
-        : int.tryParse(absence['tongSoTiet']?.toString() ?? '45') ?? 45;
+    // Backend trả về PascalCase theo LecturerAbsenceHistoryDto
+    final maLop = absence['MaLop']?.toString() ?? 
+                  absence['maMon']?.toString() ?? 
+                  absence['maLop']?.toString() ?? '';
+    final tenMon = absence['TenMonHoc']?.toString() ?? 
+                   absence['tenMon']?.toString() ?? 
+                   absence['tenMonHoc']?.toString() ?? 
+                   'Chưa có tên môn';
+    final ngayNghi = absence['NgayNghi']?.toString() ?? 
+                     absence['ngayNghi']?.toString();
+    final lyDo = absence['LyDo']?.toString() ?? 
+                 absence['lyDo']?.toString() ?? 
+                 'Không có lý do';
+    final tinhTrang = absence['TinhTrang']?.toString() ?? 
+                      absence['trangThai']?.toString() ?? 
+                      absence['tinhTrang']?.toString() ?? 
+                      'Chờ duyệt';
 
-    // Không hiển thị card nếu thiếu thông tin quan trọng
-    if (mssv.isEmpty || hoTen == 'N/A' || (tenMon == 'N/A' && maMon.isEmpty)) {
-      return const SizedBox.shrink();
+    // Parse ngày nghỉ
+    DateTime? dateTime;
+    if (ngayNghi != null && ngayNghi.isNotEmpty) {
+      dateTime = DateTime.tryParse(ngayNghi);
+      if (dateTime == null) {
+        try {
+          final parts = ngayNghi.split('/');
+          if (parts.length == 3) {
+            dateTime = DateTime(
+              int.parse(parts[2]),
+              int.parse(parts[1]),
+              int.parse(parts[0]),
+            );
+          }
+        } catch (e) {
+          // Keep null
+        }
+      }
     }
-
-    final tiLeVang = tongSoTiet > 0 ? (soTietVang / tongSoTiet * 100) : 0.0;
-
-    final isWarning = tiLeVang > 20; // Cảnh báo nếu vắng > 20%
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -295,10 +305,8 @@ class _LecturerAbsencesScreenState extends State<LecturerAbsencesScreen> {
         color: (isDark ? AppTheme.darkCard : Colors.white).withOpacity(0.7),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: isWarning
-              ? Colors.red.withOpacity(0.5)
-              : (isDark ? AppTheme.darkBorder : AppTheme.lightBorder)
-                  .withOpacity(0.3),
+          color: (isDark ? AppTheme.darkBorder : AppTheme.lightBorder)
+              .withOpacity(0.3),
         ),
       ),
       child: ClipRRect(
@@ -313,24 +321,33 @@ class _LecturerAbsencesScreenState extends State<LecturerAbsencesScreen> {
                 Row(
                   children: [
                     Container(
-                      width: 50,
-                      height: 50,
+                      width: 60,
+                      height: 60,
                       decoration: BoxDecoration(
-                        gradient: isWarning
-                            ? const LinearGradient(
-                                colors: [Colors.red, Colors.orange],
-                              )
-                            : AppTheme.primaryGradient,
+                        gradient: AppTheme.primaryGradient,
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: Center(
-                        child: Text(
-                          '$soTietVang',
-                          style: AppTheme.headingMedium.copyWith(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            dateTime != null
+                                ? dateTime.day.toString().padLeft(2, '0')
+                                : '--',
+                            style: AppTheme.headingMedium.copyWith(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                        ),
+                          Text(
+                            dateTime != null
+                                ? 'Th${dateTime.month}'
+                                : '',
+                            style: AppTheme.bodySmall.copyWith(
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -339,15 +356,17 @@ class _LecturerAbsencesScreenState extends State<LecturerAbsencesScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            hoTen,
+                            tenMon,
                             style: AppTheme.bodyLarge.copyWith(
                               color: isDark ? Colors.white : Colors.black87,
                               fontWeight: FontWeight.w600,
                             ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            'MSSV: $mssv',
+                            maLop.isNotEmpty ? 'Lớp: $maLop' : 'Chưa có mã lớp',
                             style: AppTheme.bodySmall.copyWith(
                               color: isDark
                                   ? Colors.grey.shade400
@@ -357,138 +376,91 @@ class _LecturerAbsencesScreenState extends State<LecturerAbsencesScreen> {
                         ],
                       ),
                     ),
-                    if (isWarning)
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: _getStatusColor(tinhTrang).withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        tinhTrang,
+                        style: AppTheme.bodySmall.copyWith(
+                          color: _getStatusColor(tinhTrang),
+                          fontWeight: FontWeight.w600,
                         ),
-                        decoration: BoxDecoration(
-                          color: Colors.red.withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Row(
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                // Lý do nghỉ
+                if (lyDo.isNotEmpty && lyDo != 'Không có lý do')
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: (isDark ? Colors.grey.shade800 : Colors.grey.shade100)
+                          .withOpacity(0.5),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
                           children: [
-                            const Icon(
-                              Icons.warning,
-                              color: Colors.red,
+                            Icon(
+                              Icons.info_outline,
                               size: 16,
+                              color: isDark
+                                  ? Colors.grey.shade400
+                                  : Colors.grey.shade600,
                             ),
-                            const SizedBox(width: 4),
+                            const SizedBox(width: 6),
                             Text(
-                              'Cảnh báo',
+                              'Lý do:',
                               style: AppTheme.bodySmall.copyWith(
-                                color: Colors.red,
+                                color: isDark
+                                    ? Colors.grey.shade400
+                                    : Colors.grey.shade600,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
                           ],
                         ),
-                      ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: (isDark ? Colors.grey.shade800 : Colors.grey.shade100)
-                        .withOpacity(0.5),
-                    borderRadius: BorderRadius.circular(12),
+                        const SizedBox(height: 6),
+                        Text(
+                          lyDo,
+                          style: AppTheme.bodySmall.copyWith(
+                            color: isDark ? Colors.white : Colors.black87,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                  child: Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Môn học',
-                            style: AppTheme.bodySmall.copyWith(
-                              color: isDark
-                                  ? Colors.grey.shade400
-                                  : Colors.grey.shade600,
-                            ),
-                          ),
-                          Text(
-                            '$tenMon ($maMon)',
-                            style: AppTheme.bodySmall.copyWith(
-                              color: isDark ? Colors.white : Colors.black87,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Có phép',
-                            style: AppTheme.bodySmall.copyWith(
-                              color: isDark
-                                  ? Colors.grey.shade400
-                                  : Colors.grey.shade600,
-                            ),
-                          ),
-                          Text(
-                            '$soTietCoPhep tiết',
-                            style: AppTheme.bodySmall.copyWith(
-                              color: Colors.orange,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Không phép',
-                            style: AppTheme.bodySmall.copyWith(
-                              color: isDark
-                                  ? Colors.grey.shade400
-                                  : Colors.grey.shade600,
-                            ),
-                          ),
-                          Text(
-                            '$soTietKhongPhep tiết',
-                            style: AppTheme.bodySmall.copyWith(
-                              color: Colors.red,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Tỷ lệ vắng',
-                            style: AppTheme.bodySmall.copyWith(
-                              color: isDark
-                                  ? Colors.grey.shade400
-                                  : Colors.grey.shade600,
-                            ),
-                          ),
-                          Text(
-                            '${tiLeVang.toStringAsFixed(1)}%',
-                            style: AppTheme.bodySmall.copyWith(
-                              color: isWarning ? Colors.red : Colors.green,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
               ],
             ),
           ),
         ),
       ),
     );
+  }
+
+  Color _getStatusColor(String status) {
+    switch (status.toLowerCase()) {
+      case 'đã duyệt':
+      case 'approved':
+        return Colors.green;
+      case 'từ chối':
+      case 'rejected':
+        return Colors.red;
+      case 'chờ duyệt':
+      case 'pending':
+      default:
+        return Colors.orange;
+    }
   }
 
   void _showCreateAbsenceDialog() async {

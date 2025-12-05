@@ -38,6 +38,16 @@ class _LecturerMakeupClassesScreenState
 
       if (!mounted) return;
 
+      print('=== MAKEUP CLASSES DEBUG ===');
+      print('Total received: ${data.length}');
+      if (data.isNotEmpty) {
+        print('First item keys: ${data.first.keys.toList()}');
+        print('First item full data: ${data.first}');
+        print('TenMonHoc (PascalCase): ${data.first['TenMonHoc']}');
+        print('MaLop (PascalCase): ${data.first['MaLop']}');
+        print('NgayHocBu (PascalCase): ${data.first['NgayHocBu']}');
+      }
+
       setState(() {
         _makeupClasses = data;
         _isLoading = false;
@@ -187,29 +197,52 @@ class _LecturerMakeupClassesScreenState
   }
 
   Widget _buildMakeupClassCard(Map<String, dynamic> makeupClass, bool isDark) {
-    final maMon = makeupClass['maMon']?.toString() ?? '';
-    final tenMon = makeupClass['tenMon']?.toString() ?? 'N/A';
-    final nhom = makeupClass['nhom']?.toString() ?? '';
-    final ngayHocBu = makeupClass['ngayHocBu']?.toString();
-    final tietBatDau = makeupClass['tietBatDau']?.toString() ?? '';
-    final tietKetThuc = makeupClass['tietKetThuc']?.toString() ?? '';
-    final phong = makeupClass['phong']?.toString() ?? 'TBA';
-    final lyDo = makeupClass['lyDo']?.toString() ?? '';
-    final trangThai = makeupClass['trangThai']?.toString() ?? 'Chưa học';
+    // Backend trả về PascalCase, cần map đúng field names
+    final maMon = makeupClass['MaLop']?.toString() ?? 
+                  makeupClass['maMon']?.toString() ?? 
+                  makeupClass['maLop']?.toString() ?? '';
+    final tenMon = makeupClass['TenMonHoc']?.toString() ?? 
+                   makeupClass['tenMon']?.toString() ?? 
+                   makeupClass['tenMonHoc']?.toString() ?? 
+                   makeupClass['tenLop']?.toString() ?? 
+                   'Chưa có tên';
+    final nhom = makeupClass['Nhom']?.toString() ?? 
+                 makeupClass['nhom']?.toString() ?? '';
+    final ngayHocBu = makeupClass['NgayHocBu']?.toString() ?? 
+                      makeupClass['ngayHocBu']?.toString();
+    final tietBatDau = makeupClass['TietBatDau']?.toString() ?? 
+                       makeupClass['tietBatDau']?.toString() ?? '';
+    final tietKetThuc = makeupClass['TietKetThuc']?.toString() ?? 
+                        makeupClass['tietKetThuc']?.toString() ?? '';
+    final phong = makeupClass['PhongHoc']?.toString() ?? 
+                  makeupClass['phong']?.toString() ?? 
+                  makeupClass['phongHoc']?.toString() ?? 
+                  'TBA';
+    final lyDo = makeupClass['LyDo']?.toString() ?? 
+                 makeupClass['lyDo']?.toString() ?? '';
+    final trangThai = makeupClass['TinhTrang']?.toString() ?? 
+                      makeupClass['trangThai']?.toString() ?? 
+                      'Chưa học';
 
-    // Không hiển thị nếu thiếu thông tin quan trọng
-    if (maMon.isEmpty || tenMon == 'N/A' || ngayHocBu == null || ngayHocBu.isEmpty) {
-      return const SizedBox.shrink();
-    }
-
+    // Parse date - hỗ trợ nhiều format
     DateTime? dateTime;
-    if (ngayHocBu != null) {
+    if (ngayHocBu != null && ngayHocBu.isNotEmpty) {
       dateTime = DateTime.tryParse(ngayHocBu);
-    }
-    
-    // Nếu không parse được ngày thì không hiển thị
-    if (dateTime == null) {
-      return const SizedBox.shrink();
+      // Nếu parse thất bại, thử format dd/MM/yyyy
+      if (dateTime == null) {
+        try {
+          final parts = ngayHocBu.split('/');
+          if (parts.length == 3) {
+            dateTime = DateTime(
+              int.parse(parts[2]),
+              int.parse(parts[1]),
+              int.parse(parts[0]),
+            );
+          }
+        } catch (e) {
+          // Keep dateTime as null
+        }
+      }
     }
 
     final isPast = dateTime != null && dateTime.isBefore(DateTime.now());
@@ -265,7 +298,7 @@ class _LecturerMakeupClassesScreenState
                           Text(
                             dateTime != null
                                 ? DateFormat('dd').format(dateTime)
-                                : '??',
+                                : '--',
                             style: AppTheme.headingMedium.copyWith(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
@@ -298,7 +331,9 @@ class _LecturerMakeupClassesScreenState
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            '$maMon - Nhóm $nhom',
+                            maMon.isNotEmpty
+                                ? (nhom.isNotEmpty ? '$maMon - Nhóm $nhom' : maMon)
+                                : (nhom.isNotEmpty ? 'Nhóm $nhom' : 'Chưa có mã lớp'),
                             style: AppTheme.bodySmall.copyWith(
                               color: isDark
                                   ? Colors.grey.shade400
