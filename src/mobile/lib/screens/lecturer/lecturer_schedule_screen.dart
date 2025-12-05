@@ -32,7 +32,8 @@ class _LecturerScheduleScreenState extends State<LecturerScheduleScreen>
     _selectedWeek = _getCurrentWeek(); // Khởi tạo với tuần hiện tại
     _tabController = TabController(length: 2, vsync: this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<LecturerProvider>().fetchSchedule();
+      // Fetch schedule for current semester
+      context.read<LecturerProvider>().fetchSchedule(semester: '2025_2026_1');
     });
   }
 
@@ -727,9 +728,14 @@ class _LecturerScheduleScreenState extends State<LecturerScheduleScreen>
                               _selectedDate.month,
                               dayNumber,
                             );
-                            final daySchedule = provider.schedule
-                                .where((item) => item.thu == day.weekday)
-                                .toList();
+                            // Check if this day has schedule
+                            final dayOfWeek = day.weekday; // 1=Mon, 2=Tue, ..., 7=Sun
+                            final thuStr = (dayOfWeek == 7 ? 8 : dayOfWeek + 1).toString(); // Convert to Vietnamese day numbering
+                            final daySchedule = provider.schedule.where((item) {
+                              if (item.thu == null) return false;
+                              final thu = item.thu!.trim();
+                              return thu == thuStr || thu == thuStr.padRight(2);
+                            }).toList();
                             final isToday =
                                 day.day == DateTime.now().day &&
                                 day.month == DateTime.now().month &&
@@ -776,23 +782,11 @@ class _LecturerScheduleScreenState extends State<LecturerScheduleScreen>
                                       if (daySchedule.isNotEmpty)
                                         Container(
                                           margin: const EdgeInsets.only(top: 4),
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 6,
-                                            vertical: 2,
-                                          ),
+                                          width: 6,
+                                          height: 6,
                                           decoration: BoxDecoration(
-                                            gradient: AppTheme.primaryGradient,
-                                            borderRadius: BorderRadius.circular(
-                                              8,
-                                            ),
-                                          ),
-                                          child: Text(
-                                            '${daySchedule.length}',
-                                            style: AppTheme.bodySmall.copyWith(
-                                              color: Colors.white,
-                                              fontSize: 10,
-                                              fontWeight: FontWeight.w600,
-                                            ),
+                                            color: AppTheme.bluePrimary,
+                                            shape: BoxShape.circle,
                                           ),
                                         ),
                                     ],
@@ -840,7 +834,13 @@ class _LecturerScheduleScreenState extends State<LecturerScheduleScreen>
   ) {
     final Map<int, List<TeachingScheduleItem>> weekSchedule = {};
     for (int i = 0; i < 7; i++) {
-      weekSchedule[i] = schedule.where((item) => item.thu == i + 1).toList();
+      // i = 0 (Mon) -> thu = "2", i = 1 (Tue) -> thu = "3", etc.
+      final dayNumber = (i + 2).toString(); // Mon=2, Tue=3, ... Sun=8
+      weekSchedule[i] = schedule.where((item) {
+        if (item.thu == null) return false;
+        final thu = item.thu!.trim();
+        return thu == dayNumber || thu == dayNumber.padRight(2);
+      }).toList();
     }
     return weekSchedule;
   }
