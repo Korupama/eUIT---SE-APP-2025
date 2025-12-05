@@ -8,7 +8,7 @@
 @lecturerId = 80068
 @studentId = 23520541
 @classCode = IT001.Q11
-@semester = 2024_2025_1
+@semester = 2025_2026_1
 
 # First, login as lecturer to get token
 ### 1. Login as Lecturer
@@ -16,13 +16,13 @@ POST {{baseUrl}}/api/auth/login
 Content-Type: application/json
 
 {
-  "username": "{{lecturerId}}",
+  "userId": "{{lecturerId}}",
   "password": "12345678",
   "role": "lecturer"
 }
 
 ### Save the token from response above, then set it here:
-@token = eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJuYW1laWQiOiI4MDA2OCIsInJvbGUiOiJsZWN0dXJlciIsIm5iZiI6MTc2NDYwNzcwNCwiZXhwIjoxNzY0Njk0MTA0LCJpYXQiOjE3NjQ2MDc3MDQsImlzcyI6Imh0dHA6Ly9sb2NhbGhvc3Q6NTEyOCIsImF1ZCI6Imh0dHA6Ly9sb2NhbGhvc3Q6NTEyOCJ9.0VpyUiAOzOZ5maFodpCnGRMNLXV1G4d0F-ir0v6VnEqqjAguCkoiAVzXFKD5NNphLNznVBSSJk8aAAzWUE4Kaw
+@token = eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJuYW1laWQiOiI4MDA2OCIsInJvbGUiOiJsZWN0dXJlciIsIm5iZiI6MTc2NDkxMzUwOCwiZXhwIjoxNzY0OTE0NDA4LCJpYXQiOjE3NjQ5MTM1MDgsImlzcyI6Imh0dHA6Ly9sb2NhbGhvc3Q6NTEyOCIsImF1ZCI6Imh0dHA6Ly9sb2NhbGhvc3Q6NTEyOCJ9.Q8rE3FwMqQK-_pQRDeKzC5TFXCIju7sDdAuTjOAtXaqBl4hRWayQhf4kqTLDCkcT5EfgeJ35Cv8KEOj0lFrNEw
 
 ### ============================================================================
 ### PROFILE MANAGEMENT
@@ -66,19 +66,31 @@ Authorization: Bearer {{token}}
 GET {{baseUrl}}/api/lecturer/schedule?semester={{semester}}&startDate=2024-09-01&endDate=2024-12-31
 Authorization: Bearer {{token}}
 
+### 9. GET /api/lecturer/schedule/nextclass - Get next upcoming class
+GET {{baseUrl}}/api/lecturer/schedule/nextclass
+Authorization: Bearer {{token}}
+
+### 10. GET /api/lecturer/schedule/week - Get weekly schedule
+GET {{baseUrl}}/api/lecturer/schedule/week
+Authorization: Bearer {{token}}
+
+### 11. GET /api/lecturer/schedule/month - Get monthly schedule
+GET {{baseUrl}}/api/lecturer/schedule/month
+Authorization: Bearer {{token}}
+
 ### ============================================================================
 ### GRADE MANAGEMENT
 ### ============================================================================
 
-### 9. GET /api/lecturer/grades - Get all grades of a class
+### 12. GET /api/lecturer/grades - Get all grades of a class
 GET {{baseUrl}}/api/lecturer/grades?classCode={{classCode}}
 Authorization: Bearer {{token}}
 
-### 10. GET /api/lecturer/grades/{mssv} - Get specific student grade
+### 13. GET /api/lecturer/grades/{mssv} - Get specific student grade
 GET {{baseUrl}}/api/lecturer/grades/{{studentId}}?classCode={{classCode}}
 Authorization: Bearer {{token}}
 
-### 11. PUT /api/lecturer/grades/{mssv} - Update student grade
+### 14. PUT /api/lecturer/grades/{mssv} - Update student grade
 PUT {{baseUrl}}/api/lecturer/grades/{{studentId}}
 Authorization: Bearer {{token}}
 Content-Type: application/json
@@ -95,23 +107,23 @@ Content-Type: application/json
 ### EXAM MANAGEMENT
 ### ============================================================================
 
-### 12. GET /api/lecturer/exams - Get all exams (with semester filter)
+### 15. GET /api/lecturer/exams - Get all exams (with semester filter)
 GET {{baseUrl}}/api/lecturer/exams?semester={{semester}}
 Authorization: Bearer {{token}}
 
-### 13. GET /api/lecturer/exams - Get all exams (with exam type filter)
+### 16. GET /api/lecturer/exams - Get all exams (with exam type filter)
 GET {{baseUrl}}/api/lecturer/exams?semester={{semester}}&examType=GK
 Authorization: Bearer {{token}}
 
-### 14. GET /api/lecturer/exams - Get all exams (no filter)
+### 17. GET /api/lecturer/exams - Get all exams (no filter)
 GET {{baseUrl}}/api/lecturer/exams
 Authorization: Bearer {{token}}
 
-### 15. GET /api/lecturer/exams/{maLop} - Get exam detail
+### 18. GET /api/lecturer/exams/{maLop} - Get exam detail
 GET {{baseUrl}}/api/lecturer/exams/{{classCode}}
 Authorization: Bearer {{token}}
 
-### 16. GET /api/lecturer/exams/{maLop}/students - Get exam students list
+### 19. GET /api/lecturer/exams/{maLop}/students - Get exam students list
 GET {{baseUrl}}/api/lecturer/exams/{{classCode}}/students
 Authorization: Bearer {{token}}
 
@@ -119,7 +131,7 @@ Authorization: Bearer {{token}}
 ### ADMINISTRATIVE SERVICES
 ### ============================================================================
 
-### 17. POST /api/lecturer/confirmation-letter - Create confirmation letter
+### 20. POST /api/lecturer/confirmation-letter - Create confirmation letter
 POST {{baseUrl}}/api/lecturer/confirmation-letter
 Authorization: Bearer {{token}}
 Content-Type: application/json
@@ -129,11 +141,11 @@ Content-Type: application/json
   "purpose": "Xin xác nhận sinh viên để xin visa"
 }
 
-### 18. GET /api/lecturer/tuition - Get student tuition info
+### 21. GET /api/lecturer/tuition - Get student tuition info
 GET {{baseUrl}}/api/lecturer/tuition?mssv={{studentId}}&hocKy={{semester}}
 Authorization: Bearer {{token}}
 
-### 19. GET /api/lecturer/tuition - Get student tuition (no semester filter)
+### 22. GET /api/lecturer/tuition - Get student tuition (no semester filter)
 GET {{baseUrl}}/api/lecturer/tuition?mssv={{studentId}}
 Authorization: Bearer {{token}}
 
@@ -141,24 +153,24 @@ Authorization: Bearer {{token}}
 ### APPEALS MANAGEMENT
 ### ============================================================================
 
-### 20. GET /api/lecturer/appeals - Get all appeals (no filter)
+### 23. GET /api/lecturer/appeals - Get all appeals (no filter)
 GET {{baseUrl}}/api/lecturer/appeals
 Authorization: Bearer {{token}}
 
-### 21. GET /api/lecturer/appeals - Get pending appeals
+### 24. GET /api/lecturer/appeals - Get pending appeals
 GET {{baseUrl}}/api/lecturer/appeals?status=pending
 Authorization: Bearer {{token}}
 
-### 22. GET /api/lecturer/appeals - Get approved appeals
+### 25. GET /api/lecturer/appeals - Get approved appeals
 GET {{baseUrl}}/api/lecturer/appeals?status=approved
 Authorization: Bearer {{token}}
 
-### 23. GET /api/lecturer/appeals/{appealId} - Get appeal detail
+### 26. GET /api/lecturer/appeals/{appealId} - Get appeal detail
 # Note: Replace 1 with actual appeal ID from previous response
 GET {{baseUrl}}/api/lecturer/appeals/1
 Authorization: Bearer {{token}}
 
-### 24. PUT /api/lecturer/appeals/{appealId} - Process appeal (Approve)
+### 27. PUT /api/lecturer/appeals/{appealId} - Process appeal (Approve)
 PUT {{baseUrl}}/api/lecturer/appeals/1
 Authorization: Bearer {{token}}
 Content-Type: application/json
@@ -168,7 +180,7 @@ Content-Type: application/json
   "comment": "Đơn phúc khảo hợp lệ, điểm đã được xem xét lại"
 }
 
-### 25. PUT /api/lecturer/appeals/{appealId} - Process appeal (Reject)
+### 28. PUT /api/lecturer/appeals/{appealId} - Process appeal (Reject)
 PUT {{baseUrl}}/api/lecturer/appeals/1
 Authorization: Bearer {{token}}
 Content-Type: application/json
@@ -182,15 +194,15 @@ Content-Type: application/json
 ### NOTIFICATIONS
 ### ============================================================================
 
-### 26. GET /api/lecturer/notifications - Get notifications (default: limit 50)
+### 29. GET /api/lecturer/notifications - Get notifications (default: limit 50)
 GET {{baseUrl}}/api/lecturer/notifications
 Authorization: Bearer {{token}}
 
-### 27. GET /api/lecturer/notifications - Get notifications (with pagination)
+### 30. GET /api/lecturer/notifications - Get notifications (with pagination)
 GET {{baseUrl}}/api/lecturer/notifications?limit=10&offset=0
 Authorization: Bearer {{token}}
 
-### 28. PUT /api/lecturer/notifications/{id}/read - Mark notification as read
+### 31. PUT /api/lecturer/notifications/{id}/read - Mark notification as read
 # Note: Replace 1 with actual notification ID
 PUT {{baseUrl}}/api/lecturer/notifications/1/read
 Authorization: Bearer {{token}}
@@ -199,7 +211,7 @@ Authorization: Bearer {{token}}
 ### ATTENDANCE & ABSENCE MANAGEMENT
 ### ============================================================================
 
-### 29. POST /api/lecturer/absence - Report absence
+### 32. POST /api/lecturer/absence - Report absence
 POST {{baseUrl}}/api/lecturer/absence
 Authorization: Bearer {{token}}
 Content-Type: application/json
@@ -210,7 +222,7 @@ Content-Type: application/json
   "lyDo": "Bận công tác đột xuất"
 }
 
-### 30. POST /api/lecturer/makeup-class - Schedule makeup class
+### 33. POST /api/lecturer/makeup-class - Schedule makeup class
 POST {{baseUrl}}/api/lecturer/makeup-class
 Authorization: Bearer {{token}}
 Content-Type: application/json
@@ -224,27 +236,27 @@ Content-Type: application/json
   "lyDo": "Học bù cho buổi nghỉ ngày 05/11"
 }
 
-### 31. GET /api/lecturer/absences - Get absence history (with semester)
+### 34. GET /api/lecturer/absences - Get absence history (with semester)
 GET {{baseUrl}}/api/lecturer/absences?semester={{semester}}
 Authorization: Bearer {{token}}
 
-### 32. GET /api/lecturer/absences - Get absence history (all semesters)
+### 35. GET /api/lecturer/absences - Get absence history (all semesters)
 GET {{baseUrl}}/api/lecturer/absences
 Authorization: Bearer {{token}}
 
-### 33. GET /api/lecturer/makeup-classes - Get makeup class history (with semester)
+### 36. GET /api/lecturer/makeup-classes - Get makeup class history (with semester)
 GET {{baseUrl}}/api/lecturer/makeup-classes?semester={{semester}}
 Authorization: Bearer {{token}}
 
-### 34. GET /api/lecturer/makeup-classes - Get makeup class history (all semesters)
+### 37. GET /api/lecturer/makeup-classes - Get makeup class history (all semesters)
 GET {{baseUrl}}/api/lecturer/makeup-classes
 Authorization: Bearer {{token}}
 
 ### ============================================================================
 ### SUMMARY
-### Total endpoints tested: 34
+### Total endpoints tested: 37
 ### - Profile: 2 endpoints (GET, PUT)
-### - Courses: 5 endpoints (GET courses, GET detail, GET schedule)
+### - Courses: 8 endpoints (GET courses, GET detail, GET schedule, GET nextclass, GET week, GET month)
 ### - Grades: 3 endpoints (GET class grades, GET student, PUT update)
 ### - Exams: 5 endpoints (GET exams, GET detail, GET students)
 ### - Admin Services: 3 endpoints (POST confirmation, GET tuition)

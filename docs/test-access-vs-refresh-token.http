@@ -1,0 +1,66 @@
+﻿@baseUrl = http://localhost:5128
+
+### ============================================================================
+### TEST REFRESH TOKEN FUNCTIONALITY
+### ============================================================================
+
+### 1. Login as Lecturer to get initial tokens
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "userId": "80068",
+  "password": "12345678",
+  "role": "lecturer"
+}
+
+### Save the tokens from response above:
+@initialAccessToken = eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJuYW1laWQiOiI4MDA2OCIsInJvbGUiOiJsZWN0dXJlciIsIm5iZiI6MTc2NDkxNDMzNSwiZXhwIjoxNzY0OTE1MjM1LCJpYXQiOjE3NjQ5MTQzMzUsImlzcyI6Imh0dHA6Ly9sb2NhbGhvc3Q6NTEyOCIsImF1ZCI6Imh0dHA6Ly9sb2NhbGhvc3Q6NTEyOCJ9.MYP2MkyrO8zwSA7nWapQza6m00wGgV8igsfH7Na7cR3TtUYtbxqiZwg7y5SIwlOP20ngaDHR8p6idFP3SvB57g
+@initialRefreshToken = CARwz6x5ORowXeZHnrBeDp/GQ5KJVgQmz1lZzc4DprfUngQqbQIcJXd9YJ3wT7bGP2LUM98f8xSrDVXQJ87MOw==
+
+### 2. Test access with initial access token (should work)
+GET {{baseUrl}}/api/lecturer/profile
+Authorization: Bearer {{initialAccessToken}}
+
+### 3. Refresh the tokens using refresh token
+POST {{baseUrl}}/api/auth/refresh
+Content-Type: application/json
+
+{
+  "refreshToken": "{{initialRefreshToken}}"
+}
+
+### Save the new tokens from response above:
+@newAccessToken = eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.new_example
+@newRefreshToken = new_refresh_token_example
+
+### 4. Test access with new access token (should work)
+GET {{baseUrl}}/api/lecturer/profile
+Authorization: Bearer {{newAccessToken}}
+
+### 5. Try to use old refresh token again (should fail - token rotated)
+POST {{baseUrl}}/api/auth/refresh
+Content-Type: application/json
+
+{
+  "refreshToken": "{{initialRefreshToken}}"
+}
+
+### Expected: 401 Unauthorized - "Invalid or expired refresh token"
+
+### 6. Test with invalid refresh token
+POST {{baseUrl}}/api/auth/refresh
+Content-Type: application/json
+
+{
+  "refreshToken": "invalid_refresh_token"
+}
+
+### Expected: 401 Unauthorized - "Invalid or expired refresh token"
+
+### ============================================================================
+### SUMMARY
+### - Tests token refresh functionality
+### - Verifies token rotation (old refresh token invalidated)
+### - Checks error handling for invalid tokens
+### ============================================================================

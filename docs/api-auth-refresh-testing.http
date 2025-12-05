@@ -1,0 +1,121 @@
+﻿### Authentication Endpoints Testing
+
+### Variables
+@baseUrl = http://localhost:5128
+@accessToken = 
+@refreshToken = 
+
+### 1. Login - Get both access and refresh tokens
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "role": "student",
+  "userId": "23520541",
+  "password": "password123"
+}
+
+### Example Response:
+# {
+#   "accessToken": "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9...",
+#   "refreshToken": "abc123def456..."
+# }
+#
+# Copy the tokens to variables above for next requests
+
+###
+
+### 2. Test authenticated endpoint with access token
+GET {{baseUrl}}/api/auth/profile
+Authorization: Bearer {{accessToken}}
+
+###
+
+### 3. Refresh access token using refresh token
+POST {{baseUrl}}/api/auth/refresh
+Content-Type: application/json
+
+{
+  "refreshToken": "{{refreshToken}}"
+}
+
+### Example Response:
+# {
+#   "accessToken": "new_eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9...",
+#   "refreshToken": "new_abc123def456..."
+# }
+#
+# Old refresh token is now revoked, use new tokens
+
+###
+
+### 4. Logout - Revoke refresh token
+POST {{baseUrl}}/api/auth/logout
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "refreshToken": "{{refreshToken}}"
+}
+
+### Example Response:
+# {
+#   "message": "Logged out successfully"
+# }
+
+###
+
+### 5. Try to use revoked refresh token (should fail)
+POST {{baseUrl}}/api/auth/refresh
+Content-Type: application/json
+
+{
+  "refreshToken": "{{refreshToken}}"
+}
+
+### Expected Response: 401 Unauthorized
+# {
+#   "message": "Invalid or expired refresh token"
+# }
+
+###
+
+### Testing Flow Example:
+
+### Step 1: Login
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "role": "student",
+  "userId": "23520541",
+  "password": "password123"
+}
+
+### Step 2: Use the access token to call protected endpoints
+# Copy accessToken from response above
+GET {{baseUrl}}/api/auth/profile
+Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
+
+### Step 3: When access token expires (after 1 day), refresh it
+# Copy refreshToken from login response
+POST {{baseUrl}}/api/auth/refresh
+Content-Type: application/json
+
+{
+  "refreshToken": "YOUR_REFRESH_TOKEN_HERE"
+}
+
+### Step 4: Use new tokens from refresh response
+# Update accessToken and refreshToken variables with new values
+# Continue using the app without re-login
+
+### Step 5: When done, logout
+POST {{baseUrl}}/api/auth/logout
+Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
+Content-Type: application/json
+
+{
+  "refreshToken": "YOUR_REFRESH_TOKEN_HERE"
+}
+

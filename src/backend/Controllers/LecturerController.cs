@@ -1,4 +1,4 @@
-﻿﻿using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using eUIT.API.Data;
@@ -178,13 +178,16 @@ public sealed class LecturerController : ControllerBase
 
         try
         {
+            string startStr = startDate?.ToString("yyyy-MM-dd") ?? "";
+            string endStr = endDate?.ToString("yyyy-MM-dd") ?? "";
+
             var schedule = await _context.Database
                 .SqlQueryRaw<LecturerScheduleDto>(
                     "SELECT * FROM func_get_lecturer_schedule({0}, {1}, {2}, {3})",
                     lecturerId,
                     semester ?? "",
-                    startDate?.ToUniversalTime() ?? DateTime.UtcNow,
-                    endDate?.ToUniversalTime() ?? DateTime.UtcNow.AddDays(7))
+                    startStr,
+                    endStr)
                 .ToListAsync();
 
             return Ok(schedule);
@@ -192,6 +195,162 @@ public sealed class LecturerController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error getting lecturer schedule");
+            return StatusCode(500, new { error = $"Lỗi Server: {ex.Message}" });
+        }
+    }
+
+    /// <summary>
+    /// GET /api/lecturer/schedule/nextclass - Lấy buổi học tiếp theo
+    /// </summary>
+    [HttpGet("schedule/nextclass")]
+    public async Task<ActionResult<LecturerNextClassDto>> GetNextClass()
+    {
+        var (lecturerId, errorResult) = GetCurrentLecturerId();
+        if (errorResult != null) return errorResult;
+
+        try
+        {
+            // Get all future schedule
+            var now = DateTime.Now;
+            var futureDate = now.AddMonths(6); // 6 months ahead
+            string startStr = now.ToString("yyyy-MM-dd");
+            string endStr = futureDate.ToString("yyyy-MM-dd");
+
+            var schedule = await _context.Database
+                .SqlQueryRaw<LecturerScheduleDto>(
+                    "SELECT * FROM func_get_lecturer_schedule({0}, {1}, {2}, {3})",
+                    lecturerId,
+                    "", // semester
+                    startStr,
+                    endStr)
+                .ToListAsync();
+
+            // Find next class
+            LecturerScheduleDto? nextClass = null;
+            DateTime? nextClassTime = null;
+            foreach (var item in schedule)
+            {
+                var classTime = CalculateNextClassTime(item, now);
+                if (classTime.HasValue && (!nextClassTime.HasValue || classTime < nextClassTime))
+                {
+                    nextClass = item;
+                    nextClassTime = classTime;
+                }
+            }
+
+            if (nextClass == null)
+                return Ok(new { message = "Không còn buổi dạy nào sắp tới" });
+
+            // Map to NextClassDto
+            var nextClassDto = new LecturerNextClassDto
+            {
+                MaMonHoc = nextClass.MaMonHoc,
+                TenMonHoc = nextClass.TenMonHoc,
+                MaLop = nextClass.MaLop,
+                Thu = nextClass.Thu,
+                TietBatDau = nextClass.TietBatDau,
+                TietKetThuc = nextClass.TietKetThuc,
+                PhongHoc = nextClass.PhongHoc,
+                NgayHoc = nextClassTime.Value
+            };
+
+            return Ok(nextClassDto);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting next class");
+            return StatusCode(500, new { error = $"Lỗi Server: {ex.Message}" });
+        }
+    }
+
+    /// <summary>
+    /// GET /api/lecturer/schedule/week - Lấy lịch dạy trong tuần này
+    /// </summary>
+    [HttpGet("schedule/week")]
+    public async Task<ActionResult<IEnumerable<LecturerScheduleDto>>> GetWeeklySchedule()
+    {
+        var (lecturerId, errorResult) = GetCurrentLecturerId();
+        if (errorResult != null) return errorResult;
+
+        try
+        {
+            var now = DateTime.Now;
+            var startOfWeek = now.AddDays(-(int)now.DayOfWeek + 1); // Monday
+            var endOfWeek = startOfWeek.AddDays(6); // Sunday
+
+            string startStr = startOfWeek.ToString("yyyy-MM-dd");
+            string endStr = endOfWeek.ToString("yyyy-MM-dd");
+
+            var schedule = await _context.Database
+                .SqlQueryRaw<LecturerScheduleDto>(
+                    "SELECT * FROM func_get_lecturer_schedule({0}, {1}, {2}, {3})",
+                    lecturerId,
+                    "",
+                    startStr,
+                    endStr)
+                .ToListAsync();
+
+            // Filter for this week, considering cach_tuan
+            var weeklySchedule = new List<LecturerScheduleDto>();
+            foreach (var item in schedule)
+            {
+                if (IsClassOnDate(item, startOfWeek, endOfWeek))
+                {
+                    weeklySchedule.Add(item);
+                }
+            }
+
+            return Ok(weeklySchedule);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting weekly schedule");
+            return StatusCode(500, new { error = $"Lỗi Server: {ex.Message}" });
+        }
+    }
+
+    /// <summary>
+    /// GET /api/lecturer/schedule/month - Lấy lịch dạy trong tháng này
+    /// </summary>
+    [HttpGet("schedule/month")]
+    public async Task<ActionResult<IEnumerable<LecturerScheduleDto>>> GetMonthlySchedule()
+    {
+        var (lecturerId, errorResult) = GetCurrentLecturerId();
+        if (errorResult != null) return errorResult;
+
+        try
+        {
+            var now = DateTime.Now;
+            var startOfMonth = new DateTime(now.Year, now.Month, 1);
+            var endOfMonth = startOfMonth.AddMonths(1).AddDays(-1);
+
+            string startStr = startOfMonth.ToString("yyyy-MM-dd");
+            string endStr = endOfMonth.ToString("yyyy-MM-dd");
+
+            var schedule = await _context.Database
+                .SqlQueryRaw<LecturerScheduleDto>(
+                    "SELECT * FROM func_get_lecturer_schedule({0}, {1}, {2}, {3})",
+                    lecturerId,
+                    "",
+                    startStr,
+                    endStr)
+                .ToListAsync();
+
+            // Filter for this month, considering cach_tuan
+            var monthlySchedule = new List<LecturerScheduleDto>();
+            foreach (var item in schedule)
+            {
+                if (IsClassOnDate(item, startOfMonth, endOfMonth))
+                {
+                    monthlySchedule.Add(item);
+                }
+            }
+
+            return Ok(monthlySchedule);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting monthly schedule");
             return StatusCode(500, new { error = $"Lỗi Server: {ex.Message}" });
         }
     }
@@ -810,6 +969,58 @@ public sealed class LecturerController : ControllerBase
             _logger.LogError(ex, "Error getting makeup classes");
             return StatusCode(500, new { error = $"Lỗi Server: {ex.Message}" });
         }
+    }
+
+    #endregion
+
+    #region Private Helper Methods
+
+    private DateTime? CalculateNextClassTime(LecturerScheduleDto schedule, DateTime now)
+    {
+        if (schedule.NgayBatDau == null || schedule.NgayKetThuc == null || schedule.Thu == null) return null;
+
+        var startDate = schedule.NgayBatDau.Value;
+        var endDate = schedule.NgayKetThuc.Value;
+        if (now > endDate) return null;
+
+        var thu = int.Parse(schedule.Thu);
+        var cachTuan = schedule.CachTuan ?? 1;
+
+        var currentWeekStart = now.AddDays(-(int)now.DayOfWeek + 1);
+
+        for (int week = 0; week < 52; week++) // up to 1 year
+        {
+            var classDate = currentWeekStart.AddDays(thu - 1).AddDays(week * 7 * cachTuan);
+            if (classDate >= startDate && classDate <= endDate && classDate >= now.Date)
+            {
+                return classDate;
+            }
+        }
+        return null;
+    }
+
+    private bool IsClassOnDate(LecturerScheduleDto schedule, DateTime startOfWeek, DateTime endOfWeek)
+    {
+        if (schedule.NgayBatDau == null || schedule.NgayKetThuc == null || schedule.Thu == null) return false;
+
+        var startDate = schedule.NgayBatDau.Value;
+        var endDate = schedule.NgayKetThuc.Value;
+        var thu = int.Parse(schedule.Thu);
+        var cachTuan = schedule.CachTuan ?? 1;
+
+        for (var date = startDate; date <= endDate; date = date.AddDays(1))
+        {
+            if (date >= startOfWeek && date <= endOfWeek && (int)date.DayOfWeek + 1 == thu)
+            {
+                // Check cach_tuan
+                var weeksFromStart = (date - startDate).Days / 7;
+                if (weeksFromStart % cachTuan == 0)
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     #endregion

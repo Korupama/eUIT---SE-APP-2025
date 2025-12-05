@@ -82,6 +82,18 @@ public sealed record LecturerScheduleDto
     [Column("hinh_thuc_giang_day")] public string? HinhThucGiangDay { get; init; }
 }
 
+public sealed record LecturerNextClassDto
+{
+    public string? MaMonHoc { get; init; }
+    public string? TenMonHoc { get; init; }
+    public string? MaLop { get; init; }
+    public string? Thu { get; init; }
+    public int? TietBatDau { get; init; }
+    public int? TietKetThuc { get; init; }
+    public string? PhongHoc { get; init; }
+    public DateTime NgayHoc { get; init; }
+}
+
 // ========================================
 // GRADE MANAGEMENT DTOs - Based on ket_qua_hoc_tap + bang_diem tables
 // ========================================

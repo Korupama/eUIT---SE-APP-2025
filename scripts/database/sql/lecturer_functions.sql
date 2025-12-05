@@ -1,4 +1,4 @@
-﻿﻿----------------------------------------------------------------------------------------------------
+﻿----------------------------------------------------------------------------------------------------
 -- 1. func_get_lecturer_profile
 ----------------------------------------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION func_get_lecturer_profile(p_ma_giang_vien TEXT)
@@ -154,8 +154,8 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION func_get_lecturer_schedule(
     p_ma_giang_vien TEXT,
     p_hoc_ky TEXT,
-    p_start TIMESTAMP WITH TIME ZONE,
-    p_end TIMESTAMP WITH TIME ZONE
+    p_start TEXT,
+    p_end TEXT
 )
 RETURNS TABLE (
     hoc_ky CHAR(11),
@@ -171,7 +171,31 @@ RETURNS TABLE (
     cach_tuan INTEGER,
     hinh_thuc_giang_day CHAR(5)
 ) AS $$
+DECLARE
+    v_current_year INT := EXTRACT(YEAR FROM CURRENT_DATE);
+    v_prev_year INT := v_current_year - 1;
+
+    v_hoc_ky_list TEXT[];
 BEGIN
+    -- If p_hoc_ky is empty → automatically find all semesters of
+    -- previous year + current year
+    IF p_hoc_ky = '' THEN
+        v_hoc_ky_list := ARRAY[
+            -- Niên khóa (prev_year_current_year)
+            v_prev_year::TEXT || '_' || v_current_year::TEXT || '_1',
+            v_prev_year::TEXT || '_' || v_current_year::TEXT || '_2',
+            v_prev_year::TEXT || '_' || v_current_year::TEXT || '_3',
+
+            -- Niên khóa (current_year_next_year)
+            v_current_year::TEXT || '_' || (v_current_year + 1)::TEXT || '_1',
+            v_current_year::TEXT || '_' || (v_current_year + 1)::TEXT || '_2',
+            v_current_year::TEXT || '_' || (v_current_year + 1)::TEXT || '_3'
+        ];
+    ELSE
+        -- If specific semester is provided → use only that one
+        v_hoc_ky_list := ARRAY[p_hoc_ky];
+    END IF;
+
     RETURN QUERY
         SELECT
             t.hoc_ky,
@@ -187,12 +211,27 @@ BEGIN
             t.cach_tuan,
             t.hinh_thuc_giang_day
         FROM thoi_khoa_bieu t
-                 JOIN mon_hoc m ON m.ma_mon_hoc = t.ma_mon_hoc
+        JOIN mon_hoc m ON m.ma_mon_hoc = t.ma_mon_hoc
         WHERE t.ma_giang_vien = p_ma_giang_vien
-          AND (p_hoc_ky = '' OR t.hoc_ky = p_hoc_ky)
-          AND (t.ngay_bat_dau IS NULL OR t.ngay_bat_dau >= p_start::DATE)
-          AND (t.ngay_ket_thuc IS NULL OR t.ngay_ket_thuc <= p_end::DATE)
-        ORDER BY t.thu, t.tiet_bat_dau;
+          AND t.hoc_ky = ANY(v_hoc_ky_list)
+
+          -- p_start filter (overlap)
+          AND (
+                p_start = ''
+                OR (t.ngay_bat_dau IS NULL OR t.ngay_ket_thuc IS NULL)
+                OR (t.ngay_bat_dau <= (p_end::timestamptz)::date AND t.ngay_ket_thuc >= (p_start::timestamptz)::date)
+              )
+
+          -- p_end filter (already included in overlap)
+          AND (
+                p_end = ''
+                OR t.ngay_ket_thuc IS NULL
+                OR t.ngay_ket_thuc <= (p_end::timestamptz)::date
+            )
+
+
+
+        ORDER BY t.hoc_ky, t.thu, t.tiet_bat_dau;
 END;
 $$ LANGUAGE plpgsql;
 
