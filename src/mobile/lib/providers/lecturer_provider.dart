@@ -34,6 +34,8 @@ class LecturerProvider extends ChangeNotifier {
 
   List<TeachingClass> _teachingClasses = [];
   List<TeachingClass> get teachingClasses => _teachingClasses;
+  String _debugInfo = 'Not loaded yet';
+  String get debugInfo => _debugInfo;
 
   List<NotificationItem> _notifications = [];
   List<NotificationItem> get notifications => _notifications;
@@ -381,6 +383,8 @@ class LecturerProvider extends ChangeNotifier {
           ? auth.buildUri('/api/lecturer/courses?semester=$semester')
           : auth.buildUri('/api/lecturer/courses');
       
+      _debugInfo = 'Calling: $uri';
+      notifyListeners();
       developer.log('Classes API URL: $uri', name: 'LecturerProvider');
       
       final res = await _makeAuthenticatedRequest(
@@ -400,15 +404,19 @@ class LecturerProvider extends ChangeNotifier {
         _teachingClasses = data
             .map((item) => TeachingClass.fromJson(item))
             .toList();
+        _debugInfo = 'Success: ${_teachingClasses.length} classes from ${res.body.length} bytes';
         developer.log('Found ${_teachingClasses.length} classes', name: 'LecturerProvider');
         notifyListeners();
       } else {
+        _debugInfo = 'Failed: Status ${res?.statusCode}, Body: ${res?.body}';
         developer.log('Failed to fetch teaching classes: ${res?.statusCode}', name: 'LecturerProvider');
         if (res != null) {
           developer.log('Error response: ${res.body}', name: 'LecturerProvider');
         }
+        notifyListeners();
       }
     } catch (e) {
+      _debugInfo = 'Error: $e';
       developer.log(
         'Error fetching teaching classes: $e',
         name: 'LecturerProvider',

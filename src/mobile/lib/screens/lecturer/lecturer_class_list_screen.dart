@@ -18,24 +18,22 @@ class LecturerClassListScreen extends StatefulWidget {
       _LecturerClassListScreenState();
 }
 
-class _LecturerClassListScreenState extends State<LecturerClassListScreen>
-    with AutomaticKeepAliveClientMixin {
-  @override
-  bool get wantKeepAlive => true;
-
+class _LecturerClassListScreenState extends State<LecturerClassListScreen> {
   late ScrollController _scrollController;
-  String _selectedSemester = 'all';
-  String _selectedYear = 'all';
+  String _selectedSemester = 'hk1'; // Default to HK1
+  String _selectedYear = '2024-2025'; // Default to current year
   String _searchQuery = '';
   final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
+    print('🎬 LecturerClassListScreen initState()');
     _scrollController = ScrollController();
-    // Fetch teaching classes when screen loads
+    // Fetch teaching classes with default semester when screen loads
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<LecturerProvider>().fetchTeachingClasses();
+      print('🎬 PostFrameCallback executing...');
+      _fetchClassesWithFilter(context.read<LecturerProvider>());
     });
   }
 
@@ -48,7 +46,6 @@ class _LecturerClassListScreenState extends State<LecturerClassListScreen>
 
   @override
   Widget build(BuildContext context) {
-    super.build(context);
     final provider = context.watch<LecturerProvider>();
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
@@ -116,13 +113,25 @@ class _LecturerClassListScreenState extends State<LecturerClassListScreen>
               ),
               const SizedBox(width: 12),
               Expanded(
-                child: Text(
-                  'Danh sách lớp',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: isDark ? AppTheme.darkText : AppTheme.lightText,
-                  ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Danh sách lớp',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: isDark ? AppTheme.darkText : AppTheme.lightText,
+                      ),
+                    ),
+                    Text(
+                      '${provider.teachingClasses.length} lớp',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: isDark ? AppTheme.darkTextSecondary : AppTheme.lightTextSecondary,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -234,9 +243,7 @@ class _LecturerClassListScreenState extends State<LecturerClassListScreen>
                           .map((String year) {
                             return DropdownMenuItem<String>(
                               value: year,
-                              child: Text(
-                                year == 'all' ? 'Tất cả năm học' : 'Năm học $year',
-                              ),
+                              child: Text('Năm học $year'),
                             );
                           }).toList(),
                       onChanged: (String? newValue) {
@@ -244,6 +251,7 @@ class _LecturerClassListScreenState extends State<LecturerClassListScreen>
                           setState(() {
                             _selectedYear = newValue;
                           });
+                          _fetchClassesWithFilter(provider);
                         }
                       },
                     ),
@@ -253,7 +261,7 @@ class _LecturerClassListScreenState extends State<LecturerClassListScreen>
               const SizedBox(width: 12),
               // Semester label
               Text(
-                'Học kỳ:',
+                'Học Kì:',
                 style: TextStyle(
                   color: isDark ? AppTheme.darkText : AppTheme.lightText,
                   fontSize: 14,
@@ -285,18 +293,46 @@ class _LecturerClassListScreenState extends State<LecturerClassListScreen>
   }
 
   List<String> _getAvailableYears(LecturerProvider provider) {
-    // Get unique years from teaching classes
-    final years = provider.teachingClasses
-        .map((c) => c.namHoc)
-        .where((year) => year != null && year.isNotEmpty)
-        .toSet()
-        .toList();
+    // Extract unique years from teaching classes
+    final yearSet = <String>{};
     
-    // Sort years in descending order (newest first)
-    years.sort((a, b) => b!.compareTo(a!));
+    for (final classItem in provider.teachingClasses) {
+      if (classItem.hocKy != null && classItem.hocKy!.contains('_')) {
+        final parts = classItem.hocKy!.split('_');
+        if (parts.length >= 2) {
+          yearSet.add('${parts[0]}-${parts[1]}'); // "2024_2025_1" -> "2024-2025"
+        }
+      }
+    }
     
-    // Add 'all' option at the beginning
-    return ['all', ...years.map((y) => y!).toList()];
+    // Convert to list and sort by year (newest first)
+    final years = yearSet.toList()..sort((a, b) {
+      final yearA = int.tryParse(a.split('-')[0]) ?? 0;
+      final yearB = int.tryParse(b.split('-')[0]) ?? 0;
+      return yearB.compareTo(yearA); // Descending order (newest first)
+    });
+    
+    // If no years found, return default years sorted newest first
+    if (years.isEmpty) {
+      return ['2024-2025', '2023-2024', '2022-2023', '2021-2022'];
+    }
+    
+    return years;
+  }
+
+  void _fetchClassesWithFilter(LecturerProvider provider) {
+    // If specific semester selected, construct semester parameter
+    if (_selectedSemester != 'all') {
+      final yearParts = _selectedYear.split('-'); // "2024-2025" -> ["2024", "2025"]
+      final semesterNum = _selectedSemester.replaceAll('hk', ''); // "hk1" -> "1"
+      final semesterParam = '${yearParts[0]}_${yearParts[1]}_$semesterNum'; // "2024_2025_1"
+      
+      provider.fetchTeachingClasses(semester: semesterParam);
+      return;
+    }
+    
+    // If "All semesters" selected, fetch all 3 semesters for the year
+    provider.fetchTeachingClassesForYear(_selectedYear);
   }
 
   Widget _buildFilterChip(String label, String value, bool isDark) {
@@ -307,6 +343,7 @@ class _LecturerClassListScreenState extends State<LecturerClassListScreen>
         setState(() {
           _selectedSemester = value;
         });
+        _fetchClassesWithFilter(context.read<LecturerProvider>());
       },
       borderRadius: BorderRadius.circular(20),
       child: Container(
@@ -342,31 +379,60 @@ class _LecturerClassListScreenState extends State<LecturerClassListScreen>
 
   Widget _buildClassList(LecturerProvider provider, bool isDark) {
     List<TeachingClass> classes = provider.teachingClasses;
-
-    // Apply filters
-    if (_selectedYear != 'all') {
-      classes = classes
-          .where((c) => c.namHoc == _selectedYear)
-          .toList();
-    }
-
-    if (_selectedSemester != 'all') {
-      classes = classes
-          .where((c) => c.hocKy?.toLowerCase() == _selectedSemester)
-          .toList();
-    }
-
+    
+    // Debug: Print data to console
+    print('=== CLASS LIST DEBUG ===');
+    print('Total classes from provider: ${classes.length}');
+    print('Selected year: $_selectedYear');
+    print('Selected semester: $_selectedSemester');
+    print('Search query: $_searchQuery');
+    
+    // Only apply search filter (year and semester already filtered by API)
     if (_searchQuery.isNotEmpty) {
       classes = classes.where((c) {
         return c.tenMon.toLowerCase().contains(_searchQuery) ||
             c.maMon.toLowerCase().contains(_searchQuery) ||
             c.nhom.toLowerCase().contains(_searchQuery);
       }).toList();
+      print('After search filter: ${classes.length}');
     }
 
     if (classes.isEmpty) {
-      return _buildEmptyState(isDark);
+      print('Classes is empty - showing empty state');
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.inbox_outlined,
+              size: 80,
+              color: isDark ? AppTheme.darkTextSecondary : AppTheme.lightTextSecondary,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Không có lớp nào',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: isDark ? AppTheme.darkText : AppTheme.lightText,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Provider: ${provider.teachingClasses.length} lớp\nNăm: $_selectedYear\nHK: $_selectedSemester',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 14,
+                color: isDark ? AppTheme.darkTextSecondary : AppTheme.lightTextSecondary,
+              ),
+            ),
+          ],
+        ),
+      );
     }
+    
+    print('Rendering ${classes.length} classes');
+    print('========================');
 
     return RefreshIndicator(
       onRefresh: () async {
@@ -501,6 +567,65 @@ class _LecturerClassListScreenState extends State<LecturerClassListScreen>
                         ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 8),
+
+                      // Năm học và Học kỳ
+                      Row(
+                        children: [
+                          if (classItem.namHoc != null)
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: (isDark
+                                        ? AppTheme.bluePrimary
+                                        : AppTheme.bluePrimary)
+                                    .withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Text(
+                                'NH: ${classItem.namHoc}',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: isDark
+                                      ? AppTheme.bluePrimary.withOpacity(0.9)
+                                      : AppTheme.bluePrimary,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          if (classItem.namHoc != null &&
+                              classItem.semesterNumber != null)
+                            const SizedBox(width: 8),
+                          if (classItem.semesterNumber != null)
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: (isDark
+                                        ? AppTheme.lightOrbPurple1
+                                        : AppTheme.lightOrbPurple1)
+                                    .withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Text(
+                                classItem.semesterNumber!.toUpperCase(),
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: isDark
+                                      ? AppTheme.lightOrbPurple1
+                                          .withOpacity(0.9)
+                                      : AppTheme.lightOrbPurple1,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                        ],
                       ),
                       const SizedBox(height: 12),
 
