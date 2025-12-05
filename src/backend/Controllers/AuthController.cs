@@ -5,6 +5,8 @@ using System.Security.Claims;
 using eUIT.API.DTOs;
 using eUIT.API.Data;
 using eUIT.API.Services;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace eUIT.API.Controllers;
 
@@ -19,6 +21,14 @@ public class AuthController : ControllerBase
     {
         _context = context;
         _tokenService = tokenService;
+    }
+
+    private string HashRefreshToken(string token)
+    {
+        using var sha256 = SHA256.Create();
+        var bytes = Encoding.UTF8.GetBytes(token);
+        var hash = sha256.ComputeHash(bytes);
+        return Convert.ToBase64String(hash);
     }
 
     [HttpPost("login")]
@@ -64,7 +74,7 @@ public class AuthController : ControllerBase
         
         // Tạo refresh token (dài hạn)
         var refreshTokenValue = _tokenService.GenerateRefreshToken();
-        var refreshTokenHash = refreshTokenValue; // Trong thực tế nên hash, nhưng để đơn giản
+        var refreshTokenHash = HashRefreshToken(refreshTokenValue);
         
         // Lưu refresh token vào database
         await using var saveCmd = connection.CreateCommand();
@@ -119,7 +129,7 @@ public class AuthController : ControllerBase
         
         var pToken = cmd.CreateParameter();
         pToken.ParameterName = "tokenHash";
-        pToken.Value = refreshToken;
+        pToken.Value = HashRefreshToken(refreshToken);
         cmd.Parameters.Add(pToken);
         
         await using var reader = await cmd.ExecuteReaderAsync();
@@ -130,6 +140,9 @@ public class AuthController : ControllerBase
         
         var role = reader.GetString(0);
         var userId = reader.GetString(1);
+        
+        // Close the reader to free the connection
+        reader.Close();
         
         // Generate new access token
         var newAccessToken = _tokenService.CreateAccessToken(userId, role, TimeSpan.FromDays(1));
@@ -146,7 +159,7 @@ public class AuthController : ControllerBase
         
         var pOldToken = updateCmd.CreateParameter();
         pOldToken.ParameterName = "oldToken";
-        pOldToken.Value = refreshToken;
+        pOldToken.Value = HashRefreshToken(refreshToken);
         updateCmd.Parameters.Add(pOldToken);
         
         var pRoleUpdate = updateCmd.CreateParameter();
@@ -161,7 +174,7 @@ public class AuthController : ControllerBase
         
         var pNewToken = updateCmd.CreateParameter();
         pNewToken.ParameterName = "newToken";
-        pNewToken.Value = newRefreshToken;
+        pNewToken.Value = HashRefreshToken(newRefreshToken);
         updateCmd.Parameters.Add(pNewToken);
         
         var pExpiresAtUpdate = updateCmd.CreateParameter();
