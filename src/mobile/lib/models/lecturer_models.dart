@@ -130,6 +130,7 @@ class TeachingScheduleItem {
   final DateTime? ngayKetThuc;
   final int? soTiet;
   final int? siSo;
+  final int? cachTuan; // 1 = every week, 2 = every 2 weeks
 
   TeachingScheduleItem({
     required this.maMon,
@@ -143,6 +144,7 @@ class TeachingScheduleItem {
     this.ngayKetThuc,
     this.soTiet,
     this.siSo,
+    this.cachTuan,
   });
 
   factory TeachingScheduleItem.fromJson(Map<String, dynamic> json) {
@@ -188,6 +190,7 @@ class TeachingScheduleItem {
           : null,
       soTiet: json['soTiet'] as int?,
       siSo: json['siSo'] as int?,
+      cachTuan: json['cachTuan'] as int? ?? 1,
     );
   }
 }

@@ -105,6 +105,17 @@ class TeachingClass {
     };
   }
 
+  // Helper: Get semester number from hocKy (e.g., "2024_2025_1" -> "hk1")
+  String? get semesterNumber {
+    if (hocKy != null && hocKy!.contains('_')) {
+      final parts = hocKy!.split('_');
+      if (parts.length >= 3) {
+        return 'hk${parts[2]}'; // "2024_2025_1" -> "hk1"
+      }
+    }
+    return null;
+  }
+
   // Helper: Get formatted schedule text
   String get scheduleText {
     if (thu != null && tietBatDau != null && tietKetThuc != null) {

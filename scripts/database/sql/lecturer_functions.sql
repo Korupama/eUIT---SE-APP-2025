@@ -91,7 +91,7 @@ SELECT
 FROM thoi_khoa_bieu t
          JOIN mon_hoc m ON m.ma_mon_hoc = t.ma_mon_hoc
 WHERE t.ma_giang_vien = p_ma_giang_vien
-  AND t.hoc_ky = p_hoc_ky;
+  AND (p_hoc_ky = '' OR t.hoc_ky = p_hoc_ky);
 END;
 $$ LANGUAGE plpgsql;
 

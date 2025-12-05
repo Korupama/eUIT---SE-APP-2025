@@ -31,9 +31,13 @@ class LecturerProvider extends ChangeNotifier {
 
   TeachingScheduleItem? _nextClass;
   TeachingScheduleItem? get nextClass => _nextClass;
+  DateTime? _nextClassDate; // Ngày cụ thể của buổi học tiếp theo
+  DateTime? get nextClassDate => _nextClassDate;
 
   List<TeachingClass> _teachingClasses = [];
   List<TeachingClass> get teachingClasses => _teachingClasses;
+  String _debugInfo = 'Not loaded yet';
+  String get debugInfo => _debugInfo;
 
   List<NotificationItem> _notifications = [];
   List<NotificationItem> get notifications => _notifications;
@@ -300,35 +304,110 @@ class LecturerProvider extends ChangeNotifier {
   void _findNextClass() {
     if (_teachingSchedule.isEmpty) {
       _nextClass = null;
+      _nextClassDate = null;
       return;
     }
 
     final now = DateTime.now();
     TeachingScheduleItem? upcoming;
-    Duration? shortestDuration;
+    DateTime? nearestDateTime;
 
     for (final item in _teachingSchedule) {
-      // Skip if no date information
-      if (item.ngayBatDau == null) continue;
+      // Skip if no date or day information
+      if (item.ngayBatDau == null || item.ngayKetThuc == null || item.thu == null) continue;
 
-      final classDateTime = item.ngayBatDau!;
+      // Parse thu (day of week): "2" = Monday, "3" = Tuesday, etc.
+      final thuInt = int.tryParse(item.thu!.trim());
+      if (thuInt == null || thuInt < 2 || thuInt > 8) continue;
       
-      // Only consider future classes
-      if (classDateTime.isAfter(now)) {
-        final duration = classDateTime.difference(now);
-        
-        if (shortestDuration == null || duration < shortestDuration) {
-          shortestDuration = duration;
-          upcoming = item;
+      // Convert Vietnamese day numbering to Dart weekday (1=Mon, 2=Tue, ..., 7=Sun)
+      final targetWeekday = thuInt == 8 ? 7 : thuInt - 1;
+
+      // Find next occurrence of this weekday starting from today
+      var daysUntilTarget = targetWeekday - now.weekday;
+      if (daysUntilTarget < 0) {
+        daysUntilTarget += 7; // Next week
+      }
+      
+      var nextOccurrence = DateTime(now.year, now.month, now.day).add(Duration(days: daysUntilTarget));
+      
+      // Make sure it's within the course date range
+      if (nextOccurrence.isBefore(item.ngayBatDau!)) {
+        nextOccurrence = item.ngayBatDau!;
+        // Adjust to the correct weekday if needed
+        while (nextOccurrence.weekday != targetWeekday) {
+          nextOccurrence = nextOccurrence.add(const Duration(days: 1));
         }
+      }
+      
+      // Skip if past the end date
+      if (nextOccurrence.isAfter(item.ngayKetThuc!)) {
+        continue;
+      }
+
+      // Check cachTuan (1 = every week, 2 = every 2 weeks, etc.)
+      final cachTuan = item.cachTuan ?? 1;
+      if (cachTuan > 1) {
+        // Calculate weeks from start date
+        final weeksDiff = nextOccurrence.difference(item.ngayBatDau!).inDays ~/ 7;
+        if (weeksDiff % cachTuan != 0) {
+          // Not on the correct week cycle, find next occurrence
+          final weeksToAdd = cachTuan - (weeksDiff % cachTuan);
+          nextOccurrence = nextOccurrence.add(Duration(days: weeksToAdd * 7));
+          
+          // Skip if past the end date
+          if (nextOccurrence.isAfter(item.ngayKetThuc!)) {
+            continue;
+          }
+        }
+      }
+
+      // Check if class has already ended today
+      final endPeriod = int.tryParse(item.tietKetThuc ?? '0') ?? 0;
+      final classEndTime = _getClassEndTime(nextOccurrence, endPeriod);
+      
+      // If today and class already ended, skip to next week
+      if (nextOccurrence.year == now.year && 
+          nextOccurrence.month == now.month && 
+          nextOccurrence.day == now.day && 
+          now.isAfter(classEndTime)) {
+        nextOccurrence = nextOccurrence.add(Duration(days: 7 * cachTuan));
+        
+        // Skip if past the end date
+        if (nextOccurrence.isAfter(item.ngayKetThuc!)) {
+          continue;
+        }
+      }
+
+      // This is a valid future class session
+      if (nearestDateTime == null || nextOccurrence.isBefore(nearestDateTime)) {
+        nearestDateTime = nextOccurrence;
+        upcoming = item;
       }
     }
 
     _nextClass = upcoming;
+    _nextClassDate = nearestDateTime;
     developer.log(
-      'Next class found: ${_nextClass?.tenMon ?? 'None'}',
+      'Next class found: ${_nextClass?.tenMon ?? 'None'} on ${nearestDateTime?.toString() ?? 'N/A'}',
       name: 'LecturerProvider',
     );
+  }
+
+  DateTime _getClassEndTime(DateTime date, int period) {
+    const Map<int, int> periodEndHour = {
+      1: 8, 2: 9, 3: 9, 4: 10, 5: 11,
+      6: 13, 7: 14, 8: 15, 9: 16, 0: 17,
+    };
+    const Map<int, int> periodEndMinute = {
+      1: 15, 2: 0, 3: 45, 4: 45, 5: 30,
+      6: 45, 7: 30, 8: 30, 9: 15, 0: 0,
+    };
+
+    final hour = periodEndHour[period] ?? 17;
+    final minute = periodEndMinute[period] ?? 0;
+
+    return DateTime(date.year, date.month, date.day, hour, minute);
   }
 
   Future<void> _fetchNotifications() async {
@@ -370,14 +449,19 @@ class LecturerProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> fetchTeachingClasses() async {
+  Future<void> fetchTeachingClasses({String? semester}) async {
     _isLoading = true;
     notifyListeners();
 
     try {
       developer.log('Fetching teaching classes...', name: 'LecturerProvider');
-      final uri = auth.buildUri('/api/lecturer/courses');
+      // Get all classes without semester filter, or with specific semester if provided
+      final uri = semester != null && semester.isNotEmpty
+          ? auth.buildUri('/api/lecturer/courses?semester=$semester')
+          : auth.buildUri('/api/lecturer/courses');
       
+      _debugInfo = 'Calling: $uri';
+      notifyListeners();
       developer.log('Classes API URL: $uri', name: 'LecturerProvider');
       
       final res = await _makeAuthenticatedRequest(
@@ -397,15 +481,19 @@ class LecturerProvider extends ChangeNotifier {
         _teachingClasses = data
             .map((item) => TeachingClass.fromJson(item))
             .toList();
+        _debugInfo = 'Success: ${_teachingClasses.length} classes from ${res.body.length} bytes';
         developer.log('Found ${_teachingClasses.length} classes', name: 'LecturerProvider');
         notifyListeners();
       } else {
+        _debugInfo = 'Failed: Status ${res?.statusCode}, Body: ${res?.body}';
         developer.log('Failed to fetch teaching classes: ${res?.statusCode}', name: 'LecturerProvider');
         if (res != null) {
           developer.log('Error response: ${res.body}', name: 'LecturerProvider');
         }
+        notifyListeners();
       }
     } catch (e) {
+      _debugInfo = 'Error: $e';
       developer.log(
         'Error fetching teaching classes: $e',
         name: 'LecturerProvider',
@@ -416,22 +504,71 @@ class LecturerProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> fetchSchedule() async {
+  // Fetch classes for multiple semesters and merge results
+  Future<void> fetchTeachingClassesForYear(String year) async {
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      final yearParts = year.split('-'); // "2024-2025" -> ["2024", "2025"]
+      final allClasses = <TeachingClass>[];
+
+      // Fetch all 3 semesters
+      for (int semNum = 1; semNum <= 3; semNum++) {
+        final semester = '${yearParts[0]}_${yearParts[1]}_$semNum';
+        developer.log('Fetching semester: $semester', name: 'LecturerProvider');
+        
+        final uri = auth.buildUri('/api/lecturer/courses?semester=$semester');
+        developer.log('API URL: $uri', name: 'LecturerProvider');
+        
+        final res = await _makeAuthenticatedRequest(
+          requestFn: (token) => http.get(
+            uri,
+            headers: {
+              'Authorization': 'Bearer $token',
+              'Content-Type': 'application/json',
+            },
+          ).timeout(const Duration(seconds: 10)),
+        );
+
+        if (res != null && res.statusCode == 200) {
+          developer.log('Response body: ${res.body}', name: 'LecturerProvider');
+          final data = jsonDecode(res.body) as List;
+          final classes = data.map((item) => TeachingClass.fromJson(item)).toList();
+          allClasses.addAll(classes);
+          developer.log('Found ${classes.length} classes for $semester', name: 'LecturerProvider');
+        } else {
+          developer.log('API failed for $semester: ${res?.statusCode}', name: 'LecturerProvider');
+          if (res != null) {
+            developer.log('Error response: ${res.body}', name: 'LecturerProvider');
+          }
+        }
+      }
+
+      _teachingClasses = allClasses;
+      developer.log('Total classes fetched: ${_teachingClasses.length}', name: 'LecturerProvider');
+      notifyListeners();
+    } catch (e) {
+      developer.log('Error fetching classes for year: $e', name: 'LecturerProvider');
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> fetchSchedule({String? semester}) async {
     _isLoading = true;
     notifyListeners();
 
     try {
       developer.log('Fetching teaching schedule...', name: 'LecturerProvider');
-      // Fetch entire academic year (Aug 1 to Jul 31 next year)
-      final now = DateTime.now();
-      final startDate = DateTime(now.month >= 8 ? now.year : now.year - 1, 8, 1);
-      final endDate = DateTime(now.month >= 8 ? now.year + 1 : now.year, 7, 31);
       
-      final queryParams = {
-        'startDate': startDate.toIso8601String(),
-        'endDate': endDate.toIso8601String(),
-      };
-      final uri = auth.buildUri('/api/lecturer/schedule').replace(queryParameters: queryParams);
+      // If no semester specified, use current semester (2025_2026_1)
+      final semesterParam = semester ?? '2025_2026_1';
+      
+      final uri = auth.buildUri('/api/lecturer/schedule?semester=$semesterParam');
+      
+      developer.log('Schedule API URL: $uri', name: 'LecturerProvider');
       
       final res = await _makeAuthenticatedRequest(
         requestFn: (token) => http.get(
