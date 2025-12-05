@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../providers/home_provider.dart';
+import '../providers/lecturer_provider.dart';
 import '../services/theme_controller.dart';
 import '../services/language_controller.dart';
 import '../services/auth_service.dart';
@@ -139,7 +140,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
           children: [
             // Header (profile card)
             GestureDetector(
-              onTap: () => Navigator.pushNamed(context, '/profile'),
+              onTap: () {
+                // Navigate to appropriate profile screen based on provider type
+                try {
+                  // Try to get LecturerProvider - if exists, user is lecturer
+                  final lecturerProvider = Provider.of<LecturerProvider>(context, listen: false);
+                  if (lecturerProvider.lecturerProfile != null) {
+                    Navigator.pushNamed(context, '/lecturer_edit_profile');
+                  }
+                } catch (e) {
+                  // User is student
+                  Navigator.pushNamed(context, '/profile');
+                }
+              },
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(16),
                 child: BackdropFilter(
@@ -174,23 +187,56 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         ),
                         const SizedBox(width: 12),
                         Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                provider.studentCard?.hoTen ?? loc.t('student_name'),
-                                style: TextStyle(
-                                  color: textColor,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                '${loc.t('id')}: ${provider.studentCard?.mssv?.toString()}',
-                                style: TextStyle(color: secondary, fontSize: 12),
-                              ),
-                            ],
+                          child: Builder(
+                            builder: (context) {
+                              // Try to get lecturer info first
+                              try {
+                                final lecturerProvider = Provider.of<LecturerProvider>(context, listen: false);
+                                if (lecturerProvider.lecturerProfile != null) {
+                                  final profile = lecturerProvider.lecturerProfile!;
+                                  return Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        profile.hoTen,
+                                        style: TextStyle(
+                                          color: textColor,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        'Mã GV: ${profile.maGv}',
+                                        style: TextStyle(color: secondary, fontSize: 12),
+                                      ),
+                                    ],
+                                  );
+                                }
+                              } catch (e) {
+                                // Not a lecturer, fall through to student
+                              }
+                              
+                              // Show student info
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    provider.studentCard?.hoTen ?? loc.t('student_name'),
+                                    style: TextStyle(
+                                      color: textColor,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    '${loc.t('id')}: ${provider.studentCard?.mssv?.toString()}',
+                                    style: TextStyle(color: secondary, fontSize: 12),
+                                  ),
+                                ],
+                              );
+                            },
                           ),
                         ),
                         Icon(Icons.chevron_right_rounded, color: secondary),

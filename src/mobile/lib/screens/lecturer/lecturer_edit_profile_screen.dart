@@ -259,7 +259,7 @@ class _LecturerEditProfileScreenState extends State<LecturerEditProfileScreen> {
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
-                  profile.chucDanh ?? 'Giảng viên',
+                  profile.khoaBoMon ?? 'Giảng viên',
                   style: const TextStyle(
                     fontSize: 12,
                     color: Colors.white,
