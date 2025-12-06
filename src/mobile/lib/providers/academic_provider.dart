@@ -33,12 +33,18 @@ class AcademicProvider extends ChangeNotifier {
   String? get regulations => _regulations;
 
   // Annual plan
-  String? _annualPlan;
-  String? get annualPlan => _annualPlan;
+  String? _planImageUrl;
+  String? get planImageUrl => _planImageUrl;
+  String? _planDescription;
+  String? get planDescription => _planDescription;
 
   // Progress
   Map<String, dynamic>? _progress;
   Map<String, dynamic>? get progress => _progress;
+
+  // --- Academic Plan Loading State for PlanScreen ---
+  bool _isAcademicPlanLoading = false;
+  bool get isAcademicPlanLoading => _isAcademicPlanLoading;
 
   /// Fetch grades
   Future<void> fetchGrades({String? semester}) async {
@@ -47,9 +53,9 @@ class AcademicProvider extends ChangeNotifier {
 
     try {
       developer.log('Fetching grades...', name: 'AcademicProvider');
-      final uri = auth.buildUri('/api/student/grades');
+      final uri = auth.buildUri('/grades');
       final queryParams = <String, String>{};
-      if (semester != null && semester.isNotEmpty) queryParams['semester'] = semester;
+      if (semester != null && semester.isNotEmpty) queryParams['filter_by_semester'] = semester;
       final finalUri = queryParams.isNotEmpty ? uri.replace(queryParameters: queryParams) : uri;
 
       final res = await _makeAuthenticatedRequest(
@@ -57,8 +63,9 @@ class AcademicProvider extends ChangeNotifier {
       );
 
       if (res != null && res.statusCode == 200) {
-        final data = jsonDecode(res.body) as List;
-        _grades = data.map((e) => e as Map<String, dynamic>).toList();
+        final data = jsonDecode(res.body) as Map<String, dynamic>;
+        final gradesList = data['grades'] as List? ?? [];
+        _grades = gradesList.map((e) => e as Map<String, dynamic>).toList();
         developer.log('Grades fetched: ${_grades.length}', name: 'AcademicProvider');
       } else {
         developer.log('Failed to fetch grades: ${res?.statusCode}', name: 'AcademicProvider');
@@ -78,7 +85,7 @@ class AcademicProvider extends ChangeNotifier {
 
     try {
       developer.log('Fetching tuition...', name: 'AcademicProvider');
-      final uri = auth.buildUri('/api/student/tuition');
+      final uri = auth.buildUri('/api/students/tuition');
 
       final res = await _makeAuthenticatedRequest(
         requestFn: (token) => http.get(uri, headers: {'Authorization': 'Bearer $token'}),
@@ -106,9 +113,9 @@ class AcademicProvider extends ChangeNotifier {
 
     try {
       developer.log('Fetching training points...', name: 'AcademicProvider');
-      final uri = auth.buildUri('/api/student/training/points');
+      final uri = auth.buildUri('/training-scores');
       final queryParams = <String, String>{};
-      if (semester != null && semester.isNotEmpty) queryParams['semester'] = semester;
+      if (semester != null && semester.isNotEmpty) queryParams['filter_by_semester'] = semester;
       final finalUri = queryParams.isNotEmpty ? uri.replace(queryParameters: queryParams) : uri;
 
       final res = await _makeAuthenticatedRequest(
@@ -116,8 +123,9 @@ class AcademicProvider extends ChangeNotifier {
       );
 
       if (res != null && res.statusCode == 200) {
-        final data = jsonDecode(res.body) as List;
-        _trainingPoints = data.map((e) => e as Map<String, dynamic>).toList();
+        final data = jsonDecode(res.body) as Map<String, dynamic>;
+        final pointsList = data['trainingScores'] as List? ?? [];
+        _trainingPoints = pointsList.map((e) => e as Map<String, dynamic>).toList();
         developer.log('Training points fetched: ${_trainingPoints.length}', name: 'AcademicProvider');
       } else {
         developer.log('Failed to fetch training points: ${res?.statusCode}', name: 'AcademicProvider');
@@ -137,7 +145,8 @@ class AcademicProvider extends ChangeNotifier {
 
     try {
       developer.log('Fetching training program...', name: 'AcademicProvider');
-      final uri = auth.buildUri('/api/student/training/program');
+      // Assuming it's not implemented, or use a placeholder
+      final uri = auth.buildUri('/api/students/training-program');
 
       final res = await _makeAuthenticatedRequest(
         requestFn: (token) => http.get(uri, headers: {'Authorization': 'Bearer $token'}),
@@ -165,7 +174,7 @@ class AcademicProvider extends ChangeNotifier {
 
     try {
       developer.log('Fetching regulations...', name: 'AcademicProvider');
-      final uri = auth.buildUri('/api/student/content/regulations');
+      final uri = auth.buildUri('/api/public/regulations');
 
       final res = await _makeAuthenticatedRequest(
         requestFn: (token) => http.get(uri, headers: {'Authorization': 'Bearer $token'}),
@@ -193,21 +202,29 @@ class AcademicProvider extends ChangeNotifier {
 
     try {
       developer.log('Fetching annual plan...', name: 'AcademicProvider');
-      final uri = auth.buildUri('/api/student/content/annual-plan');
+      final uri = auth.buildUri('/api/public/academic-plan');
 
-      final res = await _makeAuthenticatedRequest(
-        requestFn: (token) => http.get(uri, headers: {'Authorization': 'Bearer $token'}),
-      );
-
-      if (res != null && res.statusCode == 200) {
-        final data = jsonDecode(res.body) as String;
-        _annualPlan = data;
+      final res = await http.get(uri);
+      if (res.statusCode == 200) {
+        final data = jsonDecode(res.body) as Map<String, dynamic>;
+        if (data.isNotEmpty) {
+          final entry = data.entries.first;
+          _planDescription = entry.key;
+          _planImageUrl = entry.value;
+        } else {
+          _planDescription = null;
+          _planImageUrl = null;
+        }
         developer.log('Annual plan fetched', name: 'AcademicProvider');
       } else {
-        developer.log('Failed to fetch annual plan: ${res?.statusCode}', name: 'AcademicProvider');
+        developer.log('Failed to fetch annual plan: ${res.statusCode}', name: 'AcademicProvider');
+        _planDescription = null;
+        _planImageUrl = null;
       }
     } catch (e) {
       developer.log('Error fetching annual plan: $e', name: 'AcademicProvider');
+      _planDescription = null;
+      _planImageUrl = null;
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -221,7 +238,7 @@ class AcademicProvider extends ChangeNotifier {
 
     try {
       developer.log('Fetching progress...', name: 'AcademicProvider');
-      final uri = auth.buildUri('/api/student/training/progress');
+      final uri = auth.buildUri('/api/students/progress');
 
       final res = await _makeAuthenticatedRequest(
         requestFn: (token) => http.get(uri, headers: {'Authorization': 'Bearer $token'}),
@@ -238,6 +255,17 @@ class AcademicProvider extends ChangeNotifier {
       developer.log('Error fetching progress: $e', name: 'AcademicProvider');
     } finally {
       _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> fetchAcademicPlan() async {
+    _isAcademicPlanLoading = true;
+    notifyListeners();
+    try {
+      await fetchAnnualPlan();
+    } finally {
+      _isAcademicPlanLoading = false;
       notifyListeners();
     }
   }

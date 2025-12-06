@@ -22,12 +22,31 @@ class _ProgressScreenState extends State<ProgressScreen> {
     return context.watch<AcademicProvider>().progress;
   }
 
-  int get completedCredits => progressData?['completedCredits'] ?? 0;
-  int get remainingCredits => progressData?['remainingCredits'] ?? 0;
-  int get totalRequiredCredits => progressData?['totalRequiredCredits'] ?? 150;
+  int _parseInt(dynamic value) {
+    if (value == null) return 0;
+    if (value is int) return value;
+    if (value is num) return value.toInt();
+    if (value is String) {
+      final parsed = int.tryParse(value);
+      return parsed ?? 0;
+    }
+    return 0;
+  }
+
+  int get completedCredits => _parseInt(progressData?['graduationProgress']?['totalCreditsCompleted']);
+  int get totalRequiredCredits => _parseInt(progressData?['graduationProgress']?['totalCreditsRequired']);
+  int get remainingCredits => totalRequiredCredits - completedCredits;
 
   double get progressPercentage {
     return totalRequiredCredits > 0 ? (completedCredits / totalRequiredCredits) * 100 : 0.0;
+  }
+
+  List<Map<String, dynamic>> get progressByGroup {
+    final list = progressData?['progressByGroup'];
+    if (list is List) {
+      return list.whereType<Map<String, dynamic>>().toList();
+    }
+    return [];
   }
 
   @override
@@ -63,6 +82,11 @@ class _ProgressScreenState extends State<ProgressScreen> {
 
               // Credits Info Cards
               _buildCreditsInfoCards(),
+
+              SizedBox(height: 20),
+
+              // Progress By Group
+              _buildProgressByGroupSection(),
             ],
           ),
         ),
@@ -151,7 +175,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
           // Percentage
           Center(
             child: Text(
-              '${progressPercentage.toStringAsFixed(1)}%',
+              totalRequiredCredits == 0 ? 'chưa có dữ liệu' : '${progressPercentage.toStringAsFixed(1)}%',
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 32,
@@ -254,12 +278,118 @@ class _ProgressScreenState extends State<ProgressScreen> {
 
           // Value
           Text(
-            value,
+            value == '0' ? 'chưa có dữ liệu' : value,
             style: TextStyle(
               color: color,
               fontSize: 28,
               fontWeight: FontWeight.bold,
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildProgressByGroupSection() {
+    final groups = progressByGroup;
+    if (groups.isEmpty) {
+      return Container(
+        padding: EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: Color(0xFF1E293B),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: Colors.white.withOpacity(0.1),
+            width: 1,
+          ),
+        ),
+        child: Center(
+          child: Text(
+            'Chưa có dữ liệu nhóm tín chỉ',
+            style: TextStyle(
+              color: Colors.white.withOpacity(0.5),
+              fontSize: 14,
+            ),
+          ),
+        ),
+      );
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Tiến độ theo nhóm tín chỉ',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        SizedBox(height: 12),
+        ...groups.map((group) => _buildGroupCard(group)).toList(),
+      ],
+    );
+  }
+
+  Widget _buildGroupCard(Map<String, dynamic> group) {
+    final groupName = group['groupName'] ?? 'Nhóm';
+    final completed = _parseInt(group['completedCredits']);
+    final gpa = group['gpa'] is num ? (group['gpa'] as num).toStringAsFixed(2) : '0.00';
+    return Container(
+      margin: EdgeInsets.only(bottom: 12),
+      padding: EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Color(0xFF1E293B),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: Colors.white.withOpacity(0.1),
+          width: 1,
+        ),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  groupName,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                SizedBox(height: 6),
+                Text(
+                  'Tín chỉ đã hoàn thành: $completed',
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.7),
+                    fontSize: 13,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                'GPA',
+                style: TextStyle(
+                  color: Colors.white.withOpacity(0.6),
+                  fontSize: 12,
+                ),
+              ),
+              Text(
+                gpa,
+                style: TextStyle(
+                  color: Color(0xFF3B82F6),
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
           ),
         ],
       ),
