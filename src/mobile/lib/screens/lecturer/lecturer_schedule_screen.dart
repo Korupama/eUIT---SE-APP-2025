@@ -32,7 +32,8 @@ class _LecturerScheduleScreenState extends State<LecturerScheduleScreen>
     _selectedWeek = _getCurrentWeek(); // Khởi tạo với tuần hiện tại
     _tabController = TabController(length: 2, vsync: this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<LecturerProvider>().fetchSchedule();
+      // Fetch schedule for current semester
+      context.read<LecturerProvider>().fetchSchedule(semester: '2025_2026_1');
     });
   }
 
@@ -245,6 +246,7 @@ class _LecturerScheduleScreenState extends State<LecturerScheduleScreen>
       return _buildShimmerLoading(isDark);
     }
 
+    // Don't filter schedule here - we'll check dates when displaying each day
     final weekSchedule = _getWeekSchedule(provider.schedule);
 
     return Column(
@@ -343,11 +345,17 @@ class _LecturerScheduleScreenState extends State<LecturerScheduleScreen>
         day.month == DateTime.now().month &&
         day.year == DateTime.now().year;
 
-    // Filter by search query
+    // Filter by search query AND check if class should be shown on this specific date
     final filteredSchedule = schedule.where((item) {
-      if (_searchQuery.isEmpty) return true;
-      return item.tenMon.toLowerCase().contains(_searchQuery) ||
-          item.maMon.toLowerCase().contains(_searchQuery);
+      // Search filter
+      if (_searchQuery.isNotEmpty) {
+        final matchesSearch = item.tenMon.toLowerCase().contains(_searchQuery) ||
+            item.maMon.toLowerCase().contains(_searchQuery);
+        if (!matchesSearch) return false;
+      }
+      
+      // Date range and cachTuan filter
+      return _shouldShowClassOnDate(item, day);
     }).toList();
 
     return Container(
@@ -525,32 +533,28 @@ class _LecturerScheduleScreenState extends State<LecturerScheduleScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  item.tenMon,
+                  item.nhom != null && item.nhom!.trim().isNotEmpty
+                      ? '${item.maMon.trim()}.${item.nhom!.trim()}'
+                      : item.maMon.trim(),
                   style: AppTheme.bodyMedium.copyWith(
                     color: isDark ? Colors.white : Colors.black87,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
                 const SizedBox(height: 4),
+                Text(
+                  item.tenMon,
+                  style: AppTheme.bodySmall.copyWith(
+                    color: isDark
+                        ? Colors.grey.shade400
+                        : Colors.grey.shade600,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 4),
                 Row(
                   children: [
-                    Icon(
-                      Icons.group_outlined,
-                      size: 14,
-                      color: isDark
-                          ? Colors.grey.shade400
-                          : Colors.grey.shade600,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      'Nhóm ${item.nhom}',
-                      style: AppTheme.bodySmall.copyWith(
-                        color: isDark
-                            ? Colors.grey.shade400
-                            : Colors.grey.shade600,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
                     Icon(
                       Icons.people_outline,
                       size: 14,
@@ -603,7 +607,7 @@ class _LecturerScheduleScreenState extends State<LecturerScheduleScreen>
       return _buildShimmerLoading(isDark);
     }
 
-    final now = DateTime.now();
+    final now = _selectedDate; // Use selected date, not current date
     final firstDayOfMonth = DateTime(now.year, now.month, 1);
     final lastDayOfMonth = DateTime(now.year, now.month + 1, 0);
     final daysInMonth = lastDayOfMonth.day;
@@ -620,17 +624,21 @@ class _LecturerScheduleScreenState extends State<LecturerScheduleScreen>
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 IconButton(
-                  onPressed: () {
-                    setState(() {
-                      _selectedDate = DateTime(
-                        _selectedDate.year,
-                        _selectedDate.month - 1,
-                      );
-                    });
-                  },
+                  onPressed: _canNavigateToPreviousMonth()
+                      ? () {
+                          setState(() {
+                            _selectedDate = DateTime(
+                              _selectedDate.year,
+                              _selectedDate.month - 1,
+                            );
+                          });
+                        }
+                      : null,
                   icon: Icon(
                     Icons.chevron_left,
-                    color: isDark ? Colors.white : Colors.black87,
+                    color: _canNavigateToPreviousMonth()
+                        ? (isDark ? Colors.white : Colors.black87)
+                        : Colors.grey.shade400,
                   ),
                 ),
                 Container(
@@ -651,17 +659,21 @@ class _LecturerScheduleScreenState extends State<LecturerScheduleScreen>
                   ),
                 ),
                 IconButton(
-                  onPressed: () {
-                    setState(() {
-                      _selectedDate = DateTime(
-                        _selectedDate.year,
-                        _selectedDate.month + 1,
-                      );
-                    });
-                  },
+                  onPressed: _canNavigateToNextMonth()
+                      ? () {
+                          setState(() {
+                            _selectedDate = DateTime(
+                              _selectedDate.year,
+                              _selectedDate.month + 1,
+                            );
+                          });
+                        }
+                      : null,
                   icon: Icon(
                     Icons.chevron_right,
-                    color: isDark ? Colors.white : Colors.black87,
+                    color: _canNavigateToNextMonth()
+                        ? (isDark ? Colors.white : Colors.black87)
+                        : Colors.grey.shade400,
                   ),
                 ),
               ],
@@ -694,7 +706,7 @@ class _LecturerScheduleScreenState extends State<LecturerScheduleScreen>
                         ),
                       ),
                       child: Row(
-                        children: ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN']
+                        children: ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7']
                             .map((day) {
                               return Expanded(
                                 child: Center(
@@ -717,29 +729,65 @@ class _LecturerScheduleScreenState extends State<LecturerScheduleScreen>
                       (weekIndex) {
                         return Row(
                           children: List.generate(7, (dayIndex) {
-                            final dayNumber =
-                                weekIndex * 7 + dayIndex - firstWeekday + 2;
-                            if (dayNumber < 1 || dayNumber > daysInMonth) {
-                              return Expanded(child: Container());
+                            // dayIndex: 0=CN(Sun), 1=T2(Mon), 2=T3(Tue), ..., 6=T7(Sat)
+                            // firstWeekday: 1=Mon, 2=Tue, ..., 7=Sun (Dart weekday)
+                            
+                            // Calculate which day number should appear in this cell
+                            // We need to find the offset from Sunday (day 0 of our grid)
+                            final weekdayOffset = firstWeekday % 7; // Convert: Mon=1→1, Tue=2→2, ..., Sun=7→0
+                            final dayNumber = weekIndex * 7 + dayIndex - weekdayOffset + 1;
+                            
+                            // Check if this is a valid day in current month
+                            final isCurrentMonth = dayNumber >= 1 && dayNumber <= daysInMonth;
+                            
+                            // If not current month, calculate previous/next month day
+                            int displayDay = dayNumber;
+                            bool isPreviousMonth = false;
+                            bool isNextMonth = false;
+                            
+                            if (dayNumber < 1) {
+                              // Previous month
+                              final prevMonth = DateTime(_selectedDate.year, _selectedDate.month, 0);
+                              displayDay = prevMonth.day + dayNumber;
+                              isPreviousMonth = true;
+                            } else if (dayNumber > daysInMonth) {
+                              // Next month
+                              displayDay = dayNumber - daysInMonth;
+                              isNextMonth = true;
                             }
-                            final day = DateTime(
+                            
+                            final day = isCurrentMonth ? DateTime(
                               _selectedDate.year,
                               _selectedDate.month,
                               dayNumber,
-                            );
-                            final daySchedule = provider.schedule
-                                .where((item) => item.thu == day.weekday)
-                                .toList();
-                            final isToday =
+                            ) : null;
+                            
+                            // Only check schedule for current month days
+                            final daySchedule = isCurrentMonth && day != null ? (() {
+                              final dayOfWeek = day.weekday; // 1=Mon, 2=Tue, ..., 7=Sun
+                              final thuStr = (dayOfWeek == 7 ? '8' : '${dayOfWeek + 1}'); // 1(Mon)→2, 2(Tue)→3, 7(Sun)→8
+                              return provider.schedule.where((item) {
+                                if (item.thu == null) return false;
+                                final thu = item.thu!.trim();
+                                
+                                // Check if class is on this weekday
+                                if (thu != thuStr) return false;
+                                
+                                // Use helper function to check date range and cachTuan
+                                return _shouldShowClassOnDate(item, day);
+                              }).toList();
+                            })() : <TeachingScheduleItem>[];
+                            
+                            final isToday = isCurrentMonth && day != null &&
                                 day.day == DateTime.now().day &&
                                 day.month == DateTime.now().month &&
                                 day.year == DateTime.now().year;
 
                             return Expanded(
                               child: GestureDetector(
-                                onTap: daySchedule.isNotEmpty
+                                onTap: isCurrentMonth && daySchedule.isNotEmpty
                                     ? () => _showDayScheduleDialog(
-                                        day,
+                                        day!,
                                         daySchedule,
                                         isDark,
                                       )
@@ -763,36 +811,24 @@ class _LecturerScheduleScreenState extends State<LecturerScheduleScreen>
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       Text(
-                                        '$dayNumber',
+                                        '$displayDay',
                                         style: AppTheme.bodyMedium.copyWith(
-                                          color: isDark
-                                              ? Colors.white
-                                              : Colors.black87,
+                                          color: (isPreviousMonth || isNextMonth)
+                                              ? (isDark ? Colors.grey.shade700 : Colors.grey.shade400)
+                                              : (isDark ? Colors.white : Colors.black87),
                                           fontWeight: isToday
                                               ? FontWeight.bold
                                               : FontWeight.normal,
                                         ),
                                       ),
-                                      if (daySchedule.isNotEmpty)
+                                      if (isCurrentMonth && daySchedule.isNotEmpty)
                                         Container(
                                           margin: const EdgeInsets.only(top: 4),
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 6,
-                                            vertical: 2,
-                                          ),
+                                          width: 6,
+                                          height: 6,
                                           decoration: BoxDecoration(
-                                            gradient: AppTheme.primaryGradient,
-                                            borderRadius: BorderRadius.circular(
-                                              8,
-                                            ),
-                                          ),
-                                          child: Text(
-                                            '${daySchedule.length}',
-                                            style: AppTheme.bodySmall.copyWith(
-                                              color: Colors.white,
-                                              fontSize: 10,
-                                              fontWeight: FontWeight.w600,
-                                            ),
+                                            color: AppTheme.bluePrimary,
+                                            shape: BoxShape.circle,
                                           ),
                                         ),
                                     ],
@@ -840,8 +876,25 @@ class _LecturerScheduleScreenState extends State<LecturerScheduleScreen>
   ) {
     final Map<int, List<TeachingScheduleItem>> weekSchedule = {};
     for (int i = 0; i < 7; i++) {
-      weekSchedule[i] = schedule.where((item) => item.thu == i + 1).toList();
+      weekSchedule[i] = [];
     }
+    
+    for (final item in schedule) {
+      if (item.thu == null) continue;
+      
+      final thu = item.thu!.trim();
+      final thuInt = int.tryParse(thu);
+      
+      if (thuInt == null || thuInt < 2 || thuInt > 8) continue;
+      
+      // Convert Vietnamese day number to index: 2=Mon(0), 3=Tue(1), ..., 8=Sun(6)
+      final dayIndex = thuInt == 8 ? 6 : thuInt - 2;
+      
+      if (dayIndex >= 0 && dayIndex < 7) {
+        weekSchedule[dayIndex]!.add(item);
+      }
+    }
+    
     return weekSchedule;
   }
 
@@ -857,6 +910,47 @@ class _LecturerScheduleScreenState extends State<LecturerScheduleScreen>
 
   int _getCurrentWeek() {
     return _getWeekNumber(DateTime.now());
+  }
+
+  // Helper to get the date for a specific day index in the current week
+  DateTime _getDateForDayIndex(int dayIndex) {
+    final startOfWeek = _selectedDate.subtract(
+      Duration(days: _selectedDate.weekday - 1),
+    );
+    return startOfWeek.add(Duration(days: dayIndex));
+  }
+
+  // Check if a class should be shown on a specific date
+  bool _shouldShowClassOnDate(TeachingScheduleItem item, DateTime date) {
+    // Check if date is within course date range
+    if (item.ngayBatDau != null && date.isBefore(item.ngayBatDau!)) return false;
+    if (item.ngayKetThuc != null && date.isAfter(item.ngayKetThuc!)) return false;
+    
+    // Check cachTuan for biweekly classes
+    if (item.cachTuan != null && item.cachTuan! > 1 && item.ngayBatDau != null) {
+      // Get the target weekday from thu field
+      final thuInt = int.tryParse(item.thu?.trim() ?? '');
+      if (thuInt == null) return true; // If can't parse, don't filter by cachTuan
+      
+      // Convert Vietnamese thu (2-8) to Dart weekday (1-7)
+      // thu: 2=Mon, 3=Tue, 4=Wed, 5=Thu, 6=Fri, 7=Sat, 8=Sun
+      // Dart weekday: 1=Mon, 2=Tue, 3=Wed, 4=Thu, 5=Fri, 6=Sat, 7=Sun
+      final targetWeekday = thuInt == 8 ? 7 : thuInt - 1;
+      
+      // Find the first class date (first occurrence on target weekday on/after ngayBatDau)
+      final startDate = item.ngayBatDau!;
+      int daysToAdd = (targetWeekday - startDate.weekday + 7) % 7;
+      final firstClassDate = startDate.add(Duration(days: daysToAdd));
+      
+      // Calculate weeks difference from first class date
+      final daysDiff = date.difference(firstClassDate).inDays;
+      if (daysDiff < 0) return false; // Before first class
+      
+      final weeksDiff = daysDiff ~/ 7;
+      if (weeksDiff % item.cachTuan! != 0) return false;
+    }
+    
+    return true;
   }
 
   int _getWeekNumber(DateTime date) {
@@ -963,5 +1057,51 @@ class _LecturerScheduleScreenState extends State<LecturerScheduleScreen>
         ),
       ),
     );
+  }
+
+  bool _canNavigateToPreviousMonth() {
+    final provider = context.read<LecturerProvider>();
+    if (provider.schedule.isEmpty) return true;
+    
+    // Tìm ngày bắt đầu sớm nhất trong lịch giảng
+    DateTime? earliestDate;
+    for (final item in provider.schedule) {
+      if (item.ngayBatDau != null) {
+        if (earliestDate == null || item.ngayBatDau!.isBefore(earliestDate)) {
+          earliestDate = item.ngayBatDau;
+        }
+      }
+    }
+    
+    if (earliestDate == null) return true;
+    
+    final previousMonth = DateTime(_selectedDate.year, _selectedDate.month - 1);
+    final minDate = DateTime(earliestDate.year, earliestDate.month, 1);
+    
+    return previousMonth.isAfter(minDate) || 
+           (previousMonth.year == minDate.year && previousMonth.month == minDate.month);
+  }
+
+  bool _canNavigateToNextMonth() {
+    final provider = context.read<LecturerProvider>();
+    if (provider.schedule.isEmpty) return true;
+    
+    // Tìm ngày kết thúc muộn nhất trong lịch giảng
+    DateTime? latestDate;
+    for (final item in provider.schedule) {
+      if (item.ngayKetThuc != null) {
+        if (latestDate == null || item.ngayKetThuc!.isAfter(latestDate)) {
+          latestDate = item.ngayKetThuc;
+        }
+      }
+    }
+    
+    if (latestDate == null) return true;
+    
+    final nextMonth = DateTime(_selectedDate.year, _selectedDate.month + 1);
+    final maxDate = DateTime(latestDate.year, latestDate.month, 1);
+    
+    return nextMonth.isBefore(maxDate) || 
+           (nextMonth.year == maxDate.year && nextMonth.month == maxDate.month);
   }
 }

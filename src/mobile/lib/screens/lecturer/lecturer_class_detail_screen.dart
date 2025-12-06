@@ -405,7 +405,7 @@ class _LecturerClassDetailScreenState extends State<LecturerClassDetailScreen>
               color: Colors.transparent,
               child: InkWell(
                 onTap: () {
-                  // TODO: Show student detail
+                  _showGradeInputDialog(student, isDark);
                 },
                 borderRadius: BorderRadius.circular(16),
                 child: Padding(
@@ -793,6 +793,216 @@ class _LecturerClassDetailScreenState extends State<LecturerClassDetailScreen>
                 ),
               ),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showGradeInputDialog(ClassStudent student, bool isDark) {
+    final diemQuaTrinhController = TextEditingController(
+      text: student.diemThuongXuyen?.toString() ?? '',
+    );
+    final diemGiuaKyController = TextEditingController(
+      text: student.diemGiuaKy?.toString() ?? '',
+    );
+    final diemCuoiKyController = TextEditingController(
+      text: student.diemCuoiKy?.toString() ?? '',
+    );
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: isDark ? AppTheme.darkCard : Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Nhập điểm',
+              style: TextStyle(
+                color: isDark ? AppTheme.darkText : AppTheme.lightText,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              student.hoTen,
+              style: TextStyle(
+                fontSize: 14,
+                color: isDark ? AppTheme.darkTextSecondary : AppTheme.lightTextSecondary,
+                fontWeight: FontWeight.normal,
+              ),
+            ),
+            Text(
+              'MSSV: ${student.mssv}',
+              style: TextStyle(
+                fontSize: 12,
+                color: isDark ? AppTheme.darkTextSecondary : AppTheme.lightTextSecondary,
+                fontWeight: FontWeight.normal,
+              ),
+            ),
+          ],
+        ),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _buildGradeTextField(
+                controller: diemQuaTrinhController,
+                label: 'Điểm quá trình',
+                isDark: isDark,
+              ),
+              const SizedBox(height: 12),
+              _buildGradeTextField(
+                controller: diemGiuaKyController,
+                label: 'Điểm giữa kỳ',
+                isDark: isDark,
+              ),
+              const SizedBox(height: 12),
+              _buildGradeTextField(
+                controller: diemCuoiKyController,
+                label: 'Điểm cuối kỳ',
+                isDark: isDark,
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(
+              'Hủy',
+              style: TextStyle(
+                color: isDark ? AppTheme.darkTextSecondary : AppTheme.lightTextSecondary,
+              ),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              final diemQuaTrinh = double.tryParse(diemQuaTrinhController.text);
+              final diemGiuaKy = double.tryParse(diemGiuaKyController.text);
+              final diemCuoiKy = double.tryParse(diemCuoiKyController.text);
+
+              // Validate
+              if (diemQuaTrinh != null && (diemQuaTrinh < 0 || diemQuaTrinh > 10)) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Điểm quá trình phải từ 0-10')),
+                );
+                return;
+              }
+              if (diemGiuaKy != null && (diemGiuaKy < 0 || diemGiuaKy > 10)) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Điểm giữa kỳ phải từ 0-10')),
+                );
+                return;
+              }
+              if (diemCuoiKy != null && (diemCuoiKy < 0 || diemCuoiKy > 10)) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Điểm cuối kỳ phải từ 0-10')),
+                );
+                return;
+              }
+
+              Navigator.pop(context);
+
+              // Show loading
+              showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (context) => const Center(
+                  child: CircularProgressIndicator(),
+                ),
+              );
+
+              // Call API
+              final provider = context.read<LecturerProvider>();
+              final success = await provider.updateGrade(
+                mssv: student.mssv,
+                maLop: widget.classInfo.maLop ?? '',
+                diemQuaTrinh: diemQuaTrinh,
+                diemGiuaKy: diemGiuaKy,
+                diemCuoiKy: diemCuoiKy,
+              );
+
+              if (!mounted) return;
+              Navigator.pop(context); // Close loading
+
+              if (success) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Cập nhật điểm thành công'),
+                    backgroundColor: Colors.green,
+                  ),
+                );
+                // Reload students
+                _loadStudents();
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Cập nhật điểm thất bại'),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppTheme.bluePrimary,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            child: const Text('Lưu'),
+          ),
+        ],
+      ),
+    );
+
+    diemQuaTrinhController.addListener(() {});
+    diemGiuaKyController.addListener(() {});
+    diemCuoiKyController.addListener(() {});
+  }
+
+  Widget _buildGradeTextField({
+    required TextEditingController controller,
+    required String label,
+    required bool isDark,
+  }) {
+    return TextField(
+      controller: controller,
+      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+      style: TextStyle(
+        color: isDark ? AppTheme.darkText : AppTheme.lightText,
+      ),
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: TextStyle(
+          color: isDark ? AppTheme.darkTextSecondary : AppTheme.lightTextSecondary,
+        ),
+        hintText: '0.0 - 10.0',
+        hintStyle: TextStyle(
+          color: isDark ? AppTheme.darkTextSecondary.withOpacity(0.5) : AppTheme.lightTextSecondary.withOpacity(0.5),
+        ),
+        filled: true,
+        fillColor: (isDark ? AppTheme.darkBackground : AppTheme.lightBackground).withOpacity(0.5),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(
+            color: (isDark ? AppTheme.darkBorder : AppTheme.lightBorder).withOpacity(0.3),
+          ),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(
+            color: (isDark ? AppTheme.darkBorder : AppTheme.lightBorder).withOpacity(0.3),
+          ),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(
+            color: AppTheme.bluePrimary,
+            width: 2,
           ),
         ),
       ),

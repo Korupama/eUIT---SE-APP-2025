@@ -400,20 +400,22 @@ class _LecturerHomeScreenState extends State<LecturerHomeScreen>
                         ),
                         const SizedBox(height: 10),
                         Text(
-                          nextClass.maMon,
+                          nextClass.nhom != null && nextClass.nhom!.trim().isNotEmpty
+                              ? '${nextClass.maMon.trim()}.${nextClass.nhom!.trim()}'
+                              : nextClass.maMon.trim(),
                           style: TextStyle(
                             color: isDark ? Colors.white : Colors.black87,
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                         const SizedBox(height: 6),
                         Text(
                           nextClass.tenMon,
                           style: TextStyle(
-                            color: isDark ? Colors.white : Colors.black87,
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
+                            color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
                           ),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
@@ -458,7 +460,7 @@ class _LecturerHomeScreenState extends State<LecturerHomeScreen>
                     'Phòng: ${nextClass.phong ?? 'N/A'}',
                     isDark,
                   ),
-                  _buildDetailChip('Nhóm: ${nextClass.nhom ?? 'N/A'}', isDark),
+
                   _buildDetailChip('Sĩ số: ${nextClass.siSo ?? 0}', isDark),
                 ],
               ),
@@ -466,7 +468,9 @@ class _LecturerHomeScreenState extends State<LecturerHomeScreen>
               Align(
                 alignment: Alignment.centerLeft,
                 child: TextButton.icon(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/lecturer_schedule');
+                  },
                   style: TextButton.styleFrom(
                     foregroundColor: AppTheme.bluePrimary,
                     padding: const EdgeInsets.symmetric(
@@ -488,15 +492,25 @@ class _LecturerHomeScreenState extends State<LecturerHomeScreen>
 
   String _calculateCountdown(dynamic nextClass) {
     try {
+      final provider = context.read<LecturerProvider>();
       final now = DateTime.now();
-      final classDate = nextClass.ngayBatDau;
+      final classDate = provider.nextClassDate;
 
       if (classDate == null) return '---';
 
       final startPeriod = int.tryParse(nextClass.tietBatDau ?? '1') ?? 1;
-      final classTime = _getClassStartTime(classDate, startPeriod);
+      final endPeriod = int.tryParse(nextClass.tietKetThuc ?? '3') ?? 3;
+      
+      final classStartTime = _getClassStartTime(classDate, startPeriod);
+      final classEndTime = _getClassEndTime(classDate, endPeriod);
 
-      final difference = classTime.difference(now);
+      // Check if class is currently ongoing
+      if (now.isAfter(classStartTime) && now.isBefore(classEndTime)) {
+        return 'Đã bắt đầu';
+      }
+
+      // Calculate countdown to class start
+      final difference = classStartTime.difference(now);
 
       if (difference.isNegative) return 'Đã bắt đầu';
 
@@ -514,6 +528,22 @@ class _LecturerHomeScreenState extends State<LecturerHomeScreen>
     } catch (e) {
       return '---';
     }
+  }
+
+  DateTime _getClassEndTime(DateTime date, int period) {
+    const Map<int, int> periodEndHour = {
+      1: 8, 2: 9, 3: 9, 4: 10, 5: 11,
+      6: 13, 7: 14, 8: 15, 9: 16, 0: 17,
+    };
+    const Map<int, int> periodEndMinute = {
+      1: 15, 2: 0, 3: 45, 4: 45, 5: 30,
+      6: 45, 7: 30, 8: 30, 9: 15, 0: 0,
+    };
+
+    final hour = periodEndHour[period] ?? 17;
+    final minute = periodEndMinute[period] ?? 0;
+
+    return DateTime(date.year, date.month, date.day, hour, minute);
   }
 
   DateTime _getClassStartTime(DateTime date, int period) {

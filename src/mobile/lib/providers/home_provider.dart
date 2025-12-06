@@ -82,21 +82,21 @@ class HomeProvider extends ChangeNotifier {
     );
     _notifications = [
       NotificationItem(
-        title: 'New Quantum Computing Lab Opens on Campus',
-        body: 'Thông báo quan trọng từ nhà trường',
-        time: '2 giờ trước',
+        title: '{Tiêu đề thông báo}',
+        body: '{Nội dung thông báo}',
+        time: '{giờ/phút} trước',
         isUnread: true,
       ),
       NotificationItem(
-        title: 'Thông báo lịch thi cuối kỳ',
-        body: 'Lịch thi đã được cập nhật',
-        time: '5 giờ trước',
+        title: '{Tiêu đề thông báo}',
+        body: '{Nội dung thông báo}',
+        time: '{giờ/phút} trước',
         isUnread: true,
       ),
       NotificationItem(
-        title: 'Kết quả học tập đã được cập nhật',
-        body: 'Xem điểm học kỳ mới nhất',
-        time: '1 ngày trước',
+        title: '{Tiêu đề thông báo}',
+        body: '{Nội dung thông báo}',
+        time: '{giờ/phút} trước',
         isUnread: false,
       ),
     ];

@@ -8,19 +8,19 @@ class StudyResultScreen extends StatefulWidget {
 }
 
 class _StudyResultScreenState extends State<StudyResultScreen> {
-  String selectedSemester = 'Học kỳ 2 - Năm học 2023-2024';
+  String selectedSemester = '{Học kỳ 2 - Năm học 2023-2024}';
 
   final List<String> semesters = [
-    'Học kỳ 2 - Năm học 2023-2024',
-    'Học kỳ 1 - Năm học 2023-2024',
-    'Học kỳ 2 - Năm học 2022-2023',
-    'Học kỳ 1 - Năm học 2022-2023',
+    '{Học kỳ 2 - Năm học 2023-2024}',
+    '{Học kỳ 1 - Năm học 2023-2024}',
+    '{Học kỳ 2 - Năm học 2022-2023}',
+    '{Học kỳ 1 - Năm học 2022-2023}',
   ];
 
   final Map<String, List<Map<String, dynamic>>> semesterData = {
-    'Học kỳ 2 - Năm học 2023-2024': [
+    '{Học kỳ 2 - Năm học 2023-2024}': [
       {
-        'subject': 'Cấu trúc dữ liệu & Giải thuật',
+        'subject': '{Cấu trúc dữ liệu & Giải thuật}',
         'credits': 4,
         'midterm': 8.5,
         'final': 9.0,
@@ -28,7 +28,7 @@ class _StudyResultScreenState extends State<StudyResultScreen> {
         'grade': 'A',
       },
       {
-        'subject': 'Toán cao cấp A2',
+        'subject': '{Toán cao cấp A2}',
         'credits': 4,
         'midterm': 8.0,
         'final': 8.5,
@@ -36,7 +36,7 @@ class _StudyResultScreenState extends State<StudyResultScreen> {
         'grade': 'B+',
       },
       {
-        'subject': 'Tiếng Anh chuyên ngành',
+        'subject': '{Tiếng Anh chuyên ngành}',
         'credits': 3,
         'midterm': 9.5,
         'final': 9.0,
@@ -44,9 +44,9 @@ class _StudyResultScreenState extends State<StudyResultScreen> {
         'grade': 'A',
       },
     ],
-    'Học kỳ 1 - Năm học 2023-2024': [
+    '{Học kỳ 1 - Năm học 2023-2024}': [
       {
-        'subject': 'Lập trình hướng đối tượng',
+        'subject': '{Lập trình hướng đối tượng}',
         'credits': 4,
         'midterm': 8.0,
         'final': 8.5,
@@ -54,7 +54,7 @@ class _StudyResultScreenState extends State<StudyResultScreen> {
         'grade': 'B+',
       },
       {
-        'subject': 'Cơ sở dữ liệu',
+        'subject': '{Cơ sở dữ liệu}',
         'credits': 3,
         'midterm': 9.0,
         'final': 9.5,

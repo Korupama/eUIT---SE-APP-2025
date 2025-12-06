@@ -10,19 +10,19 @@ class TrainingPointScreen extends StatefulWidget {
 class _TrainingPointScreenState extends State<TrainingPointScreen> {
   final List<Map<String, dynamic>> semesterScores = [
     {
-      'semester': 'Học kỳ 1 - 2023-2024',
+      'semester': '{Học kỳ 1 - 2023-2024}',
       'score': 85,
     },
     {
-      'semester': 'Học kỳ 2 - 2023-2024',
+      'semester': '{Học kỳ 2 - 2023-2024}',
       'score': 92,
     },
     {
-      'semester': 'Học kỳ 1 - 2022-2023',
+      'semester': '{Học kỳ 1 - 2022-2023}',
       'score': 88,
     },
     {
-      'semester': 'Học kỳ 2 - 2022-2023',
+      'semester': '{Học kỳ 2 - 2022-2023}',
       'score': 90,
     },
   ];

@@ -33,7 +33,8 @@ class _LecturerGradeManagementScreenState
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<LecturerProvider>().fetchTeachingClasses();
+      // Fetch classes for current academic year (2025-2026), all semesters
+      context.read<LecturerProvider>().fetchTeachingClassesForYear('2025-2026');
     });
   }
 

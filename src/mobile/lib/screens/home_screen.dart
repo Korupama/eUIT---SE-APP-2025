@@ -975,9 +975,9 @@ class _HomeScreenState extends State<HomeScreen>
           child: ConstrainedBox(
             constraints: BoxConstraints(maxWidth: screenWidth - 24),
             child: StudentIdCard(
-              studentName: provider.studentCard?.hoTen ?? 'Nguyễn Văn A',
-              studentId: provider.studentCard?.mssv?.toString() ?? '20520001',
-              majorName: provider.studentCard?.nganhHoc ?? 'Khoa học máy tính',
+              studentName: provider.studentCard?.hoTen ?? '{Họ và tên}',
+              studentId: provider.studentCard?.mssv?.toString() ?? '{MSSV}',
+              majorName: provider.studentCard?.nganhHoc ?? '{Ngành học}',
             ),
           ),
         );
