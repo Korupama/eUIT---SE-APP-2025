@@ -26,7 +26,7 @@ class AuthService {
   // Storage key for the auth token
   static const String _tokenKey = 'auth_token';
   static const String _loginPath = '/api/Auth/login';
-  
+
   FlutterSecureStorage? _storageInstance;
   FlutterSecureStorage get _storage {
     _storageInstance ??= const FlutterSecureStorage(
@@ -251,7 +251,7 @@ class AuthService {
   Future<String?> refreshAccessToken() async {
     try {
       developer.log('AuthService: Attempting to refresh access token', name: 'AuthService');
-      
+
       final uri = buildUri('/api/Auth/refresh');
       final res = await http.post(
         uri,
@@ -262,7 +262,7 @@ class AuthService {
       if (res.statusCode == 200) {
         final body = jsonDecode(res.body) as Map<String, dynamic>;
         final newToken = body['accessToken'] as String?;
-        
+
         if (newToken != null && newToken.isNotEmpty) {
           await _storage.write(key: _tokenKey, value: newToken);
           tokenNotifier.value = newToken;
