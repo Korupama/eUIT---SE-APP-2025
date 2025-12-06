@@ -400,20 +400,22 @@ class _LecturerHomeScreenState extends State<LecturerHomeScreen>
                         ),
                         const SizedBox(height: 10),
                         Text(
-                          nextClass.maMon,
+                          nextClass.nhom != null && nextClass.nhom!.trim().isNotEmpty
+                              ? '${nextClass.maMon.trim()}.${nextClass.nhom!.trim()}'
+                              : nextClass.maMon.trim(),
                           style: TextStyle(
                             color: isDark ? Colors.white : Colors.black87,
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                         const SizedBox(height: 6),
                         Text(
                           nextClass.tenMon,
                           style: TextStyle(
-                            color: isDark ? Colors.white : Colors.black87,
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
+                            color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
                           ),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
@@ -458,7 +460,7 @@ class _LecturerHomeScreenState extends State<LecturerHomeScreen>
                     'Phòng: ${nextClass.phong ?? 'N/A'}',
                     isDark,
                   ),
-                  _buildDetailChip('Nhóm: ${nextClass.nhom ?? 'N/A'}', isDark),
+
                   _buildDetailChip('Sĩ số: ${nextClass.siSo ?? 0}', isDark),
                 ],
               ),
