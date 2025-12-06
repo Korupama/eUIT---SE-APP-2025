@@ -3,6 +3,7 @@ import 'dart:developer' as developer;
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
 import '../services/api_client.dart';
+import '../models/grades_detail.dart';
 
 /// AcademicProvider handles fetching academic data like grades, tuition, training, content.
 class AcademicProvider extends ChangeNotifier {
@@ -49,6 +50,10 @@ class AcademicProvider extends ChangeNotifier {
   // --- Academic Plan Loading State for PlanScreen ---
   bool _isAcademicPlanLoading = false;
   bool get isAcademicPlanLoading => _isAcademicPlanLoading;
+
+  // Grade details
+  GradesDetailResponse? _gradeDetails;
+  GradesDetailResponse? get gradeDetails => _gradeDetails;
 
   /// Fetch grades
   Future<void> fetchGrades({String? semester}) async {
@@ -226,6 +231,27 @@ class AcademicProvider extends ChangeNotifier {
       }
     } catch (e) {
       developer.log('Error fetching progress: $e', name: 'AcademicProvider');
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  /// Fetch grade details (subject-level)
+  Future<void> fetchGradeDetails() async {
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      developer.log('Fetching grade details...', name: 'AcademicProvider');
+      final data = await _client.get('/grades/details');
+
+      if (data != null && data is Map<String, dynamic>) {
+        _gradeDetails = GradesDetailResponse.fromJson(data);
+        developer.log('Grade details fetched: \\${_gradeDetails?.semesters.length}', name: 'AcademicProvider');
+      }
+    } catch (e) {
+      developer.log('Error fetching grade details: $e', name: 'AcademicProvider');
     } finally {
       _isLoading = false;
       notifyListeners();

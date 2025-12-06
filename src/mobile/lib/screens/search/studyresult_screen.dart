@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/academic_provider.dart';
+import 'subject_detail_screen.dart';
+import 'package:mobile/models/grades_detail.dart';
 
 class StudyResultScreen extends StatefulWidget {
   const StudyResultScreen({super.key});
@@ -18,71 +20,35 @@ class _StudyResultScreenState extends State<StudyResultScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final provider = context.read<AcademicProvider>();
-      await provider.fetchGrades();
-      final allGrades = provider.grades;
-      final uniqueSemesters = allGrades
-          .map((e) => e['hocKy'] as String)
-          .toSet()
-          .toList();
-      uniqueSemesters.sort((a, b) => b.compareTo(a));
+      await provider.fetchGradeDetails();
+      final details = provider.gradeDetails;
+      final semList = details?.semesters.map((s) => s.hocKy).toList() ?? [];
+      semList.sort((a, b) => b.compareTo(a));
       setState(() {
-        semesters = uniqueSemesters;
+        semesters = semList;
         selectedSemester = semesters.isNotEmpty ? semesters.first : null;
       });
     });
   }
 
-  List<Map<String, dynamic>> get currentGrades {
+  List<SubjectDetail> get currentGrades {
     final provider = context.watch<AcademicProvider>();
     if (selectedSemester == null) return [];
-    return provider.grades.where((g) => g['hocKy'] == selectedSemester).toList();
+    final sem = provider.gradeDetails?.semesters.firstWhere((s) => s.hocKy == selectedSemester, orElse: () => SemesterDetail(hocKy: '', semesterGpa: null, subjects: []));
+    return sem?.subjects ?? [];
   }
 
   double get currentGPA {
-    final data = currentGrades;
-    if (data.isEmpty) return 0.0;
-
-    double totalPoints = 0;
-    num totalCredits = 0;
-
-    for (var subject in data) {
-      final totalRaw = subject['diemTongKet'];
-      // Chỉ tính môn đã có điểm (không null)
-      if (totalRaw == null) continue;
-
-      final total = (totalRaw is num) ? totalRaw.toDouble() : 0.0;
-      final creditsRaw = subject['soTinChi'];
-      final credits = (creditsRaw is num) ? creditsRaw : 0;
-      totalPoints += total * credits;
-      totalCredits += credits;
-    }
-
-    return totalCredits > 0 ? totalPoints / totalCredits : 0.0;
+    final provider = context.watch<AcademicProvider>();
+    if (selectedSemester == null) return 0.0;
+    final sem = provider.gradeDetails?.semesters.firstWhere((s) => s.hocKy == selectedSemester, orElse: () => SemesterDetail(hocKy: '', semesterGpa: null, subjects: []));
+    return sem?.semesterGpa ?? 0.0;
   }
 
   // Tính toán GPA tích lũy (cumulative GPA) từ tất cả các học kỳ
   double get cumulativeGPA {
     final provider = context.watch<AcademicProvider>();
-    final allGrades = provider.grades;
-
-    if (allGrades.isEmpty) return 0.0;
-
-    double totalPoints = 0;
-    num totalCredits = 0;
-
-    for (var subject in allGrades) {
-      final totalRaw = subject['diemTongKet'];
-      // Chỉ tính môn đã có điểm (không null)
-      if (totalRaw == null) continue;
-
-      final total = (totalRaw is num) ? totalRaw.toDouble() : 0.0;
-      final creditsRaw = subject['soTinChi'];
-      final credits = (creditsRaw is num) ? creditsRaw : 0;
-      totalPoints += total * credits;
-      totalCredits += credits;
-    }
-
-    return totalCredits > 0 ? totalPoints / totalCredits : 0.0;
+    return provider.gradeDetails?.overallGpa ?? 0.0;
   }
 
   // Chuyển đổi GPA từ hệ 10.0 sang hệ 4.0
@@ -361,82 +327,87 @@ class _StudyResultScreenState extends State<StudyResultScreen> {
         // Use ListView for better mobile experience
         ...data.asMap().entries.map((entry) {
           final subject = entry.value;
-
-          return Container(
-            margin: EdgeInsets.only(bottom: 12),
-            padding: EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Color(0xFF1E293B),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: Colors.white.withOpacity(0.1),
-                width: 1,
+          return InkWell(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => SubjectDetailScreen(subject: subject),
+                ),
+              );
+            },
+            child: Container(
+              margin: EdgeInsets.only(bottom: 12),
+              padding: EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Color(0xFF1E293B),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: Colors.white.withOpacity(0.1),
+                  width: 1,
+                ),
               ),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Subject name and grade
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        subject['tenMonHoc'] ?? 'Unknown',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          subject.tenMonHoc,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
-                    ),
-                    SizedBox(width: 12),
-                    Container(
-                      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: subject['diemTongKet'] == null
-                          ? Colors.white.withOpacity(0.2)
-                          : _getGradeColor(_calculateGrade(_parseScore(subject['diemTongKet']))).withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        subject['diemTongKet'] == null
-                          ? 'chưa có điểm'
-                          : _calculateGrade(_parseScore(subject['diemTongKet'])),
-                        style: TextStyle(
-                          color: subject['diemTongKet'] == null
-                            ? Colors.white
-                            : _getGradeColor(_calculateGrade(_parseScore(subject['diemTongKet']))),
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
+                      SizedBox(width: 12),
+                      Container(
+                        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: subject.diemTongKet == null
+                            ? Colors.white.withOpacity(0.2)
+                            : _getGradeColor(_calculateGrade(subject.diemTongKet)).withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          subject.diemTongKet == null
+                            ? '-'
+                            : _calculateGrade(subject.diemTongKet),
+                          style: TextStyle(
+                            color: subject.diemTongKet == null
+                              ? Colors.white
+                              : _getGradeColor(_calculateGrade(subject.diemTongKet)),
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
-                    ),
-                  ],
-                ),
-
-                SizedBox(height: 16),
-
-                // Scores grid
-                Row(
-                  children: [
-                    Expanded(
-                      child: _buildScoreItem('Tín chỉ', (subject['soTinChi'] ?? 0).toString()),
-                    ),
-                    Expanded(
-                      child: _buildScoreItem(
-                        'Tổng kết',
-                        subject['diemTongKet'] == null
-                          ? 'chưa có điểm'
-                          : ((subject['diemTongKet'] is num)
-                              ? (subject['diemTongKet'] as num).toDouble().toStringAsFixed(1)
-                              : '0.0'),
-                        isHighlight: true,
+                      SizedBox(width: 6),
+                      Icon(Icons.chevron_right, color: Colors.white.withOpacity(0.7), size: 20),
+                    ],
+                  ),
+                  SizedBox(height: 16),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _buildScoreItem('Tín chỉ', subject.soTinChi?.toString() ?? '-'),
                       ),
-                    ),
-                  ],
-                ),
-              ],
+                      Expanded(
+                        child: _buildScoreItem(
+                          'Tổng kết',
+                          subject.diemTongKet == null
+                            ? '-'
+                            : subject.diemTongKet!.toStringAsFixed(1),
+                          isHighlight: true,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           );
         }).toList(),
@@ -511,5 +482,12 @@ class _StudyResultScreenState extends State<StudyResultScreen> {
       return parsed ?? 0.0;
     }
     return 0.0;
+  }
+
+  String _trimSubjectCode(String? code) {
+    if (code == null) return '';
+    // Giả sử mã môn học có định dạng như sau: "MATH101 - Giải tích 1"
+    final parts = code.split(' - ');
+    return parts.isNotEmpty ? parts.first : '';
   }
 }
