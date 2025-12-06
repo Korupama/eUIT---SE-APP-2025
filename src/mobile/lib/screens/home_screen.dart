@@ -532,11 +532,11 @@ class _HomeScreenState extends State<HomeScreen>
           // Squircle button
           GestureDetector(
             onTap: () {
-              if (index == 2) { // Schedule action
+              if (index == 1) { // Schedule action
                 onSelectPage?.call(3);
               } else if (index == 0) { // Study Result
                 Navigator.push(context, MaterialPageRoute(builder: (_) => const StudyResultScreen()));
-              } else if (index == 1) { // Tuition
+              } else if (index == 2) { // Tuition
                 Navigator.push(context, MaterialPageRoute(builder: (_) => const TuitionScreen()));
               } else if (index == 3) { // Parking
                 Navigator.push(context, MaterialPageRoute(builder: (_) => const ParkingMonthlyScreen()));

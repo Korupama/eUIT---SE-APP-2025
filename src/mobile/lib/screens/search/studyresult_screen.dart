@@ -47,6 +47,9 @@ class _StudyResultScreenState extends State<StudyResultScreen> {
 
     for (var subject in data) {
       final totalRaw = subject['diemTongKet'];
+      // Chỉ tính môn đã có điểm (không null)
+      if (totalRaw == null) continue;
+
       final total = (totalRaw is num) ? totalRaw.toDouble() : 0.0;
       final creditsRaw = subject['soTinChi'];
       final credits = (creditsRaw is num) ? creditsRaw : 0;
@@ -55,6 +58,40 @@ class _StudyResultScreenState extends State<StudyResultScreen> {
     }
 
     return totalCredits > 0 ? totalPoints / totalCredits : 0.0;
+  }
+
+  // Tính toán GPA tích lũy (cumulative GPA) từ tất cả các học kỳ
+  double get cumulativeGPA {
+    final provider = context.watch<AcademicProvider>();
+    final allGrades = provider.grades;
+
+    if (allGrades.isEmpty) return 0.0;
+
+    double totalPoints = 0;
+    num totalCredits = 0;
+
+    for (var subject in allGrades) {
+      final totalRaw = subject['diemTongKet'];
+      // Chỉ tính môn đã có điểm (không null)
+      if (totalRaw == null) continue;
+
+      final total = (totalRaw is num) ? totalRaw.toDouble() : 0.0;
+      final creditsRaw = subject['soTinChi'];
+      final credits = (creditsRaw is num) ? creditsRaw : 0;
+      totalPoints += total * credits;
+      totalCredits += credits;
+    }
+
+    return totalCredits > 0 ? totalPoints / totalCredits : 0.0;
+  }
+
+  // Chuyển đổi GPA từ hệ 10.0 sang hệ 4.0
+  double convertGPAto4Scale(double gpa10) {
+    if (gpa10 >= 8.5) return 4.0;
+    if (gpa10 >= 7.0) return 3.0 + (gpa10 - 7.0) / 1.5;
+    if (gpa10 >= 5.5) return 2.0 + (gpa10 - 5.5) / 1.5;
+    if (gpa10 >= 4.0) return 1.0 + (gpa10 - 4.0) / 1.5;
+    return 0.0;
   }
 
   @override
@@ -163,7 +200,7 @@ class _StudyResultScreenState extends State<StudyResultScreen> {
                       ),
                       SizedBox(height: 8),
                       Text(
-                        currentGPA.toStringAsFixed(2),
+                        cumulativeGPA.toStringAsFixed(2),
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 36,
@@ -201,7 +238,7 @@ class _StudyResultScreenState extends State<StudyResultScreen> {
                       ),
                       SizedBox(height: 8),
                       Text(
-                        '3.54',
+                        convertGPAto4Scale(cumulativeGPA).toStringAsFixed(2),
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 36,

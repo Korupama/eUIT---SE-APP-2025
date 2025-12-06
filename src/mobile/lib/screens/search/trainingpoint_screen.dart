@@ -24,8 +24,22 @@ class _TrainingPointScreenState extends State<TrainingPointScreen> {
 
   double get totalScore {
     if (semesterScores.isEmpty) return 0.0;
-    final total = semesterScores.fold(0.0, (sum, item) => sum + (item['tongDiem'] as num));
-    return total / semesterScores.length;
+
+    // Lọc các kỳ đã có điểm (tongDiem không null)
+    final validScores = semesterScores
+        .where((item) => item['tongDiem'] != null)
+        .toList();
+
+    if (validScores.isEmpty) return 0.0;
+
+    // Tính tổng điểm của các kỳ đã có điểm
+    final total = validScores.fold(0.0, (sum, item) {
+      final score = item['tongDiem'];
+      return sum + (score is num ? score.toDouble() : 0.0);
+    });
+
+    // Trả về điểm trung bình
+    return total / validScores.length;
   }
 
   @override

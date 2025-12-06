@@ -10,11 +10,14 @@ import '../models/appeal.dart';
 import '../models/document.dart';
 import '../models/exam_schedule.dart';
 import '../services/auth_service.dart';
+import '../services/api_client.dart';
 
 class LecturerProvider extends ChangeNotifier {
   final AuthService auth;
+  late final ApiClient _client;
 
   LecturerProvider({required this.auth}) {
+    _client = ApiClient(auth);
     _init();
   }
 
@@ -154,59 +157,6 @@ class LecturerProvider extends ChangeNotifier {
     ];
   }
 
-  // Helper method để tự động refresh token khi gặp 401
-  Future<http.Response?> _makeAuthenticatedRequest({
-    required Future<http.Response> Function(String token) requestFn,
-    int retryCount = 0,
-  }) async {
-    try {
-      final token = await auth.getToken();
-      if (token == null) {
-        developer.log('No token available', name: 'LecturerProvider');
-        return null;
-      }
-
-      // Make request with current token
-      final response = await requestFn(token);
-
-      // If 401 and haven't retried yet, try to refresh token
-      if (response.statusCode == 401 && retryCount == 0) {
-        developer.log(
-          'Got 401, attempting to refresh token',
-          name: 'LecturerProvider',
-        );
-
-        final newToken = await auth.refreshAccessToken();
-        if (newToken != null) {
-          developer.log(
-            'Token refreshed successfully, retrying request',
-            name: 'LecturerProvider',
-          );
-          // Retry with new token
-          return await _makeAuthenticatedRequest(
-            requestFn: requestFn,
-            retryCount: retryCount + 1,
-          );
-        } else {
-          developer.log(
-            'Token refresh failed, logging out',
-            name: 'LecturerProvider',
-          );
-          await auth.logout();
-          return null;
-        }
-      }
-
-      return response;
-    } catch (e) {
-      developer.log(
-        'Error in authenticated request: $e',
-        name: 'LecturerProvider',
-      );
-      return null;
-    }
-  }
-
 
 
   Future<void> fetchLecturerProfile() async {
@@ -215,24 +165,11 @@ class LecturerProvider extends ChangeNotifier {
 
     try {
       developer.log('Fetching lecturer profile...', name: 'LecturerProvider');
-      final uri = auth.buildUri('/api/lecturer/profile');
       
-      final res = await _makeAuthenticatedRequest(
-        requestFn: (token) => http.get(
-          uri,
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
-        ).timeout(const Duration(seconds: 10)),
-      );
-
-      if (res != null && res.statusCode == 200) {
+      final data = await _client.get('/api/lecturer/profile');
+      if (data != null) {
         developer.log('Lecturer profile fetched successfully', name: 'LecturerProvider');
-        final data = jsonDecode(res.body) as Map<String, dynamic>;
         _lecturerProfile = LecturerProfile.fromJson(data);
-      } else {
-        developer.log('Failed to fetch lecturer profile: ${res?.statusCode}', name: 'LecturerProvider');
       }
     } catch (e) {
       developer.log(
@@ -255,29 +192,16 @@ class LecturerProvider extends ChangeNotifier {
       
       developer.log('Schedule date range: $startDate to $endDate', name: 'LecturerProvider');
       
-      final queryParams = {
-        'startDate': startDate.toIso8601String(),
-        'endDate': endDate.toIso8601String(),
-      };
-      final uri = auth.buildUri('/api/lecturer/schedule').replace(queryParameters: queryParams);
-      
-      developer.log('Schedule API URL: $uri', name: 'LecturerProvider');
-      
-      final res = await _makeAuthenticatedRequest(
-        requestFn: (token) => http.get(
-          uri,
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
-        ).timeout(const Duration(seconds: 10)),
+      final data = await _client.get(
+        '/api/lecturer/schedule',
+        queryParameters: {
+          'startDate': startDate.toIso8601String(),
+          'endDate': endDate.toIso8601String(),
+        },
       );
 
-      if (res != null && res.statusCode == 200) {
+      if (data != null && data is List) {
         developer.log('Teaching schedule fetched successfully', name: 'LecturerProvider');
-        developer.log('Schedule response body: ${res.body}', name: 'LecturerProvider');
-        final data = jsonDecode(res.body) as List;
-        developer.log('Schedule data count: ${data.length}', name: 'LecturerProvider');
         _teachingSchedule = data
             .map((item) => TeachingScheduleItem.fromJson(item))
             .toList();
@@ -287,11 +211,6 @@ class LecturerProvider extends ChangeNotifier {
         // Find next class from schedule
         _findNextClass();
         notifyListeners();
-      } else {
-        developer.log('Failed to fetch teaching schedule: ${res?.statusCode}', name: 'LecturerProvider');
-        if (res != null) {
-          developer.log('Error response: ${res.body}', name: 'LecturerProvider');
-        }
       }
     } catch (e) {
       developer.log(
@@ -413,21 +332,11 @@ class LecturerProvider extends ChangeNotifier {
   Future<void> _fetchNotifications() async {
     try {
       developer.log('Fetching notifications...', name: 'LecturerProvider');
-      final uri = auth.buildUri('/api/lecturer/notifications');
       
-      final res = await _makeAuthenticatedRequest(
-        requestFn: (token) => http.get(
-          uri,
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
-        ).timeout(const Duration(seconds: 10)),
-      );
-
-      if (res != null && res.statusCode == 200) {
+      final data = await _client.get('/api/lecturer/notifications');
+      
+      if (data != null && data is List) {
         developer.log('Notifications fetched successfully', name: 'LecturerProvider');
-        final data = jsonDecode(res.body) as List;
         _notifications = data.map((item) {
           return NotificationItem(
             id: item['id']?.toString(),
@@ -438,8 +347,6 @@ class LecturerProvider extends ChangeNotifier {
           );
         }).toList();
         notifyListeners();
-      } else {
-        developer.log('Failed to fetch notifications: ${res?.statusCode}', name: 'LecturerProvider');
       }
     } catch (e) {
       developer.log(
@@ -455,41 +362,24 @@ class LecturerProvider extends ChangeNotifier {
 
     try {
       developer.log('Fetching teaching classes...', name: 'LecturerProvider');
-      // Get all classes without semester filter, or with specific semester if provided
-      final uri = semester != null && semester.isNotEmpty
-          ? auth.buildUri('/api/lecturer/courses?semester=$semester')
-          : auth.buildUri('/api/lecturer/courses');
       
-      _debugInfo = 'Calling: $uri';
-      notifyListeners();
-      developer.log('Classes API URL: $uri', name: 'LecturerProvider');
-      
-      final res = await _makeAuthenticatedRequest(
-        requestFn: (token) => http.get(
-          uri,
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
-        ).timeout(const Duration(seconds: 10)),
-      );
+      final Map<String, dynamic> queryParams = {};
+      if (semester != null && semester.isNotEmpty) {
+        queryParams['semester'] = semester;
+      }
 
-      if (res != null && res.statusCode == 200) {
+      _debugInfo = 'Calling classes API...';
+      notifyListeners();
+
+      final data = await _client.get('/api/lecturer/courses', queryParameters: queryParams);
+      
+      if (data != null && data is List) {
         developer.log('Teaching classes fetched successfully', name: 'LecturerProvider');
-        developer.log('Classes response body: ${res.body}', name: 'LecturerProvider');
-        final data = jsonDecode(res.body) as List;
         _teachingClasses = data
             .map((item) => TeachingClass.fromJson(item))
             .toList();
-        _debugInfo = 'Success: ${_teachingClasses.length} classes from ${res.body.length} bytes';
+        _debugInfo = 'Success: ${_teachingClasses.length} classes';
         developer.log('Found ${_teachingClasses.length} classes', name: 'LecturerProvider');
-        notifyListeners();
-      } else {
-        _debugInfo = 'Failed: Status ${res?.statusCode}, Body: ${res?.body}';
-        developer.log('Failed to fetch teaching classes: ${res?.statusCode}', name: 'LecturerProvider');
-        if (res != null) {
-          developer.log('Error response: ${res.body}', name: 'LecturerProvider');
-        }
         notifyListeners();
       }
     } catch (e) {
@@ -518,36 +408,20 @@ class LecturerProvider extends ChangeNotifier {
         final semester = '${yearParts[0]}_${yearParts[1]}_$semNum';
         developer.log('Fetching semester: $semester', name: 'LecturerProvider');
         
-        final uri = auth.buildUri('/api/lecturer/courses?semester=$semester');
-        developer.log('API URL: $uri', name: 'LecturerProvider');
-        
-        final res = await _makeAuthenticatedRequest(
-          requestFn: (token) => http.get(
-            uri,
-            headers: {
-              'Authorization': 'Bearer $token',
-              'Content-Type': 'application/json',
-            },
-          ).timeout(const Duration(seconds: 10)),
+        final data = await _client.get(
+          '/api/lecturer/courses',
+          queryParameters: {'semester': semester},
         );
 
-        if (res != null && res.statusCode == 200) {
-          developer.log('Response body: ${res.body}', name: 'LecturerProvider');
-          final data = jsonDecode(res.body) as List;
+        if (data != null && data is List) {
           final classes = data.map((item) => TeachingClass.fromJson(item)).toList();
           allClasses.addAll(classes);
           developer.log('Found ${classes.length} classes for $semester', name: 'LecturerProvider');
-        } else {
-          developer.log('API failed for $semester: ${res?.statusCode}', name: 'LecturerProvider');
-          if (res != null) {
-            developer.log('Error response: ${res.body}', name: 'LecturerProvider');
-          }
         }
       }
 
       _teachingClasses = allClasses;
       developer.log('Total classes fetched: ${_teachingClasses.length}', name: 'LecturerProvider');
-      notifyListeners();
     } catch (e) {
       developer.log('Error fetching classes for year: $e', name: 'LecturerProvider');
     } finally {
@@ -566,23 +440,13 @@ class LecturerProvider extends ChangeNotifier {
       // If no semester specified, use current semester (2025_2026_1)
       final semesterParam = semester ?? '2025_2026_1';
       
-      final uri = auth.buildUri('/api/lecturer/schedule?semester=$semesterParam');
-      
-      developer.log('Schedule API URL: $uri', name: 'LecturerProvider');
-      
-      final res = await _makeAuthenticatedRequest(
-        requestFn: (token) => http.get(
-          uri,
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
-        ).timeout(const Duration(seconds: 10)),
+      final data = await _client.get(
+        '/api/lecturer/schedule',
+        queryParameters: {'semester': semesterParam},
       );
 
-      if (res != null && res.statusCode == 200) {
+      if (data != null && data is List) {
         developer.log('Teaching schedule fetched successfully', name: 'LecturerProvider');
-        final data = jsonDecode(res.body) as List;
         _teachingSchedule = data
             .map((item) => TeachingScheduleItem.fromJson(item))
             .toList();
@@ -590,8 +454,6 @@ class LecturerProvider extends ChangeNotifier {
         
         // Find next class from schedule
         _findNextClass();
-      } else {
-        developer.log('Failed to fetch schedule: ${res?.statusCode}', name: 'LecturerProvider');
       }
     } catch (e) {
       developer.log('Error fetching schedule: $e', name: 'LecturerProvider');
@@ -611,39 +473,19 @@ class LecturerProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      var path = '/api/lecturer/appeals';
-      final queryParams = <String>[];
-      if (maMon != null && maMon.isNotEmpty) {
-        queryParams.add('course_id=$maMon');
-      }
-      if (nhom != null && nhom.isNotEmpty) queryParams.add('nhom=$nhom');
-      if (trangThai != null && trangThai.isNotEmpty) {
-        queryParams.add('status=$trangThai');
-      }
-      if (queryParams.isNotEmpty) {
-        path += '?${queryParams.join('&')}';
-      }
+      final queryParams = <String, dynamic>{};
+      if (maMon != null && maMon.isNotEmpty) queryParams['course_id'] = maMon;
+      if (nhom != null && nhom.isNotEmpty) queryParams['nhom'] = nhom;
+      if (trangThai != null && trangThai.isNotEmpty) queryParams['status'] = trangThai;
 
-      developer.log('Fetching appeals with path: $path', name: 'LecturerProvider');
-      final uri = auth.buildUri(path);
+      developer.log('Fetching appeals...', name: 'LecturerProvider');
       
-      final res = await _makeAuthenticatedRequest(
-        requestFn: (token) => http.get(
-          uri,
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
-        ).timeout(const Duration(seconds: 10)),
-      );
+      final data = await _client.get('/api/lecturer/appeals', queryParameters: queryParams);
 
-      if (res != null && res.statusCode == 200) {
+      if (data != null && data is List) {
         developer.log('Appeals fetched successfully', name: 'LecturerProvider');
-        final data = jsonDecode(res.body) as List;
         _appeals = data.map((item) => Appeal.fromJson(item)).toList();
         developer.log('Found ${_appeals.length} appeals', name: 'LecturerProvider');
-      } else {
-        developer.log('Failed to fetch appeals: ${res?.statusCode}', name: 'LecturerProvider');
       }
     } catch (e) {
       developer.log('Error fetching appeals: $e', name: 'LecturerProvider');
@@ -662,31 +504,18 @@ class LecturerProvider extends ChangeNotifier {
   }) async {
     try {
       developer.log('Handling appeal $appealId with action: $action', name: 'LecturerProvider');
-      final uri = auth.buildUri('/api/lecturer/appeals/$appealId');
       final body = {
         'status': action, // Backend expects 'status' not 'result'
         if (ghiChu != null) 'comment': ghiChu,
         // Note: Backend doesn't handle diemMoi in this endpoint
-        // Điểm mới sẽ được cập nhật qua grades endpoint sau khi approve
       };
 
-      final res = await _makeAuthenticatedRequest(
-        requestFn: (token) => http.put(
-          uri,
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
-          body: jsonEncode(body),
-        ).timeout(const Duration(seconds: 10)),
-      );
+      final res = await _client.put('/api/lecturer/appeals/$appealId', body: body);
 
-      if (res != null && res.statusCode == 200) {
+      if (res != null) {
         developer.log('Appeal handled successfully', name: 'LecturerProvider');
         // Refresh appeals list
         await fetchAppeals();
-      } else {
-        developer.log('Failed to handle appeal: ${res?.statusCode}', name: 'LecturerProvider');
       }
     } catch (e) {
       developer.log('Error handling appeal: $e', name: 'LecturerProvider');
@@ -699,38 +528,18 @@ class LecturerProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      var path = '/api/lecturer/materials';
-      final queryParams = <String>[];
-      if (maMon != null && maMon.isNotEmpty) {
-        queryParams.add('course_id=$maMon');
-      }
-      if (loaiTaiLieu != null && loaiTaiLieu.isNotEmpty) {
-        queryParams.add('type=$loaiTaiLieu');
-      }
-      if (queryParams.isNotEmpty) {
-        path += '?${queryParams.join('&')}';
-      }
+      final queryParams = <String, dynamic>{};
+      if (maMon != null && maMon.isNotEmpty) queryParams['course_id'] = maMon;
+      if (loaiTaiLieu != null && loaiTaiLieu.isNotEmpty) queryParams['type'] = loaiTaiLieu;
 
-      developer.log('Fetching documents with path: $path', name: 'LecturerProvider');
-      final uri = auth.buildUri(path);
+      developer.log('Fetching documents...', name: 'LecturerProvider');
       
-      final res = await _makeAuthenticatedRequest(
-        requestFn: (token) => http.get(
-          uri,
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
-        ).timeout(const Duration(seconds: 10)),
-      );
+      final data = await _client.get('/api/lecturer/materials', queryParameters: queryParams);
 
-      if (res != null && res.statusCode == 200) {
+      if (data != null && data is List) {
         developer.log('Documents fetched successfully', name: 'LecturerProvider');
-        final data = jsonDecode(res.body) as List;
         _documents = data.map((item) => Document.fromJson(item)).toList();
         developer.log('Found ${_documents.length} documents', name: 'LecturerProvider');
-      } else {
-        developer.log('Failed to fetch documents: ${res?.statusCode}', name: 'LecturerProvider');
       }
     } catch (e) {
       developer.log('Error fetching documents: $e', name: 'LecturerProvider');
@@ -744,7 +553,6 @@ class LecturerProvider extends ChangeNotifier {
   Future<void> uploadDocument(Document document) async {
     try {
       developer.log('Uploading document: ${document.tieuDe}', name: 'LecturerProvider');
-      final uri = auth.buildUri('/api/lecturer/materials');
       final body = {
         'tieuDe': document.tieuDe,
         'moTa': document.moTa,
@@ -752,23 +560,12 @@ class LecturerProvider extends ChangeNotifier {
         'loaiTaiLieu': document.loaiTaiLieu,
       };
 
-      final res = await _makeAuthenticatedRequest(
-        requestFn: (token) => http.post(
-          uri,
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
-          body: jsonEncode(body),
-        ).timeout(const Duration(seconds: 10)),
-      );
+      final res = await _client.post('/api/lecturer/materials', body: body);
 
-      if (res != null && (res.statusCode == 200 || res.statusCode == 201)) {
+      if (res != null) {
         developer.log('Document uploaded successfully', name: 'LecturerProvider');
         // Refresh documents list
         await fetchDocuments();
-      } else {
-        developer.log('Failed to upload document: ${res?.statusCode}', name: 'LecturerProvider');
       }
     } catch (e) {
       developer.log('Error uploading document: $e', name: 'LecturerProvider');
@@ -779,25 +576,12 @@ class LecturerProvider extends ChangeNotifier {
   Future<void> deleteDocument(String documentId) async {
     try {
       developer.log('Deleting document: $documentId', name: 'LecturerProvider');
-      final uri = auth.buildUri('/api/lecturer/materials/$documentId');
       
-      final res = await _makeAuthenticatedRequest(
-        requestFn: (token) => http.delete(
-          uri,
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
-        ).timeout(const Duration(seconds: 10)),
-      );
-
-      if (res != null && (res.statusCode == 200 || res.statusCode == 204)) {
-        developer.log('Document deleted successfully', name: 'LecturerProvider');
-        _documents.removeWhere((d) => d.id == documentId);
-        notifyListeners();
-      } else {
-        developer.log('Failed to delete document: ${res?.statusCode}', name: 'LecturerProvider');
-      }
+      await _client.delete('/api/lecturer/materials/$documentId');
+      
+      developer.log('Document deleted successfully', name: 'LecturerProvider');
+      _documents.removeWhere((d) => d.id == documentId);
+      notifyListeners();
     } catch (e) {
       developer.log('Error deleting document: $e', name: 'LecturerProvider');
     }
@@ -809,48 +593,25 @@ class LecturerProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      var path = '/api/lecturer/exams';
-      final queryParams = <String>[];
-      if (loaiThi != null && loaiThi.isNotEmpty) {
-        queryParams.add('loaiThi=$loaiThi');
-      }
-      if (vaiTro != null && vaiTro.isNotEmpty) {
-        queryParams.add('vaiTro=$vaiTro');
-      }
-      if (queryParams.isNotEmpty) {
-        path += '?${queryParams.join('&')}';
-      }
+      final queryParams = <String, dynamic>{};
+      if (loaiThi != null && loaiThi.isNotEmpty) queryParams['loaiThi'] = loaiThi;
+      if (vaiTro != null && vaiTro.isNotEmpty) queryParams['vaiTro'] = vaiTro;
 
-      developer.log('Fetching exam schedules with path: $path', name: 'LecturerProvider');
-      final uri = auth.buildUri(path);
+      developer.log('Fetching exam schedules...', name: 'LecturerProvider');
       
-      final res = await _makeAuthenticatedRequest(
-        requestFn: (token) => http.get(
-          uri,
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
-        ).timeout(const Duration(seconds: 10)),
-      );
+      final data = await _client.get('/api/lecturer/exams', queryParameters: queryParams);
 
-      if (res != null && res.statusCode == 200) {
+      if (data != null && data is List) {
         developer.log('Exam schedules fetched successfully', name: 'LecturerProvider');
-        final data = jsonDecode(res.body) as List;
         _examSchedules = data
             .map((item) => ExamSchedule.fromJson(item))
             .toList();
         // Sort by exam date
         _examSchedules.sort((a, b) => a.ngayThi.compareTo(b.ngayThi));
         developer.log('Found ${_examSchedules.length} exam schedules', name: 'LecturerProvider');
-      } else {
-        developer.log('Failed to fetch exam schedules: ${res?.statusCode}', name: 'LecturerProvider');
       }
     } catch (e) {
-      developer.log(
-        'Error fetching exam schedules: $e',
-        name: 'LecturerProvider',
-      );
+      developer.log('Error fetching exam schedules: $e', name: 'LecturerProvider');
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -869,31 +630,19 @@ class LecturerProvider extends ChangeNotifier {
   }) async {
     try {
       developer.log('Updating profile...', name: 'LecturerProvider');
-      final uri = auth.buildUri('/api/lecturer/profile');
       final body = {
         if (email != null) 'email': email,
         if (soDienThoai != null) 'phone': soDienThoai,
         if (diaChiThuongTru != null) 'address': diaChiThuongTru,
       };
 
-      final res = await _makeAuthenticatedRequest(
-        requestFn: (token) => http.put(
-          uri,
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
-          body: jsonEncode(body),
-        ).timeout(const Duration(seconds: 10)),
-      );
+      final res = await _client.put('/api/lecturer/profile', body: body);
 
-      if (res != null && res.statusCode == 200) {
+      if (res != null) {
         developer.log('Profile updated successfully', name: 'LecturerProvider');
         // Refresh profile
         await fetchLecturerProfile();
         return true;
-      } else {
-        developer.log('Failed to update profile: ${res?.statusCode}', name: 'LecturerProvider');
       }
       return false;
     } catch (e) {
@@ -906,24 +655,12 @@ class LecturerProvider extends ChangeNotifier {
   Future<TeachingClass?> fetchCourseDetail(String classCode) async {
     try {
       developer.log('Fetching course detail for $classCode...', name: 'LecturerProvider');
-      final uri = auth.buildUri('/api/lecturer/courses/$classCode');
       
-      final res = await _makeAuthenticatedRequest(
-        requestFn: (token) => http.get(
-          uri,
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
-        ).timeout(const Duration(seconds: 10)),
-      );
+      final data = await _client.get('/api/lecturer/courses/$classCode');
 
-      if (res != null && res.statusCode == 200) {
+      if (data != null && data is Map<String, dynamic>) {
         developer.log('Course detail fetched successfully', name: 'LecturerProvider');
-        final data = jsonDecode(res.body) as Map<String, dynamic>;
         return TeachingClass.fromJson(data);
-      } else {
-        developer.log('Failed to fetch course detail: ${res?.statusCode}', name: 'LecturerProvider');
       }
     } catch (e) {
       developer.log('Error fetching course detail: $e', name: 'LecturerProvider');
@@ -939,24 +676,11 @@ class LecturerProvider extends ChangeNotifier {
       if (courseId != null) queryParams['courseId'] = courseId;
       if (semester != null) queryParams['semester'] = semester;
       
-      final uri = auth.buildUri('/api/lecturer/grades').replace(queryParameters: queryParams);
-      
-      final res = await _makeAuthenticatedRequest(
-        requestFn: (token) => http.get(
-          uri,
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
-        ).timeout(const Duration(seconds: 10)),
-      );
+      final data = await _client.get('/api/lecturer/grades', queryParameters: queryParams);
 
-      if (res != null && res.statusCode == 200) {
+      if (data != null && data is List) {
         developer.log('Grades fetched successfully', name: 'LecturerProvider');
-        final data = jsonDecode(res.body) as List;
         return List<Map<String, dynamic>>.from(data);
-      } else {
-        developer.log('Failed to fetch grades: ${res?.statusCode}', name: 'LecturerProvider');
       }
     } catch (e) {
       developer.log('Error fetching grades: $e', name: 'LecturerProvider');
@@ -968,23 +692,12 @@ class LecturerProvider extends ChangeNotifier {
   Future<Map<String, dynamic>?> fetchStudentGrade(String mssv) async {
     try {
       developer.log('Fetching grade for student $mssv...', name: 'LecturerProvider');
-      final uri = auth.buildUri('/api/lecturer/grades/$mssv');
       
-      final res = await _makeAuthenticatedRequest(
-        requestFn: (token) => http.get(
-          uri,
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
-        ).timeout(const Duration(seconds: 10)),
-      );
+      final data = await _client.get('/api/lecturer/grades/$mssv');
 
-      if (res != null && res.statusCode == 200) {
+      if (data != null && data is Map<String, dynamic>) {
         developer.log('Student grade fetched successfully', name: 'LecturerProvider');
-        return jsonDecode(res.body) as Map<String, dynamic>;
-      } else {
-        developer.log('Failed to fetch student grade: ${res?.statusCode}', name: 'LecturerProvider');
+        return data;
       }
     } catch (e) {
       developer.log('Error fetching student grade: $e', name: 'LecturerProvider');
@@ -1002,7 +715,6 @@ class LecturerProvider extends ChangeNotifier {
   }) async {
     try {
       developer.log('Updating grade for student $mssv...', name: 'LecturerProvider');
-      final uri = auth.buildUri('/api/lecturer/grades/$mssv');
       final body = {
         'maLop': maLop,
         if (diemQuaTrinh != null) 'diemQuaTrinh': diemQuaTrinh,
@@ -1010,22 +722,11 @@ class LecturerProvider extends ChangeNotifier {
         if (diemCuoiKy != null) 'diemCuoiKy': diemCuoiKy,
       };
 
-      final res = await _makeAuthenticatedRequest(
-        requestFn: (token) => http.put(
-          uri,
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
-          body: jsonEncode(body),
-        ).timeout(const Duration(seconds: 10)),
-      );
+      final res = await _client.put('/api/lecturer/grades/$mssv', body: body);
 
-      if (res != null && res.statusCode == 200) {
+      if (res != null) {
         developer.log('Grade updated successfully', name: 'LecturerProvider');
         return true;
-      } else {
-        developer.log('Failed to update grade: ${res?.statusCode}', name: 'LecturerProvider');
       }
       return false;
     } catch (e) {
@@ -1038,23 +739,12 @@ class LecturerProvider extends ChangeNotifier {
   Future<Map<String, dynamic>?> fetchExamDetail(String maLop) async {
     try {
       developer.log('Fetching exam detail for class $maLop...', name: 'LecturerProvider');
-      final uri = auth.buildUri('/api/lecturer/exams/$maLop');
       
-      final res = await _makeAuthenticatedRequest(
-        requestFn: (token) => http.get(
-          uri,
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
-        ).timeout(const Duration(seconds: 10)),
-      );
+      final data = await _client.get('/api/lecturer/exams/$maLop');
 
-      if (res != null && res.statusCode == 200) {
+      if (data != null && data is Map<String, dynamic>) {
         developer.log('Exam detail fetched successfully', name: 'LecturerProvider');
-        return jsonDecode(res.body) as Map<String, dynamic>;
-      } else {
-        developer.log('Failed to fetch exam detail: ${res?.statusCode}', name: 'LecturerProvider');
+        return data;
       }
     } catch (e) {
       developer.log('Error fetching exam detail: $e', name: 'LecturerProvider');
@@ -1066,24 +756,12 @@ class LecturerProvider extends ChangeNotifier {
   Future<List<Map<String, dynamic>>> fetchExamStudents(String maLop) async {
     try {
       developer.log('Fetching exam students for class $maLop...', name: 'LecturerProvider');
-      final uri = auth.buildUri('/api/lecturer/exams/$maLop/students');
       
-      final res = await _makeAuthenticatedRequest(
-        requestFn: (token) => http.get(
-          uri,
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
-        ).timeout(const Duration(seconds: 10)),
-      );
+      final data = await _client.get('/api/lecturer/exams/$maLop/students');
 
-      if (res != null && res.statusCode == 200) {
+      if (data != null && data is List) {
         developer.log('Exam students fetched successfully', name: 'LecturerProvider');
-        final data = jsonDecode(res.body) as List;
         return List<Map<String, dynamic>>.from(data);
-      } else {
-        developer.log('Failed to fetch exam students: ${res?.statusCode}', name: 'LecturerProvider');
       }
     } catch (e) {
       developer.log('Error fetching exam students: $e', name: 'LecturerProvider');
@@ -1099,24 +777,11 @@ class LecturerProvider extends ChangeNotifier {
       if (studentId != null) queryParams['studentId'] = studentId;
       if (semester != null) queryParams['semester'] = semester;
       
-      final uri = auth.buildUri('/api/lecturer/tuition').replace(queryParameters: queryParams);
-      
-      final res = await _makeAuthenticatedRequest(
-        requestFn: (token) => http.get(
-          uri,
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
-        ).timeout(const Duration(seconds: 10)),
-      );
+      final data = await _client.get('/api/lecturer/tuition', queryParameters: queryParams);
 
-      if (res != null && res.statusCode == 200) {
+      if (data != null && data is List) {
         developer.log('Tuition info fetched successfully', name: 'LecturerProvider');
-        final data = jsonDecode(res.body) as List;
         return List<Map<String, dynamic>>.from(data);
-      } else {
-        developer.log('Failed to fetch tuition: ${res?.statusCode}', name: 'LecturerProvider');
       }
     } catch (e) {
       developer.log('Error fetching tuition: $e', name: 'LecturerProvider');
@@ -1128,19 +793,10 @@ class LecturerProvider extends ChangeNotifier {
   Future<bool> markNotificationAsRead(String notificationId) async {
     try {
       developer.log('Marking notification $notificationId as read...', name: 'LecturerProvider');
-      final uri = auth.buildUri('/api/lecturer/notifications/$notificationId/read');
       
-      final res = await _makeAuthenticatedRequest(
-        requestFn: (token) => http.put(
-          uri,
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
-        ).timeout(const Duration(seconds: 10)),
-      );
+      final res = await _client.put('/api/lecturer/notifications/$notificationId/read');
 
-      if (res != null && res.statusCode == 200) {
+      if (res != null) {
         developer.log('Notification marked as read', name: 'LecturerProvider');
         // Update local state
         final index = _notifications.indexWhere((n) => n.id == notificationId);
@@ -1158,8 +814,6 @@ class LecturerProvider extends ChangeNotifier {
           notifyListeners();
         }
         return true;
-      } else {
-        developer.log('Failed to mark notification as read: ${res?.statusCode}', name: 'LecturerProvider');
       }
       return false;
     } catch (e) {
@@ -1172,24 +826,12 @@ class LecturerProvider extends ChangeNotifier {
   Future<List<Map<String, dynamic>>> fetchAbsences() async {
     try {
       developer.log('Fetching absences...', name: 'LecturerProvider');
-      final uri = auth.buildUri('/api/lecturer/absences');
       
-      final res = await _makeAuthenticatedRequest(
-        requestFn: (token) => http.get(
-          uri,
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
-        ).timeout(const Duration(seconds: 10)),
-      );
+      final data = await _client.get('/api/lecturer/absences');
 
-      if (res != null && res.statusCode == 200) {
+      if (data != null && data is List) {
         developer.log('Absences fetched successfully', name: 'LecturerProvider');
-        final data = jsonDecode(res.body) as List;
         return List<Map<String, dynamic>>.from(data);
-      } else {
-        developer.log('Failed to fetch absences: ${res?.statusCode}', name: 'LecturerProvider');
       }
     } catch (e) {
       developer.log('Error fetching absences: $e', name: 'LecturerProvider');
@@ -1201,24 +843,12 @@ class LecturerProvider extends ChangeNotifier {
   Future<List<Map<String, dynamic>>> fetchMakeupClasses() async {
     try {
       developer.log('Fetching makeup classes...', name: 'LecturerProvider');
-      final uri = auth.buildUri('/api/lecturer/makeup-classes');
       
-      final res = await _makeAuthenticatedRequest(
-        requestFn: (token) => http.get(
-          uri,
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
-        ).timeout(const Duration(seconds: 10)),
-      );
+      final data = await _client.get('/api/lecturer/makeup-classes');
 
-      if (res != null && res.statusCode == 200) {
+      if (data != null && data is List) {
         developer.log('Makeup classes fetched successfully', name: 'LecturerProvider');
-        final data = jsonDecode(res.body) as List;
         return List<Map<String, dynamic>>.from(data);
-      } else {
-        developer.log('Failed to fetch makeup classes: ${res?.statusCode}', name: 'LecturerProvider');
       }
     } catch (e) {
       developer.log('Error fetching makeup classes: $e', name: 'LecturerProvider');
@@ -1230,23 +860,12 @@ class LecturerProvider extends ChangeNotifier {
   Future<Map<String, dynamic>?> fetchAppealDetail(int appealId) async {
     try {
       developer.log('Fetching appeal detail $appealId...', name: 'LecturerProvider');
-      final uri = auth.buildUri('/api/lecturer/appeals/$appealId');
       
-      final res = await _makeAuthenticatedRequest(
-        requestFn: (token) => http.get(
-          uri,
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
-        ).timeout(const Duration(seconds: 10)),
-      );
+      final data = await _client.get('/api/lecturer/appeals/$appealId');
 
-      if (res != null && res.statusCode == 200) {
+      if (data != null && data is Map<String, dynamic>) {
         developer.log('Appeal detail fetched successfully', name: 'LecturerProvider');
-        return jsonDecode(res.body) as Map<String, dynamic>;
-      } else {
-        developer.log('Failed to fetch appeal detail: ${res?.statusCode}', name: 'LecturerProvider');
+        return data;
       }
     } catch (e) {
       developer.log('Error fetching appeal detail: $e', name: 'LecturerProvider');
@@ -1262,30 +881,18 @@ class LecturerProvider extends ChangeNotifier {
   }) async {
     try {
       developer.log('Responding to appeal $appealId with status: $status', name: 'LecturerProvider');
-      final uri = auth.buildUri('/api/lecturer/appeals/$appealId');
       final body = {
         'status': status,
         if (comment != null && comment.isNotEmpty) 'comment': comment,
       };
 
-      final res = await _makeAuthenticatedRequest(
-        requestFn: (token) => http.put(
-          uri,
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
-          body: jsonEncode(body),
-        ).timeout(const Duration(seconds: 10)),
-      );
+      final res = await _client.put('/api/lecturer/appeals/$appealId', body: body);
 
-      if (res != null && res.statusCode == 200) {
+      if (res != null) {
         developer.log('Appeal response submitted successfully', name: 'LecturerProvider');
         // Refresh appeals list
         await fetchAppeals();
         return true;
-      } else {
-        developer.log('Failed to respond to appeal: ${res?.statusCode}', name: 'LecturerProvider');
       }
     } catch (e) {
       developer.log('Error responding to appeal: $e', name: 'LecturerProvider');
@@ -1301,29 +908,17 @@ class LecturerProvider extends ChangeNotifier {
   }) async {
     try {
       developer.log('Creating absence for class $maLop on $ngayNghi...', name: 'LecturerProvider');
-      final uri = auth.buildUri('/api/lecturer/absence');
       final body = {
         'maLop': maLop,
         'ngayNghi': ngayNghi.toIso8601String(),
         if (lyDo != null && lyDo.isNotEmpty) 'lyDo': lyDo,
       };
 
-      final res = await _makeAuthenticatedRequest(
-        requestFn: (token) => http.post(
-          uri,
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
-          body: jsonEncode(body),
-        ).timeout(const Duration(seconds: 10)),
-      );
+      final res = await _client.post('/api/lecturer/absence', body: body);
 
-      if (res != null && res.statusCode == 200) {
+      if (res != null) {
         developer.log('Absence created successfully', name: 'LecturerProvider');
         return true;
-      } else {
-        developer.log('Failed to create absence: ${res?.statusCode}', name: 'LecturerProvider');
       }
     } catch (e) {
       developer.log('Error creating absence: $e', name: 'LecturerProvider');
@@ -1342,7 +937,6 @@ class LecturerProvider extends ChangeNotifier {
   }) async {
     try {
       developer.log('Creating makeup class for $maLop on $ngayHocBu...', name: 'LecturerProvider');
-      final uri = auth.buildUri('/api/lecturer/makeup-class');
       final body = {
         'maLop': maLop,
         'ngayHocBu': ngayHocBu.toIso8601String(),
@@ -1352,22 +946,11 @@ class LecturerProvider extends ChangeNotifier {
         if (lyDo != null && lyDo.isNotEmpty) 'lyDo': lyDo,
       };
 
-      final res = await _makeAuthenticatedRequest(
-        requestFn: (token) => http.post(
-          uri,
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
-          body: jsonEncode(body),
-        ).timeout(const Duration(seconds: 10)),
-      );
+      final res = await _client.post('/api/lecturer/makeup-class', body: body);
 
-      if (res != null && res.statusCode == 200) {
+      if (res != null) {
         developer.log('Makeup class created successfully', name: 'LecturerProvider');
         return true;
-      } else {
-        developer.log('Failed to create makeup class: ${res?.statusCode}', name: 'LecturerProvider');
       }
     } catch (e) {
       developer.log('Error creating makeup class: $e', name: 'LecturerProvider');
@@ -1382,34 +965,20 @@ class LecturerProvider extends ChangeNotifier {
   }) async {
     try {
       developer.log('Creating confirmation letter for student $mssv...', name: 'LecturerProvider');
-      final uri = auth.buildUri('/api/lecturer/confirmation-letter');
       final body = {
         'mssv': mssv,
         'purpose': purpose,
       };
 
-      final res = await _makeAuthenticatedRequest(
-        requestFn: (token) => http.post(
-          uri,
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
-          body: jsonEncode(body),
-        ).timeout(const Duration(seconds: 10)),
-      );
+      final res = await _client.post('/api/lecturer/confirmation-letter', body: body);
 
-      if (res != null && res.statusCode == 200) {
+      if (res != null) {
         developer.log('Confirmation letter created successfully', name: 'LecturerProvider');
-        final data = jsonDecode(res.body) as Map<String, dynamic>;
-        return data;
-      } else {
-        developer.log('Failed to create confirmation letter: ${res?.statusCode}', name: 'LecturerProvider');
+        if (res is Map<String, dynamic>) return res;
       }
-      return null;
     } catch (e) {
       developer.log('Error creating confirmation letter: $e', name: 'LecturerProvider');
-      return null;
     }
+    return null;
   }
 }
