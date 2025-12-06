@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../providers/academic_provider.dart';
+import 'subject_detail_screen.dart';
+import 'package:mobile/models/grades_detail.dart';
 
 class StudyResultScreen extends StatefulWidget {
   const StudyResultScreen({super.key});
@@ -8,75 +12,52 @@ class StudyResultScreen extends StatefulWidget {
 }
 
 class _StudyResultScreenState extends State<StudyResultScreen> {
-  String selectedSemester = '{Học kỳ 2 - Năm học 2023-2024}';
+  String? selectedSemester;
+  List<String> semesters = [];
 
-  final List<String> semesters = [
-    '{Học kỳ 2 - Năm học 2023-2024}',
-    '{Học kỳ 1 - Năm học 2023-2024}',
-    '{Học kỳ 2 - Năm học 2022-2023}',
-    '{Học kỳ 1 - Năm học 2022-2023}',
-  ];
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final provider = context.read<AcademicProvider>();
+      await provider.fetchGradeDetails();
+      final details = provider.gradeDetails;
+      final semList = details?.semesters.map((s) => s.hocKy).toList() ?? [];
+      semList.sort((a, b) => b.compareTo(a));
+      setState(() {
+        semesters = semList;
+        selectedSemester = semesters.isNotEmpty ? semesters.first : null;
+      });
+    });
+  }
 
-  final Map<String, List<Map<String, dynamic>>> semesterData = {
-    '{Học kỳ 2 - Năm học 2023-2024}': [
-      {
-        'subject': '{Cấu trúc dữ liệu & Giải thuật}',
-        'credits': 4,
-        'midterm': 8.5,
-        'final': 9.0,
-        'total': 8.8,
-        'grade': 'A',
-      },
-      {
-        'subject': '{Toán cao cấp A2}',
-        'credits': 4,
-        'midterm': 8.0,
-        'final': 8.5,
-        'total': 8.3,
-        'grade': 'B+',
-      },
-      {
-        'subject': '{Tiếng Anh chuyên ngành}',
-        'credits': 3,
-        'midterm': 9.5,
-        'final': 9.0,
-        'total': 9.3,
-        'grade': 'A',
-      },
-    ],
-    '{Học kỳ 1 - Năm học 2023-2024}': [
-      {
-        'subject': '{Lập trình hướng đối tượng}',
-        'credits': 4,
-        'midterm': 8.0,
-        'final': 8.5,
-        'total': 8.3,
-        'grade': 'B+',
-      },
-      {
-        'subject': '{Cơ sở dữ liệu}',
-        'credits': 3,
-        'midterm': 9.0,
-        'final': 9.5,
-        'total': 9.3,
-        'grade': 'A',
-      },
-    ],
-  };
+  List<SubjectDetail> get currentGrades {
+    final provider = context.watch<AcademicProvider>();
+    if (selectedSemester == null) return [];
+    final sem = provider.gradeDetails?.semesters.firstWhere((s) => s.hocKy == selectedSemester, orElse: () => SemesterDetail(hocKy: '', semesterGpa: null, subjects: []));
+    return sem?.subjects ?? [];
+  }
 
   double get currentGPA {
-    final data = semesterData[selectedSemester] ?? [];
-    if (data.isEmpty) return 0.0;
+    final provider = context.watch<AcademicProvider>();
+    if (selectedSemester == null) return 0.0;
+    final sem = provider.gradeDetails?.semesters.firstWhere((s) => s.hocKy == selectedSemester, orElse: () => SemesterDetail(hocKy: '', semesterGpa: null, subjects: []));
+    return sem?.semesterGpa ?? 0.0;
+  }
 
-    double totalPoints = 0;
-    int totalCredits = 0;
+  // Tính toán GPA tích lũy (cumulative GPA) từ tất cả các học kỳ
+  double get cumulativeGPA {
+    final provider = context.watch<AcademicProvider>();
+    return provider.gradeDetails?.overallGpa ?? 0.0;
+  }
 
-    for (var subject in data) {
-      totalPoints += subject['total'] * subject['credits'];
-      totalCredits += subject['credits'] as int;
-    }
-
-    return totalCredits > 0 ? totalPoints / totalCredits : 0.0;
+  // Chuyển đổi GPA từ hệ 10.0 sang hệ 4.0
+  double convertGPAto4Scale(double gpa10) {
+    if (gpa10 >= 8.5) return 4.0;
+    if (gpa10 >= 7.0) return 3.0 + (gpa10 - 7.0) / 1.5;
+    if (gpa10 >= 5.5) return 2.0 + (gpa10 - 5.5) / 1.5;
+    if (gpa10 >= 4.0) return 1.0 + (gpa10 - 4.0) / 1.5;
+    return 0.0;
   }
 
   @override
@@ -185,7 +166,7 @@ class _StudyResultScreenState extends State<StudyResultScreen> {
                       ),
                       SizedBox(height: 8),
                       Text(
-                        '8.37',
+                        cumulativeGPA.toStringAsFixed(2),
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 36,
@@ -223,7 +204,7 @@ class _StudyResultScreenState extends State<StudyResultScreen> {
                       ),
                       SizedBox(height: 8),
                       Text(
-                        '3.54',
+                        convertGPAto4Scale(cumulativeGPA).toStringAsFixed(2),
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 36,
@@ -279,24 +260,14 @@ class _StudyResultScreenState extends State<StudyResultScreen> {
               child: DropdownButton<String>(
                 value: selectedSemester,
                 isExpanded: true,
-                dropdownColor: Color(0xFF1E293B),
-                icon: Icon(Icons.keyboard_arrow_down, color: Colors.white),
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 14,
-                ),
                 items: semesters.map((String semester) {
-                  return DropdownMenuItem<String>(
+                  return DropdownMenuItem(
                     value: semester,
                     child: Text(semester),
                   );
                 }).toList(),
-                onChanged: (String? newValue) {
-                  if (newValue != null) {
-                    setState(() {
-                      selectedSemester = newValue;
-                    });
-                  }
+                onChanged: (value) {
+                  setState(() => selectedSemester = value);
                 },
               ),
             ),
@@ -315,7 +286,7 @@ class _StudyResultScreenState extends State<StudyResultScreen> {
   }
 
   Widget _buildResultsTable() {
-    final data = semesterData[selectedSemester] ?? [];
+    final data = currentGrades;
 
     if (data.isEmpty) {
       return Container(
@@ -344,7 +315,7 @@ class _StudyResultScreenState extends State<StudyResultScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          selectedSemester,
+          selectedSemester ?? '',
           style: TextStyle(
             color: Colors.white,
             fontSize: 18,
@@ -356,82 +327,87 @@ class _StudyResultScreenState extends State<StudyResultScreen> {
         // Use ListView for better mobile experience
         ...data.asMap().entries.map((entry) {
           final subject = entry.value;
-
-          return Container(
-            margin: EdgeInsets.only(bottom: 12),
-            padding: EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Color(0xFF1E293B),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: Colors.white.withOpacity(0.1),
-                width: 1,
+          return InkWell(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => SubjectDetailScreen(subject: subject),
+                ),
+              );
+            },
+            child: Container(
+              margin: EdgeInsets.only(bottom: 12),
+              padding: EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Color(0xFF1E293B),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: Colors.white.withOpacity(0.1),
+                  width: 1,
+                ),
               ),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Subject name and grade
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        subject['subject'],
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          subject.tenMonHoc,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
-                    ),
-                    SizedBox(width: 12),
-                    Container(
-                      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: _getGradeColor(subject['grade']).withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        subject['grade'],
-                        style: TextStyle(
-                          color: _getGradeColor(subject['grade']),
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
+                      SizedBox(width: 12),
+                      Container(
+                        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: subject.diemTongKet == null
+                            ? Colors.white.withOpacity(0.2)
+                            : _getGradeColor(_calculateGrade(subject.diemTongKet)).withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          subject.diemTongKet == null
+                            ? '-'
+                            : _calculateGrade(subject.diemTongKet),
+                          style: TextStyle(
+                            color: subject.diemTongKet == null
+                              ? Colors.white
+                              : _getGradeColor(_calculateGrade(subject.diemTongKet)),
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
-                    ),
-                  ],
-                ),
-
-                SizedBox(height: 16),
-
-                // Scores grid
-                Row(
-                  children: [
-                    Expanded(
-                      child: _buildScoreItem('Tín chỉ', subject['credits'].toString()),
-                    ),
-                    Expanded(
-                      child: _buildScoreItem('Giữa kỳ', subject['midterm'].toString()),
-                    ),
-                  ],
-                ),
-
-                SizedBox(height: 12),
-
-                Row(
-                  children: [
-                    Expanded(
-                      child: _buildScoreItem('Cuối kỳ', subject['final'].toString()),
-                    ),
-                    Expanded(
-                      child: _buildScoreItem('Tổng kết', subject['total'].toString(),
-                          isHighlight: true),
-                    ),
-                  ],
-                ),
-              ],
+                      SizedBox(width: 6),
+                      Icon(Icons.chevron_right, color: Colors.white.withOpacity(0.7), size: 20),
+                    ],
+                  ),
+                  SizedBox(height: 16),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _buildScoreItem('Tín chỉ', subject.soTinChi?.toString() ?? '-'),
+                      ),
+                      Expanded(
+                        child: _buildScoreItem(
+                          'Tổng kết',
+                          subject.diemTongKet == null
+                            ? '-'
+                            : subject.diemTongKet!.toStringAsFixed(1),
+                          isHighlight: true,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           );
         }).toList(),
@@ -466,8 +442,9 @@ class _StudyResultScreenState extends State<StudyResultScreen> {
 
   Color _getGradeColor(String grade) {
     switch (grade) {
-      case 'A':
       case 'A+':
+        return Color(0xFFFFD700); // Yellow for A+
+      case 'A':
         return Color(0xFF10B981);
       case 'B+':
       case 'B':
@@ -481,5 +458,36 @@ class _StudyResultScreenState extends State<StudyResultScreen> {
       default:
         return Colors.white;
     }
+  }
+
+  String _calculateGrade(num? score) {
+    final s = (score ?? 0).toDouble();
+
+    if (s >= 9.0) return 'A+';
+    if (s >= 8.0) return 'A';
+    if (s >= 7.0) return 'B+';
+    if (s >= 6.0) return 'B';
+    if (s >= 5.0) return 'C';
+    if (s >= 4.0) return 'D+';
+    if (s >= 3.0) return 'D';
+    return 'F';
+  }
+
+
+  double _parseScore(dynamic value) {
+    if (value == null) return 0.0;
+    if (value is num) return value.toDouble();
+    if (value is String) {
+      final parsed = double.tryParse(value);
+      return parsed ?? 0.0;
+    }
+    return 0.0;
+  }
+
+  String _trimSubjectCode(String? code) {
+    if (code == null) return '';
+    // Giả sử mã môn học có định dạng như sau: "MATH101 - Giải tích 1"
+    final parts = code.split(' - ');
+    return parts.isNotEmpty ? parts.first : '';
   }
 }

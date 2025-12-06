@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../providers/academic_provider.dart';
 
 class TrainingPointScreen extends StatefulWidget {
   const TrainingPointScreen({super.key});
@@ -8,24 +10,37 @@ class TrainingPointScreen extends StatefulWidget {
 }
 
 class _TrainingPointScreenState extends State<TrainingPointScreen> {
-  final List<Map<String, dynamic>> semesterScores = [
-    {
-      'semester': '{Học kỳ 1 - 2023-2024}',
-      'score': 85,
-    },
-    {
-      'semester': '{Học kỳ 2 - 2023-2024}',
-      'score': 92,
-    },
-    {
-      'semester': '{Học kỳ 1 - 2022-2023}',
-      'score': 88,
-    },
-    {
-      'semester': '{Học kỳ 2 - 2022-2023}',
-      'score': 90,
-    },
-  ];
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<AcademicProvider>().fetchTrainingPoints();
+    });
+  }
+
+  List<Map<String, dynamic>> get semesterScores {
+    return context.watch<AcademicProvider>().trainingPoints;
+  }
+
+  double get totalScore {
+    if (semesterScores.isEmpty) return 0.0;
+
+    // Lọc các kỳ đã có điểm (tongDiem không null)
+    final validScores = semesterScores
+        .where((item) => item['tongDiem'] != null)
+        .toList();
+
+    if (validScores.isEmpty) return 0.0;
+
+    // Tính tổng điểm của các kỳ đã có điểm
+    final total = validScores.fold(0.0, (sum, item) {
+      final score = item['tongDiem'];
+      return sum + (score is num ? score.toDouble() : 0.0);
+    });
+
+    // Trả về điểm trung bình
+    return total / validScores.length;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -120,7 +135,7 @@ class _TrainingPointScreenState extends State<TrainingPointScreen> {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
-                      '88.5',
+                      totalScore.toStringAsFixed(1),
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 48,
@@ -181,7 +196,7 @@ class _TrainingPointScreenState extends State<TrainingPointScreen> {
 
             return Column(
               children: [
-                _buildSemesterItem(item['semester'], item['score']),
+                _buildSemesterItem(item),
                 if (!isLast)
                   Padding(
                     padding: EdgeInsets.symmetric(vertical: 16),
@@ -198,18 +213,36 @@ class _TrainingPointScreenState extends State<TrainingPointScreen> {
     );
   }
 
-  Widget _buildSemesterItem(String semester, int score) {
-    Color scoreColor = _getScoreColor(score);
+  Widget _buildSemesterItem(Map<String, dynamic> item) {
+    final semester = item['hocKy'] ?? 'Unknown';
+    final scoreRaw = item['tongDiem'];
+    final score = _parseScore(scoreRaw);
+    final ranking = item['xepLoai'] ?? 'Unknown';
+    Color scoreColor = _getScoreColor(score.toInt());
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
-          semester,
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 15,
-            fontWeight: FontWeight.w500,
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                semester,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              Text(
+                ranking,
+                style: TextStyle(
+                  color: Colors.white.withOpacity(0.6),
+                  fontSize: 12,
+                ),
+              ),
+            ],
           ),
         ),
         Container(
@@ -223,9 +256,9 @@ class _TrainingPointScreenState extends State<TrainingPointScreen> {
             ),
           ),
           child: Text(
-            score.toString(),
+            scoreRaw == null ? 'chưa có điểm' : score.toStringAsFixed(1),
             style: TextStyle(
-              color: scoreColor,
+              color: scoreRaw == null ? Colors.white : scoreColor,
               fontSize: 18,
               fontWeight: FontWeight.bold,
             ),
@@ -281,6 +314,16 @@ class _TrainingPointScreenState extends State<TrainingPointScreen> {
         ],
       ),
     );
+  }
+
+  double _parseScore(dynamic value) {
+    if (value == null) return 0.0;
+    if (value is num) return value.toDouble();
+    if (value is String) {
+      final parsed = double.tryParse(value);
+      return parsed ?? 0.0;
+    }
+    return 0.0;
   }
 
   Color _getScoreColor(int score) {

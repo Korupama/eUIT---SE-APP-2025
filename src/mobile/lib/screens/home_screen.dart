@@ -7,10 +7,16 @@ import '../theme/app_theme.dart';
 import '../utils/app_localizations.dart';
 import 'package:shimmer/shimmer.dart';
 import '../widgets/student_id_card.dart';
+import '../screens/search/studyresult_screen.dart';
+import '../screens/search/tuition_screen.dart';
+import '../screens/parking_monthly_screen.dart';
+import '../screens/student_confirmation_screen.dart';
+import '../screens/certificate_confirmation_screen.dart';
 
 /// HomeScreen - Trang chủ Light Theme với bố cục mới
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  final void Function(int)? onSelectPage;
+  const HomeScreen({Key? key, this.onSelectPage}) : super(key: key);
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -466,21 +472,21 @@ class _HomeScreenState extends State<HomeScreen>
       spacing: 12,
       runSpacing: 16,
       children: actions.asMap().entries.map((entry) {
-        return _buildSquircleActionButton(entry.value, isDark, entry.key);
+        return _buildSquircleActionButton(entry.value, isDark, entry.key, widget.onSelectPage);
       }).toList(),
     );
   }
 
-  Widget _buildSquircleActionButton(dynamic action, bool isDark, int index) {
+  Widget _buildSquircleActionButton(dynamic action, bool isDark, int index, void Function(int)? onSelectPage) {
     // Định nghĩa gradients cho từng action
     final gradients = [
-      [const Color(0xFF4D7FFF), const Color(0xFF2F6BFF)], // Thẻ SV - Xanh dương
-      [const Color(0xFF60A5FA), const Color(0xFF3B82F6)], // Kết quả - Xanh nhạt
-      [const Color(0xFFA855F7), const Color(0xFF9333EA)], // TKB - Tím
-      [const Color(0xFF22C55E), const Color(0xFF16A34A)], // Học phí - Xanh lá
-      [const Color(0xFFF97316), const Color(0xFFEA580C)], // Gửi xe - Cam
-      [const Color(0xFFEC4899), const Color(0xFFDB2777)], // Phúc khảo - Hồng
-      [const Color(0xFF06B6D4), const Color(0xFF0891B2)], // GXN - Xanh lam
+      [const Color(0xFF4D7FFF), const Color(0xFF2F6BFF)], // Kết quả - Xanh dương
+      [const Color(0xFF60A5FA), const Color(0xFF3B82F6)], // TKB - Xanh nhạt
+      [const Color(0xFFA855F7), const Color(0xFF9333EA)], // Học phí - Tím
+      [const Color(0xFF22C55E), const Color(0xFF16A34A)], // Gửi xe - Xanh lá
+      [const Color(0xFFF97316), const Color(0xFFEA580C)], // Phúc khảo - Cam
+      [const Color(0xFFEC4899), const Color(0xFFDB2777)], // GXN - Hồng
+      [const Color(0xFF06B6D4), const Color(0xFF0891B2)], // Confirmation - Xanh lam
       [
         const Color(0xFF14B8A6),
         const Color(0xFF0D9488),
@@ -526,6 +532,34 @@ class _HomeScreenState extends State<HomeScreen>
           // Squircle button
           GestureDetector(
             onTap: () {
+              if (index == 1) { // Schedule action
+                onSelectPage?.call(3);
+              } else if (index == 0) { // Study Result
+                Navigator.push(context, MaterialPageRoute(builder: (_) => const StudyResultScreen()));
+              } else if (index == 2) { // Tuition
+                Navigator.push(context, MaterialPageRoute(builder: (_) => const TuitionScreen()));
+              } else if (index == 3) { // Parking
+                Navigator.push(context, MaterialPageRoute(builder: (_) => const ParkingMonthlyScreen()));
+              } else if (index == 5) { // Student Confirmation
+                Navigator.push(context, MaterialPageRoute(builder: (_) => const StudentConfirmationScreen()));
+              } else if (index == 7) { // Certificate Confirmation
+                Navigator.push(context, MaterialPageRoute(builder: (_) => const CertificateConfirmationScreen()));
+              } else {
+                // Show dialog for other actions
+                showDialog(
+                  context: context,
+                  builder: (ctx) => AlertDialog(
+                    title: const Text('Chức năng đang phát triển'),
+                    content: Text(action.label),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.of(ctx).pop(),
+                        child: const Text('Đóng'),
+                      ),
+                    ],
+                  ),
+                );
+              }
             },
             child: Container(
               width: 64,

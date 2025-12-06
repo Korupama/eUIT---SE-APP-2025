@@ -2,6 +2,11 @@ import 'package:flutter/material.dart';
 import 'add_schedule_modal.dart'; // Import modal file
 import 'schedule_item.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+import 'package:provider/provider.dart';
+import '../../models/schedule_models.dart';
+import '../../providers/schedule_provider.dart';
+import '../../utils/app_localizations.dart';
+import 'dart:developer' as developer;
 
 class ScheduleMainScreen extends StatefulWidget {
   const ScheduleMainScreen({Key? key}) : super(key: key);
@@ -11,9 +16,12 @@ class ScheduleMainScreen extends StatefulWidget {
 }
 
 class _ScheduleMainScreenState extends State<ScheduleMainScreen> {
-  DateTime currentWeekStart = DateTime(2025, 11, 24); // Monday of the week (31 Sep doesn't exist, so week starts Sep 29)
-  int selectedDay = 3; // Day of October (T4 - Thursday)
+  DateTime currentWeekStart = DateTime.now().subtract(Duration(days: DateTime.now().weekday - 1)); // Monday of the current week
+  int selectedDay = DateTime.now().day; // Today's day
   int selectedTab = 0; // 0: Lên lớp, 1: Kiểm tra, 2: Cá nhân
+
+  // Local personal events stored until backend confirms
+  final Map<String, List<ScheduleItem>> _personalEvents = {}; // keyed by 'yyyy-M-d'
 
   // Lấy ngày hôm nay
   DateTime get today {
@@ -34,47 +42,19 @@ class _ScheduleMainScreenState extends State<ScheduleMainScreen> {
         currentWeekStart.day == todayWeekStart.day;
   }
 
-  // Sample schedule data
-  final Map<String, List<ScheduleItem>> scheduleData = {
-    '2025-12-5': [
-      ScheduleItem(
-        startTime: '{start_time}',
-        endTime: '{end_time}',
-        subject: '{subject_name}',
-        room: '{room}',
-        type: 'class',
-        teacher: '{lecturer_name}', // Thêm tên giảng viên
-      ),
-      ScheduleItem(
-        startTime: '{start_time}',
-        endTime: '{end_time}',
-        subject: '{subject_name}',
-        room: '{room}',
-        type: 'class',
-        teacher: '{lecturer_name}', // Thêm tên giảng viên
-      ),
-    ],
-    '2025-12-6': [
-      ScheduleItem(
-        startTime: '{start_time}',
-        endTime: '{end_time}',
-        subject: '{subject_name}',
-        room: '{room}',
-        type: 'class',
-        teacher: '{lecturer_name}', // Thêm tên giảng viên
-      ),
-    ],
-    '2025-12-7': [
-      ScheduleItem(
-        startTime: '{start_time}',
-        endTime: '{end_time}',
-        subject: '{subject_name}',
-        room: '{room}',
-        type: 'class',
-        teacher: '{lecturer_name}', // Thêm tên giảng viên
-      ),
-    ],
-  };
+  @override
+  void initState() {
+    super.initState();
+    // Auto-set to today's week and day on open
+    currentWeekStart = todayWeekStart;
+    selectedDay = today.day;
+    // Fetch schedule/exams when screen loads using ScheduleProvider
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final provider = context.read<ScheduleProvider>();
+      provider.fetchClasses(viewMode: 'week');
+      provider.fetchExams();
+    });
+  }
 
   void changeWeek(int delta) {
     DateTime newWeek = currentWeekStart.add(Duration(days: 7 * delta));
@@ -97,19 +77,102 @@ class _ScheduleMainScreenState extends State<ScheduleMainScreen> {
     });
   }
 
-  void _addNewSchedule(ScheduleItem item) {
+  void _addNewSchedule(ScheduleItem item) async {
+    // Convert selected day to a DateTime
     List<DayInfo> weekDays = _getWeekDays();
     DayInfo selected = weekDays.firstWhere((d) => d.day == selectedDay);
+    final date = selected.date;
+    final key = '${date.year}-${date.month}-${date.day}';
 
-    String key = "${selected.date.year}-${selected.date.month}-${selected.date.day}";
+    // Create a minimal PersonalEventRequest using selected date (09:00) as time
+    final provider = context.read<ScheduleProvider>();
+    final eventTime = DateTime(date.year, date.month, date.day, 9, 0);
+    final personalReq = PersonalEventRequest(
+      eventName: item.subject,
+      time: eventTime,
+      location: item.room,
+      description: item.teacher,
+    );
 
-    if (!scheduleData.containsKey(key)) {
-      scheduleData[key] = [];
+    final resp = await provider.createPersonalEvent(personalReq);
+    if (resp != null && resp.success && resp.event != null) {
+      // Use local cache keyed by date
+      _personalEvents.putIfAbsent(key, () => []);
+      _personalEvents[key]!.add(item);
+      setState(() {});
+    } else {
+      // Fallback: still add locally so user sees the created item; backend may sync later
+      _personalEvents.putIfAbsent(key, () => []);
+      _personalEvents[key]!.add(item);
+      setState(() {});
+    }
+  }
+
+  List<ScheduleItem> _getClassesExamsAndPersonalForDate(DateTime date) {
+    final provider = context.read<ScheduleProvider>();
+    final List<ScheduleItem> results = [];
+
+    // Classes from API
+    final classes = provider.schedule?.classes ?? [];
+    for (final c in classes) {
+      if (_isClassOnDate(c, date)) {
+        results.add(ScheduleItem(
+          startTime: c.tietBatDau != null ? 'Tiết ${c.tietBatDau}' : '-',
+          endTime: c.tietKetThuc != null ? 'Tiết ${c.tietKetThuc}' : '-',
+          subject: c.tenMonHoc,
+          room: c.phongHoc ?? 'N/A',
+          type: 'class',
+          teacher: c.tenGiangVien,
+        ));
+      }
     }
 
-    setState(() {
-      scheduleData[key]!.add(item);
-    });
+    // Exams from API
+    final exams = provider.exams?.exams ?? [];
+    for (final e in exams) {
+      if (_isSameDay(e.ngayThi, date)) {
+        results.add(ScheduleItem(
+          startTime: e.caThi,
+          endTime: '',
+          subject: e.tenMonHoc,
+          room: e.phongThi ?? 'N/A',
+          type: 'exam',
+          teacher: e.tenGiangVien,
+        ));
+      }
+    }
+
+    // Local personal events
+    final key = '${date.year}-${date.month}-${date.day}';
+    if (_personalEvents.containsKey(key)) {
+      results.addAll(_personalEvents[key]!);
+    }
+
+    // Sort by startTime heuristic (class tiet or exam time string)
+    return results;
+  }
+
+  bool _isClassOnDate(ScheduleClass s, DateTime date) {
+    // Ignore if tietBatDau is null or thu is '*'
+    if (s.tietBatDau == null || s.thu == '*') return false;
+    if (s.ngayBatDau == null || s.ngayKetThuc == null) return false;
+    if (date.isBefore(s.ngayBatDau!) || date.isAfter(s.ngayKetThuc!)) return false;
+    // Backend uses '2'->Monday ... '8'->Sunday. DateTime.weekday: Monday=1..Sunday=7
+    final thuNum = int.tryParse(s.thu ?? '0');
+    if (thuNum == null) return false;
+    final expectedWeekday = thuNum - 1; // 2->1 (Monday)
+    if (expectedWeekday != date.weekday) return false;
+    // Calculate weekIndex from ngayBatDau
+    final daysDiff = date.difference(s.ngayBatDau!).inDays;
+    final weekIndex = (daysDiff / 7).floor() + 1;
+    final cachTuan = s.cachTuan ?? 0;
+    if (cachTuan == 2 && (weekIndex - 1) % 2 != 0) return false; // every 2 weeks, start from ngayBatDau
+    // cachTuan=1 or 0: every week
+    return true;
+  }
+
+  bool _isSameDay(DateTime a, DateTime b) {
+    return a.year == b.year && a.month == b.month && a.day == b.day;
   }
 
   String getMonthYearDisplay() {
@@ -156,23 +219,14 @@ class _ScheduleMainScreenState extends State<ScheduleMainScreen> {
   }
 
   List<ScheduleItem> getScheduleForSelectedDay() {
-    List<DayInfo> weekDays = _getWeekDays();
-    DayInfo? selectedDayInfo = weekDays.firstWhere(
-          (day) => day.day == selectedDay,
-      orElse: () => weekDays[0],
-    );
+    final weekDays = _getWeekDays();
+    final selectedDayInfo = weekDays.firstWhere((d) => d.day == selectedDay, orElse: () => weekDays[0]);
+    final date = selectedDayInfo.date;
+    final all = _getClassesExamsAndPersonalForDate(date);
 
-    String key = '${selectedDayInfo.date.year}-${selectedDayInfo.date.month}-${selectedDayInfo.date.day}';
-    List<ScheduleItem> items = scheduleData[key] ?? [];
-
-    // Lọc theo tab
-    if (selectedTab == 0) {
-      return items.where((item) => item.type == 'class').toList();
-    } else if (selectedTab == 1) {
-      return items.where((item) => item.type == 'exam').toList();
-    } else {
-      return items.where((item) => item.type == 'personal').toList();
-    }
+    if (selectedTab == 0) return all.where((i) => i.type == 'class').toList();
+    if (selectedTab == 1) return all.where((i) => i.type == 'exam').toList();
+    return all.where((i) => i.type == 'personal').toList();
   }
 
   String getEmptyMessage() {
@@ -386,6 +440,16 @@ class _ScheduleMainScreenState extends State<ScheduleMainScreen> {
             ),
           ],
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          await showDialog<void>(
+            context: context,
+            builder: (_) => AddScheduleModal(onSave: (item) => _addNewSchedule(item)),
+          );
+        },
+        backgroundColor: const Color(0xFF4FFFED),
+        child: const Icon(Icons.add, color: Colors.black),
       ),
     );
   }

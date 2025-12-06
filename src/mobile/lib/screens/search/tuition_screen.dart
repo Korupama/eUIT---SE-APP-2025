@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../providers/academic_provider.dart';
 
 class TuitionScreen extends StatefulWidget {
   const TuitionScreen({super.key});
@@ -8,42 +10,28 @@ class TuitionScreen extends StatefulWidget {
 }
 
 class _TuitionScreenState extends State<TuitionScreen> {
-  final List<Map<String, dynamic>> tuitionHistory = [
-    {
-      'semester': '{Học kỳ 2 2023-2024}',
-      'amount': '{15.000.000 đ}',
-      'deadline': '{2024-08-01}',
-      'status': 'unpaid', // unpaid or paid
-    },
-    {
-      'semester': '{Học kỳ 1 2023-2024}',
-      'amount': '{15.000.000 }',
-      'deadline': '{2024-02-01}',
-      'status': 'paid',
-    },
-    {
-      'semester': '{Học kỳ 2 2022-2023}',
-      'amount': '{14.500.000 đ}',
-      'deadline': '{2023-08-01}',
-      'status': 'paid',
-    },
-    {
-      'semester': '{Học kỳ 1 2022-2023}',
-      'amount': '{14.500.000 đ}',
-      'deadline': '{2023-02-01}',
-      'status': 'paid',
-    },
-  ];
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<AcademicProvider>().fetchTuition();
+    });
+  }
 
-  int get totalUnpaid {
-    int total = 0;
-    for (var item in tuitionHistory) {
-      if (item['status'] == 'unpaid') {
-        String amount = item['amount'].replaceAll(RegExp(r'[^\d]'), '');
-        total += int.parse(amount);
-      }
+  Map<String, dynamic>? get tuitionData {
+    return context.watch<AcademicProvider>().tuition;
+  }
+
+  int get totalFee => tuitionData?['tongHocPhi'] ?? 0;
+  int get totalPaid => tuitionData?['tongDaDong'] ?? 0;
+  int get totalUnpaid => tuitionData?['tongConLai'] ?? 0;
+
+  List<Map<String, dynamic>> get tuitionHistory {
+    final list = tuitionData?['chiTietHocPhi'];
+    if (list is List) {
+      return list.whereType<Map<String, dynamic>>().toList();
     }
-    return total;
+    return [];
   }
 
   @override
@@ -109,58 +97,67 @@ class _TuitionScreenState extends State<TuitionScreen> {
           width: 1,
         ),
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Icon
-          Container(
-            padding: EdgeInsets.all(14),
-            decoration: BoxDecoration(
-              color: Color(0xFFEF4444).withOpacity(0.2),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(
-              Icons.account_balance_wallet_outlined,
-              color: Color(0xFFEF4444),
-              size: 28,
-            ),
-          ),
-
-          SizedBox(width: 16),
-
-          // Info
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Số dư hiện tại',
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(0.6),
-                    fontSize: 13,
-                    fontWeight: FontWeight.w500,
-                  ),
+          Row(
+            children: [
+              Container(
+                padding: EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: Color(0xFFEF4444).withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                SizedBox(height: 6),
-                Text(
-                  'Cần thanh toán ${_formatCurrency(totalUnpaid)}',
-                  style: TextStyle(
-                    color: Color(0xFFEF4444),
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    height: 1.2,
-                  ),
+                child: Icon(
+                  Icons.account_balance_wallet_outlined,
+                  color: Color(0xFFEF4444),
+                  size: 28,
                 ),
-                SizedBox(height: 4),
-                Text(
-                  'Vui lòng thanh toán các khoản phí chưa hoàn thành trước hạn.',
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(0.5),
-                    fontSize: 12,
-                    height: 1.4,
-                  ),
+              ),
+              SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Tổng học phí',
+                      style: TextStyle(
+                        color: Colors.white.withOpacity(0.6),
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    SizedBox(height: 4),
+                    Text(
+                      _formatCurrency(totalFee),
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Icon(Icons.check_circle, color: Color(0xFF10B981), size: 16),
+                        SizedBox(width: 4),
+                        Text('Đã đóng: ', style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 13)),
+                        Text(_formatCurrency(totalPaid), style: TextStyle(color: Color(0xFF10B981), fontWeight: FontWeight.bold, fontSize: 13)),
+                      ],
+                    ),
+                    SizedBox(height: 4),
+                    Row(
+                      children: [
+                        Icon(Icons.warning_amber_rounded, color: Color(0xFFEF4444), size: 16),
+                        SizedBox(width: 4),
+                        Text('Còn lại: ', style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 13)),
+                        Text(_formatCurrency(totalUnpaid), style: TextStyle(color: Color(0xFFEF4444), fontWeight: FontWeight.bold, fontSize: 13)),
+                      ],
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ],
       ),
@@ -168,6 +165,23 @@ class _TuitionScreenState extends State<TuitionScreen> {
   }
 
   Widget _buildTuitionHistoryTable() {
+    final history = tuitionHistory;
+    if (history.isEmpty) {
+      return Container(
+        padding: EdgeInsets.all(32),
+        decoration: BoxDecoration(
+          color: Color(0xFF1E293B),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: Colors.white.withOpacity(0.1),
+            width: 1,
+          ),
+        ),
+        child: Center(
+          child: Text('Chưa có dữ liệu học phí', style: TextStyle(color: Colors.white.withOpacity(0.5))),
+        ),
+      );
+    }
     return Container(
       decoration: BoxDecoration(
         color: Color(0xFF1E293B),
@@ -192,84 +206,20 @@ class _TuitionScreenState extends State<TuitionScreen> {
             ),
             child: Row(
               children: [
-                Expanded(
-                  flex: 2,
-                  child: Text(
-                    'HỌC KỲ',
-                    style: TextStyle(
-                      color: Colors.white.withOpacity(0.6),
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: 0.5,
-                    ),
-                  ),
-                ),
-                Expanded(
-                  flex: 3,
-                  child: Text(
-                    'SỐ TIỀN',
-                    style: TextStyle(
-                      color: Colors.white.withOpacity(0.6),
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: 0.5,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-                Expanded(
-                  flex: 2,
-                  child: Text(
-                    'HẠN CHÓT',
-                    style: TextStyle(
-                      color: Colors.white.withOpacity(0.6),
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: 0.5,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-                Expanded(
-                  flex: 2,
-                  child: Text(
-                    'TRẠNG THÁI',
-                    style: TextStyle(
-                      color: Colors.white.withOpacity(0.6),
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: 0.5,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-                Expanded(
-                  flex: 2,
-                  child: Text(
-                    'HÀNH ĐỘNG',
-                    style: TextStyle(
-                      color: Colors.white.withOpacity(0.6),
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: 0.5,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
+                Expanded(flex: 2, child: Text('HỌC KỲ', style: TextStyle(color: Colors.white.withOpacity(0.6), fontSize: 11, fontWeight: FontWeight.w600, letterSpacing: 0.5))),
+                Expanded(flex: 2, child: Text('TÍN CHỈ', style: TextStyle(color: Colors.white.withOpacity(0.6), fontSize: 11, fontWeight: FontWeight.w600, letterSpacing: 0.5), textAlign: TextAlign.center)),
+                Expanded(flex: 3, child: Text('HỌC PHÍ', style: TextStyle(color: Colors.white.withOpacity(0.6), fontSize: 11, fontWeight: FontWeight.w600, letterSpacing: 0.5), textAlign: TextAlign.center)),
+                Expanded(flex: 3, child: Text('ĐÃ ĐÓNG', style: TextStyle(color: Colors.white.withOpacity(0.6), fontSize: 11, fontWeight: FontWeight.w600, letterSpacing: 0.5), textAlign: TextAlign.center)),
+                Expanded(flex: 3, child: Text('CÒN LẠI', style: TextStyle(color: Colors.white.withOpacity(0.6), fontSize: 11, fontWeight: FontWeight.w600, letterSpacing: 0.5), textAlign: TextAlign.center)),
               ],
             ),
           ),
-
-          // Table Rows
-          ...tuitionHistory.asMap().entries.map((entry) {
-            final index = entry.key;
+          ...history.asMap().entries.map((entry) {
             final item = entry.value;
-            final isLast = index == tuitionHistory.length - 1;
-
             return Container(
               padding: EdgeInsets.all(16),
               decoration: BoxDecoration(
-                border: isLast ? null : Border(
+                border: Border(
                   bottom: BorderSide(
                     color: Colors.white.withOpacity(0.05),
                     width: 1,
@@ -278,101 +228,11 @@ class _TuitionScreenState extends State<TuitionScreen> {
               ),
               child: Row(
                 children: [
-                  // Semester
-                  Expanded(
-                    flex: 2,
-                    child: Text(
-                      item['semester'],
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-
-                  // Amount
-                  Expanded(
-                    flex: 3,
-                    child: Text(
-                      item['amount'],
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 13,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-
-                  // Deadline
-                  Expanded(
-                    flex: 3,
-                    child: Text(
-                      item['deadline'],
-                      style: TextStyle(
-                        color: Colors.white.withOpacity(0.8),
-                        fontSize: 12,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-
-                  // Status
-                  Expanded(
-                    flex: 2,
-                    child: Center(
-                      child: Container(
-                        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: item['status'] == 'paid'
-                              ? Color(0xFF10B981).withOpacity(0.2)
-                              : Color(0xFFEF4444).withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: Text(
-                          item['status'] == 'paid' ? 'Đã thanh toán' : 'Chưa thanh toán',
-                          style: TextStyle(
-                            color: item['status'] == 'paid'
-                                ? Color(0xFF10B981)
-                                : Color(0xFFEF4444),
-                            fontSize: 10,
-                            fontWeight: FontWeight.w600,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  // Action
-                  Expanded(
-                    flex: 2,
-                    child: Center(
-                      child: ElevatedButton(
-                        onPressed: () {
-                          _handlePaymentAction(item['semester'], item['status']);
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: item['status'] == 'paid'
-                              ? Color(0xFF3B82F6)
-                              : Color(0xFF8B5CF6),
-                          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          elevation: 0,
-                        ),
-                        child: Text(
-                          item['status'] == 'paid' ? 'Thanh toán' : 'Thanh toán',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 10,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
+                  Expanded(flex: 2, child: Text(item['hocKy'] ?? 'Unknown', style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w500))),
+                  Expanded(flex: 2, child: Text((item['soTinChi'] ?? 0).toString(), style: TextStyle(color: Colors.white, fontSize: 13), textAlign: TextAlign.center)),
+                  Expanded(flex: 3, child: Text(_formatCurrency(item['hocPhi'] ?? 0), style: TextStyle(color: Colors.white, fontSize: 13), textAlign: TextAlign.center)),
+                  Expanded(flex: 3, child: Text(_formatCurrency(item['daDong'] ?? 0), style: TextStyle(color: Color(0xFF10B981), fontSize: 13, fontWeight: FontWeight.w600), textAlign: TextAlign.center)),
+                  Expanded(flex: 3, child: Text(_formatCurrency(item['soTienConLai'] ?? 0), style: TextStyle(color: (item['soTienConLai'] ?? 0) > 0 ? Color(0xFFEF4444) : Color(0xFF10B981), fontSize: 13, fontWeight: FontWeight.w600), textAlign: TextAlign.center)),
                 ],
               ),
             );
@@ -382,11 +242,15 @@ class _TuitionScreenState extends State<TuitionScreen> {
     );
   }
 
-  String _formatCurrency(int amount) {
-    String str = amount.toString();
+  String _formatCurrency(dynamic amount) {
+    if (amount == null) return '0 đ';
+    int value = 0;
+    if (amount is int) value = amount;
+    if (amount is double) value = amount.toInt();
+    if (amount is String) value = int.tryParse(amount) ?? 0;
+    String str = value.abs().toString();
     String result = '';
     int count = 0;
-
     for (int i = str.length - 1; i >= 0; i--) {
       if (count == 3) {
         result = '.$result';
@@ -395,7 +259,7 @@ class _TuitionScreenState extends State<TuitionScreen> {
       result = str[i] + result;
       count++;
     }
-
+    if (value < 0) result = '-$result';
     return '$result đ';
   }
 

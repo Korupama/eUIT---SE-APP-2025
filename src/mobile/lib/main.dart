@@ -25,6 +25,8 @@ import 'services/theme_controller.dart';
 import 'services/language_controller.dart';
 import 'providers/home_provider.dart';
 import 'providers/lecturer_provider.dart';
+import 'providers/schedule_provider.dart';
+import 'providers/academic_provider.dart';
 import 'utils/app_localizations.dart';
 import 'utils/app_colors.dart';
 import 'screens/settings_screen.dart';
@@ -42,6 +44,9 @@ Future<void> main() async {
     await dotenv.load(fileName: 'env/.env');
   } catch (_) {}
 
+  // Initialize AuthService and load saved token before building UI
+  await AuthService.initialize();
+
   runApp(
     MultiProvider(
       providers: [
@@ -58,6 +63,14 @@ Future<void> main() async {
               LecturerProvider(auth: context.read<AuthService>()),
         ),
         ChangeNotifierProvider(create: (_) => ChatbotProvider()),
+        // Student schedule provider
+        ChangeNotifierProvider(
+          create: (_) => ScheduleProvider(auth: AuthService()),
+        ),
+        // Academic provider for grades, tuition, training, content
+        ChangeNotifierProvider(
+          create: (_) => AcademicProvider(auth: AuthService()),
+        ),
       ],
       child: const MyApp(),
     ),
@@ -93,75 +106,81 @@ class MyApp extends StatelessWidget {
       fontFamily: null,
     );
 
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'eUIT In Development',
-      theme: lightTheme,
-      darkTheme: darkTheme,
-      themeMode: isDark ? ThemeMode.dark : ThemeMode.light,
-      locale: languageController.locale,
-      localizationsDelegates: const [
-        AppLocalizations.delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      supportedLocales: AppLocalizations.supportedLocales,
-      routes: {
-        '/': (context) => const ModernLoginScreen(),
-        '/services': (context) => const ServicesScreen(),
-        '/home': (context) => const MainScreen(),
-        '/lecturer_home': (context) => const LecturerMainScreen(),
-        '/lecturer_profile': (context) => const LecturerProfileScreen(),
-        '/lecturer_grade_management': (context) =>
-            const LecturerGradeManagementScreen(),
-        '/lecturer_appeals': (context) => const LecturerAppealsScreen(),
-        '/lecturer_documents': (context) => const LecturerDocumentsScreen(),
-        '/lecturer_exam_schedule': (context) =>
-            const LecturerExamScheduleScreen(),
-        '/lecturer_edit_profile': (context) =>
-            const LecturerEditProfileScreen(),
-        '/lecturer_change_password': (context) =>
-            const LecturerChangePasswordScreen(),
-        '/lecturer_confirmation_letter': (context) =>
-            const LecturerConfirmationLetterScreen(),
-        '/lecturer_tuition': (context) => const LecturerTuitionScreen(),
-        '/lecturer_absences': (context) => const LecturerAbsencesScreen(),
-        '/lecturer_makeup_classes': (context) =>
-            const LecturerMakeupClassesScreen(),
-        '/lecturer_debug': (context) => const LecturerDebugScreen(),
-        '/chatbot': (context) => const ChatbotScreen(),
-        '/notifications': (context) => const NotificationsScreen(),
-        '/settings': (context) => const SettingsScreen(),
-        '/profile': (context) => const ProfileScreen(),
-        '/notification_preferences': (context) =>
-            const NotificationPreferencesScreen(),
+    return ValueListenableBuilder<String?>(
+      valueListenable: AuthService.tokenNotifier,
+      builder: (context, token, _) {
+        return MaterialApp(
+          debugShowCheckedModeBanner: false,
+          title: 'eUIT In Development',
+          theme: lightTheme,
+          darkTheme: darkTheme,
+          themeMode: isDark ? ThemeMode.dark : ThemeMode.light,
+          locale: languageController.locale,
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: AppLocalizations.supportedLocales,
+          // If token is null, show Login. Otherwise, show MainScreen.
+          home: token == null ? const ModernLoginScreen() : const MainScreen(),
+          routes: {
+            // Removed '/' as it is now handled by home
+            '/services': (context) => const ServicesScreen(),
+            '/home': (context) => const MainScreen(),
+            '/lecturer_home': (context) => const LecturerMainScreen(),
+            '/lecturer_profile': (context) => const LecturerProfileScreen(),
+            '/lecturer_grade_management': (context) =>
+                const LecturerGradeManagementScreen(),
+            '/lecturer_appeals': (context) => const LecturerAppealsScreen(),
+            '/lecturer_documents': (context) => const LecturerDocumentsScreen(),
+            '/lecturer_exam_schedule': (context) =>
+                const LecturerExamScheduleScreen(),
+            '/lecturer_edit_profile': (context) =>
+                const LecturerEditProfileScreen(),
+            '/lecturer_change_password': (context) =>
+                const LecturerChangePasswordScreen(),
+            '/lecturer_confirmation_letter': (context) =>
+                const LecturerConfirmationLetterScreen(),
+            '/lecturer_tuition': (context) => const LecturerTuitionScreen(),
+            '/lecturer_absences': (context) => const LecturerAbsencesScreen(),
+            '/lecturer_makeup_classes': (context) =>
+                const LecturerMakeupClassesScreen(),
+            '/lecturer_debug': (context) => const LecturerDebugScreen(),
+            '/chatbot': (context) => const ChatbotScreen(),
+            '/notifications': (context) => const NotificationsScreen(),
+            '/settings': (context) => const SettingsScreen(),
+            '/profile': (context) => const ProfileScreen(),
+            '/notification_preferences': (context) =>
+                const NotificationPreferencesScreen(),
+          },
+          onGenerateRoute: (settings) {
+            // Routes with showBackButton parameter
+            if (settings.name == '/lecturer_class_list') {
+              return MaterialPageRoute(
+                builder: (context) =>
+                    const LecturerClassListScreen(showBackButton: true),
+              );
+            }
+            if (settings.name == '/lecturer_schedule') {
+              return MaterialPageRoute(
+                builder: (context) =>
+                    const LecturerScheduleScreen(showBackButton: true),
+              );
+            }
+            // Route with custom arguments
+            if (settings.name == '/lecturer_class_detail') {
+              final classInfo = settings.arguments as TeachingClass;
+              return MaterialPageRoute(
+                builder: (context) =>
+                    LecturerClassDetailScreen(classInfo: classInfo),
+              );
+            }
+            return null;
+          },
+        );
       },
-      onGenerateRoute: (settings) {
-        // Routes with showBackButton parameter
-        if (settings.name == '/lecturer_class_list') {
-          return MaterialPageRoute(
-            builder: (context) =>
-                const LecturerClassListScreen(showBackButton: true),
-          );
-        }
-        if (settings.name == '/lecturer_schedule') {
-          return MaterialPageRoute(
-            builder: (context) =>
-                const LecturerScheduleScreen(showBackButton: true),
-          );
-        }
-        // Route with custom arguments
-        if (settings.name == '/lecturer_class_detail') {
-          final classInfo = settings.arguments as TeachingClass;
-          return MaterialPageRoute(
-            builder: (context) =>
-                LecturerClassDetailScreen(classInfo: classInfo),
-          );
-        }
-        return null;
-      },
-      initialRoute: '/',
     );
   }
 }

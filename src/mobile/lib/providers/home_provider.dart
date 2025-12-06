@@ -1,11 +1,10 @@
 import 'dart:async';
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import '../models/schedule_item.dart';
 import '../models/notification_item.dart';
 import '../models/quick_action.dart';
 import '../services/auth_service.dart';
+import '../services/api_client.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:developer' as developer;
 import '../services/notification_service.dart';
@@ -22,6 +21,7 @@ class HomeProvider extends ChangeNotifier {
   HomeProvider({required AuthService auth}) {
     _loadMock();
     _auth = auth;
+    _client = ApiClient(auth);
 
     // When token changes, refresh data (or clear on null).
     _tokenListener = () {
@@ -62,6 +62,7 @@ class HomeProvider extends ChangeNotifier {
   StudentCardDto? get studentCard => _studentCard;
 
   late AuthService _auth;
+  late ApiClient _client;
 
   bool get isLoading => _isLoading;
   ScheduleItem get nextSchedule => _nextSchedule;
@@ -110,7 +111,6 @@ class HomeProvider extends ChangeNotifier {
       QuickAction(label: 'Giấy giới thiệu', type: 'reference', iconName: 'description_outlined'),
       QuickAction(label: 'Chứng chỉ', type: 'certificate', iconName: 'workspace_premium_outlined'),
     ];
-    // notifyListeners(); // not necessary here because ctor will cause initial build
   }
 
   /// Setup realtime notification listeners from SignalR
@@ -235,150 +235,107 @@ class HomeProvider extends ChangeNotifier {
   }
 
   /// Fetch quick GPA from backend: GET /quickgpa
-  /// Requires JWT token stored by AuthService
   Future<void> fetchQuickGpa() async {
     try {
-      final token = await _auth.getToken();
-      if (token == null || token.isEmpty) {
-        // No token available; cannot fetch
-        return;
+      final body = await _client.get('/quickgpa');
+      if (body == null) return;
+
+      final gpaVal = body['gpa'];
+      if (gpaVal != null) {
+        if (gpaVal is num) {
+          _gpa = gpaVal.toDouble();
+        } else {
+          _gpa = double.tryParse(gpaVal.toString());
+        }
+      } else {
+        _gpa = null;
       }
 
-      final uri = _auth.buildUri('/quickgpa');
-      final res = await http.get(
-        uri,
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Accept': 'application/json',
-        },
-      );
-
-      if (res.statusCode >= 200 && res.statusCode < 300) {
-        final Map<String, dynamic> body = jsonDecode(res.body) as Map<String, dynamic>;
-        // Parse fields safely
-        final gpaVal = body['gpa'];
-        if (gpaVal != null) {
-          if (gpaVal is num) {
-            _gpa = gpaVal.toDouble();
-          } else {
-            _gpa = double.tryParse(gpaVal.toString());
-          }
+      final creditVal = body['soTinChiTichLuy'];
+      if (creditVal != null) {
+        if (creditVal is int) {
+          _soTinChiTichLuy = creditVal;
         } else {
-          _gpa = null;
+          _soTinChiTichLuy = int.tryParse(creditVal.toString());
         }
-
-        final creditVal = body['soTinChiTichLuy'];
-        if (creditVal != null) {
-          if (creditVal is int) {
-            _soTinChiTichLuy = creditVal;
-          } else {
-            _soTinChiTichLuy = int.tryParse(creditVal.toString());
-          }
-        } else {
-          _soTinChiTichLuy = null;
-        }
-
-        notifyListeners();
-      } else if (res.statusCode == 401) {
-        // Unauthorized - token likely expired. Clear it so UX can re-authenticate.
-        await _auth.deleteToken();
+      } else {
+        _soTinChiTichLuy = null;
       }
+
+      notifyListeners();
     } catch (e) {
-      // Silently ignore network/parse errors for now; UI will continue using mock or empty state.
+      // Silently ignore network/parse errors
     }
   }
 
   /// Fetch student card from backend: GET /card
   Future<void> fetchStudentCard() async {
     try {
-      final token = await _auth.getToken();
-      if (token == null || token.isEmpty) return;
+      final body = await _client.get('/card');
+      if (body == null) return;
 
-      final uri = _auth.buildUri('/card');
-      final res = await http.get(uri, headers: {
-        'Authorization': 'Bearer $token',
-        'Accept': 'application/json',
-      });
-
-      if (res.statusCode >= 200 && res.statusCode < 300) {
-        final Map<String, dynamic> body = jsonDecode(res.body) as Map<String, dynamic>;
-        _studentCard = StudentCardDto.fromJson(body);
-        notifyListeners();
-        
-        // Kết nối SignalR sau khi có MSSV
-        if (_studentCard?.mssv != null) {
-          connectNotifications(_studentCard!.mssv.toString());
-        }
-      } else if (res.statusCode == 401) {
-        await _auth.deleteToken();
+      // ApiClient handles jsonDecode, so body is Map<String, dynamic>
+      _studentCard = StudentCardDto.fromJson(body);
+      notifyListeners();
+      
+      // Kết nối SignalR sau khi có MSSV
+      if (_studentCard?.mssv != null) {
+        connectNotifications(_studentCard!.mssv.toString());
       }
     } catch (e) {
-      // ignore network/parse errors for now
+      // ignore network/parse errors
     }
   }
 
   /// Fetch next class from backend: GET /nextclass
-  /// Maps server response to local ScheduleItem used by UI.
   Future<void> fetchNextClass() async {
     try {
-      final token = await _auth.getToken();
-      if (token == null || token.isEmpty) return;
+      final body = await _client.get('/nextclass');
+      if (body == null) return;
 
-      final uri = _auth.buildUri('/nextclass');
-      final res = await http.get(uri, headers: {
-        'Authorization': 'Bearer $token',
-        'Accept': 'application/json',
-      });
+      final maLop = body['maLop']?.toString() ?? '';
+      final tenMonHoc = body['tenMonHoc']?.toString() ?? '';
+      final tenGiangVien = body['tenGiangVien']?.toString() ?? '';
+      final phongHoc = body['phongHoc']?.toString() ?? '';
 
-      if (res.statusCode >= 200 && res.statusCode < 300) {
-        final Map<String, dynamic> body = jsonDecode(res.body) as Map<String, dynamic>;
-
-        final maLop = body['maLop']?.toString() ?? '';
-        final tenMonHoc = body['tenMonHoc']?.toString() ?? '';
-        final tenGiangVien = body['tenGiangVien']?.toString() ?? '';
-        final phongHoc = body['phongHoc']?.toString() ?? '';
-
-        int? tietBatDau;
-        int? tietKetThuc;
-        if (body['tietBatDau'] != null) {
-          tietBatDau = (body['tietBatDau'] is int) ? body['tietBatDau'] as int : int.tryParse(body['tietBatDau'].toString());
-        }
-        if (body['tietKetThuc'] != null) {
-          tietKetThuc = (body['tietKetThuc'] is int) ? body['tietKetThuc'] as int : int.tryParse(body['tietKetThuc'].toString());
-        }
-
-        String countdownStr = '';
-        if (body['countdownMinutes'] != null) {
-          final cm = (body['countdownMinutes'] is int) ? body['countdownMinutes'] as int : int.tryParse(body['countdownMinutes'].toString()) ?? 0;
-          countdownStr = _formatMinutesToHoursMinutes(cm);
-        }
-
-        String timeRange = '';
-        if (tietBatDau != null && tietKetThuc != null) {
-          // Map periods to actual time-of-day ranges using the school's schedule
-          timeRange = _periodsToTimeRange(tietBatDau, tietKetThuc);
-        } else if (body['ngayHoc'] != null) {
-          try {
-            final dt = DateTime.parse(body['ngayHoc'].toString());
-            timeRange = '${dt.day}/${dt.month}/${dt.year}';
-          } catch (_) {
-            timeRange = '';
-          }
-        }
-
-        _nextSchedule = ScheduleItem(
-          timeRange: timeRange.isNotEmpty ? timeRange : '—',
-          courseCode: maLop,
-          courseName: tenMonHoc,
-          room: phongHoc,
-          lecturer: tenGiangVien,
-          countdown: countdownStr.isNotEmpty ? countdownStr : (body['countdownMinutes'] != null ? '${body['countdownMinutes']} min' : ''),
-        );
-
-        notifyListeners();
-      } else if (res.statusCode == 401) {
-        await _auth.deleteToken();
+      int? tietBatDau;
+      int? tietKetThuc;
+      if (body['tietBatDau'] != null) {
+        tietBatDau = (body['tietBatDau'] is int) ? body['tietBatDau'] as int : int.tryParse(body['tietBatDau'].toString());
       }
+      if (body['tietKetThuc'] != null) {
+        tietKetThuc = (body['tietKetThuc'] is int) ? body['tietKetThuc'] as int : int.tryParse(body['tietKetThuc'].toString());
+      }
+
+      String countdownStr = '';
+      if (body['countdownMinutes'] != null) {
+        final cm = (body['countdownMinutes'] is int) ? body['countdownMinutes'] as int : int.tryParse(body['countdownMinutes'].toString()) ?? 0;
+        countdownStr = _formatMinutesToHoursMinutes(cm);
+      }
+
+      String timeRange = '';
+      if (tietBatDau != null && tietKetThuc != null) {
+        // Map periods to actual time-of-day ranges using the school's schedule
+        timeRange = _periodsToTimeRange(tietBatDau, tietKetThuc);
+      } else if (body['ngayHoc'] != null) {
+        try {
+          final dt = DateTime.parse(body['ngayHoc'].toString());
+          timeRange = '${dt.day}/${dt.month}/${dt.year}';
+        } catch (_) {
+          timeRange = '';
+        }
+      }
+
+      _nextSchedule = ScheduleItem(
+        timeRange: timeRange.isNotEmpty ? timeRange : '—',
+        courseCode: maLop,
+        courseName: tenMonHoc,
+        room: phongHoc,
+        lecturer: tenGiangVien,
+        countdown: countdownStr.isNotEmpty ? countdownStr : (body['countdownMinutes'] != null ? '${body['countdownMinutes']} min' : ''),
+      );
+
+      notifyListeners();
     } catch (e) {
       // Keep existing mock data on error
     }
@@ -442,12 +399,4 @@ class HomeProvider extends ChangeNotifier {
     // leave mock schedule/notifications untouched or override as needed
     notifyListeners();
   }
-
-  // @override
-  // void dispose() {
-  //   try {
-  //     AuthService.tokenNotifier.removeListener(_tokenListener);
-  //   } catch (_) {}
-  //   super.dispose();
-  // }
 }

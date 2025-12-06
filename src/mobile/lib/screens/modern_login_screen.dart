@@ -6,6 +6,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:developer' as developer;
 import '../providers/home_provider.dart';
 import '../providers/lecturer_provider.dart';
+import '../providers/academic_provider.dart';
+import '../providers/schedule_provider.dart';
 import '../services/theme_controller.dart';
 import '../services/language_controller.dart';
 import '../services/auth_service.dart';
@@ -224,7 +226,22 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
           homeProvider.fetchStudentCard();
           homeProvider.fetchQuickGpa();
           homeProvider.fetchNextClass();
-          
+
+          // Prefetch all search/schedule data for student
+          final academicProvider = context.read<AcademicProvider>();
+          final scheduleProvider = context.read<ScheduleProvider>();
+          await Future.wait([
+            academicProvider.fetchGrades(),
+            academicProvider.fetchTrainingPoints(),
+            academicProvider.fetchProgress(),
+            academicProvider.fetchTuition(),
+            academicProvider.fetchAnnualPlan(),
+            academicProvider.fetchTrainingProgram(),
+            academicProvider.fetchRegulations(),
+            scheduleProvider.fetchClasses(viewMode: 'week'),
+            scheduleProvider.fetchExams(),
+          ]);
+
           Navigator.pushReplacementNamed(context, '/home');
         }
       }

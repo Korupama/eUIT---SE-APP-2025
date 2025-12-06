@@ -1,82 +1,24 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'auth_service.dart';
 
 /// API client with token management and error handling
+/// Delegates auth logic to the injected [AuthService].
 class ApiClient {
-  static const String _tokenKey = 'auth_token';
-  final FlutterSecureStorage _storage = const FlutterSecureStorage();
+  final AuthService _authService;
 
-  String? _cachedToken;
+  ApiClient(this._authService);
 
-  /// Get base URL from environment
-  String get baseUrl {
-    String effectiveBase;
-    try {
-      final base = (dotenv.isInitialized ? dotenv.env['API_URL'] : null)
-          ?.trim();
-      effectiveBase = (base != null && base.isNotEmpty)
-          ? base
-          : 'http://localhost:5128';
-    } catch (_) {
-      effectiveBase = 'http://localhost:5128';
-    }
-
-    // Android emulator localhost remap
-    if (Platform.isAndroid) {
-      try {
-        final parsed = Uri.parse(effectiveBase);
-        if (parsed.host == 'localhost' || parsed.host == '127.0.0.1') {
-          effectiveBase = parsed.replace(host: '10.0.2.2').toString();
-        }
-      } catch (_) {
-        // keep as-is
-      }
-    }
-
-    return effectiveBase;
-  }
-
-  /// Build URI from path
+  /// Get base URL from AuthService
   Uri buildUri(String path, {Map<String, dynamic>? queryParameters}) {
-    final effectiveBase = baseUrl;
-
-    // Ensure single slash between base and path
-    String fullPath = path;
-    if (effectiveBase.endsWith('/') && path.startsWith('/')) {
-      fullPath = effectiveBase.substring(0, effectiveBase.length - 1) + path;
-    } else {
-      fullPath = effectiveBase + path;
-    }
-
-    final uri = Uri.parse(fullPath);
-
+    // We delegate the URI building to AuthService to share logic (env, emulator remapping)
+    // Note: AuthService.buildUri only takes path, so we handle params here.
+    final uri = _authService.buildUri(path);
     if (queryParameters != null && queryParameters.isNotEmpty) {
       return uri.replace(queryParameters: queryParameters);
     }
-
     return uri;
-  }
-
-  /// Get cached token or read from storage
-  Future<String?> getToken() async {
-    if (_cachedToken != null) return _cachedToken;
-    _cachedToken = await _storage.read(key: _tokenKey);
-    return _cachedToken;
-  }
-
-  /// Save token to storage and cache
-  Future<void> saveToken(String token) async {
-    _cachedToken = token;
-    await _storage.write(key: _tokenKey, value: token);
-  }
-
-  /// Delete token from storage and cache
-  Future<void> deleteToken() async {
-    _cachedToken = null;
-    await _storage.delete(key: _tokenKey);
   }
 
   /// Get headers with authorization if token exists
@@ -91,7 +33,7 @@ class ApiClient {
     }
 
     if (includeAuth) {
-      final token = await getToken();
+      final token = await _authService.getToken();
       if (token != null && token.isNotEmpty) {
         headers['Authorization'] = 'Bearer $token';
       }
@@ -100,7 +42,33 @@ class ApiClient {
     return headers;
   }
 
-  /// Handle HTTP response and parse JSON
+  /// Helper to retry request on 401 (token expired)
+  Future<http.Response> _sendWithRetry(
+    Future<http.Response> Function(Map<String, String> headers) requestFn, {
+    bool requireAuth = true,
+  }) async {
+    // 1. First attempt
+    final headers = await _getHeaders(includeAuth: requireAuth);
+    final response = await requestFn(headers);
+
+    // 2. If 401 and we used auth, try to refresh
+    if (response.statusCode == 401 && requireAuth) {
+      final newToken = await _authService.refreshAccessToken();
+      if (newToken != null) {
+        // Retry with new token
+        final newHeaders = await _getHeaders(includeAuth: true);
+        return await requestFn(newHeaders);
+      } else {
+        // Refresh failed (or no refresh token) -> Logout or just return error
+        // Current behavior: if refresh fails (returns null), proper action is usually logout.
+        // We will let the caller handle the 401, but the refresh attempt ensures we tried our best.
+        // Option: we could force logout here via _authService.logout() but that might be side-effect heavy for a client.
+      }
+    }
+
+    return response;
+  }
+
   dynamic _handleResponse(http.Response response) {
     if (response.statusCode >= 200 && response.statusCode < 300) {
       if (response.body.isEmpty) return null;
@@ -116,8 +84,7 @@ class ApiClient {
     try {
       final decoded = jsonDecode(response.body);
       if (decoded is Map<String, dynamic>) {
-        message = (decoded['error'] ?? decoded['message'] ?? message)
-            .toString();
+        message = (decoded['error'] ?? decoded['message'] ?? message).toString();
       }
     } catch (_) {
       message = response.body.isNotEmpty ? response.body : message;
@@ -134,9 +101,11 @@ class ApiClient {
   }) async {
     try {
       final uri = buildUri(path, queryParameters: queryParameters);
-      final headers = await _getHeaders(includeAuth: requireAuth);
 
-      final response = await http.get(uri, headers: headers);
+      final response = await _sendWithRetry((headers) {
+        return http.get(uri, headers: headers);
+      }, requireAuth: requireAuth);
+
       return _handleResponse(response);
     } on SocketException {
       throw ApiException('Network error. Please check your connection.', 0);
@@ -154,13 +123,14 @@ class ApiClient {
   }) async {
     try {
       final uri = buildUri(path);
-      final headers = await _getHeaders(includeAuth: requireAuth);
 
-      final response = await http.post(
-        uri,
-        headers: headers,
-        body: body != null ? jsonEncode(body) : null,
-      );
+      final response = await _sendWithRetry((headers) {
+        return http.post(
+          uri,
+          headers: headers,
+          body: body != null ? jsonEncode(body) : null,
+        );
+      }, requireAuth: requireAuth);
 
       return _handleResponse(response);
     } on SocketException {
@@ -179,13 +149,14 @@ class ApiClient {
   }) async {
     try {
       final uri = buildUri(path);
-      final headers = await _getHeaders(includeAuth: requireAuth);
 
-      final response = await http.put(
-        uri,
-        headers: headers,
-        body: body != null ? jsonEncode(body) : null,
-      );
+      final response = await _sendWithRetry((headers) {
+        return http.put(
+          uri,
+          headers: headers,
+          body: body != null ? jsonEncode(body) : null,
+        );
+      }, requireAuth: requireAuth);
 
       return _handleResponse(response);
     } on SocketException {
@@ -200,9 +171,11 @@ class ApiClient {
   Future<dynamic> delete(String path, {bool requireAuth = true}) async {
     try {
       final uri = buildUri(path);
-      final headers = await _getHeaders(includeAuth: requireAuth);
 
-      final response = await http.delete(uri, headers: headers);
+      final response = await _sendWithRetry((headers) {
+        return http.delete(uri, headers: headers);
+      }, requireAuth: requireAuth);
+
       return _handleResponse(response);
     } on SocketException {
       throw ApiException('Network error. Please check your connection.', 0);
@@ -221,25 +194,22 @@ class ApiClient {
   }) async {
     try {
       final uri = buildUri(path);
+
+      // We cannot easily retry multipart requests because stream is consumed.
+      // So we generally don't retry locally for multipart unless we rebuild the request.
+      // For now, simple implementation without auto-refresh retry for multipart.
+      // Or we can check token validity *before* sending.
+      
+      // Attempt refresh if token looks expired? No, just run it.
+      
       final request = http.MultipartRequest('POST', uri);
-
-      // Add headers
-      final headers = await _getHeaders(
-        includeAuth: requireAuth,
-        isMultipart: true,
-      );
+      final headers = await _getHeaders(includeAuth: requireAuth, isMultipart: true);
       request.headers.addAll(headers);
-
-      // Add fields
       request.fields.addAll(fields);
 
-      // Add files
       if (files != null) {
         for (final entry in files.entries) {
-          final file = await http.MultipartFile.fromPath(
-            entry.key,
-            entry.value,
-          );
+          final file = await http.MultipartFile.fromPath(entry.key, entry.value);
           request.files.add(file);
         }
       }
@@ -253,74 +223,6 @@ class ApiClient {
     } catch (e) {
       if (e is ApiException) rethrow;
       throw ApiException('Request failed: $e', 0);
-    }
-  }
-
-  /// PUT multipart request (for file uploads)
-  Future<dynamic> putMultipart(
-    String path, {
-    required Map<String, String> fields,
-    Map<String, String>? files,
-    bool requireAuth = true,
-  }) async {
-    try {
-      final uri = buildUri(path);
-      final request = http.MultipartRequest('PUT', uri);
-
-      // Add headers
-      final headers = await _getHeaders(
-        includeAuth: requireAuth,
-        isMultipart: true,
-      );
-      request.headers.addAll(headers);
-
-      // Add fields
-      request.fields.addAll(fields);
-
-      // Add files
-      if (files != null) {
-        for (final entry in files.entries) {
-          final file = await http.MultipartFile.fromPath(
-            entry.key,
-            entry.value,
-          );
-          request.files.add(file);
-        }
-      }
-
-      final streamedResponse = await request.send();
-      final response = await http.Response.fromStream(streamedResponse);
-
-      return _handleResponse(response);
-    } on SocketException {
-      throw ApiException('Network error. Please check your connection.', 0);
-    } catch (e) {
-      if (e is ApiException) rethrow;
-      throw ApiException('Request failed: $e', 0);
-    }
-  }
-
-  /// Download file
-  Future<List<int>> downloadFile(
-    String path, {
-    Map<String, dynamic>? queryParameters,
-  }) async {
-    try {
-      final uri = buildUri(path, queryParameters: queryParameters);
-      final headers = await _getHeaders();
-
-      final response = await http.get(uri, headers: headers);
-
-      if (response.statusCode >= 200 && response.statusCode < 300) {
-        return response.bodyBytes;
-      }
-
-      throw ApiException('Failed to download file', response.statusCode);
-    } on SocketException {
-      throw ApiException('Network error. Please check your connection.', 0);
-    } catch (e) {
-      if (e is ApiException) rethrow;
-      throw ApiException('Download failed: $e', 0);
     }
   }
 }
