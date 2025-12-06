@@ -246,6 +246,7 @@ class _LecturerScheduleScreenState extends State<LecturerScheduleScreen>
       return _buildShimmerLoading(isDark);
     }
 
+    // Don't filter schedule here - we'll check dates when displaying each day
     final weekSchedule = _getWeekSchedule(provider.schedule);
 
     return Column(
@@ -344,11 +345,17 @@ class _LecturerScheduleScreenState extends State<LecturerScheduleScreen>
         day.month == DateTime.now().month &&
         day.year == DateTime.now().year;
 
-    // Filter by search query
+    // Filter by search query AND check if class should be shown on this specific date
     final filteredSchedule = schedule.where((item) {
-      if (_searchQuery.isEmpty) return true;
-      return item.tenMon.toLowerCase().contains(_searchQuery) ||
-          item.maMon.toLowerCase().contains(_searchQuery);
+      // Search filter
+      if (_searchQuery.isNotEmpty) {
+        final matchesSearch = item.tenMon.toLowerCase().contains(_searchQuery) ||
+            item.maMon.toLowerCase().contains(_searchQuery);
+        if (!matchesSearch) return false;
+      }
+      
+      // Date range and cachTuan filter
+      return _shouldShowClassOnDate(item, day);
     }).toList();
 
     return Container(
@@ -621,17 +628,21 @@ class _LecturerScheduleScreenState extends State<LecturerScheduleScreen>
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 IconButton(
-                  onPressed: () {
-                    setState(() {
-                      _selectedDate = DateTime(
-                        _selectedDate.year,
-                        _selectedDate.month - 1,
-                      );
-                    });
-                  },
+                  onPressed: _canNavigateToPreviousMonth()
+                      ? () {
+                          setState(() {
+                            _selectedDate = DateTime(
+                              _selectedDate.year,
+                              _selectedDate.month - 1,
+                            );
+                          });
+                        }
+                      : null,
                   icon: Icon(
                     Icons.chevron_left,
-                    color: isDark ? Colors.white : Colors.black87,
+                    color: _canNavigateToPreviousMonth()
+                        ? (isDark ? Colors.white : Colors.black87)
+                        : Colors.grey.shade400,
                   ),
                 ),
                 Container(
@@ -652,17 +663,21 @@ class _LecturerScheduleScreenState extends State<LecturerScheduleScreen>
                   ),
                 ),
                 IconButton(
-                  onPressed: () {
-                    setState(() {
-                      _selectedDate = DateTime(
-                        _selectedDate.year,
-                        _selectedDate.month + 1,
-                      );
-                    });
-                  },
+                  onPressed: _canNavigateToNextMonth()
+                      ? () {
+                          setState(() {
+                            _selectedDate = DateTime(
+                              _selectedDate.year,
+                              _selectedDate.month + 1,
+                            );
+                          });
+                        }
+                      : null,
                   icon: Icon(
                     Icons.chevron_right,
-                    color: isDark ? Colors.white : Colors.black87,
+                    color: _canNavigateToNextMonth()
+                        ? (isDark ? Colors.white : Colors.black87)
+                        : Colors.grey.shade400,
                   ),
                 ),
               ],
@@ -730,11 +745,15 @@ class _LecturerScheduleScreenState extends State<LecturerScheduleScreen>
                             );
                             // Check if this day has schedule
                             final dayOfWeek = day.weekday; // 1=Mon, 2=Tue, ..., 7=Sun
-                            final thuStr = (dayOfWeek == 7 ? 8 : dayOfWeek + 1).toString(); // Convert to Vietnamese day numbering
+                            final thuStr = (dayOfWeek == 7 ? '8' : '${dayOfWeek + 1}'); // 1(Mon)→2, 2(Tue)→3, 7(Sun)→8
                             final daySchedule = provider.schedule.where((item) {
                               if (item.thu == null) return false;
                               final thu = item.thu!.trim();
-                              return thu == thuStr || thu == thuStr.padRight(2);
+                              // Check if class is on this weekday
+                              if (thu != thuStr) return false;
+                              
+                              // Use helper function to check date range and cachTuan
+                              return _shouldShowClassOnDate(item, day);
                             }).toList();
                             final isToday =
                                 day.day == DateTime.now().day &&
@@ -834,14 +853,25 @@ class _LecturerScheduleScreenState extends State<LecturerScheduleScreen>
   ) {
     final Map<int, List<TeachingScheduleItem>> weekSchedule = {};
     for (int i = 0; i < 7; i++) {
-      // i = 0 (Mon) -> thu = "2", i = 1 (Tue) -> thu = "3", etc.
-      final dayNumber = (i + 2).toString(); // Mon=2, Tue=3, ... Sun=8
-      weekSchedule[i] = schedule.where((item) {
-        if (item.thu == null) return false;
-        final thu = item.thu!.trim();
-        return thu == dayNumber || thu == dayNumber.padRight(2);
-      }).toList();
+      weekSchedule[i] = [];
     }
+    
+    for (final item in schedule) {
+      if (item.thu == null) continue;
+      
+      final thu = item.thu!.trim();
+      final thuInt = int.tryParse(thu);
+      
+      if (thuInt == null || thuInt < 2 || thuInt > 8) continue;
+      
+      // Convert Vietnamese day number to index: 2=Mon(0), 3=Tue(1), ..., 8=Sun(6)
+      final dayIndex = thuInt == 8 ? 6 : thuInt - 2;
+      
+      if (dayIndex >= 0 && dayIndex < 7) {
+        weekSchedule[dayIndex]!.add(item);
+      }
+    }
+    
     return weekSchedule;
   }
 
@@ -857,6 +887,49 @@ class _LecturerScheduleScreenState extends State<LecturerScheduleScreen>
 
   int _getCurrentWeek() {
     return _getWeekNumber(DateTime.now());
+  }
+
+  // Helper to get the date for a specific day index in the current week
+  DateTime _getDateForDayIndex(int dayIndex) {
+    final startOfWeek = _selectedDate.subtract(
+      Duration(days: _selectedDate.weekday - 1),
+    );
+    return startOfWeek.add(Duration(days: dayIndex));
+  }
+
+  // Check if a class should be shown on a specific date
+  bool _shouldShowClassOnDate(TeachingScheduleItem item, DateTime date) {
+    // Check if date is within course date range
+    if (item.ngayBatDau != null && date.isBefore(item.ngayBatDau!)) return false;
+    if (item.ngayKetThuc != null && date.isAfter(item.ngayKetThuc!)) return false;
+    
+    // Check cachTuan for biweekly classes
+    if (item.cachTuan != null && item.cachTuan! > 1 && item.ngayBatDau != null) {
+      // Calculate weeks difference based on the same weekday
+      // For example: if start date is Monday, we count Mondays between dates
+      final startDate = item.ngayBatDau!;
+      
+      // Get the first occurrence of this class on or after start date that matches the weekday
+      final thuInt = int.tryParse(item.thu?.trim() ?? '');
+      if (thuInt == null) return false;
+      
+      final targetWeekday = thuInt == 8 ? 7 : thuInt - 1; // Convert thu to Dart weekday (1-7)
+      
+      // Find first class date (adjust start date to match weekday if needed)
+      DateTime firstClassDate = startDate;
+      while (firstClassDate.weekday != targetWeekday) {
+        firstClassDate = firstClassDate.add(const Duration(days: 1));
+      }
+      
+      // Now calculate weeks from first class date
+      final daysDiff = date.difference(firstClassDate).inDays;
+      if (daysDiff < 0) return false; // Before first class
+      
+      final weeksDiff = daysDiff ~/ 7;
+      if (weeksDiff % item.cachTuan! != 0) return false;
+    }
+    
+    return true;
   }
 
   int _getWeekNumber(DateTime date) {
@@ -963,5 +1036,51 @@ class _LecturerScheduleScreenState extends State<LecturerScheduleScreen>
         ),
       ),
     );
+  }
+
+  bool _canNavigateToPreviousMonth() {
+    final provider = context.read<LecturerProvider>();
+    if (provider.schedule.isEmpty) return true;
+    
+    // Tìm ngày bắt đầu sớm nhất trong lịch giảng
+    DateTime? earliestDate;
+    for (final item in provider.schedule) {
+      if (item.ngayBatDau != null) {
+        if (earliestDate == null || item.ngayBatDau!.isBefore(earliestDate)) {
+          earliestDate = item.ngayBatDau;
+        }
+      }
+    }
+    
+    if (earliestDate == null) return true;
+    
+    final previousMonth = DateTime(_selectedDate.year, _selectedDate.month - 1);
+    final minDate = DateTime(earliestDate.year, earliestDate.month, 1);
+    
+    return previousMonth.isAfter(minDate) || 
+           (previousMonth.year == minDate.year && previousMonth.month == minDate.month);
+  }
+
+  bool _canNavigateToNextMonth() {
+    final provider = context.read<LecturerProvider>();
+    if (provider.schedule.isEmpty) return true;
+    
+    // Tìm ngày kết thúc muộn nhất trong lịch giảng
+    DateTime? latestDate;
+    for (final item in provider.schedule) {
+      if (item.ngayKetThuc != null) {
+        if (latestDate == null || item.ngayKetThuc!.isAfter(latestDate)) {
+          latestDate = item.ngayKetThuc;
+        }
+      }
+    }
+    
+    if (latestDate == null) return true;
+    
+    final nextMonth = DateTime(_selectedDate.year, _selectedDate.month + 1);
+    final maxDate = DateTime(latestDate.year, latestDate.month, 1);
+    
+    return nextMonth.isBefore(maxDate) || 
+           (nextMonth.year == maxDate.year && nextMonth.month == maxDate.month);
   }
 }
