@@ -557,15 +557,33 @@ class _LecturerClassListScreenState extends State<LecturerClassListScreen> {
                       ),
                       const SizedBox(height: 12),
 
-                      // Course name
+                      // Course code with group
                       Text(
-                        classItem.tenMon,
+                        classItem.nhom != null && classItem.nhom!.trim().isNotEmpty
+                            ? '${classItem.maMon.trim()}.${classItem.nhom!.trim()}'
+                            : classItem.maMon.trim(),
                         style: TextStyle(
                           fontSize: 17,
                           fontWeight: FontWeight.bold,
                           color: isDark
                               ? AppTheme.darkText
                               : AppTheme.lightText,
+                          height: 1.3,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 4),
+
+                      // Course name
+                      Text(
+                        classItem.tenMon,
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: isDark
+                              ? Colors.grey.shade400
+                              : Colors.grey.shade600,
                           height: 1.3,
                         ),
                         maxLines: 2,
@@ -635,13 +653,6 @@ class _LecturerClassListScreenState extends State<LecturerClassListScreen> {
                       // Info grid
                       Row(
                         children: [
-                          Expanded(
-                            child: _buildInfoItem(
-                              Icons.group_outlined,
-                              'Nhóm ${classItem.nhom}',
-                              isDark,
-                            ),
-                          ),
                           Expanded(
                             child: _buildInfoItem(
                               Icons.people_outline,
