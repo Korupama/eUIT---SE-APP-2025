@@ -533,32 +533,28 @@ class _LecturerScheduleScreenState extends State<LecturerScheduleScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  item.tenMon,
+                  item.nhom != null && item.nhom!.trim().isNotEmpty
+                      ? '${item.maMon.trim()}.${item.nhom!.trim()}'
+                      : item.maMon.trim(),
                   style: AppTheme.bodyMedium.copyWith(
                     color: isDark ? Colors.white : Colors.black87,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
                 const SizedBox(height: 4),
+                Text(
+                  item.tenMon,
+                  style: AppTheme.bodySmall.copyWith(
+                    color: isDark
+                        ? Colors.grey.shade400
+                        : Colors.grey.shade600,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 4),
                 Row(
                   children: [
-                    Icon(
-                      Icons.group_outlined,
-                      size: 14,
-                      color: isDark
-                          ? Colors.grey.shade400
-                          : Colors.grey.shade600,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      'Nhóm ${item.nhom}',
-                      style: AppTheme.bodySmall.copyWith(
-                        color: isDark
-                            ? Colors.grey.shade400
-                            : Colors.grey.shade600,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
                     Icon(
                       Icons.people_outline,
                       size: 14,
