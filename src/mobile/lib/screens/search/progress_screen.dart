@@ -157,7 +157,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
         // Completed Credits
         Expanded(
           child: _buildCreditCard(
-            title: 'Tín chỉ đã hoàn thành',
+            title: '{Tín chỉ đã hoàn thành}',
             value: completedCredits.toString(),
             color: Color(0xFF10B981),
             icon: Icons.check_circle_outline,
@@ -169,7 +169,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
         // Remaining Credits
         Expanded(
           child: _buildCreditCard(
-            title: 'Tín chỉ còn lại',
+            title: '{Tín chỉ còn lại}',
             value: remainingCredits.toString(),
             color: Color(0xFFF59E0B),
             icon: Icons.pending_outlined,
@@ -181,7 +181,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
         // Total Required Credits
         Expanded(
           child: _buildCreditCard(
-            title: 'Tổng tín chỉ yêu cầu',
+            title: '{Tổng tín chỉ yêu cầu}',
             value: totalRequiredCredits.toString(),
             color: Color(0xFF3B82F6),
             icon: Icons.school_outlined,

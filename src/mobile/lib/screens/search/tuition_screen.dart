@@ -10,27 +10,27 @@ class TuitionScreen extends StatefulWidget {
 class _TuitionScreenState extends State<TuitionScreen> {
   final List<Map<String, dynamic>> tuitionHistory = [
     {
-      'semester': 'Học kỳ 2 2023-2024',
-      'amount': '15.000.000 đ',
-      'deadline': '2024-08-01',
+      'semester': '{Học kỳ 2 2023-2024}',
+      'amount': '{15.000.000 đ}',
+      'deadline': '{2024-08-01}',
       'status': 'unpaid', // unpaid or paid
     },
     {
-      'semester': 'Học kỳ 1 2023-2024',
-      'amount': '15.000.000 đ',
-      'deadline': '2024-02-01',
+      'semester': '{Học kỳ 1 2023-2024}',
+      'amount': '{15.000.000 }',
+      'deadline': '{2024-02-01}',
       'status': 'paid',
     },
     {
-      'semester': 'Học kỳ 2 2022-2023',
-      'amount': '14.500.000 đ',
-      'deadline': '2023-08-01',
+      'semester': '{Học kỳ 2 2022-2023}',
+      'amount': '{14.500.000 đ}',
+      'deadline': '{2023-08-01}',
       'status': 'paid',
     },
     {
-      'semester': 'Học kỳ 1 2022-2023',
-      'amount': '14.500.000 đ',
-      'deadline': '2023-02-01',
+      'semester': '{Học kỳ 1 2022-2023}',
+      'amount': '{14.500.000 đ}',
+      'deadline': '{2023-02-01}',
       'status': 'paid',
     },
   ];

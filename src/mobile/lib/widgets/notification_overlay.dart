@@ -49,10 +49,10 @@ class _NotificationOverlayState extends State<NotificationOverlay> {
       _notificationService.onKetQuaHocTap.listen((notification) {
         _showNotification(
           title: 'Cập nhật điểm',
-          body: '${notification.tenMonHoc}\n'
-              'QT: ${notification.diemQuaTrinh ?? "-"} | '
-              'GK: ${notification.diemGiuaKy ?? "-"} | '
-              'CK: ${notification.diemCuoiKy ?? "-"}',
+          body: '${notification.tenMonHoc.isNotEmpty ? notification.tenMonHoc : '{Tên môn học}'}\n'
+              'QT: ${notification.diemQuaTrinh != null ? notification.diemQuaTrinh : '{Điểm QT}'} | '
+              'GK: ${notification.diemGiuaKy != null ? notification.diemGiuaKy : '{Điểm GK}'} | '
+              'CK: ${notification.diemCuoiKy != null ? notification.diemCuoiKy : '{Điểm CK}' }',
           color: Colors.blue,
           icon: Icons.grade,
         );
@@ -64,10 +64,10 @@ class _NotificationOverlayState extends State<NotificationOverlay> {
       _notificationService.onBaoBu.listen((notification) {
         _showNotification(
           title: 'Lịch học bù',
-          body: '${notification.tenMonHoc}\n'
+          body: '${notification.tenMonHoc.isNotEmpty ? notification.tenMonHoc : '{Tên môn học}'}\n'
               'Ngày: ${_formatDate(notification.ngayBu)}\n'
-              'Tiết: ${notification.tietBatDau} - ${notification.tietKetThuc}\n'
-              'Phòng: ${notification.phongHoc}',
+              'Tiết: ${notification.tietBatDau.isNotEmpty ? notification.tietBatDau : '{Tiết bắt ầu}'} - ${notification.tietKetThuc.isNotEmpty ? notification.tietKetThuc : '{Tiết kết thúc}'}\n'
+              'Phòng: ${notification.phongHoc.isNotEmpty ? notification.phongHoc : '{Phòng học}'}',
           color: Colors.orange,
           icon: Icons.event,
         );
@@ -79,9 +79,9 @@ class _NotificationOverlayState extends State<NotificationOverlay> {
       _notificationService.onBaoNghi.listen((notification) {
         _showNotification(
           title: 'Thông báo nghỉ học',
-          body: '${notification.tenMonHoc}\n'
+          body: '${notification.tenMonHoc.isNotEmpty ? notification.tenMonHoc : '{Tên môn học}'}\n'
               'Ngày: ${_formatDate(notification.ngayNghi)}\n'
-              'Lý do: ${notification.lyDo}',
+              'Lý do: ${notification.lyDo.isNotEmpty ? notification.lyDo : '{Lý do}'}',
           color: Colors.red,
           icon: Icons.cancel,
         );
@@ -93,9 +93,9 @@ class _NotificationOverlayState extends State<NotificationOverlay> {
       _notificationService.onDiemRenLuyen.listen((notification) {
         _showNotification(
           title: 'Điểm rèn luyện',
-          body: 'HK${notification.hocKy} - ${notification.namHoc}\n'
-              'Điểm: ${notification.diemRenLuyen}\n'
-              'Xếp loại: ${notification.xepLoai}',
+          body: 'HK${notification.hocKy.isNotEmpty ? notification.hocKy : '{Học kỳ}'} - ${notification.namHoc.isNotEmpty ? notification.namHoc : '{Năm học}'}\n'
+              'Điểm: ${notification.diemRenLuyen != null ? notification.diemRenLuyen : '{Điểm rèn luỵện}'}\n'
+              'Xếp loại: ${notification.xepLoai.isNotEmpty ? notification.xepLoai : '{Xếp loại}'}',
           color: Colors.green,
           icon: Icons.stars,
         );

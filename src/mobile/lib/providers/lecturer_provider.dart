@@ -431,10 +431,10 @@ class LecturerProvider extends ChangeNotifier {
         _notifications = data.map((item) {
           return NotificationItem(
             id: item['id']?.toString(),
-            title: item['title'] as String,
-            body: item['body'] as String?,
+            title: item['title']?.toString() ?? '{Tiêu đề}',
+            body: item['body']?.toString() ?? '{Nội dung}',
             isUnread: item['isUnread'] as bool? ?? true,
-            time: item['time'] as String? ?? '1 giờ trước',
+            time: item['time'] as String? ?? '{giờ/phút} trước',
           );
         }).toList();
         notifyListeners();

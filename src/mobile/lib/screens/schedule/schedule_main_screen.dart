@@ -36,42 +36,42 @@ class _ScheduleMainScreenState extends State<ScheduleMainScreen> {
 
   // Sample schedule data
   final Map<String, List<ScheduleItem>> scheduleData = {
-    '2025-11-25': [
+    '2025-12-5': [
       ScheduleItem(
-        startTime: '8:15 AM',
-        endTime: '11:30 AM',
-        subject: 'IE104 Internet và Công nghệ Web',
-        room: 'B1.06',
+        startTime: '{start_time}',
+        endTime: '{end_time}',
+        subject: '{subject_name}',
+        room: '{room}',
         type: 'class',
-        teacher: 'TS. Nguyễn Văn A', // Thêm tên giảng viên
+        teacher: '{lecturer_name}', // Thêm tên giảng viên
       ),
       ScheduleItem(
-        startTime: '13:00 PM',
-        endTime: '16:15 PM',
-        subject: 'Thực hành IE104 Internet và Công nghệ Web',
-        room: 'B1.22',
+        startTime: '{start_time}',
+        endTime: '{end_time}',
+        subject: '{subject_name}',
+        room: '{room}',
         type: 'class',
-        teacher: 'ThS. Trần Thị B', // Thêm tên giảng viên
-      ),
-    ],
-    '2025-11-27': [
-      ScheduleItem(
-        startTime: '9:00 AM',
-        endTime: '11:00 AM',
-        subject: 'IT001 Nhập môn Lập trình',
-        room: 'A2.03',
-        type: 'class',
-        teacher: 'PGS.TS. Phan Trọng Đĩnh', // Thêm tên giảng viên
+        teacher: '{lecturer_name}', // Thêm tên giảng viên
       ),
     ],
-    '2025-11-30': [
+    '2025-12-6': [
       ScheduleItem(
-        startTime: '14:00 PM',
-        endTime: '16:00 PM',
-        subject: 'CS106 Cấu trúc dữ liệu',
-        room: 'C1.15',
+        startTime: '{start_time}',
+        endTime: '{end_time}',
+        subject: '{subject_name}',
+        room: '{room}',
         type: 'class',
-        teacher: 'TS. Phạm Thị D', // Thêm tên giảng viên
+        teacher: '{lecturer_name}', // Thêm tên giảng viên
+      ),
+    ],
+    '2025-12-7': [
+      ScheduleItem(
+        startTime: '{start_time}',
+        endTime: '{end_time}',
+        subject: '{subject_name}',
+        room: '{room}',
+        type: 'class',
+        teacher: '{lecturer_name}', // Thêm tên giảng viên
       ),
     ],
   };
