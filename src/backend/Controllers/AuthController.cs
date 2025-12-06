@@ -191,6 +191,68 @@ public class AuthController : ControllerBase
         });
     }
 
+    [HttpPost("logout")]
+    [Authorize]
+    public async Task<IActionResult> Logout([FromBody] RefreshTokenRequestDto request)
+    {
+        // Lấy thông tin người dùng từ access token
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var role = User.FindFirst(ClaimTypes.Role)?.Value;
+
+        if (string.IsNullOrWhiteSpace(userId) || string.IsNullOrWhiteSpace(role))
+        {
+            // Không có claim hợp lệ trong access token
+            return Unauthorized();
+        }
+
+        if (request is null || string.IsNullOrWhiteSpace(request.RefreshToken))
+        {
+            return BadRequest(new { error = "Refresh token is required" });
+        }
+
+        var refreshTokenHash = HashRefreshToken(request.RefreshToken);
+
+        await using var connection = _context.Database.GetDbConnection();
+        await connection.OpenAsync();
+
+        // Đảm bảo refresh token thuộc về đúng user + role hiện tại và chưa bị thu hồi
+        await using var cmd = connection.CreateCommand();
+        cmd.CommandText = @"
+            UPDATE auth_refresh_tokens
+            SET revoked = true
+            WHERE token_hash = @tokenHash
+              AND user_id = @userId
+              AND user_role = @role::auth_user_role
+              AND revoked = false
+              AND expires_at > NOW();";
+
+        var pTokenHash = cmd.CreateParameter();
+        pTokenHash.ParameterName = "tokenHash";
+        pTokenHash.Value = refreshTokenHash;
+        cmd.Parameters.Add(pTokenHash);
+
+        var pUserId = cmd.CreateParameter();
+        pUserId.ParameterName = "userId";
+        pUserId.Value = userId;
+        cmd.Parameters.Add(pUserId);
+
+        var pRole = cmd.CreateParameter();
+        pRole.ParameterName = "role";
+        pRole.Value = role.Trim().ToLower();
+        cmd.Parameters.Add(pRole);
+
+        var affected = await cmd.ExecuteNonQueryAsync();
+
+        if (affected == 0)
+        {
+            // Không tìm thấy token hợp lệ để revoke: có thể đã hết hạn / đã revoke / không khớp user
+            // Theo spec: coi như invalid refresh token
+            return Unauthorized(new { message = "Invalid or expired refresh token" });
+        }
+
+        return Ok(new { message = "Logged out successfully" });
+    }
+
     [HttpGet("profile")]
     [Authorize] 
     public async Task<ActionResult<StudentProfileDto>> GetProfile()
