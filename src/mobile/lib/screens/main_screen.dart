@@ -29,7 +29,7 @@ class _MainScreenState extends State<MainScreen> {
     _pages = [
       const ServicesScreen(),
       const NavigationScreen(),
-      const HomeScreen(),
+        HomeScreen(onSelectPage: (index) => _onNavTap(index)),
       const ScheduleMainScreen(),
       const SettingsScreen(),
     ];
