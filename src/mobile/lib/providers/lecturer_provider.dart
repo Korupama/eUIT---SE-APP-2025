@@ -135,7 +135,7 @@ class LecturerProvider extends ChangeNotifier {
         iconName: 'event_note',
       ),
       QuickAction(
-        label: 'TTHC',
+        label: 'Thủ Tục Hành Chính',
         type: 'lecturer_confirmation_letter',
         iconName: 'verified',
       ),

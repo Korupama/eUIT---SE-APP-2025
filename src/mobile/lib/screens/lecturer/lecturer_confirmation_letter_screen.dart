@@ -87,7 +87,7 @@ class _LecturerConfirmationLetterScreenState
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Giấy xác nhận đã được tạo thành công.'),
+                const Text('Thủ Tục Hành Chính đã được tạo thành công.'),
                 const SizedBox(height: 12),
                 if (result['serialNumber'] != null)
                   Text('Số sê-ri: ${result['serialNumber']}'),
@@ -110,7 +110,7 @@ class _LecturerConfirmationLetterScreenState
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Không thể tạo giấy xác nhận. Vui lòng thử lại.'),
+            content: Text('Không thể tạo Thủ Tục Hành Chính. Vui lòng thử lại.'),
             backgroundColor: Colors.red,
           ),
         );
@@ -166,7 +166,7 @@ class _LecturerConfirmationLetterScreenState
             ),
             const SizedBox(width: 8),
             const Text(
-              'Giấy xác nhận',
+              'Thủ Tục Hành Chính',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
           ],
@@ -246,7 +246,7 @@ class _LecturerConfirmationLetterScreenState
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Loại giấy xác nhận',
+                'Loại Thủ Tục Hành Chính',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
@@ -256,19 +256,19 @@ class _LecturerConfirmationLetterScreenState
               const SizedBox(height: 12),
               _buildTypeOption(
                 value: 'working',
-                title: 'Giấy xác nhận A',
+                title: 'Thủ Tục Hành Chính A',
                 icon: Icons.work,
                 isDark: isDark,
               ),
               _buildTypeOption(
                 value: 'salary',
-                title: 'Giấy xác nhận B',
+                title: 'Thủ Tục Hành Chính B',
                 icon: Icons.attach_money,
                 isDark: isDark,
               ),
               _buildTypeOption(
                 value: 'insurance',
-                title: 'Giấy xác nhận C',
+                title: 'Thủ Tục Hành Chính C',
                 icon: Icons.health_and_safety,
                 isDark: isDark,
               ),
