@@ -20,65 +20,68 @@ class _NavigationScreenState extends State<NavigationScreen> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
 
+  // Store keys (not raw strings) so we can localize dynamically
   final List<Map<String, dynamic>> _menuItems = [
     {
-      'title': 'Kết quả học tập',
-      'subtitle': 'Xem điểm theo kỳ và GPA',
+      'titleKey': 'menu_academic_results_title',
+      'subtitleKey': 'menu_academic_results_subtitle',
       'icon': Icons.school_outlined,
       'color': Color(0xFF3B82F6),
       'route': '/academic-results',
     },
     {
-      'title': 'Điểm rèn luyện',
-      'subtitle': 'Điểm rèn luyện theo kỳ',
+      'titleKey': 'menu_training_score_title',
+      'subtitleKey': 'menu_training_score_subtitle',
       'icon': Icons.emoji_events_outlined,
       'color': Color(0xFF8B5CF6),
       'route': '/training-score',
     },
     {
-      'title': 'Kết quả đào tạo',
-      'subtitle': 'Theo dõi tiến độ đào tạo',
+      'titleKey': 'menu_training_results_title',
+      'subtitleKey': 'menu_training_results_subtitle',
       'icon': Icons.assessment_outlined,
       'color': Color(0xFF10B981),
       'route': '/training-results',
     },
     {
-      'title': 'Thông tin học phí',
-      'subtitle': 'Kiểm tra học phí và hóa đơn',
+      'titleKey': 'menu_tuition_info_title',
+      'subtitleKey': 'menu_tuition_info_subtitle',
       'icon': Icons.account_balance_wallet_outlined,
       'color': Color(0xFFF59E0B),
       'route': '/tuition-info',
     },
     {
-      'title': 'Quy chế đào tạo',
-      'subtitle': 'Nội quy và quy định của trường',
+      'titleKey': 'menu_regulations_title',
+      'subtitleKey': 'menu_regulations_subtitle',
       'icon': Icons.menu_book_outlined,
       'color': Color(0xFFEC4899),
       'route': '/regulations',
     },
     {
-      'title': 'Chương trình đào tạo',
-      'subtitle': 'Hệ chính quy và hệ từ xa',
+      'titleKey': 'menu_training_program_title',
+      'subtitleKey': 'menu_training_program_subtitle',
       'icon': Icons.library_books_outlined,
       'color': Color(0xFF06B6D4),
       'route': '/training-program',
     },
     {
-      'title': 'Kế hoạch năm học',
-      'subtitle': 'Lịch trình năm học, sự kiện',
+      'titleKey': 'menu_annual_plan_title',
+      'subtitleKey': 'menu_annual_plan_subtitle',
       'icon': Icons.calendar_month_outlined,
       'color': Color(0xFFEF4444),
       'route': '/annual-plan',
     },
   ];
 
+  // Filter using localized strings so the search works for current locale
   List<Map<String, dynamic>> get _filteredItems {
+    final loc = AppLocalizations.of(context);
     if (_searchQuery.isEmpty) {
       return _menuItems;
     }
     return _menuItems.where((item) {
-      final title = item['title'].toString().toLowerCase();
-      final subtitle = item['subtitle'].toString().toLowerCase();
+      final title = loc.t(item['titleKey']).toLowerCase();
+      final subtitle = loc.t(item['subtitleKey']).toLowerCase();
       final query = _searchQuery.toLowerCase();
       return title.contains(query) || subtitle.contains(query);
     }).toList();
@@ -90,8 +93,9 @@ class _NavigationScreenState extends State<NavigationScreen> {
     super.dispose();
   }
 
-  void _navigateToScreen(String route, String title, Color color) {
+  void _navigateToScreen(String route, String titleKey, Color color) {
     Widget screen;
+    final loc = AppLocalizations.of(context);
 
     switch (route) {
       case '/academic-results':
@@ -116,10 +120,10 @@ class _NavigationScreenState extends State<NavigationScreen> {
         screen = PlanScreen();
         break;
       default:
-      // Show snackbar for screens not yet implemented
+        // Show snackbar for screens not yet implemented
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('$title đang được phát triển'),
+            content: Text('${loc.t(titleKey)} — ${loc.t('coming_soon')}'),
             backgroundColor: color,
             duration: Duration(seconds: 1),
           ),
@@ -137,6 +141,12 @@ class _NavigationScreenState extends State<NavigationScreen> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    // Ensure we leave space above the bottom navigation bar used in MainScreen
+    // MainScreen uses baseHeight = 75.0 + MediaQuery.padding.bottom
+    final double bottomInset = MediaQuery.of(context).padding.bottom;
+    final double navBarBaseHeight = 75.0; // same baseHeight as MainScreen
+    final double navBarHeight = navBarBaseHeight + bottomInset;
+
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: SafeArea(
@@ -145,7 +155,12 @@ class _NavigationScreenState extends State<NavigationScreen> {
             _buildHeader(isDark),
             Expanded(
               child: _filteredItems.isEmpty
-                  ? _buildEmptyState()
+                  // For empty state add bottom padding so content is visually above nav bar
+                  ? Padding(
+                      padding: EdgeInsets.only(bottom: navBarHeight),
+                      child: _buildEmptyState(),
+                    )
+                  // For the grid, _buildMenuGrid will include bottom padding equal to navBarHeight
                   : _buildMenuGrid(),
             ),
           ],
@@ -211,15 +226,15 @@ class _NavigationScreenState extends State<NavigationScreen> {
                 Container(
                   margin: const EdgeInsets.only(top: 8),
                   decoration: BoxDecoration(
-                    color: isDark ? const Color(0xFF1E293B) : const Color(0xFFEFEFF6),
+                    color: isDark ? const Color(0xFF0F1720) : Theme.of(context).colorScheme.surface,
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
-                      color: isDark ? const Color(0x1FFFFFFF) : const Color(0xFFE6E7F0),
+                      color: Theme.of(context).dividerColor,
                       width: 1,
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: isDark ? Colors.black.withAlpha(24) : Colors.black.withAlpha(8),
+                        color: isDark ? Colors.black.withAlpha(24) : Colors.black.withAlpha(6),
                         blurRadius: 16,
                         offset: const Offset(0, 4),
                       ),
@@ -234,7 +249,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
                     },
                     style: TextStyle(color: isDark ? Colors.white : Colors.black87),
                     decoration: InputDecoration(
-                      hintText: 'Tìm kiếm...',
+                      hintText: loc.t('search_hint'),
                       hintStyle: TextStyle(color: isDark ? Colors.white54 : Colors.black45),
                       prefixIcon: Icon(Icons.search, color: isDark ? Colors.white70 : Colors.black38),
                       suffixIcon: _searchQuery.isNotEmpty
@@ -262,8 +277,13 @@ class _NavigationScreenState extends State<NavigationScreen> {
   }
 
   Widget _buildMenuGrid() {
+    // Ensure GridView has extra bottom padding equal to the navigation bar height
+    // (base 75.0 + device bottom inset) so items aren't obscured by the bottom nav.
+    final double bottomInset = MediaQuery.of(context).padding.bottom;
+    final double navBarBaseHeight = 75.0;
+    final double navBarHeight = navBarBaseHeight + bottomInset;
     return GridView.builder(
-      padding: EdgeInsets.fromLTRB(20, 0, 20, 20),
+      padding: EdgeInsets.fromLTRB(20, 0, 20, 20 + navBarHeight),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
         childAspectRatio: 0.95,
@@ -278,22 +298,33 @@ class _NavigationScreenState extends State<NavigationScreen> {
   }
 
   Widget _buildMenuItem(Map<String, dynamic> item) {
+    final loc = AppLocalizations.of(context);
+    // Make card background semi-transparent (~0.8 alpha) to match app-wide translucent cards
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color rawTileColor = Theme.of(context).cardColor;
+    // For dark mode use the same card color as in services_screen.dart: Color.fromRGBO(30,41,59,0.62)
+    final tileBg = isDark
+        ? Color.fromRGBO(30, 41, 59, 0.62)
+        : rawTileColor.withAlpha((0.8 * 255).round());
+    final title = loc.t(item['titleKey']);
+    final subtitle = loc.t(item['subtitleKey']);
+
     return GestureDetector(
       onTap: () {
         // Navigate to specific screen based on route
-        _navigateToScreen(item['route'], item['title'], item['color']);
+        _navigateToScreen(item['route'], item['titleKey'], item['color']);
       },
       child: Container(
         decoration: BoxDecoration(
-          color: Color(0xFF1E293B),
+          color: tileBg,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: Colors.white.withOpacity(0.1),
+            color: Theme.of(context).dividerColor.withAlpha((0.08 * 255).round()),
             width: 1,
           ),
           boxShadow: [
             BoxShadow(
-              color: item['color'].withOpacity(0.1),
+              color: (item['color'] as Color).withAlpha((0.06 * 255).round()),
               blurRadius: 20,
               offset: Offset(0, 4),
             ),
@@ -314,7 +345,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
                     shape: BoxShape.circle,
                     gradient: RadialGradient(
                       colors: [
-                        item['color'].withOpacity(0.2),
+                        (item['color'] as Color).withAlpha((0.12 * 255).round()),
                         Colors.transparent,
                       ],
                     ),
@@ -329,10 +360,12 @@ class _NavigationScreenState extends State<NavigationScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Icon
+                    // Inner mini-card for the icon; make it slightly translucent relative to tile
                     Container(
                       padding: EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: item['color'].withOpacity(0.15),
+                        // keep inner mini-card same translucency as the main tile (0.8)
+                        color: tileBg,
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Icon(
@@ -346,9 +379,9 @@ class _NavigationScreenState extends State<NavigationScreen> {
 
                     // Title
                     Text(
-                      item['title'],
+                      title,
                       style: TextStyle(
-                        color: Colors.white,
+                        color: Theme.of(context).textTheme.bodyLarge?.color,
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
                         height: 1.2,
@@ -360,9 +393,9 @@ class _NavigationScreenState extends State<NavigationScreen> {
 
                     // Subtitle
                     Text(
-                      item['subtitle'],
+                      subtitle,
                       style: TextStyle(
-                        color: Colors.white.withOpacity(0.5),
+                        color: Theme.of(context).textTheme.bodyMedium?.color?.withAlpha((0.7 * 255).round()),
                         fontSize: 12,
                         height: 1.3,
                       ),
@@ -380,7 +413,8 @@ class _NavigationScreenState extends State<NavigationScreen> {
                 child: Container(
                   padding: EdgeInsets.all(6),
                   decoration: BoxDecoration(
-                    color: item['color'].withOpacity(0.15),
+                    // arrow badge uses same translucent background as tile
+                    color: tileBg,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Icon(
@@ -398,6 +432,9 @@ class _NavigationScreenState extends State<NavigationScreen> {
   }
 
   Widget _buildEmptyState() {
+    final loc = AppLocalizations.of(context);
+    final iconColor = Theme.of(context).iconTheme.color?.withAlpha((0.2 * 255).round()) ?? Colors.grey.withAlpha((0.2 * 255).round());
+
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -405,22 +442,22 @@ class _NavigationScreenState extends State<NavigationScreen> {
           Icon(
             Icons.search_off_outlined,
             size: 80,
-            color: Colors.white.withOpacity(0.2),
+            color: iconColor,
           ),
           SizedBox(height: 16),
           Text(
-            'Không tìm thấy kết quả',
+            loc.t('no_results'),
             style: TextStyle(
-              color: Colors.white.withOpacity(0.6),
+              color: Theme.of(context).textTheme.bodyLarge?.color?.withAlpha((0.6 * 255).round()),
               fontSize: 18,
               fontWeight: FontWeight.w500,
             ),
           ),
           SizedBox(height: 8),
           Text(
-            'Thử tìm kiếm với từ khóa khác',
+            loc.t('try_different_query'),
             style: TextStyle(
-              color: Colors.white.withOpacity(0.4),
+              color: Theme.of(context).textTheme.bodyMedium?.color?.withAlpha((0.5 * 255).round()),
               fontSize: 14,
             ),
           ),
