@@ -91,6 +91,17 @@ class AppLocalizations {
       'try_different_query': 'Thử tìm kiếm với từ khóa khác',
       // Semester display format
       'semester_format': 'Học kỳ {semester} - Năm học {year1}-{year2}',
+      // Subject Detail labels
+      'weights_scores': 'Trọng số / Điểm',
+      // QT = Quá trình (coursework), GK = Giữa kỳ (midterm), TH = Thực hành (practical), CK = Cuối kỳ (final)
+      'qt_weight_label': 'Trọng số quá trình',
+      'qt_score_label': 'Điểm quá trình',
+      'gk_weight_label': 'Trọng số giữa kỳ',
+      'gk_score_label': 'Điểm giữa kỳ',
+      'th_weight_label': 'Trọng số thực hành',
+      'th_score_label': 'Điểm thực hành',
+      'ck_weight_label': 'Trọng số cuối kỳ',
+      'ck_score_label': 'Điểm cuối kỳ',
       // Study result screen
       'study_results_title': 'Kết quả học tập',
       'gpa_cumulative': 'GPA Tích Lũy',
@@ -283,6 +294,17 @@ class AppLocalizations {
       'try_different_query': 'Try searching with another keyword',
       // Semester display format
       'semester_format': 'Semester {semester} - Academic Year {year1}-{year2}',
+      // Subject Detail labels
+      'weights_scores': 'Weights / Scores',
+      // QT = Coursework, GK = Midterm, TH = Practical, CK = Final
+      'qt_weight_label': 'Coursework weight',
+      'qt_score_label': 'Coursework score',
+      'gk_weight_label': 'Midterm weight',
+      'gk_score_label': 'Midterm score',
+      'th_weight_label': 'Practical weight',
+      'th_score_label': 'Practical score',
+      'ck_weight_label': 'Final weight',
+      'ck_score_label': 'Final score',
       // Study result screen
       'study_results_title': 'Study Results',
       'gpa_cumulative': 'Cumulative GPA',
