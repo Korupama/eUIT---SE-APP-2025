@@ -309,6 +309,8 @@ class _NavigationScreenState extends State<NavigationScreen> {
         : rawTileColor.withAlpha((0.8 * 255).round());
     final title = loc.t(item['titleKey']);
     final subtitle = loc.t(item['subtitleKey']);
+    // For dark mode, use a semi-transparent white background for the inner icon box
+    final Color innerIconBg = isDark ? Color.fromRGBO(255, 255, 255, 0.1) : tileBg;
 
     return GestureDetector(
       onTap: () {
@@ -365,8 +367,8 @@ class _NavigationScreenState extends State<NavigationScreen> {
                     Container(
                       padding: EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        // keep inner mini-card same translucency as the main tile (0.8)
-                        color: tileBg,
+                        // In dark mode use semi-transparent white to improve icon contrast; otherwise reuse tileBg
+                        color: innerIconBg,
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Icon(
