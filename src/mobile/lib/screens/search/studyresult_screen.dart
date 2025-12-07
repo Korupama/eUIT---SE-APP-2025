@@ -71,6 +71,7 @@ class _StudyResultScreenState extends State<StudyResultScreen> {
     final double navBarHeight = AppTheme.bottomNavBaseHeight + bottomInset;
 
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
