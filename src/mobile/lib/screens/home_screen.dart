@@ -65,76 +65,68 @@ class _HomeScreenState extends State<HomeScreen>
       body: Stack(
         children: [
           SafeArea(
-            child: provider.isLoading
-                ? _buildShimmerLoading(isDark)
-                : RefreshIndicator(
-                    onRefresh: () async {
-                      try {
-                        // Refresh both quick GPA and next class when user pulls to refresh
-                        await Future.wait([provider.fetchQuickGpa(), provider.fetchNextClass()]);
-                      } catch (_) {
-                        // ignore network errors for UX continuity
-                      }
-                    },
-                    color: AppTheme.bluePrimary,
-                    backgroundColor: isDark ? AppTheme.darkCard : Colors.white,
-                    child: SingleChildScrollView(
-                      controller: _scrollController,
-                      physics: const AlwaysScrollableScrollPhysics(
-                        parent: BouncingScrollPhysics(),
-                      ),
-                      padding: const EdgeInsets.only(
-                        left: 20,
-                        right: 20,
-                        top: 20,
-                        bottom:
-                            84, // Updated from 88 to match new bottom nav height (68 + 16)
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Header mới (Scrollable)
-                          _buildScrollableHeader(provider, isDark, loc),
-                          const SizedBox(height: 24),
+            // Always render the main content. Individual sections can show shimmers/placeholders
+            // based on provider state. This avoids hiding Quick Actions and Notifications while
+            // a global prefetch runs in the background.
+            child: RefreshIndicator(
+              onRefresh: () async {
+                try {
+                  // Refresh both quick GPA and next class when user pulls to refresh
+                  await Future.wait([provider.fetchQuickGpa(), provider.fetchNextClass()]);
+                } catch (_) {
+                  // ignore network errors for UX continuity
+                }
+              },
+              color: AppTheme.bluePrimary,
+              backgroundColor: isDark ? AppTheme.darkCard : Colors.white,
+              child: SingleChildScrollView(
+                controller: _scrollController,
+                physics: const AlwaysScrollableScrollPhysics(
+                  parent: BouncingScrollPhysics(),
+                ),
+                padding: const EdgeInsets.only(
+                  left: 20,
+                  right: 20,
+                  top: 20,
+                  bottom:
+                      84, // Updated from 88 to match new bottom nav height (68 + 16)
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Header mới (Scrollable)
+                    _buildScrollableHeader(provider, isDark, loc),
+                    const SizedBox(height: 24),
 
-                          // Next Schedule Section
-                          _buildSectionTitle(loc.t('next_schedule'), isDark),
-                          const SizedBox(height: 12),
-                          _buildNextScheduleCard(provider, loc, isDark),
-                          const SizedBox(height: 24),
+                    // Next Schedule Section
+                    _buildSectionTitle(loc.t('next_schedule'), isDark),
+                    const SizedBox(height: 12),
+                    _buildNextScheduleCard(provider, loc, isDark),
+                    const SizedBox(height: 24),
 
-                          // Student card + GPA placed before Notifications
-                          _buildStudentInfoCards(loc, isDark, provider),
-                          const SizedBox(height: 24),
+                    // Student card + GPA placed before Notifications
+                    _buildStudentInfoCards(loc, isDark, provider),
+                    const SizedBox(height: 24),
 
-                          // Notifications Section (show single item + View all)
-                          _buildSectionTitle(
-                            loc.t('new_notifications'),
-                            isDark,
-                          ),
-                          const SizedBox(height: 12),
-                          _buildNotificationsList(provider, isDark, loc, maxItems: 1),
-                          const SizedBox(height: 16),
-
-                          // Quick Actions Section (SQUIRCLE)
-                          _buildSectionTitle(loc.t('quick_actions'), isDark),
-                          const SizedBox(height: 12),
-                          _buildQuickActionsGrid(provider, isDark),
-                          const SizedBox(height: 24),
-
-                          // Notifications Section
-                          // _buildSectionTitle(
-                          //   loc.t('new_notifications'),
-                          //   isDark,
-                          // ),
-                          // const SizedBox(height: 12),
-                          // _buildNotificationsList(provider, isDark),
-                          // const SizedBox(height: 20),
-
-                        ],
-                      ),
+                    // Notifications Section (show single item + View all)
+                    _buildSectionTitle(
+                      loc.t('new_notifications'),
+                      isDark,
                     ),
-                  ),
+                    const SizedBox(height: 12),
+                    _buildNotificationsList(provider, isDark, loc, maxItems: 1),
+                    const SizedBox(height: 16),
+
+                    // Quick Actions Section (SQUIRCLE)
+                    _buildSectionTitle(loc.t('quick_actions'), isDark),
+                    const SizedBox(height: 12),
+                    _buildQuickActionsGrid(provider, isDark),
+                    const SizedBox(height: 24),
+
+                  ],
+                ),
+              ),
+            ),
           ),
 
 
@@ -430,7 +422,10 @@ class _HomeScreenState extends State<HomeScreen>
               Align(
                 alignment: Alignment.centerLeft,
                 child: TextButton.icon(
-                  onPressed: () {},
+                  onPressed: () {
+                    // Use parent page controller to switch to Schedule page (index 3)
+                    widget.onSelectPage?.call(3);
+                  },
                   style: TextButton.styleFrom(
                     foregroundColor: AppTheme.bluePrimary,
                     padding: const EdgeInsets.symmetric(
@@ -532,35 +527,66 @@ class _HomeScreenState extends State<HomeScreen>
           // Squircle button
           GestureDetector(
             onTap: () {
-              if (index == 1) { // Schedule action
-                onSelectPage?.call(3);
-              } else if (index == 0) { // Study Result
-                Navigator.push(context, MaterialPageRoute(builder: (_) => const StudyResultScreen()));
-              } else if (index == 2) { // Tuition
-                Navigator.push(context, MaterialPageRoute(builder: (_) => const TuitionScreen()));
-              } else if (index == 3) { // Parking
-                Navigator.push(context, MaterialPageRoute(builder: (_) => const ParkingMonthlyScreen()));
-              } else if (index == 5) { // Student Confirmation
-                Navigator.push(context, MaterialPageRoute(builder: (_) => const StudentConfirmationScreen()));
-              } else if (index == 7) { // Certificate Confirmation
-                Navigator.push(context, MaterialPageRoute(builder: (_) => const CertificateConfirmationScreen()));
-              } else {
-                // Show dialog for other actions
-                showDialog(
-                  context: context,
-                  builder: (ctx) => AlertDialog(
-                    title: const Text('Chức năng đang phát triển'),
-                    content: Text(action.label),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.of(ctx).pop(),
-                        child: const Text('Đóng'),
-                      ),
-                    ],
-                  ),
-                );
+              // Type-based navigation - more stable than index-based
+              switch (action.type) {
+                case 'schedule':
+                  // Navigate to schedule tab via PageController
+                  onSelectPage?.call(3);
+                  break;
+
+                case 'results':
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const StudyResultScreen()),
+                  );
+                  break;
+
+                case 'tuition':
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const TuitionScreen()),
+                  );
+                  break;
+
+                case 'parking':
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const ParkingMonthlyScreen()),
+                  );
+                  break;
+
+                case 'reference':
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const StudentConfirmationScreen()),
+                  );
+                  break;
+
+                case 'certificate':
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const CertificateConfirmationScreen()),
+                  );
+                  break;
+
+                default:
+                  // Show "đang phát triển" for unimplemented actions
+                  showDialog(
+                    context: context,
+                    builder: (ctx) => AlertDialog(
+                      title: const Text('Chức năng đang phát triển'),
+                      content: Text(action.label),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.of(ctx).pop(),
+                          child: const Text('Đóng'),
+                        ),
+                      ],
+                    ),
+                  );
               }
             },
+
             child: Container(
               width: 64,
               height: 64,

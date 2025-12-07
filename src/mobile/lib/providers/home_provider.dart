@@ -11,7 +11,7 @@ import '../services/notification_service.dart';
 import '../models/student_card_dto.dart';
 
 class HomeProvider extends ChangeNotifier {
-  final bool _isLoading = false;
+  bool _isLoading = false;
   final NotificationService _notificationService = NotificationService();
   final List<StreamSubscription> _subscriptions = [];
 
@@ -19,7 +19,6 @@ class HomeProvider extends ChangeNotifier {
   late final VoidCallback _tokenListener;
 
   HomeProvider({required AuthService auth}) {
-    _loadMock();
     _auth = auth;
     _client = ApiClient(auth);
 
@@ -40,20 +39,33 @@ class HomeProvider extends ChangeNotifier {
 
     // Attach listener (also triggers initial reaction if token already present)
     AuthService.tokenNotifier.addListener(_tokenListener);
+    // Trigger initial check immediately so if a token already exists we start fetching now
+    _tokenListener();
 
-    // Try to fetch quick GPA in background when provider is created
-    Future.microtask(() => fetchQuickGpa());
-    // Fetch student card in background
-    Future.microtask(() => fetchStudentCard());
-    // Fetch next class in background
-    Future.microtask(() => fetchNextClass());
     // Setup realtime notification listeners
     _setupNotificationListeners();
   }
 
-  late ScheduleItem _nextSchedule;
+  // _nextSchedule is initialized below with a default placeholder
+  ScheduleItem _nextSchedule = ScheduleItem(
+    timeRange: '',
+    courseCode: '',
+    courseName: '',
+    room: '',
+    lecturer: '',
+    countdown: '',
+  );
   List<NotificationItem> _notifications = [];
-  List<QuickAction> _quickActions = [];
+  List<QuickAction> _quickActions = [
+    QuickAction(label: 'Kết quả học tập', type: 'results', iconName: 'school_outlined'),
+    QuickAction(label: 'Học phí', type: 'tuition', iconName: 'monetization_on_outlined'),
+    QuickAction(label: 'Lịch học', type: 'schedule', iconName: 'calendar_today_outlined'),
+    QuickAction(label: 'Gửi xe', type: 'parking', iconName: 'directions_car_outlined'),
+    QuickAction(label: 'Phúc khảo', type: 'regrade', iconName: 'edit_document'),
+    QuickAction(label: 'Đăng ký GXN', type: 'gxn', iconName: 'check_box_outlined'),
+    QuickAction(label: 'Giấy giới thiệu', type: 'reference', iconName: 'description_outlined'),
+    QuickAction(label: 'Chứng chỉ', type: 'certificate', iconName: 'workspace_premium_outlined'),
+  ];
 
   double? _gpa;
   int? _soTinChiTichLuy;
@@ -72,46 +84,7 @@ class HomeProvider extends ChangeNotifier {
   double? get gpa => _gpa;
   int? get soTinChiTichLuy => _soTinChiTichLuy;
 
-  void _loadMock() {
-    _nextSchedule = ScheduleItem(
-      timeRange: '10:00 AM - 11:30 AM',
-      courseCode: 'IE307.Q12',
-      courseName: 'Công nghệ lập trình...',
-      room: 'B1.22',
-      lecturer: 'ThS.',
-      countdown: '2h 15m',
-    );
-    _notifications = [
-      NotificationItem(
-        title: '{Tiêu đề thông báo}',
-        body: '{Nội dung thông báo}',
-        time: '{giờ/phút} trước',
-        isUnread: true,
-      ),
-      NotificationItem(
-        title: '{Tiêu đề thông báo}',
-        body: '{Nội dung thông báo}',
-        time: '{giờ/phút} trước',
-        isUnread: true,
-      ),
-      NotificationItem(
-        title: '{Tiêu đề thông báo}',
-        body: '{Nội dung thông báo}',
-        time: '{giờ/phút} trước',
-        isUnread: false,
-      ),
-    ];
-    _quickActions = [
-      QuickAction(label: 'Kết quả học tập', type: 'results', iconName: 'school_outlined'),
-      QuickAction(label: 'Thời khóa biểu', type: 'schedule', iconName: 'calendar_today_outlined'),
-      QuickAction(label: 'Học phí', type: 'tuition', iconName: 'monetization_on_outlined'),
-      QuickAction(label: 'Gửi xe', type: 'parking', textIcon: 'P'),
-      QuickAction(label: 'Phúc khảo', type: 'regrade', iconName: 'edit_document'),
-      QuickAction(label: 'Đăng ký GXN', type: 'gxn', iconName: 'check_box_outlined'),
-      QuickAction(label: 'Giấy giới thiệu', type: 'reference', iconName: 'description_outlined'),
-      QuickAction(label: 'Chứng chỉ', type: 'certificate', iconName: 'workspace_premium_outlined'),
-    ];
-  }
+  // NOTE: _loadMock() intentionally removed; providers must be prefetched via LoadingScreen.
 
   /// Setup realtime notification listeners from SignalR
   void _setupNotificationListeners() {
@@ -389,6 +362,24 @@ class HomeProvider extends ChangeNotifier {
       fetchStudentCard(),
       fetchNextClass(),
     ]);
+  }
+
+  /// Prefetch commonly used home data. Used by LoadingScreen on app start/login.
+  Future<void> prefetch({bool forceRefresh = false}) async {
+    try {
+      developer.log('HomeProvider: starting prefetch', name: 'HomeProvider');
+      _isLoading = true;
+      notifyListeners();
+      await refreshAll();
+      developer.log('HomeProvider: prefetch completed', name: 'HomeProvider');
+      _isLoading = false;
+      notifyListeners();
+    } catch (e) {
+      developer.log('HomeProvider: prefetch error: $e', name: 'HomeProvider');
+      _isLoading = false;
+      notifyListeners();
+      rethrow;
+    }
   }
 
   /// Clear sensitive data when logged out or token removed.
