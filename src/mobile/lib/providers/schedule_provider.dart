@@ -118,4 +118,19 @@ class ScheduleProvider extends ChangeNotifier {
     }
     return false;
   }
+
+  /// Prefetch commonly used schedule data. Used by LoadingScreen.
+  Future<void> prefetch({bool forceRefresh = false}) async {
+    try {
+      developer.log('ScheduleProvider: starting prefetch', name: 'ScheduleProvider');
+      await Future.wait([
+        fetchClasses(viewMode: 'week'),
+        fetchExams(),
+      ]);
+      developer.log('ScheduleProvider: prefetch completed', name: 'ScheduleProvider');
+    } catch (e) {
+      developer.log('ScheduleProvider: prefetch error: $e', name: 'ScheduleProvider');
+      rethrow;
+    }
+  }
 }

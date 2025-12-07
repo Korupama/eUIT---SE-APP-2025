@@ -16,8 +16,10 @@ class ScheduleMainScreen extends StatefulWidget {
 }
 
 class _ScheduleMainScreenState extends State<ScheduleMainScreen> {
-  DateTime currentWeekStart = DateTime.now().subtract(Duration(days: DateTime.now().weekday - 1)); // Monday of the current week
-  int selectedDay = DateTime.now().day; // Today's day
+  // currentWeekStart will point to Sunday (CN) of the displayed week
+  late DateTime currentWeekStart;
+  // selectedDay: 0 = CN ... 6 = T7 (weekday index within the displayed week)
+  late int selectedDay; // 0 = CN ... 6 = T7
   int selectedTab = 0; // 0: Lên lớp, 1: Kiểm tra, 2: Cá nhân
 
   // Local personal events stored until backend confirms
@@ -29,26 +31,41 @@ class _ScheduleMainScreenState extends State<ScheduleMainScreen> {
     return DateTime(now.year, now.month, now.day);
   }
 
-  // Lấy tuần bắt đầu của ngày hôm nay (Monday)
+  // Lấy tuần bắt đầu của ngày hôm nay (CN - Sunday)
   DateTime get todayWeekStart {
-    DateTime now = today;
-    return now.subtract(Duration(days: now.weekday - 1));
+    final now = DateTime.now();
+    final index = now.weekday % 7; // Sunday -> 0
+    return DateTime(now.year, now.month, now.day).subtract(Duration(days: index));
   }
 
   // Kiểm tra có đang ở tuần hiện tại không
   bool get isCurrentWeek {
-    return currentWeekStart.year == todayWeekStart.year &&
-        currentWeekStart.month == todayWeekStart.month &&
-        currentWeekStart.day == todayWeekStart.day;
+    // final now = DateTime.now();
+    // int index = now.weekday % 7; // Sunday -> 0
+    // final todayStart = DateTime(now.year, now.month, now.day).subtract(Duration(days: index));
+
+    final now = DateTime.now();
+    final index = now.weekday % 7;
+    final todayStart = DateTime(now.year, now.month, now.day).subtract(Duration(days: index));
+
+    return currentWeekStart.year == todayStart.year &&
+        currentWeekStart.month == todayStart.month &&
+        currentWeekStart.day == todayStart.day;
   }
 
   @override
   void initState() {
     super.initState();
-    // Auto-set to today's week and day on open
-    currentWeekStart = todayWeekStart;
-    selectedDay = today.day;
-    // Fetch schedule/exams when screen loads using ScheduleProvider
+
+    final now = DateTime.now();
+    // CN = weekday 7 → index = 0
+    int index = now.weekday % 7;
+
+    // Tuần bắt đầu từ CN → CN = date - index days
+    currentWeekStart = DateTime(now.year, now.month, now.day).subtract(Duration(days: index));
+
+    selectedDay = index;
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final provider = context.read<ScheduleProvider>();
       provider.fetchClasses(viewMode: 'week');
@@ -73,7 +90,8 @@ class _ScheduleMainScreenState extends State<ScheduleMainScreen> {
   void goToToday() {
     setState(() {
       currentWeekStart = todayWeekStart;
-      selectedDay = today.day;
+      final now = DateTime.now();
+      selectedDay = now.weekday % 7; // 0..6
     });
   }
 
@@ -212,8 +230,9 @@ class _ScheduleMainScreenState extends State<ScheduleMainScreen> {
 
     if (picked != null) {
       setState(() {
-        // Set to the Monday of the selected week
-        currentWeekStart = picked.subtract(Duration(days: picked.weekday - 1));
+        // Set to the Sunday (CN) of the selected week (consistent with CN->T7)
+        final index = picked.weekday % 7; // Sunday -> 0
+        currentWeekStart = DateTime(picked.year, picked.month, picked.day).subtract(Duration(days: index));
       });
     }
   }
@@ -242,6 +261,12 @@ class _ScheduleMainScreenState extends State<ScheduleMainScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Note: don't auto-change selectedDay during build. initial value is set in initState
+    // and goToToday() will explicitly reset to today when requested by the user.
+    final now = DateTime.now();
+    final todayIndex = now.weekday % 7; // 0..6 (CN..T7)
+    // Show "Hôm nay" when either the week or the selected day is not today's day
+    final showTodayButton = !(isCurrentWeek && selectedDay == todayIndex);
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: SafeArea(
@@ -266,7 +291,7 @@ class _ScheduleMainScreenState extends State<ScheduleMainScreen> {
                   Row(
                     children: [
                       // Nút "Hôm nay" - chỉ hiện khi không ở tuần hiện tại
-                      if (!isCurrentWeek) ...[
+                      if (showTodayButton) ...[
                         GestureDetector(
                           onTap: goToToday,
                           child: Container(
@@ -382,7 +407,7 @@ class _ScheduleMainScreenState extends State<ScheduleMainScreen> {
                           ),
                           child: Center(
                             child: Text(
-                              '${day.day}',
+                              '${day.date.day}', // Update to use date.day
                               style: TextStyle(
                                 color: isSelected ? Colors.black : Colors.white,
                                 fontSize: 16,
@@ -593,12 +618,11 @@ class _ScheduleMainScreenState extends State<ScheduleMainScreen> {
     List<DayInfo> days = [];
     List<String> dayNames = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
 
-    // Start from Sunday (currentWeekStart is Monday, so subtract 1 day)
-    DateTime sunday = currentWeekStart.subtract(const Duration(days: 1));
-
+    // currentWeekStart BẮT ĐẦU TỪ CN
     for (int i = 0; i < 7; i++) {
-      DateTime date = sunday.add(Duration(days: i));
-      days.add(DayInfo(dayNames[i], date.day, date));
+      DateTime date = currentWeekStart.add(Duration(days: i));
+      // DayInfo.day will hold weekday index (0..6) to match selectedDay
+      days.add(DayInfo(dayNames[i], i, date));
     }
 
     return days;

@@ -17,6 +17,7 @@ import '../widgets/animated_background.dart';
 import '../widgets/language_switch.dart';
 import '../widgets/theme_switch.dart';
 import '../widgets/shake_wrapper.dart';
+import 'loading_screen.dart';
 
 class ModernLoginScreen extends StatefulWidget {
   const ModernLoginScreen({super.key});
@@ -227,10 +228,17 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
           homeProvider.fetchQuickGpa();
           homeProvider.fetchNextClass();
 
-          // Prefetch all search/schedule data for student
+          // Prefetch important student data in the background so Home & search screens
+          // can render quickly from cache. We do NOT await these tasks to avoid blocking
+          // navigation; UI will show shimmer placeholders where data is still loading.
           final academicProvider = context.read<AcademicProvider>();
           final scheduleProvider = context.read<ScheduleProvider>();
-          await Future.wait([
+
+          // Kick off lightweight immediate fetches (dont await). Providers implement caching.
+          Future.wait([
+            // Grade details (subject-level) — important
+            academicProvider.fetchGradeDetails(),
+            // Grades list (for backward compatibility)
             academicProvider.fetchGrades(),
             academicProvider.fetchTrainingPoints(),
             academicProvider.fetchProgress(),
@@ -240,9 +248,17 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
             academicProvider.fetchRegulations(),
             scheduleProvider.fetchClasses(viewMode: 'week'),
             scheduleProvider.fetchExams(),
-          ]);
+          ]).then((_) {
+            developer.log('Prefetch completed', name: 'LoginScreen');
+          }).catchError((err) {
+            developer.log('Prefetch error: $err', name: 'LoginScreen');
+          });
 
-          Navigator.pushReplacementNamed(context, '/home');
+          // Navigate to loading screen which will prefetch providers then open MainScreen
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const LoadingScreen()),
+          );
         }
       }
     } catch (e) {

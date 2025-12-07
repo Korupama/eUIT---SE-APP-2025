@@ -36,6 +36,7 @@ import 'screens/services_screen.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'services/auth_service.dart';
 import 'models/teaching_class.dart';
+import 'screens/loading_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -123,8 +124,9 @@ class MyApp extends StatelessWidget {
             GlobalCupertinoLocalizations.delegate,
           ],
           supportedLocales: AppLocalizations.supportedLocales,
-          // If token is null, show Login. Otherwise, show MainScreen.
-          home: token == null ? const ModernLoginScreen() : const MainScreen(),
+          // If token is null, show Login. Otherwise, show LoadingScreen to prefetch providers
+          // before entering MainScreen.
+          home: token == null ? const ModernLoginScreen() : const LoadingScreen(),
           routes: {
             // Removed '/' as it is now handled by home
             '/services': (context) => const ServicesScreen(),

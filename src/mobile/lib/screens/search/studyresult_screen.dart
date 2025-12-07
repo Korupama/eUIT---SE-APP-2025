@@ -355,14 +355,11 @@ class _StudyResultScreenState extends State<StudyResultScreen> {
         ...data.asMap().entries.map((entry) {
           final subject = entry.value;
           final grade = subject.diemTongKet == null ? null : _calculateGrade(subject.diemTongKet);
-          final gradeColor = grade == null ? Colors.white : _getGradeColor(grade);
-          // Convert color channels safely to 0..255 integers (avoid deprecated .red/.green/.blue)
-          int r = (gradeColor.r * 255.0).round();
-          int g = (gradeColor.g * 255.0).round();
-          int b = (gradeColor.b * 255.0).round();
-          r = r.clamp(0, 255);
-          g = g.clamp(0, 255);
-          b = b.clamp(0, 255);
+          final Color gradeColor = grade == null ? Colors.white : _getGradeColor(grade);
+          // Use Color.red/green/blue which return 0..255 ints
+          final int r = gradeColor.red.clamp(0, 255);
+          final int g = gradeColor.green.clamp(0, 255);
+          final int b = gradeColor.blue.clamp(0, 255);
           final badgeBg = Color.fromARGB((0.2 * 255).round(), r, g, b);
 
           return InkWell(
@@ -394,7 +391,8 @@ class _StudyResultScreenState extends State<StudyResultScreen> {
                     children: [
                       Expanded(
                         child: Text(
-                          subject.tenMonHoc,
+                          // Show trimmed subject code then name: "MAMH - Tên môn"
+                          '${_trimSubjectCode(subject.maMonHoc)} - ${subject.tenMonHoc}',
                           style: TextStyle(
                             color: isDark ? Colors.white : Colors.black87,
                             fontSize: 15,

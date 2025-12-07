@@ -981,4 +981,21 @@ class LecturerProvider extends ChangeNotifier {
     }
     return null;
   }
+
+  /// Prefetch commonly used lecturer data. Used by LoadingScreen.
+  Future<void> prefetch({bool forceRefresh = false}) async {
+    try {
+      developer.log('LecturerProvider: starting prefetch', name: 'LecturerProvider');
+      await Future.wait([
+        fetchLecturerProfile(),
+        fetchTeachingClasses(),
+        fetchTeachingSchedule(),
+        _fetchNotifications(),
+      ]);
+      developer.log('LecturerProvider: prefetch completed', name: 'LecturerProvider');
+    } catch (e) {
+      developer.log('LecturerProvider: prefetch error: $e', name: 'LecturerProvider');
+      rethrow;
+    }
+  }
 }
