@@ -65,7 +65,7 @@ class LecturerProvider extends ChangeNotifier {
 
     try {
       // Check if we have a token first
-      final token = await auth.getToken();
+      final token = await auth.getValidToken();
       print('Token available: ${token != null}');
       developer.log('Token available: ${token != null}', name: 'LecturerProvider');
       

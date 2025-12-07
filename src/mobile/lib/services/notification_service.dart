@@ -198,19 +198,20 @@ class NotificationService extends ChangeNotifier {
       return;
     }
 
-    // Disconnect nếu đang kết nối với MSSV khác
     if (_isConnected) {
       await disconnect();
     }
 
     final socketUrl = _getSocketUrl();
+    // The HubConnectionBuilder will handle the negotiation by replacing ws/wss with http/https.
+    // We provide the base websocket URL.
     final hubUrl = '$socketUrl/notifications';
 
     debugPrint('NotificationService: Connecting to $hubUrl');
 
     try {
       _hubConnection = HubConnectionBuilder()
-          .withUrl(hubUrl)
+          .withUrl(hubUrl, transportType: HttpTransportType.WebSockets) // Specify transport
           .withAutomaticReconnect()
           .build();
 

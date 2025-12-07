@@ -59,18 +59,15 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
       curve: Curves.easeOut,
     );
     _fadeController.forward();
-  }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    // Initialize shared AuthService from Provider once when context is available
-    if (!_authInitialized) {
-      _authService = context.read<AuthService>();
-      _authInitialized = true;
-      // Now that _authService is available, load saved credentials (remember me)
-      _loadRememberedUsername();
-    }
+    // Defer reading Provider until after first frame to ensure context is ready
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!_authInitialized) {
+        _authService = context.read<AuthService>();
+        _authInitialized = true;
+        _loadRememberedUsername();
+      }
+    });
   }
 
   @override
@@ -167,32 +164,27 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
       );
 
       print('Login successful! Got token');
-      developer.log('Login successful, saving token...', name: 'LoginScreen');
-      await _authService.saveToken(token);
-      print('Token saved');
-      developer.log('Token saved successfully', name: 'LoginScreen');
+      developer.log('Login successful, tokens and role auto-saved by login()', name: 'LoginScreen');
+      // Note: login() already calls saveTokens(accessToken, refreshToken, role: role) internally
+      // No need to call saveToken() again as it may introduce race conditions
+      // await _authService.saveToken(token); // removed
+      print('Tokens and role should be saved by login method');
+      developer.log('Tokens and role saved successfully', name: 'LoginScreen');
 
       // Remember current username in-memory for potential one-time prefill after logout
       _authService.setTransientLastUsername(_usernameController.text.trim());
 
-      // Best-effort: trigger providers to refresh now so Home shows fresh data.
+      // Ensure in-memory role notifier is set (defensive)
       try {
-        if (role == 'student') {
-          print('Refreshing HomeProvider for student login...');
-          await context.read<HomeProvider>().refreshAll();
-          print('HomeProvider refreshed successfully');
-        } else if (role == 'lecturer') {
-          print('Refreshing LecturerProvider for lecturer login...');
-          developer.log('Refreshing LecturerProvider...', name: 'LoginScreen');
-          await context.read<LecturerProvider>().refresh();
-          print('LecturerProvider refreshed successfully');
-          developer.log('LecturerProvider refreshed', name: 'LoginScreen');
-        }
-      } catch (e) {
-        print('Error refreshing provider: $e');
-        developer.log('Error refreshing provider: $e', name: 'LoginScreen');
-        // ignore errors; we'll still navigate
-      }
+        AuthService.roleNotifier.value = role;
+      } catch (_) {}
+
+      // Debug: verify role saved to storage
+      try {
+        final savedRole = await _authService.getRole();
+        developer.log('LoginScreen: savedRole after login -> ${savedRole ?? 'null'}', name: 'LoginScreen');
+        print('LoginScreen: savedRole after login -> ${savedRole ?? 'null'}');
+      } catch (_) {}
 
       // Persist or clear remembered credentials based on checkbox.
       try {
@@ -220,46 +212,49 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
       if (mounted) {
         // Navigate based on role
         if (role == 'lecturer') {
-          Navigator.pushReplacementNamed(context, '/lecturer_home');
-        } else {
-          // Fetch student card và các dữ liệu khác sau khi login thành công
-          final homeProvider = context.read<HomeProvider>();
-          homeProvider.fetchStudentCard();
-          homeProvider.fetchQuickGpa();
-          homeProvider.fetchNextClass();
-
-          // Prefetch important student data in the background so Home & search screens
-          // can render quickly from cache. We do NOT await these tasks to avoid blocking
-          // navigation; UI will show shimmer placeholders where data is still loading.
-          final academicProvider = context.read<AcademicProvider>();
-          final scheduleProvider = context.read<ScheduleProvider>();
-
-          // Kick off lightweight immediate fetches (dont await). Providers implement caching.
-          Future.wait([
-            // Grade details (subject-level) — important
-            academicProvider.fetchGradeDetails(),
-            // Grades list (for backward compatibility)
-            academicProvider.fetchGrades(),
-            academicProvider.fetchTrainingPoints(),
-            academicProvider.fetchProgress(),
-            academicProvider.fetchTuition(),
-            academicProvider.fetchAnnualPlan(),
-            academicProvider.fetchTrainingProgram(),
-            academicProvider.fetchRegulations(),
-            scheduleProvider.fetchClasses(viewMode: 'week'),
-            scheduleProvider.fetchExams(),
-          ]).then((_) {
-            developer.log('Prefetch completed', name: 'LoginScreen');
-          }).catchError((err) {
-            developer.log('Prefetch error: $err', name: 'LoginScreen');
-          });
-
-          // Navigate to loading screen which will prefetch providers then open MainScreen
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (_) => const LoadingScreen()),
-          );
+          // For lecturer: navigate to lecturer-specific loading screen that prefetches lecturer data
+          Navigator.of(context).pushNamedAndRemoveUntil('/lecturer_loading', (route) => false);
+          return; // ✅ IMPORTANT: Stop execution here for lecturer
         }
+
+        // For student: prefetch data before navigating to LoadingScreen
+        // Fetch student card và các dữ liệu khác sau khi login thành công
+        final homeProvider = context.read<HomeProvider>();
+        homeProvider.fetchStudentCard();
+        homeProvider.fetchQuickGpa();
+        homeProvider.fetchNextClass();
+
+        // Prefetch important student data in the background so Home & search screens
+        // can render quickly from cache. We do NOT await these tasks to avoid blocking
+        // navigation; UI will show shimmer placeholders where data is still loading.
+        final academicProvider = context.read<AcademicProvider>();
+        final scheduleProvider = context.read<ScheduleProvider>();
+
+        // Kick off lightweight immediate fetches (dont await). Providers implement caching.
+        Future.wait([
+          // Grade details (subject-level) — important
+          academicProvider.fetchGradeDetails(),
+          // Grades list (for backward compatibility)
+          academicProvider.fetchGrades(),
+          academicProvider.fetchTrainingPoints(),
+          academicProvider.fetchProgress(),
+          academicProvider.fetchTuition(),
+          academicProvider.fetchAnnualPlan(),
+          academicProvider.fetchTrainingProgram(),
+          academicProvider.fetchRegulations(),
+          scheduleProvider.fetchClasses(viewMode: 'week'),
+          scheduleProvider.fetchExams(),
+        ]).then((_) {
+          developer.log('Prefetch completed', name: 'LoginScreen');
+        }).catchError((err) {
+          developer.log('Prefetch error: $err', name: 'LoginScreen');
+        });
+
+        // Navigate to loading screen which will prefetch providers then open MainScreen
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const LoadingScreen()),
+        );
       }
     } catch (e) {
       if (mounted) {

@@ -33,7 +33,7 @@ class ApiClient {
     }
 
     if (includeAuth) {
-      final token = await _authService.getToken();
+      final token = await _authService.getValidToken();
       if (token != null && token.isNotEmpty) {
         headers['Authorization'] = 'Bearer $token';
       }

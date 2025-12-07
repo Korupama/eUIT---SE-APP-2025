@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io' show Platform;
 import 'dart:developer' as developer;
+import 'dart:async';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
@@ -12,14 +13,18 @@ class AuthService {
   // Notifier shared across all AuthService instances so providers and UI can
   // listen for token changes (login/logout) and react immediately.
   static final ValueNotifier<String?> tokenNotifier = ValueNotifier<String?>(null);
-  
+
+  // Notifier shared for role
+  static final ValueNotifier<String?> roleNotifier = ValueNotifier<String?>(null);
+
   static bool _initialized = false;
 
   AuthService();
 
   // Storage keys
   static const String _tokenKey = 'auth_token';
-  static const String _refreshTokenKey = 'auth_refresh_token'; // New key for refresh token
+  static const String _refreshTokenKey = 'auth_refresh_token';
+  static const String _roleKey = 'auth_role'; // New key for user role
   static const String _loginPath = '/api/Auth/login';
 
   // Static storage instance for initialization
@@ -49,11 +54,14 @@ class AuthService {
     try {
       final token = await _staticStorage.read(key: _tokenKey);
       tokenNotifier.value = token;
-      developer.log('AuthService: initialized with token ${token == null ? 'null' : '***'}', name: 'AuthService');
+      final savedRole = await _staticStorage.read(key: _roleKey);
+      roleNotifier.value = savedRole;
+      developer.log('AuthService: initialized with token ${token == null ? 'null' : '***'} and role ${savedRole ?? 'null'}', name: 'AuthService');
     } catch (e) {
       developer.log('AuthService: Error during initialization: $e', name: 'AuthService');
-      // Ensure tokenNotifier is set even on error
+      // Ensure notifiers are set even on error
       tokenNotifier.value = null;
+      roleNotifier.value = null;
     }
   }
 
@@ -136,9 +144,9 @@ class AuthService {
           throw Exception('invalid_response');
         }
 
-        // AUTO-SAVE both tokens
-        await saveTokens(accessToken, refreshToken);
-        
+        // AUTO-SAVE both tokens and role
+        await saveTokens(accessToken, refreshToken, role: role);
+
         return accessToken;
       } catch (e) {
         developer.log('AuthService: login parse error: $e', name: 'AuthService');
@@ -165,44 +173,37 @@ class AuthService {
     throw Exception(message);
   }
 
-  /// Save access and refresh tokens securely. 
+  /// Save access and refresh tokens securely, along with user role.
   /// Updates tokenNotifier if access token changes.
-  Future<void> saveTokens(String accessToken, String? refreshToken) async {
-    int retries = 3;
-    while (retries > 0) {
-      try {
-        await _storage.write(key: _tokenKey, value: accessToken);
-        if (refreshToken != null) {
-          await _storage.write(key: _refreshTokenKey, value: refreshToken);
-        }
-        
-        tokenNotifier.value = accessToken;
-        developer.log('AuthService: tokens saved and notified', name: 'AuthService');
-        return;
-      } catch (e) {
-        retries--;
-        if (retries > 0) {
-          await Future.delayed(const Duration(milliseconds: 100));
-        } else {
-          developer.log('AuthService: Error saving tokens: $e', name: 'AuthService', error: e);
-          // Still update memory
-          tokenNotifier.value = accessToken;
-        }
+  Future<void> saveTokens(String accessToken, String? refreshToken, {String? role}) async {
+    // Update in-memory notifiers IMMEDIATELY to prevent race conditions.
+    tokenNotifier.value = accessToken;
+    if (role != null) {
+      roleNotifier.value = role;
+    }
+
+    try {
+      await _storage.write(key: _tokenKey, value: accessToken);
+      if (refreshToken != null) {
+        await _storage.write(key: _refreshTokenKey, value: refreshToken);
       }
+      if (role != null) {
+        await _storage.write(key: _roleKey, value: role);
+      }
+      developer.log('AuthService: Tokens and role saved to secure storage.', name: 'AuthService');
+    } catch (e) {
+      developer.log('AuthService: Error saving tokens to secure storage: $e', name: 'AuthService', error: e);
     }
   }
 
-  // Deprecated: kept for backward compatibility if needed, redirects to saveTokens
-  Future<void> saveToken(String token) async {
-    await saveTokens(token, null);
-  }
+  // ... (code for saveToken and getToken remains the same) ...
 
   Future<String?> getToken() async {
     // First try to get from memory
     if (tokenNotifier.value != null) {
       return tokenNotifier.value;
     }
-    
+
     // Then try storage
     try {
       final token = await _storage.read(key: _tokenKey);
@@ -223,15 +224,79 @@ class AuthService {
     }
   }
 
+  /// Get saved user role (student/lecturer/admin).
+  /// Prioritizes in-memory notifier, then secure storage, then falls back to decoding JWT.
+  Future<String?> getRole() async {
+    // 1. Priority: In-memory notifier (fastest, avoids storage I/O)
+    if (roleNotifier.value != null && roleNotifier.value!.isNotEmpty) {
+      return roleNotifier.value;
+    }
+
+    // 2. Secure storage
+    try {
+      final storedRole = await _storage.read(key: _roleKey);
+      if (storedRole != null && storedRole.isNotEmpty) {
+        roleNotifier.value = storedRole; // Update notifier if it was out of sync
+        return storedRole;
+      }
+    } catch (_) {
+      // Ignore storage read errors
+    }
+
+    // 3. Fallback: Decode JWT access token and extract role claim
+    final token = await getToken();
+    if (token == null) return null;
+
+    try {
+      final parts = token.split('.');
+      if (parts.length != 3) return null;
+      final payload = parts[1];
+      String normalized = base64Url.normalize(payload);
+      final decoded = utf8.decode(base64Url.decode(normalized));
+      final Map<String, dynamic> map = jsonDecode(decoded);
+
+      // Common claim keys used by .NET Identity
+      final possibleKeys = [
+        'role',
+        'roles',
+        'http://schemas.microsoft.com/ws/2008/06/identity/claims/role',
+      ];
+
+      for (final k in possibleKeys) {
+        if (map.containsKey(k)) {
+          final v = map[k];
+          if (v is String && v.isNotEmpty) {
+            await _storage.write(key: _roleKey, value: v); // Persist the found role
+            roleNotifier.value = v;
+            return v;
+          }
+          if (v is List && v.isNotEmpty && v.first is String) {
+            final firstRole = v.first as String;
+            await _storage.write(key: _roleKey, value: firstRole); // Persist the found role
+            roleNotifier.value = firstRole;
+            return firstRole;
+          }
+        }
+      }
+    } catch (_) {
+      // ignore JSON or base64 errors
+    }
+
+    return null;
+  }
+
   Future<void> deleteToken() async {
     try {
       await _storage.delete(key: _tokenKey);
       await _storage.delete(key: _refreshTokenKey);
+      await _storage.delete(key: _roleKey); // Also delete role
       tokenNotifier.value = null;
+      roleNotifier.value = null; // Clear role notifier
       developer.log('AuthService: tokens deleted', name: 'AuthService');
     } catch (e) {
       developer.log('AuthService: Error deleting tokens: $e', name: 'AuthService');
       tokenNotifier.value = null;
+      roleNotifier.value = null;
     }
   }
 
@@ -343,5 +408,74 @@ class AuthService {
 
   void clearTransientLastUsername() {
     _transientLastUsername = null;
+  }
+
+  // Serialized refresh completer to avoid parallel refresh calls
+  Completer<String?>? _refreshCompleter;
+
+  /// Returns true if access token is expired or will expire within [marginSeconds].
+  /// If token is not a valid JWT or `exp` cannot be parsed, treat as expired.
+  static bool isAccessTokenExpired(String token, {int marginSeconds = 60}) {
+    try {
+      final parts = token.split('.');
+      if (parts.length != 3) return true; // not a JWT
+      final payload = parts[1];
+      final normalized = base64Url.normalize(payload);
+      final decoded = utf8.decode(base64Url.decode(normalized));
+      final Map<String, dynamic> map = jsonDecode(decoded);
+
+      final expRaw = map['exp'];
+      if (expRaw == null) return true;
+
+      final exp = expRaw is int ? expRaw : int.tryParse(expRaw.toString());
+      if (exp == null) return true;
+
+      final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+      return exp <= now + marginSeconds;
+    } catch (_) {
+      return true;
+    }
+  }
+
+  /// Internal: ensures only one refreshAccessToken() call runs at a time.
+  /// Returns the new access token or null on failure.
+  Future<String?> _refreshIfNeeded() async {
+    // If a refresh is already in progress, await it
+    if (_refreshCompleter != null) return _refreshCompleter!.future;
+
+    _refreshCompleter = Completer<String?>();
+    try {
+      final newToken = await refreshAccessToken();
+      _refreshCompleter!.complete(newToken);
+      return newToken;
+    } catch (e) {
+      if (!(_refreshCompleter?.isCompleted ?? true)) {
+        _refreshCompleter!.completeError(e);
+      }
+      rethrow;
+    } finally {
+      // allow garbage collection and next refresh
+      _refreshCompleter = null;
+    }
+  }
+
+  /// Public helper: returns a valid access token, refreshing it if expired.
+  /// Returns null if no token available or refresh fails.
+  Future<String?> getValidToken({int marginSeconds = 60}) async {
+    final token = await getToken();
+    if (token == null) return null;
+
+    // If token seems fine, return it
+    if (!isAccessTokenExpired(token, marginSeconds: marginSeconds)) return token;
+
+    // Otherwise try to refresh (serialized)
+    try {
+      final refreshed = await _refreshIfNeeded();
+      return refreshed ?? await getToken(); // refreshed may be null, so try reading stored token
+    } catch (e) {
+      // refresh failed
+      developer.log('AuthService: getValidToken refresh failed: $e', name: 'AuthService');
+      return null;
+    }
   }
 }

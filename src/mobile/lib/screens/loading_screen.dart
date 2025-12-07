@@ -11,6 +11,7 @@ import '../providers/academic_provider.dart';
 import '../providers/lecturer_provider.dart';
 import '../providers/schedule_provider.dart';
 import 'main_screen.dart';
+import '../services/auth_service.dart';
 
 class LoadingScreen extends StatefulWidget {
   const LoadingScreen({super.key});
@@ -76,35 +77,71 @@ class _LoadingScreenState extends State<LoadingScreen>
   }
 
   Future<void> _runPrefetch() async {
+    final auth = context.read<AuthService>();
     final home = context.read<HomeProvider>();
     final academic = context.read<AcademicProvider>();
     final lecturer = context.read<LecturerProvider>();
     final schedule = context.read<ScheduleProvider>();
 
     try {
-      await Future.wait([
-        home.prefetch(),
-        academic.prefetch(),
-        lecturer.prefetch(),
-        schedule.prefetch(),
-      ]);
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Tải dữ liệu thất bại: $e')),
-        );
+      // Get saved role to determine which screen to navigate to
+      final role = await auth.getRole();
+
+      // Prefetch providers based on role
+      if (role == 'lecturer') {
+        await lecturer.prefetch();
+      } else {
+        // Student or default
+        await Future.wait([
+          home.prefetch(),
+          academic.prefetch(),
+          schedule.prefetch(),
+        ]);
       }
-    } finally {
+
       if (!mounted) return;
 
       // Warp flash animation
       setState(() => _warpFlash = true);
       await Future.delayed(const Duration(milliseconds: 350));
 
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const MainScreen()),
-      );
+      // Navigate to appropriate screen based on role
+      if (role == 'lecturer') {
+        Navigator.pushReplacementNamed(context, '/lecturer_home');
+      } else {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const MainScreen()),
+        );
+      }
+    } catch (e) {
+      // If prefetch fails, check if it's authentication error
+      if (e.toString().contains('401') || e.toString().contains('Unauthorized')) {
+        // Token expired, logout and go back to login
+        await auth.logout();
+        // tokenNotifier will trigger UI rebuild automatically
+      } else {
+        // Other errors - show message but still navigate to app
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Tải dữ liệu thất bại: $e')),
+          );
+
+          // Navigate anyway
+          final role = await auth.getRole();
+          setState(() => _warpFlash = true);
+          await Future.delayed(const Duration(milliseconds: 350));
+
+          if (role == 'lecturer') {
+            Navigator.pushReplacementNamed(context, '/lecturer_home');
+          } else {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (_) => const MainScreen()),
+            );
+          }
+        }
+      }
     }
   }
 
