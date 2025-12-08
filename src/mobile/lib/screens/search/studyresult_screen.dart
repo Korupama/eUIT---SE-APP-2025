@@ -72,6 +72,7 @@ class _StudyResultScreenState extends State<StudyResultScreen> {
 
     return Scaffold(
       extendBodyBehindAppBar: true,
+      extendBody: true,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -90,28 +91,35 @@ class _StudyResultScreenState extends State<StudyResultScreen> {
       ),
       body: Stack(
         children: [
-          // Animated background (same as main screen's background)
-          Positioned.fill(child: IgnorePointer(child: AnimatedBackground(isDark: isDark))),
+          // Animated background (same as main screen's background) — ensure it expands to full screen
+          Positioned.fill(
+            child: IgnorePointer(
+              child: SizedBox.expand(child: AnimatedBackground(isDark: isDark)),
+            ),
+          ),
 
-          SafeArea(
-            child: SingleChildScrollView(
-              padding: EdgeInsets.fromLTRB(20, 20, 20, 20 + navBarHeight),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // GPA Card
-                  _buildGPACard(isDark, loc),
+          // Make the scrollable content also positioned to force Stack to full screen size
+          Positioned.fill(
+            child: SafeArea(
+              child: SingleChildScrollView(
+                padding: EdgeInsets.fromLTRB(20, 20, 20, 20 + navBarHeight),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // GPA Card
+                    _buildGPACard(isDark, loc),
 
-                  SizedBox(height: 20),
+                    SizedBox(height: 20),
 
-                  // Semester Selector Card
-                  _buildSemesterSelector(isDark, loc),
+                    // Semester Selector Card
+                    _buildSemesterSelector(isDark, loc),
 
-                  SizedBox(height: 20),
+                    SizedBox(height: 20),
 
-                  // Results Table
-                  _buildResultsTable(isDark, loc),
-                ],
+                    // Results Table
+                    _buildResultsTable(isDark, loc),
+                  ],
+                ),
               ),
             ),
           ),
