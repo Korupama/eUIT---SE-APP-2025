@@ -4,7 +4,14 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0560baad-d9f5-4313-822c-8d324bc53a04" name="Changes" comment="" />
+    <list default="true" id="0560baad-d9f5-4313-822c-8d324bc53a04" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/mobile/lib/providers/academic_provider.dart" beforeDir="false" afterPath="$PROJECT_DIR$/src/mobile/lib/providers/academic_provider.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/mobile/lib/screens/lecturer/lecturer_loading_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/src/mobile/lib/screens/lecturer/lecturer_loading_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/mobile/lib/screens/profile_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/src/mobile/lib/screens/profile_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/mobile/lib/screens/settings_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/src/mobile/lib/screens/settings_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/mobile/lib/utils/app_localizations.dart" beforeDir="false" afterPath="$PROJECT_DIR$/src/mobile/lib/utils/app_localizations.dart" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -16,7 +23,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="master" />
+        <entry key="$PROJECT_DIR$" value="fe-teacher" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -53,7 +60,7 @@
     "cf.first.check.clang-format": "false",
     "cidr.known.project.marker": "true",
     "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "fe-hoang",
+    "git-widget-placeholder": "#51 on fe-hoang",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "/Users/home/Documents/GitHub/eUIT---SE-APP-2025",
     "project.structure.last.edited": "Project",

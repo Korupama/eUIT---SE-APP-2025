@@ -4,6 +4,7 @@ import '../services/auth_service.dart';
 import '../services/api_client.dart';
 import '../models/grades_detail.dart';
 import '../models/student_models.dart';
+import '../models/auth_models.dart';
 
 /// AcademicProvider handles fetching academic data like grades, tuition, training, content.
 class AcademicProvider extends ChangeNotifier {
@@ -59,6 +60,10 @@ class AcademicProvider extends ChangeNotifier {
   GradesDetailResponse? _gradeDetails;
   GradesDetailResponse? get gradeDetails => _gradeDetails;
 
+  // Student profile
+  StudentProfile? _studentProfile;
+  StudentProfile? get studentProfile => _studentProfile;
+
   // === Cache flags to avoid redundant network calls ===
   bool _gradesCached = false;
   bool _tuitionCached = false;
@@ -69,6 +74,7 @@ class AcademicProvider extends ChangeNotifier {
   bool _annualPlanCached = false;
   bool _progressCached = false;
   bool _gradeDetailsCached = false;
+  bool _studentProfileCached = false;
 
   /// Clear provider cache and data (call on logout)
   void clearCache() {
@@ -81,6 +87,7 @@ class AcademicProvider extends ChangeNotifier {
     _annualPlanCached = false;
     _progressCached = false;
     _gradeDetailsCached = false;
+    _studentProfileCached = false;
 
     _grades = [];
     _tuition = null;
@@ -92,6 +99,7 @@ class AcademicProvider extends ChangeNotifier {
     _planDescription = null;
     _progress = null;
     _gradeDetails = null;
+    _studentProfile = null;
 
     notifyListeners();
   }
@@ -370,6 +378,33 @@ class AcademicProvider extends ChangeNotifier {
     }
   }
 
+  /// Fetch student profile
+  Future<void> fetchStudentProfile({bool forceRefresh = false}) async {
+    if (_studentProfileCached && !forceRefresh) {
+      developer.log('fetchStudentProfile: returning cached data', name: 'AcademicProvider');
+      return;
+    }
+
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      developer.log('Fetching student profile...', name: 'AcademicProvider');
+      final data = await _client.get('/api/auth/profile');
+
+      if (data != null && data is Map<String, dynamic>) {
+        _studentProfile = StudentProfile.fromJson(data);
+        _studentProfileCached = true;
+        developer.log('Student profile fetched: ${_studentProfile?.hoTen}', name: 'AcademicProvider');
+      }
+    } catch (e) {
+      developer.log('Error fetching student profile: $e', name: 'AcademicProvider');
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
   Future<void> fetchAcademicPlan() async {
     _isAcademicPlanLoading = true;
     notifyListeners();
@@ -394,6 +429,7 @@ class AcademicProvider extends ChangeNotifier {
         fetchTrainingProgram(forceRefresh: forceRefresh),
         fetchRegulations(forceRefresh: forceRefresh),
         fetchAnnualPlan(forceRefresh: forceRefresh),
+        fetchStudentProfile(forceRefresh: forceRefresh),
       ]);
       developer.log('AcademicProvider: prefetch completed', name: 'AcademicProvider');
     } catch (e) {

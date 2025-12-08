@@ -220,6 +220,7 @@ class AppLocalizations {
       'toeic_speaking_hint': 'Nhập điểm Nói',
       'toeic_writing_label': 'Điểm Viết',
       'toeic_writing_hint': 'Nhập điểm Viết',
+      'loading_profile': 'Đang tải hồ sơ...',
     },
     'en': {
       'login': 'Login',
@@ -423,6 +424,7 @@ class AppLocalizations {
       'toeic_speaking_hint': 'Enter speaking score',
       'toeic_writing_label': 'Writing score',
       'toeic_writing_hint': 'Enter writing score',
+      'loading_profile': 'Đang tải hồ sơ...',
     },
   };
 

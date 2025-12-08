@@ -22,15 +22,17 @@ class _LecturerEditProfileScreenState extends State<LecturerEditProfileScreen> {
 
   @override
   void initState() {
-    super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final provider = Provider.of<LecturerProvider>(context, listen: false);
-      if (provider.lecturerProfile == null) {
-        provider.fetchLecturerProfile();
-      } else {
-        _loadData(provider);
-      }
+      final provider = context.read<LecturerProvider>();
+
+      provider.addListener(() {
+        if (provider.lecturerProfile != null &&
+            _emailController.text.isEmpty) {
+          _loadData(provider);
+        }
+      });
     });
+
   }
 
   void _loadData(LecturerProvider provider) {
@@ -90,9 +92,7 @@ class _LecturerEditProfileScreenState extends State<LecturerEditProfileScreen> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final profile = provider.lecturerProfile;
 
-    if (profile != null && _emailController.text.isEmpty) {
-      _loadData(provider);
-    }
+
 
     return Scaffold(
       body: Stack(
@@ -348,7 +348,10 @@ class _LecturerEditProfileScreenState extends State<LecturerEditProfileScreen> {
                 controller: _addressController,
                 label: 'Địa chỉ thường trú',
                 icon: Icons.home,
-                maxLines: 3,
+                maxLines: null,
+                minLines: 1,
+                keyboardType: TextInputType.multiline,
+
                 validator: (value) {
                   if (value?.isEmpty ?? true) return 'Vui lòng nhập địa chỉ';
                   return null;
@@ -368,12 +371,14 @@ class _LecturerEditProfileScreenState extends State<LecturerEditProfileScreen> {
     required IconData icon,
     TextInputType? keyboardType,
     String? Function(String?)? validator,
-    int maxLines = 1,
+    int? minLines,
+    int? maxLines,
     required bool isDark,
   }) {
     return TextFormField(
       controller: controller,
-      keyboardType: keyboardType,
+      keyboardType: keyboardType ?? TextInputType.text,
+      minLines: minLines,
       maxLines: maxLines,
       validator: validator,
       style: TextStyle(color: isDark ? Colors.white : Colors.black87),
