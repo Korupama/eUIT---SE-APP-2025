@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import '../widgets/animated_background.dart';
 import '../theme/app_theme.dart';
 import '../utils/app_localizations.dart';
@@ -37,7 +38,8 @@ class _IntroductionLetterScreenState extends State<IntroductionLetterScreen> {
       lastDate: DateTime(now.year + 10),
     );
     if (picked != null) {
-      controller.text = picked.toIso8601String().split('T').first; // yyyy-mm-dd
+      // Format as dd/MM/yyyy
+      controller.text = DateFormat('dd/MM/yyyy').format(picked);
     }
   }
 
@@ -75,7 +77,9 @@ class _IntroductionLetterScreenState extends State<IntroductionLetterScreen> {
         ),
       ),
       body: Stack(
+        fit: StackFit.expand,
         children: [
+          // Full-screen animated background
           Positioned.fill(child: AnimatedBackground(isDark: isDark)),
           SafeArea(
             child: Padding(
@@ -131,6 +135,9 @@ class _IntroductionLetterScreenState extends State<IntroductionLetterScreen> {
                                 TextFormField(
                                   controller: _recipientController,
                                   validator: (v) => (v == null || v.trim().isEmpty) ? loc.t('required') : null,
+                                  keyboardType: TextInputType.multiline,
+                                  minLines: 1,
+                                  maxLines: null,
                                   style: TextStyle(color: isDark ? Colors.white : Colors.black87),
                                   decoration: InputDecoration(
                                     labelText: loc.t('intro_recipient_label'),
@@ -147,6 +154,9 @@ class _IntroductionLetterScreenState extends State<IntroductionLetterScreen> {
                                 TextFormField(
                                   controller: _destinationController,
                                   validator: (v) => (v == null || v.trim().isEmpty) ? loc.t('required') : null,
+                                  keyboardType: TextInputType.multiline,
+                                  minLines: 1,
+                                  maxLines: null,
                                   style: TextStyle(color: isDark ? Colors.white : Colors.black87),
                                   decoration: InputDecoration(
                                     labelText: loc.t('intro_destination_label'),
@@ -159,10 +169,12 @@ class _IntroductionLetterScreenState extends State<IntroductionLetterScreen> {
                                 ),
                                 const SizedBox(height: 12),
 
-                                // 3. Contact content (multi-line)
+                                // 3. Contact content (multi-line, auto-expand)
                                 TextFormField(
                                   controller: _contactController,
-                                  maxLines: 4,
+                                  keyboardType: TextInputType.multiline,
+                                  minLines: 3,
+                                  maxLines: null,
                                   validator: (v) => (v == null || v.trim().isEmpty) ? loc.t('required') : null,
                                   style: TextStyle(color: isDark ? Colors.white : Colors.black87),
                                   decoration: InputDecoration(
@@ -228,26 +240,29 @@ class _IntroductionLetterScreenState extends State<IntroductionLetterScreen> {
                     ),
                   ),
 
-                  // Fixed submit button at bottom
-                  Positioned(
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    child: SizedBox(
-                      height: 56,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppTheme.bluePrimary,
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                          elevation: 4,
-                        ),
-                        onPressed: _submit,
-                        child: Text(loc.t('submit_introduction_request'), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white)),
-                      ),
-                    ),
-                  ),
+                  // NOTE: submit button moved out to top-level Stack so it is fixed to screen bottom
+
                 ],
+              ),
+            ),
+          ),
+
+          // Fixed submit button at bottom of screen (outside scrollable area)
+          Positioned(
+            left: 16,
+            right: 16,
+            bottom: 12,
+            child: SizedBox(
+              height: 56,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.bluePrimary,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  elevation: 4,
+                ),
+                onPressed: _submit,
+                child: Text(loc.t('submit_introduction_request'), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white)),
               ),
             ),
           ),
