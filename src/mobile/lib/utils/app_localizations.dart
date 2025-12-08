@@ -222,6 +222,17 @@ class AppLocalizations {
       'toeic_speaking_hint': 'Nhập điểm Nói',
       'toeic_writing_label': 'Điểm Viết',
       'toeic_writing_hint': 'Nhập điểm Viết',
+
+      // New keys for introduction letter form
+      'intro_recipient_label': 'Nội dung Kính gửi (Nội dung đánh số 1 trong mẫu): *',
+      'intro_destination_label': 'Nơi đến (Nội dung đánh số 2 trong mẫu): *',
+      'intro_contact_label': 'Nội dung để liên hệ về việc (Nội dung đánh số 3 trong mẫu): *',
+      'intro_from_label': 'Từ ngày (Nội dung đánh số 4 trong mẫu): *',
+      'intro_to_label': 'Đến ngày (Nội dung đánh số 5 trong mẫu): *',
+      'submit_introduction_request': 'Đăng ký Xin cấp giấy giới thiệu',
+      'submission_received': 'Đã nhận yêu cầu',
+      'submission_received_message': 'Yêu cầu của bạn đã được ghi nhận.',
+      'required': 'Vui lòng nhập trường này',
     },
     'en': {
       'login': 'Login',
@@ -427,6 +438,17 @@ class AppLocalizations {
       'toeic_speaking_hint': 'Enter speaking score',
       'toeic_writing_label': 'Writing score',
       'toeic_writing_hint': 'Enter writing score',
+
+      // New keys for introduction letter form
+      'intro_recipient_label': 'Recipient content (template item #1): *',
+      'intro_destination_label': 'Destination (template item #2): *',
+      'intro_contact_label': 'Content to contact about (template item #3): *',
+      'intro_from_label': 'From date (template item #4): *',
+      'intro_to_label': 'To date (template item #5): *',
+      'submit_introduction_request': 'Request introduction letter',
+      'submission_received': 'Submission received',
+      'submission_received_message': 'Your request has been recorded.',
+      'required': 'Required',
     },
   };
 

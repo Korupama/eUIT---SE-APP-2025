@@ -5,6 +5,7 @@ import '../utils/app_localizations.dart';
 import 'student_confirmation_screen.dart';
 import 'parking_monthly_screen.dart';
 import 'certificate_confirmation_screen.dart';
+import 'introduction_letter_screen.dart';
 
 class ServicesScreen extends StatelessWidget {
   const ServicesScreen({super.key});
@@ -205,6 +206,13 @@ class ServicesScreen extends StatelessWidget {
                           isLarge: true,
                           iconVariant: 0,
                           orderIndex: index,
+                          onTap: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => const IntroductionLetterScreen(),
+                              ),
+                            );
+                          },
                         ),
                       );
                     }
