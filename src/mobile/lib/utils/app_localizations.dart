@@ -248,6 +248,14 @@ class AppLocalizations {
       'transcript_quantity_label': 'Số lượng',
       'transcript_registered_success': 'Yêu cầu đăng ký bảng điểm đã được gửi (mô phỏng).',
       'choose': '- Chọn -',
+      // Regrade / Phúc khảo
+      'regrade_title': 'Đăng ký Phúc khảo',
+      'regrade_time_over': 'Đã hết thời gian phúc khảo',
+      'regrade_table_col_subject_code': 'Mã môn',
+      'regrade_table_col_class_code': 'Mã lớp',
+      'regrade_table_col_score': 'Điểm',
+      'regrade_table_col_note': 'Ghi chú',
+      'regrade_button': 'Phúc khảo',
     },
     'en': {
       'login': 'Login',
@@ -479,6 +487,14 @@ class AppLocalizations {
       'transcript_quantity_label': 'Quantity',
       'transcript_registered_success': 'Transcript request submitted (simulated).',
       'choose': '- Choose -',
+      // Regrade / Phúc khảo
+      'regrade_title': 'Regrade request',
+      'regrade_time_over': 'Regrade period has ended',
+      'regrade_table_col_subject_code': 'Subject code',
+      'regrade_table_col_class_code': 'Class code',
+      'regrade_table_col_score': 'Score',
+      'regrade_table_col_note': 'Note',
+      'regrade_button': 'Request regrade',
     },
   };
 

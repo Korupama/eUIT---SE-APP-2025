@@ -14,8 +14,9 @@ class TranscriptRegistrationScreen extends StatefulWidget {
 class _TranscriptRegistrationScreenState extends State<TranscriptRegistrationScreen> {
   final _formKey = GlobalKey<FormState>();
 
-  String _transcriptType = '';
-  String _language = '';
+  // Use nullable types so we can show hint (initialValue == null) instead of an empty string
+  String? _transcriptType;
+  String? _language;
   int _quantity = 1;
 
   Widget _requiredLabel(String text, bool isDark) {
@@ -113,11 +114,11 @@ class _TranscriptRegistrationScreenState extends State<TranscriptRegistrationScr
                           DropdownButtonFormField<String>(
                             initialValue: _transcriptType,
                             isExpanded: true,
-                            items: [
-                              DropdownMenuItem(value: '', child: Text(loc.t('transcript_type_placeholder'), overflow: TextOverflow.ellipsis)),
-                              ...types.map((e) => DropdownMenuItem(value: e, child: Text(e, overflow: TextOverflow.ellipsis))).toList(),
-                            ],
-                            onChanged: (v) => setState(() => _transcriptType = v ?? ''),
+                            isDense: true,
+                            iconSize: 20,
+                            hint: Text(loc.t('transcript_type_placeholder'), overflow: TextOverflow.ellipsis),
+                            items: types.map((e) => DropdownMenuItem(value: e, child: Text(e, overflow: TextOverflow.ellipsis))).toList(),
+                            onChanged: (v) => setState(() => _transcriptType = v),
                             decoration: InputDecoration(
                               filled: true,
                               fillColor: isDark ? const Color.fromRGBO(0,0,0,0.3) : Colors.white,
@@ -134,11 +135,11 @@ class _TranscriptRegistrationScreenState extends State<TranscriptRegistrationScr
                           DropdownButtonFormField<String>(
                             initialValue: _language,
                             isExpanded: true,
-                            items: [
-                              DropdownMenuItem(value: '', child: Text(loc.t('choose'), overflow: TextOverflow.ellipsis)),
-                              ...languages.map((e) => DropdownMenuItem(value: e, child: Text(e, overflow: TextOverflow.ellipsis))).toList(),
-                            ],
-                            onChanged: (v) => setState(() => _language = v ?? ''),
+                            isDense: true,
+                            iconSize: 20,
+                            hint: Text(loc.t('choose'), overflow: TextOverflow.ellipsis),
+                            items: languages.map((e) => DropdownMenuItem(value: e, child: Text(e, overflow: TextOverflow.ellipsis))).toList(),
+                            onChanged: (v) => setState(() => _language = v),
                             decoration: InputDecoration(
                               filled: true,
                               fillColor: isDark ? const Color.fromRGBO(0,0,0,0.3) : Colors.white,
@@ -155,6 +156,8 @@ class _TranscriptRegistrationScreenState extends State<TranscriptRegistrationScr
                           DropdownButtonFormField<int>(
                             initialValue: _quantity,
                             isExpanded: true,
+                            isDense: true,
+                            iconSize: 20,
                             items: quantities.map((q) => DropdownMenuItem(value: q, child: Text(q.toString(), overflow: TextOverflow.ellipsis))).toList(),
                             onChanged: (v) => setState(() => _quantity = v ?? 1),
                             decoration: InputDecoration(
