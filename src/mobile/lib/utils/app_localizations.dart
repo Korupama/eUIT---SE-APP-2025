@@ -224,6 +224,7 @@ class AppLocalizations {
       'toeic_writing_hint': 'Nhập điểm Viết',
 
       // New keys for introduction letter form
+      'introduction_letter': 'Đăng ký Giấy giới thiệu',
       'intro_recipient_label': 'Nội dung Kính gửi (Nội dung đánh số 1 trong mẫu): *',
       'intro_destination_label': 'Nơi đến (Nội dung đánh số 2 trong mẫu): *',
       'intro_contact_label': 'Nội dung để liên hệ về việc (Nội dung đánh số 3 trong mẫu): *',
@@ -440,6 +441,7 @@ class AppLocalizations {
       'toeic_writing_hint': 'Enter writing score',
 
       // New keys for introduction letter form
+      'introduction_letter': 'Introduction Letter',
       'intro_recipient_label': 'Recipient content (template item #1): *',
       'intro_destination_label': 'Destination (template item #2): *',
       'intro_contact_label': 'Content to contact about (template item #3): *',
