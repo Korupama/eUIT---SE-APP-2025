@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:flutter/services.dart';
 import '../../providers/lecturer_provider.dart';
 import '../../theme/app_theme.dart';
 import '../../utils/app_localizations.dart';
@@ -86,55 +85,27 @@ class _LecturerHomeScreenState extends State<LecturerHomeScreen>
   }
 
   Future<void> _tryOpenRegulationsOrShowDialog() async {
-    const urlStr = 'https://daa.uit.edu.vn/qui-che-qui-dinh-qui-trinh';
-    final url = Uri.parse(urlStr);
-    bool launched = false;
+    final url = Uri.parse('https://daa.uit.edu.vn/qui-che-qui-dinh-qui-trinh');
     try {
-      if (await canLaunchUrl(url)) {
-        launched = await launchUrl(url, mode: LaunchMode.externalApplication);
+      final launched = await launchUrl(url, mode: LaunchMode.externalApplication);
+      if (!launched && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Không thể mở trang quy định'),
+            backgroundColor: Color(0xFFEF4444),
+          ),
+        );
       }
-    } catch (_) {
-      launched = false;
-    }
-    if (!launched && mounted) {
-      _showRegulationsDialog(urlStr);
-    }
-  }
-
-  void _showRegulationsDialog(String url) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Quy định'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text('Không thể mở trực tiếp trang quy định. Vui lòng sao chép link và dán vào trình duyệt:'),
-            const SizedBox(height: 12),
-            SelectableText(url, style: const TextStyle(color: Colors.blue)),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () async {
-              await Clipboard.setData(ClipboardData(text: url));
-              Navigator.of(context).pop();
-              if (mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Đã sao chép link vào clipboard!')),
-                );
-              }
-            },
-            child: const Text('Sao chép link'),
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Lỗi: ${e.toString()}'),
+            backgroundColor: const Color(0xFFEF4444),
           ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Đóng'),
-          ),
-        ],
-      ),
-    );
+        );
+      }
+    }
   }
   // ...existing code...
 
