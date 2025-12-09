@@ -468,6 +468,70 @@ public class AdminController : ControllerBase
     }
 
     #endregion
+
+    #region Regulations Seeding
+
+    /// <summary>
+    /// Load regulations from StaticContent/documents directory
+    /// </summary>
+    [HttpPost("seed-regulations")]
+    public async Task<IActionResult> SeedRegulations()
+    {
+        try
+        {
+            var documentsDir = Path.Combine(
+                AppContext.BaseDirectory,
+                "..", "..", "StaticContent", "documents"
+            );
+
+            if (!Directory.Exists(documentsDir))
+            {
+                return BadRequest(new { message = $"Documents directory not found: {documentsDir}" });
+            }
+
+            // Get all PDF files
+            var pdfFiles = Directory.GetFiles(documentsDir, "*.pdf")
+                .Where(f => !Path.GetFileName(f).StartsWith("."))
+                .OrderBy(f => f)
+                .ToList();
+
+            _logger.LogInformation($"Found {pdfFiles.Count} PDF files to seed");
+
+            int insertedCount = 0;
+
+            foreach (var pdfPath in pdfFiles)
+            {
+                var fileName = Path.GetFileName(pdfPath);
+                var nameWithoutExt = Path.GetFileNameWithoutExtension(pdfPath);
+                var escapedName = nameWithoutExt.Replace("'", "''");
+                var escapedFileName = fileName.Replace("'", "''");
+
+                // Try to get or create
+                var sql = $@"
+                INSERT INTO van_ban (ten_van_ban, url_van_ban, ngay_ban_hanh)
+                VALUES ('{escapedName}', '{escapedFileName}', NULL)
+                ON CONFLICT (ten_van_ban) DO UPDATE 
+                SET url_van_ban = EXCLUDED.url_van_ban, ngay_ban_hanh = EXCLUDED.ngay_ban_hanh;
+            ";
+
+                await _context.Database.ExecuteSqlRawAsync(sql);
+                insertedCount++;
+            }
+
+            return Ok(new 
+            { 
+                message = $"Successfully loaded {insertedCount} regulations",
+                count = pdfFiles.Count
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error seeding regulations");
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
+    #endregion
 }
 
 #region Request DTOs

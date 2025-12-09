@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:pdfrx/pdfrx.dart';
 import 'package:provider/provider.dart';
 import '../../providers/academic_provider.dart';
 import '../../widgets/animated_background.dart';
+import '../../utils/app_localizations.dart';
 
 class TrainingRegulationsScreen extends StatefulWidget {
   const TrainingRegulationsScreen({super.key});
 
   @override
-  State<TrainingRegulationsScreen> createState() => _TrainingRegulationsScreenState();
+  State<TrainingRegulationsScreen> createState() =>
+      _TrainingRegulationsScreenState();
 }
 
 class _TrainingRegulationsScreenState extends State<TrainingRegulationsScreen> {
   final TextEditingController _searchController = TextEditingController();
-  String _searchQuery = '';
 
   @override
   void initState() {
@@ -22,13 +24,24 @@ class _TrainingRegulationsScreenState extends State<TrainingRegulationsScreen> {
     });
   }
 
-  String? get regulationsText {
-    return context.watch<AcademicProvider>().regulations;
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final provider = context.watch<AcademicProvider>();
+    final regulations = provider.regulations;
+    final isLoading = provider.isRegulationsLoading;
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardColor = isDark
+        ? const Color.fromRGBO(30, 41, 59, 0.62)
+        : const Color.fromRGBO(255, 255, 255, 0.9);
+    final strokeColor = isDark
+        ? const Color.fromRGBO(255, 255, 255, 0.10)
+        : const Color.fromRGBO(0, 0, 0, 0.05);
 
     return Scaffold(
       extendBodyBehindAppBar: true,
@@ -36,7 +49,10 @@ class _TrainingRegulationsScreenState extends State<TrainingRegulationsScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: isDark ? Colors.white : Colors.black87),
+          icon: Icon(
+            Icons.arrow_back,
+            color: isDark ? Colors.white : Colors.black87,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
@@ -54,21 +70,53 @@ class _TrainingRegulationsScreenState extends State<TrainingRegulationsScreen> {
           Positioned.fill(child: AnimatedBackground(isDark: isDark)),
           Positioned.fill(
             child: SafeArea(
-              child: SingleChildScrollView(
-                child: Padding(
-                  padding: EdgeInsets.all(20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Search Section
-                      _buildSearchSection(),
-
-                      SizedBox(height: 24),
-
-                      // Regulations List
-                      _buildRegulationsList(),
-                    ],
-                  ),
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildSearchSection(cardColor, strokeColor, isDark),
+                    const SizedBox(height: 16),
+                    Expanded(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: cardColor,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: strokeColor, width: 1),
+                        ),
+                        child: isLoading
+                            ? const Center(child: CircularProgressIndicator())
+                            : regulations.isEmpty
+                            ? Center(
+                                child: Text(
+                                  'Chưa có dữ liệu quy chế',
+                                  style: TextStyle(
+                                    color: Colors.white.withOpacity(0.7),
+                                  ),
+                                ),
+                              )
+                            : ListView.separated(
+                                padding: const EdgeInsets.all(12),
+                                itemBuilder: (context, index) {
+                                  final item = regulations[index];
+                                  return _RegulationTile(
+                                    index: index,
+                                    title: item.tenVanBan,
+                                    date: item.ngayBanHanh,
+                                    isDark: isDark,
+                                    onTap: () => _openPdf(
+                                      item.urlVanBan,
+                                      item.tenVanBan,
+                                    ),
+                                  );
+                                },
+                                separatorBuilder: (_, __) =>
+                                    const SizedBox(height: 10),
+                                itemCount: regulations.length,
+                              ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -78,85 +126,34 @@ class _TrainingRegulationsScreenState extends State<TrainingRegulationsScreen> {
     );
   }
 
-  Widget _buildSearchSection() {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final cardColor = isDark ? const Color.fromRGBO(30, 41, 59, 0.62) : const Color.fromRGBO(255, 255, 255, 0.9);
-    final strokeColor = isDark ? const Color.fromRGBO(255, 255, 255, 0.10) : const Color.fromRGBO(0, 0, 0, 0.05);
-
+  Widget _buildSearchSection(Color cardColor, Color strokeColor, bool isDark) {
     return Container(
-      padding: EdgeInsets.all(20),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
         color: cardColor,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: strokeColor,
-          width: 1,
-        ),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: strokeColor, width: 1),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
         children: [
-          Text(
-            'Tìm kiếm văn bản',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          SizedBox(height: 12),
-          Container(
-            decoration: BoxDecoration(
-              color: Color(0xFF0F172A),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: Color.fromRGBO(255, 255, 255, 0.10),
-                width: 1,
-              ),
-            ),
+          Icon(Icons.search, color: isDark ? Colors.white70 : Colors.black54),
+          const SizedBox(width: 10),
+          Expanded(
             child: TextField(
               controller: _searchController,
-              onChanged: (value) {
-                setState(() {
-                  _searchQuery = value;
-                });
-              },
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 14,
-              ),
               decoration: InputDecoration(
-                hintText: 'Nhập từ khóa để tìm kiếm (ví dụ: học vụ, học phí...)',
-                hintStyle: TextStyle(
-                  color: Color.fromRGBO(255, 255, 255, 0.4),
-                  fontSize: 14,
-                ),
-                prefixIcon: Icon(
-                  Icons.search,
-                  color: Color.fromRGBO(255, 255, 255, 0.5),
-                  size: 20,
-                ),
-                suffixIcon: _searchQuery.isNotEmpty
-                    ? IconButton(
-                  icon: Icon(
-                    Icons.clear,
-                    color: Color.fromRGBO(255, 255, 255, 0.5),
-                    size: 20,
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      _searchController.clear();
-                      _searchQuery = '';
-                    });
-                  },
-                )
-                    : null,
+                hintText: 'Tìm kiếm văn bản quy chế',
                 border: InputBorder.none,
-                contentPadding: EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 14,
+                hintStyle: TextStyle(
+                  color: isDark ? Colors.white54 : Colors.black45,
                 ),
               ),
+              style: TextStyle(color: isDark ? Colors.white : Colors.black87),
+              onChanged: (value) {
+                context.read<AcademicProvider>().fetchRegulations(
+                  searchTerm: value,
+                );
+              },
             ),
           ),
         ],
@@ -164,71 +161,97 @@ class _TrainingRegulationsScreenState extends State<TrainingRegulationsScreen> {
     );
   }
 
-  Widget _buildRegulationsList() {
-    final text = regulationsText;
-    if (text == null || text.isEmpty) {
-      final isDark = Theme.of(context).brightness == Brightness.dark;
-      final cardColor = isDark ? const Color.fromRGBO(30, 41, 59, 0.62) : const Color.fromRGBO(255, 255, 255, 0.9);
-      final strokeColor = isDark ? const Color.fromRGBO(255, 255, 255, 0.10) : const Color.fromRGBO(0, 0, 0, 0.05);
-      return Container(
-        padding: EdgeInsets.all(40),
-        decoration: BoxDecoration(
-          color: cardColor,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: strokeColor,
-            width: 1,
+  void _openPdf(String url, String title) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => Scaffold(
+          appBar: AppBar(
+            title: Text(title, maxLines: 1, overflow: TextOverflow.ellipsis),
           ),
-        ),
-        child: Center(
-          child: Text(
-            'Chưa có dữ liệu quy chế',
-            style: TextStyle(
-              color: isDark ? Color.fromRGBO(255,255,255,0.5) : Colors.black54,
-              fontSize: 14,
-            ),
-          ),
-        ),
-      );
-    }
-
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final cardColor = isDark ? const Color.fromRGBO(30, 41, 59, 0.62) : const Color.fromRGBO(255, 255, 255, 0.9);
-    final strokeColor = isDark ? const Color.fromRGBO(255, 255, 255, 0.10) : const Color.fromRGBO(0, 0, 0, 0.05);
-
-    return Container(
-      padding: EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: cardColor,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: strokeColor,
-          width: 1,
+          body: PdfViewer.uri(Uri.parse(url)),
         ),
       ),
-      child: Text(
-        text,
-        style: TextStyle(
-          color: isDark ? Color.fromRGBO(255,255,255,0.8) : Colors.black87,
-          fontSize: 14,
-          height: 1.6,
+    );
+  }
+}
+
+class _RegulationTile extends StatelessWidget {
+  const _RegulationTile({
+    required this.index,
+    required this.title,
+    required this.isDark,
+    this.date,
+    this.onTap,
+  });
+
+  final int index;
+  final String title;
+  final DateTime? date;
+  final bool isDark;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final cardColor = isDark
+        ? const Color.fromRGBO(40, 50, 70, 0.8)
+        : Colors.white;
+    final textColor = isDark ? Colors.white : Colors.black87;
+
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: cardColor,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.white.withOpacity(0.08)),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              '${index + 1}.',
+              style: TextStyle(color: textColor, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      color: textColor,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  if (date != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 6),
+                      child: Text(
+                        _formatDate(date!),
+                        style: TextStyle(
+                          color: textColor.withOpacity(0.7),
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            Icon(
+              Icons.picture_as_pdf_outlined,
+              color: textColor.withOpacity(0.8),
+            ),
+          ],
         ),
       ),
     );
   }
 
-  void _handleDownload(String title) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Đang tải về: $title'),
-        backgroundColor: Color(0xFF3B82F6),
-        duration: Duration(seconds: 2),
-        behavior: SnackBarBehavior.floating,
-        margin: EdgeInsets.all(16),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
-      ),
-    );
+  String _formatDate(DateTime date) {
+    return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
   }
 }

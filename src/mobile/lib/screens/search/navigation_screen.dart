@@ -133,10 +133,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
     }
 
     // Navigate to the screen
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => screen),
-    );
+    Navigator.push(context, MaterialPageRoute(builder: (context) => screen));
   }
 
   @override
@@ -211,7 +208,9 @@ class _NavigationScreenState extends State<NavigationScreen> {
                               Text(
                                 loc.t('search_subtitle'),
                                 style: TextStyle(
-                                  color: isDark ? Colors.grey.shade400 : Colors.grey.shade700,
+                                  color: isDark
+                                      ? Colors.grey.shade400
+                                      : Colors.grey.shade700,
                                   fontSize: 13,
                                 ),
                               ),
@@ -227,7 +226,9 @@ class _NavigationScreenState extends State<NavigationScreen> {
                 Container(
                   margin: const EdgeInsets.only(top: 8),
                   decoration: BoxDecoration(
-                    color: isDark ? const Color(0xFF0F1720) : Theme.of(context).colorScheme.surface,
+                    color: isDark
+                        ? const Color(0xFF0F1720)
+                        : Theme.of(context).colorScheme.surface,
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
                       color: Theme.of(context).dividerColor,
@@ -235,7 +236,9 @@ class _NavigationScreenState extends State<NavigationScreen> {
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: isDark ? Colors.black.withAlpha(24) : Colors.black.withAlpha(6),
+                        color: isDark
+                            ? Colors.black.withAlpha(24)
+                            : Colors.black.withAlpha(6),
                         blurRadius: 16,
                         offset: const Offset(0, 4),
                       ),
@@ -248,14 +251,24 @@ class _NavigationScreenState extends State<NavigationScreen> {
                         _searchQuery = value;
                       });
                     },
-                    style: TextStyle(color: isDark ? Colors.white : Colors.black87),
+                    style: TextStyle(
+                      color: isDark ? Colors.white : Colors.black87,
+                    ),
                     decoration: InputDecoration(
                       hintText: loc.t('search_hint'),
-                      hintStyle: TextStyle(color: isDark ? Colors.white54 : Colors.black45),
-                      prefixIcon: Icon(Icons.search, color: isDark ? Colors.white70 : Colors.black38),
+                      hintStyle: TextStyle(
+                        color: isDark ? Colors.white54 : Colors.black45,
+                      ),
+                      prefixIcon: Icon(
+                        Icons.search,
+                        color: isDark ? Colors.white70 : Colors.black38,
+                      ),
                       suffixIcon: _searchQuery.isNotEmpty
                           ? IconButton(
-                              icon: Icon(Icons.clear, color: isDark ? Colors.white70 : Colors.black45),
+                              icon: Icon(
+                                Icons.clear,
+                                color: isDark ? Colors.white70 : Colors.black45,
+                              ),
                               onPressed: () {
                                 setState(() {
                                   _searchController.clear();
@@ -265,7 +278,10 @@ class _NavigationScreenState extends State<NavigationScreen> {
                             )
                           : null,
                       border: InputBorder.none,
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 14,
+                      ),
                     ),
                   ),
                 ),
@@ -310,7 +326,9 @@ class _NavigationScreenState extends State<NavigationScreen> {
     final title = loc.t(item['titleKey']);
     final subtitle = loc.t(item['subtitleKey']);
     // For dark mode, use a semi-transparent white background for the inner icon box
-    final Color innerIconBg = isDark ? Color.fromRGBO(255, 255, 255, 0.1) : tileBg;
+    final Color innerIconBg = isDark
+        ? Color.fromRGBO(255, 255, 255, 0.1)
+        : tileBg;
 
     return GestureDetector(
       onTap: () {
@@ -322,7 +340,9 @@ class _NavigationScreenState extends State<NavigationScreen> {
           color: tileBg,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: Theme.of(context).dividerColor.withAlpha((0.08 * 255).round()),
+            color: Theme.of(
+              context,
+            ).dividerColor.withAlpha((0.08 * 255).round()),
             width: 1,
           ),
           boxShadow: [
@@ -348,7 +368,9 @@ class _NavigationScreenState extends State<NavigationScreen> {
                     shape: BoxShape.circle,
                     gradient: RadialGradient(
                       colors: [
-                        (item['color'] as Color).withAlpha((0.12 * 255).round()),
+                        (item['color'] as Color).withAlpha(
+                          (0.12 * 255).round(),
+                        ),
                         Colors.transparent,
                       ],
                     ),
@@ -371,11 +393,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
                         color: innerIconBg,
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: Icon(
-                        item['icon'],
-                        color: item['color'],
-                        size: 28,
-                      ),
+                      child: Icon(item['icon'], color: item['color'], size: 28),
                     ),
 
                     Spacer(),
@@ -398,7 +416,8 @@ class _NavigationScreenState extends State<NavigationScreen> {
                     Text(
                       subtitle,
                       style: TextStyle(
-                        color: Theme.of(context).textTheme.bodyMedium?.color?.withAlpha((0.7 * 255).round()),
+                        color: Theme.of(context).textTheme.bodyMedium?.color
+                            ?.withAlpha((0.7 * 255).round()),
                         fontSize: 12,
                         height: 1.3,
                       ),
@@ -436,22 +455,22 @@ class _NavigationScreenState extends State<NavigationScreen> {
 
   Widget _buildEmptyState() {
     final loc = AppLocalizations.of(context);
-    final iconColor = Theme.of(context).iconTheme.color?.withAlpha((0.2 * 255).round()) ?? Colors.grey.withAlpha((0.2 * 255).round());
+    final iconColor =
+        Theme.of(context).iconTheme.color?.withAlpha((0.2 * 255).round()) ??
+        Colors.grey.withAlpha((0.2 * 255).round());
 
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.search_off_outlined,
-            size: 80,
-            color: iconColor,
-          ),
+          Icon(Icons.search_off_outlined, size: 80, color: iconColor),
           SizedBox(height: 16),
           Text(
             loc.t('no_results'),
             style: TextStyle(
-              color: Theme.of(context).textTheme.bodyLarge?.color?.withAlpha((0.6 * 255).round()),
+              color: Theme.of(
+                context,
+              ).textTheme.bodyLarge?.color?.withAlpha((0.6 * 255).round()),
               fontSize: 18,
               fontWeight: FontWeight.w500,
             ),
@@ -460,7 +479,9 @@ class _NavigationScreenState extends State<NavigationScreen> {
           Text(
             loc.t('try_different_query'),
             style: TextStyle(
-              color: Theme.of(context).textTheme.bodyMedium?.color?.withAlpha((0.5 * 255).round()),
+              color: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.color?.withAlpha((0.5 * 255).round()),
               fontSize: 14,
             ),
           ),
