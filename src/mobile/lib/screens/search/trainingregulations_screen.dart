@@ -7,8 +7,8 @@ import '../../utils/app_localizations.dart';
 import '../../theme/app_theme.dart';
 
 // Backend configuration
-// Thay '10.0.2.2' bằng IP của máy chạy backend nếu cần (vd: '192.168.1.100')
-const String BACKEND_BASE_URL = 'http://10.0.2.2:5128';
+// Thay '`10.`0.2.2' bằng IP của máy chạy backend nếu cần (vd: '192.168.1.100')
+const String BACKEND_BASE_URL = String.fromEnvironment('API_URL', defaultValue: 'http://10.0.2.2:5000');
 
 // Normalize Vietnamese strings by removing diacritics for search matching
 String _stripDiacritics(String s) {
@@ -192,7 +192,7 @@ class _TrainingRegulationsScreenState extends State<TrainingRegulationsScreen> {
 
   Future<void> _openUrl(BuildContext context, String urlStr) async {
     // Replace localhost → emulator IP
-    String fixedUrl = urlStr.replaceFirst("http://localhost", "http://10.0.2.2");
+    String fixedUrl = urlStr.replaceFirst("http://localhost", BACKEND_BASE_URL);
 
     // Encode space + unicode
     final uri = Uri.parse(Uri.encodeFull(fixedUrl));
