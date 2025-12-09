@@ -191,8 +191,12 @@ class _TrainingRegulationsScreenState extends State<TrainingRegulationsScreen> {
   }
 
   Future<void> _openUrl(BuildContext context, String urlStr) async {
-    // Backend đã return toàn URL từ API, không cần thêm prefix
-    final uri = Uri.parse(urlStr);
+    // Replace localhost → emulator IP
+    String fixedUrl = urlStr.replaceFirst("http://localhost", "http://10.0.2.2");
+
+    // Encode space + unicode
+    final uri = Uri.parse(Uri.encodeFull(fixedUrl));
+
     try {
       final launched = await launchUrl(
         uri,
@@ -201,8 +205,8 @@ class _TrainingRegulationsScreenState extends State<TrainingRegulationsScreen> {
       if (!launched && context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Không thể mở trang quy định'),
-            backgroundColor: Color(0xFFEF4444),
+            content: Text('Không thể mở file PDF'),
+            backgroundColor: Colors.red,
           ),
         );
       }
@@ -210,8 +214,8 @@ class _TrainingRegulationsScreenState extends State<TrainingRegulationsScreen> {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Lỗi: ${e.toString()}'),
-            backgroundColor: const Color(0xFFEF4444),
+            content: Text('Lỗi mở file: $e'),
+            backgroundColor: Colors.red,
           ),
         );
       }
