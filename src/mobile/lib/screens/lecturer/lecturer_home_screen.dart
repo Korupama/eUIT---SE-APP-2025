@@ -62,7 +62,10 @@ class _LecturerHomeScreenState extends State<LecturerHomeScreen>
         Navigator.pushNamed(context, '/lecturer_documents');
         break;
       case 'lecturer_regulations':
-        _tryOpenRegulationsOrShowDialog();
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const RegulationsListScreen()),
+        );
         break;
       case 'lecturer_exam_schedule':
         Navigator.pushNamed(context, '/lecturer_exam_schedule');
