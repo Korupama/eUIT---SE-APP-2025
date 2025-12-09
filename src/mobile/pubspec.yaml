@@ -30,6 +30,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  pdfrx: ^2.2.15
   flutter_svg: ^2.0.7
   url_launcher: ^6.1.14
   provider: ^6.1.2
