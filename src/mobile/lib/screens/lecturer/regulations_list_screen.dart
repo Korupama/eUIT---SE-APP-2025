@@ -5,6 +5,51 @@ import '../../widgets/animated_background.dart';
 import '../../utils/app_localizations.dart';
 import '../../theme/app_theme.dart';
 
+// Normalize Vietnamese strings by removing diacritics for search matching
+String _stripDiacritics(String s) {
+  if (s.isEmpty) return s;
+  const map = {
+    'à': 'a', 'á': 'a', 'ạ': 'a', 'ả': 'a', 'ã': 'a',
+    'â': 'a', 'ầ': 'a', 'ấ': 'a', 'ậ': 'a', 'ẩ': 'a', 'ẫ': 'a',
+    'ă': 'a', 'ằ': 'a', 'ắ': 'a', 'ặ': 'a', 'ẳ': 'a', 'ẵ': 'a',
+
+    'À': 'A', 'Á': 'A', 'Ạ': 'A', 'Ả': 'A', 'Ã': 'A',
+    'Â': 'A', 'Ầ': 'A', 'Ấ': 'A', 'Ậ': 'A', 'Ẩ': 'A', 'Ẫ': 'A',
+    'Ă': 'A', 'Ằ': 'A', 'Ắ': 'A', 'Ặ': 'A', 'Ẳ': 'A', 'Ẵ': 'A',
+
+    'è': 'e', 'é': 'e', 'ẹ': 'e', 'ẻ': 'e', 'ẽ': 'e',
+    'ê': 'e', 'ề': 'e', 'ế': 'e', 'ệ': 'e', 'ể': 'e', 'ễ': 'e',
+    'È': 'E', 'É': 'E', 'Ẹ': 'E', 'Ẻ': 'E', 'Ẽ': 'E',
+    'Ê': 'E', 'Ề': 'E', 'Ế': 'E', 'Ệ': 'E', 'Ể': 'E', 'Ễ': 'E',
+
+    'ì': 'i', 'í': 'i', 'ị': 'i', 'ỉ': 'i', 'ĩ': 'i',
+    'Ì': 'I', 'Í': 'I', 'Ị': 'I', 'Ỉ': 'I', 'Ĩ': 'I',
+
+    'ò': 'o', 'ó': 'o', 'ọ': 'o', 'ỏ': 'o', 'õ': 'o',
+    'ô': 'o', 'ồ': 'o', 'ố': 'o', 'ộ': 'o', 'ổ': 'o', 'ỗ': 'o',
+    'ơ': 'o', 'ờ': 'o', 'ớ': 'o', 'ợ': 'o', 'ở': 'o', 'ỡ': 'o',
+    'Ò': 'O', 'Ó': 'O', 'Ọ': 'O', 'Ỏ': 'O', 'Õ': 'O',
+    'Ô': 'O', 'Ồ': 'O', 'Ố': 'O', 'Ộ': 'O', 'Ổ': 'O', 'Ỗ': 'O',
+    'Ơ': 'O', 'Ờ': 'O', 'Ớ': 'O', 'Ợ': 'O', 'Ở': 'O', 'Ỡ': 'O',
+
+    'ù': 'u', 'ú': 'u', 'ụ': 'u', 'ủ': 'u', 'ũ': 'u',
+    'ư': 'u', 'ừ': 'u', 'ứ': 'u', 'ự': 'u', 'ử': 'u', 'ữ': 'u',
+    'Ù': 'U', 'Ú': 'U', 'Ụ': 'U', 'Ủ': 'U', 'Ũ': 'U',
+    'Ư': 'U', 'Ừ': 'U', 'Ứ': 'U', 'Ự': 'U', 'Ử': 'U', 'Ữ': 'U',
+
+    'ỳ': 'y', 'ý': 'y', 'ỵ': 'y', 'ỷ': 'y', 'ỹ': 'y',
+    'Ỳ': 'Y', 'Ý': 'Y', 'Ỵ': 'Y', 'Ỷ': 'Y', 'Ỹ': 'Y',
+
+    'đ': 'd', 'Đ': 'D'
+  };
+
+  var out = StringBuffer();
+  for (var ch in s.split('')) {
+    out.write(map[ch] ?? ch);
+  }
+  return out.toString();
+}
+
 class RegulationsListScreen extends StatefulWidget {
   const RegulationsListScreen({super.key});
 
@@ -221,10 +266,13 @@ class _RegulationsListScreenState extends State<RegulationsListScreen> {
       if (lower.isEmpty) {
         _filtered = List.from(_items);
       } else {
+        final normQuery = _stripDiacritics(lower);
         _filtered = _items.where((it) {
           final title = (it['title'] ?? '').toLowerCase();
           final url = (it['url'] ?? '').toLowerCase();
-          return title.contains(lower) || url.contains(lower);
+          final normTitle = _stripDiacritics(title);
+          final normUrl = _stripDiacritics(url);
+          return normTitle.contains(normQuery) || normUrl.contains(normQuery);
         }).toList();
       }
     });
@@ -273,7 +321,7 @@ class _RegulationsListScreenState extends State<RegulationsListScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text('Quy định', style: AppTheme.headingMedium.copyWith(color: isDark ? Colors.white : Colors.black87)),
-                            Text('${_items.length} mục', style: AppTheme.bodySmall.copyWith(color: isDark ? Colors.grey.shade400 : Colors.grey.shade600)),
+                            // Count removed per request
                           ],
                         ),
                       ),
