@@ -8,7 +8,7 @@ import '../../theme/app_theme.dart';
 import '../../utils/app_localizations.dart';
 import 'package:shimmer/shimmer.dart';
 import '../../widgets/lecturer_id_card.dart';
-import 'regulations_webview_screen.dart';
+import 'regulations_list_screen.dart';
 
 /// LecturerHomeScreen - Trang chủ cho giảng viên
 class LecturerHomeScreen extends StatefulWidget {
@@ -64,7 +64,7 @@ class _LecturerHomeScreenState extends State<LecturerHomeScreen>
       case 'lecturer_regulations':
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => const RegulationsListScreen()),
+          MaterialPageRoute(builder: (context) => RegulationsListScreen()),
         );
         break;
       case 'lecturer_exam_schedule':

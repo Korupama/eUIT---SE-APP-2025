@@ -11,7 +11,7 @@ class RegulationsListScreen extends StatefulWidget {
 }
 
 class _RegulationsListScreenState extends State<RegulationsListScreen> {
-  static const List<Map<String, String>> _items = [
+  static final List<Map<String, String>> _items = [
     {
       'title': '01. Quyết định về việc ban hành Quy chế đào tạo theo học chế tín chỉ',
       'url': 'https://daa.uit.edu.vn/01-quyet-dinh-ve-viec-ban-hanh-quy-che-dao-tao-theo-hoc-che-tin-chi'
