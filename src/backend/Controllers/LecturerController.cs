@@ -5,6 +5,7 @@ using eUIT.API.Data;
 using eUIT.API.DTOs;
 using eUIT.API.Services;
 using System.Security.Claims;
+using Npgsql;
 
 namespace eUIT.API.Controllers;
 
@@ -40,6 +41,17 @@ public sealed class LecturerController : ControllerBase
         if (string.IsNullOrEmpty(lecturerId))
             return (null, Unauthorized(new { error = "Lecturer ID not found in token" }));
         return (lecturerId, null);
+    }
+
+    // Private type to map database function result for tuition (matches StudentsController.TuitionInfo)
+    private class TuitionInfo
+    {
+        public string hoc_ky { get; set; } = string.Empty;
+        public int so_tin_chi { get; set; }
+        public long hoc_phi { get; set; }
+        public long no_hoc_ky_truoc { get; set; }
+        public long da_dong { get; set; }
+        public long so_tien_con_lai { get; set; }
     }
 
     #endregion
@@ -636,7 +648,7 @@ public sealed class LecturerController : ControllerBase
     /// GET /api/lecturer/tuition - Xem thông tin học phí của sinh viên
     /// </summary>
     [HttpGet("tuition")]
-    public async Task<ActionResult<StudentTuitionDto>> GetStudentTuition(
+    public async Task<ActionResult<TotalTuitionDto>> GetStudentTuition(
         [FromQuery] int mssv,
         [FromQuery] string? hocKy = null)
     {
@@ -648,17 +660,35 @@ public sealed class LecturerController : ControllerBase
 
         try
         {
-            var tuition = await _context.Database
-                .SqlQueryRaw<StudentTuitionDto>(
-                    "SELECT * FROM func_get_student_tuition({0}, {1})",
-                    mssv,
-                    hocKy ?? "")
-                .FirstOrDefaultAsync();
+            var mssvParam = new NpgsqlParameter("p_mssv", mssv);
+            var yearParam = new NpgsqlParameter("p_year_filter", (object)hocKy ?? DBNull.Value);
 
-            if (tuition == null)
+            var tuitionInfos = await _context.Database
+                .SqlQueryRaw<TuitionInfo>("SELECT * FROM func_get_student_tuition(@p_mssv, @p_year_filter)", mssvParam, yearParam)
+                .ToListAsync();
+
+            if (tuitionInfos == null || tuitionInfos.Count == 0)
                 return NotFound(new { error = "No tuition information found" });
 
-            return Ok(tuition);
+            var detailedTuition = tuitionInfos.Select(t => new TuitionDto
+            {
+                HocKy = t.hoc_ky,
+                SoTinChi = t.so_tin_chi,
+                HocPhi = t.hoc_phi,
+                NoHocKyTruoc = t.no_hoc_ky_truoc,
+                DaDong = t.da_dong,
+                SoTienConLai = t.so_tien_con_lai
+            }).ToList();
+
+            var totalTuition = new TotalTuitionDto
+            {
+                TongHocPhi = detailedTuition.Sum(t => t.HocPhi),
+                TongDaDong = detailedTuition.Sum(t => t.DaDong),
+                TongConLai = detailedTuition.Sum(t => t.SoTienConLai),
+                ChiTietHocPhi = detailedTuition
+            };
+
+            return Ok(totalTuition);
         }
         catch (Exception ex)
         {
