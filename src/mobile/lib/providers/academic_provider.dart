@@ -5,6 +5,7 @@ import '../services/api_client.dart';
 import '../models/grades_detail.dart';
 import '../models/student_models.dart';
 import '../models/auth_models.dart';
+import '../models/content_models.dart';
 
 /// AcademicProvider handles fetching academic data like grades, tuition, training, content.
 class AcademicProvider extends ChangeNotifier {
@@ -39,8 +40,12 @@ class AcademicProvider extends ChangeNotifier {
   Map<String, dynamic>? get trainingProgram => _trainingProgram;
 
   // Regulations
-  String? _regulations;
-  String? get regulations => _regulations;
+  List<Regulation> _regulations = [];
+  List<Regulation> get regulations => _regulations;
+  String? _regulationMessage;
+  String? get regulationMessage => _regulationMessage;
+  bool _isRegulationsLoading = false;
+  bool get isRegulationsLoading => _isRegulationsLoading;
 
   // Annual plan
   String? _planImageUrl;
@@ -94,7 +99,8 @@ class AcademicProvider extends ChangeNotifier {
     _trainingPoints = [];
     _trainingScores = null;
     _trainingProgram = null;
-    _regulations = null;
+    _regulations = [];
+    _regulationMessage = null;
     _planImageUrl = null;
     _planDescription = null;
     _progress = null;
@@ -105,9 +111,17 @@ class AcademicProvider extends ChangeNotifier {
   }
 
   /// Fetch grades (list)
-  Future<void> fetchGrades({String? semester, bool forceRefresh = false}) async {
-    if (_gradesCached && !forceRefresh && (semester == null || semester.isEmpty)) {
-      developer.log('fetchGrades: returning cached data', name: 'AcademicProvider');
+  Future<void> fetchGrades({
+    String? semester,
+    bool forceRefresh = false,
+  }) async {
+    if (_gradesCached &&
+        !forceRefresh &&
+        (semester == null || semester.isEmpty)) {
+      developer.log(
+        'fetchGrades: returning cached data',
+        name: 'AcademicProvider',
+      );
       return;
     }
 
@@ -117,7 +131,8 @@ class AcademicProvider extends ChangeNotifier {
     try {
       developer.log('Fetching grades...', name: 'AcademicProvider');
       final queryParams = <String, String>{};
-      if (semester != null && semester.isNotEmpty) queryParams['filter_by_semester'] = semester;
+      if (semester != null && semester.isNotEmpty)
+        queryParams['filter_by_semester'] = semester;
 
       final data = await _client.get('/grades', queryParameters: queryParams);
 
@@ -125,7 +140,10 @@ class AcademicProvider extends ChangeNotifier {
         final gradesList = data['grades'] as List? ?? [];
         _grades = gradesList.map((e) => e as Map<String, dynamic>).toList();
         _gradesCached = (semester == null || semester.isEmpty);
-        developer.log('Grades fetched: ${_grades.length}', name: 'AcademicProvider');
+        developer.log(
+          'Grades fetched: ${_grades.length}',
+          name: 'AcademicProvider',
+        );
       }
     } catch (e) {
       developer.log('Error fetching grades: $e', name: 'AcademicProvider');
@@ -138,7 +156,10 @@ class AcademicProvider extends ChangeNotifier {
   /// Fetch tuition
   Future<void> fetchTuition({bool forceRefresh = false}) async {
     if (_tuitionCached && !forceRefresh) {
-      developer.log('fetchTuition: returning cached data', name: 'AcademicProvider');
+      developer.log(
+        'fetchTuition: returning cached data',
+        name: 'AcademicProvider',
+      );
       return;
     }
 
@@ -163,9 +184,17 @@ class AcademicProvider extends ChangeNotifier {
   }
 
   /// Fetch training scores (typed)
-  Future<void> fetchTrainingScores({String? filterBySemester, bool forceRefresh = false}) async {
-    if (_trainingScoresCached && !forceRefresh && (filterBySemester == null || filterBySemester.isEmpty)) {
-      developer.log('fetchTrainingScores: returning cached data', name: 'AcademicProvider');
+  Future<void> fetchTrainingScores({
+    String? filterBySemester,
+    bool forceRefresh = false,
+  }) async {
+    if (_trainingScoresCached &&
+        !forceRefresh &&
+        (filterBySemester == null || filterBySemester.isEmpty)) {
+      developer.log(
+        'fetchTrainingScores: returning cached data',
+        name: 'AcademicProvider',
+      );
       return;
     }
 
@@ -179,18 +208,30 @@ class AcademicProvider extends ChangeNotifier {
         queryParams['filter_by_semester'] = filterBySemester;
       }
 
-      final data = await _client.get('/training-scores', queryParameters: queryParams);
+      final data = await _client.get(
+        '/training-scores',
+        queryParameters: queryParams,
+      );
 
       if (data != null && data is Map<String, dynamic>) {
         _trainingScores = TrainingScoreListResponse.fromJson(data);
         // also keep the raw trainingPoints list for other usages
         final pointsList = data['trainingScores'] as List? ?? [];
-        _trainingPoints = pointsList.map((e) => e as Map<String, dynamic>).toList();
-        _trainingScoresCached = (filterBySemester == null || filterBySemester.isEmpty);
-        developer.log('Training scores fetched: ${_trainingScores?.trainingScores.length}', name: 'AcademicProvider');
+        _trainingPoints = pointsList
+            .map((e) => e as Map<String, dynamic>)
+            .toList();
+        _trainingScoresCached =
+            (filterBySemester == null || filterBySemester.isEmpty);
+        developer.log(
+          'Training scores fetched: ${_trainingScores?.trainingScores.length}',
+          name: 'AcademicProvider',
+        );
       }
     } catch (e) {
-      developer.log('Error fetching training scores: $e', name: 'AcademicProvider');
+      developer.log(
+        'Error fetching training scores: $e',
+        name: 'AcademicProvider',
+      );
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -198,9 +239,17 @@ class AcademicProvider extends ChangeNotifier {
   }
 
   /// Fetch training points
-  Future<void> fetchTrainingPoints({String? semester, bool forceRefresh = false}) async {
-    if (_trainingPointsCached && !forceRefresh && (semester == null || semester.isEmpty)) {
-      developer.log('fetchTrainingPoints: returning cached data', name: 'AcademicProvider');
+  Future<void> fetchTrainingPoints({
+    String? semester,
+    bool forceRefresh = false,
+  }) async {
+    if (_trainingPointsCached &&
+        !forceRefresh &&
+        (semester == null || semester.isEmpty)) {
+      developer.log(
+        'fetchTrainingPoints: returning cached data',
+        name: 'AcademicProvider',
+      );
       return;
     }
 
@@ -210,18 +259,30 @@ class AcademicProvider extends ChangeNotifier {
     try {
       developer.log('Fetching training points...', name: 'AcademicProvider');
       final queryParams = <String, String>{};
-      if (semester != null && semester.isNotEmpty) queryParams['filter_by_semester'] = semester;
+      if (semester != null && semester.isNotEmpty)
+        queryParams['filter_by_semester'] = semester;
 
-      final data = await _client.get('/training-scores', queryParameters: queryParams);
+      final data = await _client.get(
+        '/training-scores',
+        queryParameters: queryParams,
+      );
 
       if (data != null && data is Map<String, dynamic>) {
         final pointsList = data['trainingScores'] as List? ?? [];
-        _trainingPoints = pointsList.map((e) => e as Map<String, dynamic>).toList();
+        _trainingPoints = pointsList
+            .map((e) => e as Map<String, dynamic>)
+            .toList();
         if (semester == null || semester.isEmpty) _trainingPointsCached = true;
-        developer.log('Training points fetched: ${_trainingPoints.length}', name: 'AcademicProvider');
+        developer.log(
+          'Training points fetched: ${_trainingPoints.length}',
+          name: 'AcademicProvider',
+        );
       }
     } catch (e) {
-      developer.log('Error fetching training points: $e', name: 'AcademicProvider');
+      developer.log(
+        'Error fetching training points: $e',
+        name: 'AcademicProvider',
+      );
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -231,7 +292,10 @@ class AcademicProvider extends ChangeNotifier {
   /// Fetch training program
   Future<void> fetchTrainingProgram({bool forceRefresh = false}) async {
     if (_trainingProgramCached && !forceRefresh) {
-      developer.log('fetchTrainingProgram: returning cached data', name: 'AcademicProvider');
+      developer.log(
+        'fetchTrainingProgram: returning cached data',
+        name: 'AcademicProvider',
+      );
       return;
     }
 
@@ -248,7 +312,10 @@ class AcademicProvider extends ChangeNotifier {
         developer.log('Training program fetched', name: 'AcademicProvider');
       }
     } catch (e) {
-      developer.log('Error fetching training program: $e', name: 'AcademicProvider');
+      developer.log(
+        'Error fetching training program: $e',
+        name: 'AcademicProvider',
+      );
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -256,28 +323,56 @@ class AcademicProvider extends ChangeNotifier {
   }
 
   /// Fetch regulations
-  Future<void> fetchRegulations({bool forceRefresh = false}) async {
-    if (_regulationsCached && !forceRefresh) {
-      developer.log('fetchRegulations: returning cached data', name: 'AcademicProvider');
+  Future<void> fetchRegulations({
+    bool forceRefresh = false,
+    String? searchTerm,
+  }) async {
+    final isDefaultQuery = searchTerm == null || searchTerm.isEmpty;
+    if (isDefaultQuery && _regulationsCached && !forceRefresh) {
+      developer.log(
+        'fetchRegulations: returning cached data',
+        name: 'AcademicProvider',
+      );
       return;
     }
 
-    _isLoading = true;
+    _isRegulationsLoading = true;
     notifyListeners();
 
     try {
       developer.log('Fetching regulations...', name: 'AcademicProvider');
-      final data = await _client.get('/api/public/regulations');
+      final query = <String, dynamic>{};
+      if (searchTerm != null && searchTerm.isNotEmpty) {
+        query['search_term'] = searchTerm;
+      }
 
-      if (data != null && data is String) {
-        _regulations = data;
-        _regulationsCached = true;
-        developer.log('Regulations fetched', name: 'AcademicProvider');
+      final data = await _client.get(
+        '/api/public/regulations',
+        queryParameters: query,
+        requireAuth: false,
+      );
+
+      if (data != null && data is Map<String, dynamic>) {
+        final parsed = RegulationListResponse.fromJson(data);
+        _regulations = parsed.regulations;
+        _regulationMessage = parsed.message;
+        if (isDefaultQuery) {
+          _regulationsCached = true;
+        }
+        developer.log(
+          'Regulations fetched (${_regulations.length})',
+          name: 'AcademicProvider',
+        );
+      } else {
+        _regulations = [];
+        _regulationMessage = 'Không có dữ liệu';
       }
     } catch (e) {
       developer.log('Error fetching regulations: $e', name: 'AcademicProvider');
+      _regulations = [];
+      _regulationMessage = 'Không thể tải quy chế';
     } finally {
-      _isLoading = false;
+      _isRegulationsLoading = false;
       notifyListeners();
     }
   }
@@ -285,7 +380,10 @@ class AcademicProvider extends ChangeNotifier {
   /// Fetch annual plan
   Future<void> fetchAnnualPlan({bool forceRefresh = false}) async {
     if (_annualPlanCached && !forceRefresh) {
-      developer.log('fetchAnnualPlan: returning cached data', name: 'AcademicProvider');
+      developer.log(
+        'fetchAnnualPlan: returning cached data',
+        name: 'AcademicProvider',
+      );
       return;
     }
 
@@ -295,7 +393,10 @@ class AcademicProvider extends ChangeNotifier {
     try {
       developer.log('Fetching annual plan...', name: 'AcademicProvider');
       // Public endpoint
-      final data = await _client.get('/api/public/academic-plan', requireAuth: false);
+      final data = await _client.get(
+        '/api/public/academic-plan',
+        requireAuth: false,
+      );
 
       if (data != null && data is Map<String, dynamic>) {
         if (data.isNotEmpty) {
@@ -309,9 +410,9 @@ class AcademicProvider extends ChangeNotifier {
         }
         developer.log('Annual plan fetched', name: 'AcademicProvider');
       } else {
-         // handle error or empty
-          _planDescription = null;
-          _planImageUrl = null;
+        // handle error or empty
+        _planDescription = null;
+        _planImageUrl = null;
       }
     } catch (e) {
       developer.log('Error fetching annual plan: $e', name: 'AcademicProvider');
@@ -326,7 +427,10 @@ class AcademicProvider extends ChangeNotifier {
   /// Fetch progress
   Future<void> fetchProgress({bool forceRefresh = false}) async {
     if (_progressCached && !forceRefresh) {
-      developer.log('fetchProgress: returning cached data', name: 'AcademicProvider');
+      developer.log(
+        'fetchProgress: returning cached data',
+        name: 'AcademicProvider',
+      );
       return;
     }
 
@@ -353,7 +457,10 @@ class AcademicProvider extends ChangeNotifier {
   /// Fetch grade details (subject-level)
   Future<void> fetchGradeDetails({bool forceRefresh = false}) async {
     if (_gradeDetailsCached && !forceRefresh) {
-      developer.log('fetchGradeDetails: returning cached data', name: 'AcademicProvider');
+      developer.log(
+        'fetchGradeDetails: returning cached data',
+        name: 'AcademicProvider',
+      );
       return;
     }
 
@@ -368,10 +475,16 @@ class AcademicProvider extends ChangeNotifier {
         _gradeDetails = GradesDetailResponse.fromJson(data);
         _gradeDetailsCached = true;
         // Log the number of semesters; fall back to 0 if null to avoid printing 'null'.
-        developer.log('Grade details fetched: ${_gradeDetails?.semesters.length ?? 0}', name: 'AcademicProvider');
+        developer.log(
+          'Grade details fetched: ${_gradeDetails?.semesters.length ?? 0}',
+          name: 'AcademicProvider',
+        );
       }
     } catch (e) {
-      developer.log('Error fetching grade details: $e', name: 'AcademicProvider');
+      developer.log(
+        'Error fetching grade details: $e',
+        name: 'AcademicProvider',
+      );
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -381,7 +494,10 @@ class AcademicProvider extends ChangeNotifier {
   /// Fetch student profile
   Future<void> fetchStudentProfile({bool forceRefresh = false}) async {
     if (_studentProfileCached && !forceRefresh) {
-      developer.log('fetchStudentProfile: returning cached data', name: 'AcademicProvider');
+      developer.log(
+        'fetchStudentProfile: returning cached data',
+        name: 'AcademicProvider',
+      );
       return;
     }
 
@@ -395,10 +511,16 @@ class AcademicProvider extends ChangeNotifier {
       if (data != null && data is Map<String, dynamic>) {
         _studentProfile = StudentProfile.fromJson(data);
         _studentProfileCached = true;
-        developer.log('Student profile fetched: ${_studentProfile?.hoTen}', name: 'AcademicProvider');
+        developer.log(
+          'Student profile fetched: ${_studentProfile?.hoTen}',
+          name: 'AcademicProvider',
+        );
       }
     } catch (e) {
-      developer.log('Error fetching student profile: $e', name: 'AcademicProvider');
+      developer.log(
+        'Error fetching student profile: $e',
+        name: 'AcademicProvider',
+      );
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -419,7 +541,10 @@ class AcademicProvider extends ChangeNotifier {
   /// Prefetch commonly used academic data. Intended to be called at app start or after login.
   Future<void> prefetch({bool forceRefresh = false}) async {
     try {
-      developer.log('AcademicProvider: starting prefetch', name: 'AcademicProvider');
+      developer.log(
+        'AcademicProvider: starting prefetch',
+        name: 'AcademicProvider',
+      );
       await Future.wait([
         fetchGradeDetails(forceRefresh: forceRefresh),
         fetchGrades(forceRefresh: forceRefresh),
@@ -431,9 +556,15 @@ class AcademicProvider extends ChangeNotifier {
         fetchAnnualPlan(forceRefresh: forceRefresh),
         fetchStudentProfile(forceRefresh: forceRefresh),
       ]);
-      developer.log('AcademicProvider: prefetch completed', name: 'AcademicProvider');
+      developer.log(
+        'AcademicProvider: prefetch completed',
+        name: 'AcademicProvider',
+      );
     } catch (e) {
-      developer.log('AcademicProvider: prefetch error: $e', name: 'AcademicProvider');
+      developer.log(
+        'AcademicProvider: prefetch error: $e',
+        name: 'AcademicProvider',
+      );
       rethrow;
     }
   }

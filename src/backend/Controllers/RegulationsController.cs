@@ -92,7 +92,7 @@ public class RegulationsController : ControllerBase
             var regulations = regulationResults.Select(r => new RegulationDto
             {
                 TenVanBan = r.ten_van_ban,
-                UrlVanBan = $"{baseUrl}/files/{r.url_van_ban}",
+                UrlVanBan = $"{baseUrl}/files/documents/{r.url_van_ban}",
                 NgayBanHanh = r.ngay_ban_hanh
             }).ToList();
 
