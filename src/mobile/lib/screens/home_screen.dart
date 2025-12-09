@@ -620,6 +620,9 @@ class _HomeScreenState extends State<HomeScreen>
       case 'calendar_today_outlined':
         icon = Icons.calendar_today_outlined;
         break;
+      case 'directions_car_outlined':
+        icon = Icons.directions_car_outlined;
+        break;
       case 'monetization_on_outlined':
         icon = Icons.monetization_on_outlined;
         break;

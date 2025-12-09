@@ -1,18 +1,180 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../providers/academic_provider.dart';
 import '../../widgets/animated_background.dart';
+import '../../utils/app_localizations.dart';
+import '../../theme/app_theme.dart';
+
+// Backend configuration
+// Thay '10.0.2.2' bằng IP của máy chạy backend nếu cần (vd: '192.168.1.100')
+const String BACKEND_BASE_URL = 'http://10.0.2.2:5128';
+
+// Normalize Vietnamese strings by removing diacritics for search matching
+String _stripDiacritics(String s) {
+  if (s.isEmpty) return s;
+  const map = {
+    'à': 'a',
+    'á': 'a',
+    'ạ': 'a',
+    'ả': 'a',
+    'ã': 'a',
+    'â': 'a',
+    'ầ': 'a',
+    'ấ': 'a',
+    'ậ': 'a',
+    'ẩ': 'a',
+    'ẫ': 'a',
+    'ă': 'a',
+    'ằ': 'a',
+    'ắ': 'a',
+    'ặ': 'a',
+    'ẳ': 'a',
+    'ẵ': 'a',
+
+    'À': 'A',
+    'Á': 'A',
+    'Ạ': 'A',
+    'Ả': 'A',
+    'Ã': 'A',
+    'Â': 'A',
+    'Ầ': 'A',
+    'Ấ': 'A',
+    'Ậ': 'A',
+    'Ẩ': 'A',
+    'Ẫ': 'A',
+    'Ă': 'A',
+    'Ằ': 'A',
+    'Ắ': 'A',
+    'Ặ': 'A',
+    'Ẳ': 'A',
+    'Ẵ': 'A',
+
+    'è': 'e',
+    'é': 'e',
+    'ẹ': 'e',
+    'ẻ': 'e',
+    'ẽ': 'e',
+    'ê': 'e',
+    'ề': 'e',
+    'ế': 'e',
+    'ệ': 'e',
+    'ể': 'e',
+    'ễ': 'e',
+    'È': 'E',
+    'É': 'E',
+    'Ẹ': 'E',
+    'Ẻ': 'E',
+    'Ẽ': 'E',
+    'Ê': 'E',
+    'Ề': 'E',
+    'Ế': 'E',
+    'Ệ': 'E',
+    'Ể': 'E',
+    'Ễ': 'E',
+
+    'ì': 'i',
+    'í': 'i',
+    'ị': 'i',
+    'ỉ': 'i',
+    'ĩ': 'i',
+    'Ì': 'I',
+    'Í': 'I',
+    'Ị': 'I',
+    'Ỉ': 'I',
+    'Ĩ': 'I',
+
+    'ò': 'o',
+    'ó': 'o',
+    'ọ': 'o',
+    'ỏ': 'o',
+    'õ': 'o',
+    'ô': 'o',
+    'ồ': 'o',
+    'ố': 'o',
+    'ộ': 'o',
+    'ổ': 'o',
+    'ỗ': 'o',
+    'ơ': 'o',
+    'ờ': 'o',
+    'ớ': 'o',
+    'ợ': 'o',
+    'ở': 'o',
+    'ỡ': 'o',
+    'Ò': 'O',
+    'Ó': 'O',
+    'Ọ': 'O',
+    'Ỏ': 'O',
+    'Õ': 'O',
+    'Ô': 'O',
+    'Ồ': 'O',
+    'Ố': 'O',
+    'Ộ': 'O',
+    'Ổ': 'O',
+    'Ỗ': 'O',
+    'Ơ': 'O',
+    'Ờ': 'O',
+    'Ớ': 'O',
+    'Ợ': 'O',
+    'Ở': 'O',
+    'Ỡ': 'O',
+
+    'ù': 'u',
+    'ú': 'u',
+    'ụ': 'u',
+    'ủ': 'u',
+    'ũ': 'u',
+    'ư': 'u',
+    'ừ': 'u',
+    'ứ': 'u',
+    'ự': 'u',
+    'ử': 'u',
+    'ữ': 'u',
+    'Ù': 'U',
+    'Ú': 'U',
+    'Ụ': 'U',
+    'Ủ': 'U',
+    'Ũ': 'U',
+    'Ư': 'U',
+    'Ừ': 'U',
+    'Ứ': 'U',
+    'Ự': 'U',
+    'Ử': 'U',
+    'Ữ': 'U',
+
+    'ỳ': 'y',
+    'ý': 'y',
+    'ỵ': 'y',
+    'ỷ': 'y',
+    'ỹ': 'y',
+    'Ỳ': 'Y',
+    'Ý': 'Y',
+    'Ỵ': 'Y',
+    'Ỷ': 'Y',
+    'Ỹ': 'Y',
+
+    'đ': 'd',
+    'Đ': 'D',
+  };
+
+  var out = StringBuffer();
+  for (var ch in s.split('')) {
+    out.write(map[ch] ?? ch);
+  }
+  return out.toString();
+}
 
 class TrainingRegulationsScreen extends StatefulWidget {
   const TrainingRegulationsScreen({super.key});
 
   @override
-  State<TrainingRegulationsScreen> createState() => _TrainingRegulationsScreenState();
+  State<TrainingRegulationsScreen> createState() =>
+      _TrainingRegulationsScreenState();
 }
 
 class _TrainingRegulationsScreenState extends State<TrainingRegulationsScreen> {
   final TextEditingController _searchController = TextEditingController();
-  String _searchQuery = '';
+  String _query = '';
 
   @override
   void initState() {
@@ -22,212 +184,249 @@ class _TrainingRegulationsScreenState extends State<TrainingRegulationsScreen> {
     });
   }
 
-  String? get regulationsText {
-    return context.watch<AcademicProvider>().regulations;
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _openUrl(BuildContext context, String urlStr) async {
+    // Replace localhost → emulator IP
+    String fixedUrl = urlStr.replaceFirst("http://localhost", "http://10.0.2.2");
+
+    // Encode space + unicode
+    final uri = Uri.parse(Uri.encodeFull(fixedUrl));
+
+    try {
+      final launched = await launchUrl(
+        uri,
+        mode: LaunchMode.externalApplication,
+      );
+      if (!launched && context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Không thể mở file PDF'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Lỗi mở file: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  void _filterItems(String q) {
+    setState(() {
+      _query = q;
+    });
+  }
+
+  void _clearSearch() {
+    _searchController.clear();
+    _filterItems('');
   }
 
   @override
   Widget build(BuildContext context) {
+    final provider = context.watch<AcademicProvider>();
+    final allRegulations = provider.regulations;
+    final isLoading = provider.isRegulationsLoading;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
+    // Filter regulations based on search query
+    List<dynamic> filteredRegulations = allRegulations;
+    if (_query.isNotEmpty) {
+      final lower = _query.trim().toLowerCase();
+      final normQuery = _stripDiacritics(lower);
+      filteredRegulations = allRegulations.where((item) {
+        final title = (item.tenVanBan ?? '').toLowerCase();
+        final normTitle = _stripDiacritics(title);
+        return normTitle.contains(normQuery);
+      }).toList();
+    }
+
     return Scaffold(
-      extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: isDark ? Colors.white : Colors.black87),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: Text(
-          'Quy chế & Đào tạo',
-          style: TextStyle(
-            color: isDark ? Colors.white : Colors.black87,
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
       body: Stack(
-        fit: StackFit.expand,
         children: [
-          Positioned.fill(child: AnimatedBackground(isDark: isDark)),
+          // Use the shared animated background so appearance matches other screens
           Positioned.fill(
-            child: SafeArea(
-              child: SingleChildScrollView(
-                child: Padding(
-                  padding: EdgeInsets.all(20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+            child: IgnorePointer(child: AnimatedBackground(isDark: isDark)),
+          ),
+          SafeArea(
+            child: Column(
+              children: [
+                // Header similar to regulations_list_screen
+                Container(
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+                  decoration: BoxDecoration(
+                    color: (isDark ? AppTheme.darkCard : Colors.white)
+                        .withOpacity(0.7),
+                    border: Border(
+                      bottom: BorderSide(
+                        color:
+                            (isDark
+                                    ? AppTheme.darkBorder
+                                    : AppTheme.lightBorder)
+                                .withOpacity(0.5),
+                      ),
+                    ),
+                  ),
+                  child: Row(
                     children: [
-                      // Search Section
-                      _buildSearchSection(),
-
-                      SizedBox(height: 24),
-
-                      // Regulations List
-                      _buildRegulationsList(),
+                      IconButton(
+                        onPressed: () => Navigator.pop(context),
+                        icon: Icon(
+                          Icons.arrow_back,
+                          color: isDark ? Colors.white : Colors.black87,
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          gradient: AppTheme.primaryGradient,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Icon(
+                          Icons.rule_folder,
+                          color: Colors.white,
+                          size: 24,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Quy chế',
+                              style: AppTheme.headingMedium.copyWith(
+                                color: isDark ? Colors.white : Colors.black87,
+                              ),
+                            ),
+                            Text(
+                              'Danh sách văn bản quy chế đào tạo',
+                              style: AppTheme.bodyMedium.copyWith(
+                                color: isDark ? Colors.white70 : Colors.black54,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
                 ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSearchSection() {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final cardColor = isDark ? const Color.fromRGBO(30, 41, 59, 0.62) : const Color.fromRGBO(255, 255, 255, 0.9);
-    final strokeColor = isDark ? const Color.fromRGBO(255, 255, 255, 0.10) : const Color.fromRGBO(0, 0, 0, 0.05);
-
-    return Container(
-      padding: EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: cardColor,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: strokeColor,
-          width: 1,
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Tìm kiếm văn bản',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          SizedBox(height: 12),
-          Container(
-            decoration: BoxDecoration(
-              color: Color(0xFF0F172A),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: Color.fromRGBO(255, 255, 255, 0.10),
-                width: 1,
-              ),
-            ),
-            child: TextField(
-              controller: _searchController,
-              onChanged: (value) {
-                setState(() {
-                  _searchQuery = value;
-                });
-              },
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 14,
-              ),
-              decoration: InputDecoration(
-                hintText: 'Nhập từ khóa để tìm kiếm (ví dụ: học vụ, học phí...)',
-                hintStyle: TextStyle(
-                  color: Color.fromRGBO(255, 255, 255, 0.4),
-                  fontSize: 14,
-                ),
-                prefixIcon: Icon(
-                  Icons.search,
-                  color: Color.fromRGBO(255, 255, 255, 0.5),
-                  size: 20,
-                ),
-                suffixIcon: _searchQuery.isNotEmpty
-                    ? IconButton(
-                  icon: Icon(
-                    Icons.clear,
-                    color: Color.fromRGBO(255, 255, 255, 0.5),
-                    size: 20,
+                // Search bar
+                Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: TextField(
+                    controller: _searchController,
+                    decoration: InputDecoration(
+                      hintText: 'Tìm kiếm quy định...',
+                      prefixIcon: const Icon(Icons.search),
+                      filled: true,
+                      fillColor: isDark ? Colors.white10 : Colors.white,
+                      suffixIcon: _query.isNotEmpty
+                          ? IconButton(
+                              icon: const Icon(Icons.clear),
+                              onPressed: _clearSearch,
+                            )
+                          : null,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide.none,
+                      ),
+                    ),
+                    onChanged: _filterItems,
+                    style: TextStyle(
+                      color: isDark ? Colors.white : Colors.black87,
+                    ),
                   ),
-                  onPressed: () {
-                    setState(() {
-                      _searchController.clear();
-                      _searchQuery = '';
-                    });
-                  },
-                )
-                    : null,
-                border: InputBorder.none,
-                contentPadding: EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 14,
                 ),
-              ),
+                // List area
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
+                    child: isLoading
+                        ? const Center(child: CircularProgressIndicator())
+                        : filteredRegulations.isEmpty
+                        ? Center(
+                            child: Text(
+                              _query.isEmpty
+                                  ? 'Chưa có dữ liệu quy chế'
+                                  : 'Không tìm thấy quy định phù hợp.',
+                              style: AppTheme.bodyMedium.copyWith(
+                                color: isDark ? Colors.white70 : Colors.black54,
+                              ),
+                            ),
+                          )
+                        : ListView.separated(
+                            padding: const EdgeInsets.symmetric(vertical: 6),
+                            itemBuilder: (context, index) {
+                              final item = filteredRegulations[index];
+                              final title = item.tenVanBan ?? '';
+                              final url = item.urlVanBan ?? '';
+                              DateTime? date;
+                              try {
+                                date = item.ngayBanHanh;
+                              } catch (_) {}
+                              return Card(
+                                color:
+                                    (isDark ? AppTheme.darkCard : Colors.white)
+                                        .withOpacity(0.85),
+                                elevation: 2,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: ListTile(
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 12,
+                                  ),
+                                  title: Text(
+                                    title,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  subtitle: date != null
+                                      ? Text(
+                                          '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}',
+                                          style: TextStyle(
+                                            color: isDark
+                                                ? Colors.white70
+                                                : Colors.black54,
+                                          ),
+                                        )
+                                      : null,
+                                  trailing: IconButton(
+                                    icon: const Icon(Icons.open_in_new),
+                                    color: AppTheme.bluePrimary,
+                                    onPressed: () => _openUrl(context, url),
+                                  ),
+                                  onTap: () => _openUrl(context, url),
+                                ),
+                              );
+                            },
+                            separatorBuilder: (_, __) =>
+                                const SizedBox(height: 8),
+                            itemCount: filteredRegulations.length,
+                          ),
+                  ),
+                ),
+              ],
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildRegulationsList() {
-    final text = regulationsText;
-    if (text == null || text.isEmpty) {
-      final isDark = Theme.of(context).brightness == Brightness.dark;
-      final cardColor = isDark ? const Color.fromRGBO(30, 41, 59, 0.62) : const Color.fromRGBO(255, 255, 255, 0.9);
-      final strokeColor = isDark ? const Color.fromRGBO(255, 255, 255, 0.10) : const Color.fromRGBO(0, 0, 0, 0.05);
-      return Container(
-        padding: EdgeInsets.all(40),
-        decoration: BoxDecoration(
-          color: cardColor,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: strokeColor,
-            width: 1,
-          ),
-        ),
-        child: Center(
-          child: Text(
-            'Chưa có dữ liệu quy chế',
-            style: TextStyle(
-              color: isDark ? Color.fromRGBO(255,255,255,0.5) : Colors.black54,
-              fontSize: 14,
-            ),
-          ),
-        ),
-      );
-    }
-
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final cardColor = isDark ? const Color.fromRGBO(30, 41, 59, 0.62) : const Color.fromRGBO(255, 255, 255, 0.9);
-    final strokeColor = isDark ? const Color.fromRGBO(255, 255, 255, 0.10) : const Color.fromRGBO(0, 0, 0, 0.05);
-
-    return Container(
-      padding: EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: cardColor,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: strokeColor,
-          width: 1,
-        ),
-      ),
-      child: Text(
-        text,
-        style: TextStyle(
-          color: isDark ? Color.fromRGBO(255,255,255,0.8) : Colors.black87,
-          fontSize: 14,
-          height: 1.6,
-        ),
-      ),
-    );
-  }
-
-  void _handleDownload(String title) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Đang tải về: $title'),
-        backgroundColor: Color(0xFF3B82F6),
-        duration: Duration(seconds: 2),
-        behavior: SnackBarBehavior.floating,
-        margin: EdgeInsets.all(16),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
       ),
     );
   }

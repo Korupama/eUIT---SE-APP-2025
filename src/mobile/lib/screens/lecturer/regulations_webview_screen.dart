@@ -3,7 +3,8 @@ import 'package:webview_flutter/webview_flutter.dart';
 import '../../theme/app_theme.dart';
 
 class RegulationsWebViewScreen extends StatefulWidget {
-  const RegulationsWebViewScreen({super.key});
+  final String url;
+  const RegulationsWebViewScreen({super.key, required this.url});
 
   @override
   State<RegulationsWebViewScreen> createState() => _RegulationsWebViewScreenState();
@@ -32,7 +33,7 @@ class _RegulationsWebViewScreenState extends State<RegulationsWebViewScreen> {
           },
         ),
       )
-      ..loadRequest(Uri.parse('https://google.com'));
+      ..loadRequest(Uri.parse(widget.url));
   }
 
   @override
