@@ -19,6 +19,7 @@ class _LecturerTuitionScreenState extends State<LecturerTuitionScreen> {
   final TextEditingController _semesterController = TextEditingController();
   List<Map<String, dynamic>> _tuitionData = [];
   bool _isLoading = false;
+  bool _useMock = true; // allow quick mock testing
 
   @override
   void dispose() {
@@ -41,6 +42,17 @@ class _LecturerTuitionScreenState extends State<LecturerTuitionScreen> {
     setState(() {
       _isLoading = true;
     });
+
+    // If mock mode enabled, return local mock data for quick UI testing
+    if (_useMock) {
+      await Future.delayed(const Duration(milliseconds: 200));
+      if (!mounted) return;
+      setState(() {
+        _tuitionData = _getMockDetails();
+        _isLoading = false;
+      });
+      return;
+    }
 
     try {
       final provider = context.read<LecturerProvider>();
@@ -217,6 +229,22 @@ class _LecturerTuitionScreenState extends State<LecturerTuitionScreen> {
               ),
             ),
           ),
+          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Dùng mock dữ liệu',
+                style: AppTheme.bodyMedium.copyWith(
+                  color: isDark ? Colors.white : Colors.black87,
+                ),
+              ),
+              Switch(
+                value: _useMock,
+                onChanged: (v) => setState(() => _useMock = v),
+              ),
+            ],
+          ),
           const SizedBox(height: 16),
           SizedBox(
             width: double.infinity,
@@ -296,20 +324,36 @@ class _LecturerTuitionScreenState extends State<LecturerTuitionScreen> {
   }
 
   Widget _buildTuitionCard(Map<String, dynamic> tuition, bool isDark) {
-    final hocKy = tuition['hocKy']?.toString() ?? 'N/A';
-    final tongHocPhi = tuition['tongHocPhi'] is num
-        ? tuition['tongHocPhi'] as num
-        : num.tryParse(tuition['tongHocPhi']?.toString() ?? '0') ?? 0;
-    final daDong = tuition['daDong'] is num
-        ? tuition['daDong'] as num
-        : num.tryParse(tuition['daDong']?.toString() ?? '0') ?? 0;
-    final conLai = tongHocPhi - daDong;
-    final trangThai = tuition['trangThai']?.toString() ?? '';
-
-    // Không hiển thị nếu thiếu thông tin học kỳ hoặc không có số tiền
-    if (hocKy == 'N/A' || (tongHocPhi == 0 && daDong == 0)) {
-      return const SizedBox.shrink();
+    String _getString(List<String> keys, [String fallback = '']) {
+      for (final k in keys) {
+        if (tuition.containsKey(k) && tuition[k] != null) return tuition[k].toString();
+      }
+      return fallback;
     }
+
+    num _parseNumber(dynamic v) {
+      if (v == null) return 0;
+      if (v is num) return v;
+      final s = v.toString();
+      final cleaned = s.replaceAll(RegExp(r"[^0-9.-]"), '');
+      return num.tryParse(cleaned) ?? 0;
+    }
+
+    num _getNum(List<String> keys) {
+      for (final k in keys) {
+        if (tuition.containsKey(k) && tuition[k] != null) return _parseNumber(tuition[k]);
+      }
+      return 0;
+    }
+
+    final hocKy = _getString(['hocKy', 'hoc_ky', 'hocky', 'hocKyName'], '');
+    final soTinChi = _getNum(['soTinChi', 'so_tin_chi']);
+    final hocPhi = _getNum(['hocPhi', 'hoc_phi', 'hocPhi', 'hocPhi', 'hocphi', 'tongHocPhi']);
+    final noHocKyTruoc = _getNum(['noHocKyTruoc', 'no_hoc_ky_truoc']);
+    final daDong = _getNum(['daDong', 'da_dong']);
+    final conLai = _getNum(['soTienConLai', 'so_tien_con_lai', 'soTienConLai']) == 0
+        ? (hocPhi - daDong)
+        : _getNum(['soTienConLai', 'so_tien_con_lai', 'soTienConLai']);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -317,8 +361,7 @@ class _LecturerTuitionScreenState extends State<LecturerTuitionScreen> {
         color: (isDark ? AppTheme.darkCard : Colors.white).withOpacity(0.7),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color:
-              (isDark ? AppTheme.darkBorder : AppTheme.lightBorder).withOpacity(0.3),
+          color: (isDark ? AppTheme.darkBorder : AppTheme.lightBorder).withOpacity(0.3),
         ),
       ),
       child: ClipRRect(
@@ -333,16 +376,13 @@ class _LecturerTuitionScreenState extends State<LecturerTuitionScreen> {
                 Row(
                   children: [
                     Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 6,
-                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
                         gradient: AppTheme.primaryGradient,
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
-                        hocKy,
+                        hocKy.isNotEmpty ? hocKy : 'Học kỳ',
                         style: AppTheme.bodySmall.copyWith(
                           color: Colors.white,
                           fontWeight: FontWeight.w600,
@@ -350,38 +390,21 @@ class _LecturerTuitionScreenState extends State<LecturerTuitionScreen> {
                       ),
                     ),
                     const Spacer(),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 6,
-                      ),
-                      decoration: BoxDecoration(
-                        color: _getStatusColor(trangThai).withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        trangThai,
-                        style: AppTheme.bodySmall.copyWith(
-                          color: _getStatusColor(trangThai),
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
+                    // show nothing on right or could show status if available
                   ],
                 ),
-                const SizedBox(height: 16),
-                _buildInfoRow('Tổng học phí', _formatCurrency(tongHocPhi), isDark),
+                const SizedBox(height: 12),
+                _buildInfoRow('Số tín chỉ', soTinChi.toString(), isDark),
                 const SizedBox(height: 8),
-                _buildInfoRow('Đã đóng', _formatCurrency(daDong), isDark,
-                    valueColor: Colors.green),
-                const SizedBox(height: 8),
-                _buildInfoRow('Còn lại', _formatCurrency(conLai), isDark,
-                    valueColor: conLai > 0 ? Colors.red : Colors.green),
-                if (tuition['hanDong'] != null) ...[
+                _buildInfoRow('Học phí', _formatCurrency(hocPhi), isDark),
+                if (noHocKyTruoc != 0) ...[
                   const SizedBox(height: 8),
-                  _buildInfoRow('Hạn đóng', tuition['hanDong'].toString(), isDark,
-                      valueColor: Colors.orange),
+                  _buildInfoRow('Nợ học kỳ trước', _formatCurrency(noHocKyTruoc), isDark),
                 ],
+                const SizedBox(height: 8),
+                _buildInfoRow('Đã đóng', _formatCurrency(daDong), isDark, valueColor: Colors.green),
+                const SizedBox(height: 8),
+                _buildInfoRow('Còn lại', _formatCurrency(conLai), isDark, valueColor: conLai > 0 ? Colors.red : Colors.green),
               ],
             ),
           ),
@@ -454,5 +477,34 @@ class _LecturerTuitionScreenState extends State<LecturerTuitionScreen> {
         );
       },
     );
+  }
+
+  List<Map<String, dynamic>> _getMockDetails() {
+    return [
+      {
+        'hocKy': '2023-2024_1',
+        'soTinChi': 18,
+        'hocPhi': 18174009,
+        'noHocKyTruoc': 0,
+        'daDong': 0,
+        'soTienConLai': 18174009
+      },
+      {
+        'hocKy': '2023-2024_2',
+        'soTinChi': 15,
+        'hocPhi': 14916098,
+        'noHocKyTruoc': 18174009,
+        'daDong': 0,
+        'soTienConLai': 33090107
+      },
+      {
+        'hocKy': '2024-2025_1',
+        'soTinChi': 15,
+        'hocPhi': 15032241,
+        'noHocKyTruoc': 33090107,
+        'daDong': 48293620,
+        'soTienConLai': -171272
+      },
+    ];
   }
 }
