@@ -14,6 +14,7 @@ import 'screens/lecturer/lecturer_documents_screen.dart';
 import 'screens/lecturer/lecturer_exam_schedule_screen.dart';
 import 'screens/lecturer/lecturer_edit_profile_screen.dart';
 import 'screens/lecturer/lecturer_change_password_screen.dart';
+import 'screens/lecturer/regulations_list_screen.dart';
 import 'screens/lecturer/lecturer_confirmation_letter_screen.dart';
 import 'screens/lecturer/lecturer_tuition_screen.dart';
 import 'screens/lecturer/lecturer_absences_screen.dart';
@@ -141,6 +142,7 @@ class MyApp extends StatelessWidget {
             const LecturerEditProfileScreen(),
         '/lecturer_change_password': (context) =>
             const LecturerChangePasswordScreen(),
+        '/lecturer_regulations': (context) => const RegulationsListScreen(),
         '/lecturer_confirmation_letter': (context) =>
             const LecturerConfirmationLetterScreen(),
         '/lecturer_tuition': (context) => const LecturerTuitionScreen(),
