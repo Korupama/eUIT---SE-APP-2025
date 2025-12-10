@@ -19,6 +19,7 @@ class _LecturerTuitionScreenState extends State<LecturerTuitionScreen> {
   final TextEditingController _semesterController = TextEditingController();
   List<Map<String, dynamic>> _tuitionData = [];
   bool _isLoading = false;
+    bool _useMock = false; // allow quick mock testing
 
   @override
   void dispose() {
