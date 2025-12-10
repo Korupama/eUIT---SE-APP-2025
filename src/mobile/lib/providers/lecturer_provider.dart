@@ -48,6 +48,9 @@ class LecturerProvider extends ChangeNotifier {
   List<QuickAction> _quickActions = [];
   List<QuickAction> get quickActions => _quickActions;
 
+  List<QuickAction> _allQuickActions = [];
+  List<QuickAction> get allQuickActions => _allQuickActions;
+
   List<Appeal> _appeals = [];
   List<Appeal> get appeals => _appeals;
 
@@ -103,7 +106,12 @@ class LecturerProvider extends ChangeNotifier {
   }
 
   void _initQuickActions() {
-    _quickActions = [
+    _allQuickActions = [
+      QuickAction(
+        label: 'Thẻ giảng viên',
+        type: 'lecturer_card',
+        iconName: 'badge_outlined',
+      ),
       QuickAction(
         label: 'Lịch giảng',
         type: 'lecturer_schedule',
@@ -125,6 +133,11 @@ class LecturerProvider extends ChangeNotifier {
         iconName: 'rate_review',
       ),
       QuickAction(
+        label: 'Tài liệu',
+        type: 'lecturer_documents',
+        iconName: 'folder_outlined',
+      ),
+      QuickAction(
         label: 'Quy định',
         type: 'lecturer_regulations',
         iconName: 'description_outlined',
@@ -133,11 +146,6 @@ class LecturerProvider extends ChangeNotifier {
         label: 'Lịch thi',
         type: 'lecturer_exam_schedule',
         iconName: 'event_note',
-      ),
-      QuickAction(
-        label: 'Dịch vụ',
-        type: 'lecturer_confirmation_letter',
-        iconName: 'verified',
       ),
       QuickAction(
         label: 'Báo nghỉ',
@@ -149,12 +157,13 @@ class LecturerProvider extends ChangeNotifier {
         type: 'lecturer_makeup_classes',
         iconName: 'event_available',
       ),
-      QuickAction(
-        label: 'Học phí',
-        type: 'lecturer_tuition',
-        iconName: 'payment',
-      ),
     ];
+
+    // Default enabled quick actions (exclude tuition and confirmation letter)
+    _quickActions = _allQuickActions.where((action) =>
+      action.type != 'lecturer_tuition' &&
+      action.type != 'lecturer_confirmation_letter'
+    ).toList();
   }
 
 
@@ -1012,5 +1021,25 @@ class LecturerProvider extends ChangeNotifier {
       developer.log('LecturerProvider: prefetch error: $e', name: 'LecturerProvider');
       rethrow;
     }
+  }
+
+  // Enable a quick action
+  void enableQuickAction(String type) {
+    if (!_quickActions.any((a) => a.type == type)) {
+      final action = _allQuickActions.firstWhere(
+        (a) => a.type == type,
+        orElse: () => throw Exception('Quick action not found: $type'),
+      );
+      _quickActions.add(action);
+      notifyListeners();
+      developer.log('Enabled quick action: $type', name: 'LecturerProvider');
+    }
+  }
+
+  // Disable a quick action
+  void disableQuickAction(String type) {
+    _quickActions.removeWhere((a) => a.type == type);
+    notifyListeners();
+    developer.log('Disabled quick action: $type', name: 'LecturerProvider');
   }
 }

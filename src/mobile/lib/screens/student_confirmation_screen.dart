@@ -14,7 +14,8 @@ class StudentConfirmationScreen extends StatefulWidget {
   const StudentConfirmationScreen({super.key});
 
   @override
-  State<StudentConfirmationScreen> createState() => _StudentConfirmationScreenState();
+  State<StudentConfirmationScreen> createState() =>
+      _StudentConfirmationScreenState();
 }
 
 // Small model to represent history items returned by the API
@@ -24,11 +25,18 @@ class ConfirmationHistoryItem {
   final String expiryDate;
   final String requestedAt;
 
-  ConfirmationHistoryItem({required this.serialNumber, required this.purpose, required this.expiryDate, required this.requestedAt});
+  ConfirmationHistoryItem({
+    required this.serialNumber,
+    required this.purpose,
+    required this.expiryDate,
+    required this.requestedAt,
+  });
 
   factory ConfirmationHistoryItem.fromJson(Map<String, dynamic> json) {
     return ConfirmationHistoryItem(
-      serialNumber: (json['serialNumber'] is int) ? json['serialNumber'] as int : int.tryParse(json['serialNumber']?.toString() ?? '') ?? 0,
+      serialNumber: (json['serialNumber'] is int)
+          ? json['serialNumber'] as int
+          : int.tryParse(json['serialNumber']?.toString() ?? '') ?? 0,
       purpose: json['purpose']?.toString() ?? '',
       expiryDate: json['expiryDate']?.toString() ?? '',
       requestedAt: json['requestedAt']?.toString() ?? '',
@@ -73,7 +81,8 @@ class _StudentConfirmationScreenState extends State<StudentConfirmationScreen> {
     super.dispose();
   }
 
-  String _formatDate(DateTime dt) => '${dt.day.toString().padLeft(2, '0')}/${dt.month.toString().padLeft(2, '0')}/${dt.year}';
+  String _formatDate(DateTime dt) =>
+      '${dt.day.toString().padLeft(2, '0')}/${dt.month.toString().padLeft(2, '0')}/${dt.year}';
 
   String _getPurposeText() {
     // Keep the same local label logic used for display (match selected language)
@@ -94,7 +103,9 @@ class _StudentConfirmationScreenState extends State<StudentConfirmationScreen> {
 
     if (_selectedReason == null) return '';
     if (_selectedReason == 'other') return _otherController.text.trim();
-    return _selectedLang == 'en' ? (en[_selectedReason!] ?? '') : (vi[_selectedReason!] ?? '');
+    return _selectedLang == 'en'
+        ? (en[_selectedReason!] ?? '')
+        : (vi[_selectedReason!] ?? '');
   }
 
   // Fetch confirmation history from API
@@ -105,27 +116,44 @@ class _StudentConfirmationScreenState extends State<StudentConfirmationScreen> {
       final token = await auth.getToken();
       final uri = auth.buildUri('/api/service/confirmation-letter/history');
       final headers = {'Accept': 'application/json'};
-      if (token != null && token.isNotEmpty) headers['Authorization'] = 'Bearer $token';
+      if (token != null && token.isNotEmpty)
+        headers['Authorization'] = 'Bearer $token';
 
-      final res = await http.get(uri, headers: headers).timeout(const Duration(seconds: 20));
+      final res = await http
+          .get(uri, headers: headers)
+          .timeout(const Duration(seconds: 20));
 
       if (res.statusCode >= 200 && res.statusCode < 300) {
         final List<dynamic> list = jsonDecode(res.body) as List<dynamic>;
-        final parsed = list.map((e) => ConfirmationHistoryItem.fromJson(e as Map<String, dynamic>)).toList();
+        final parsed = list
+            .map(
+              (e) =>
+                  ConfirmationHistoryItem.fromJson(e as Map<String, dynamic>),
+            )
+            .toList();
         if (mounted) setState(() => _history = parsed);
       } else if (res.statusCode == 401) {
         await auth.deleteToken();
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Yêu cầu đăng nhập lại')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Yêu cầu đăng nhập lại')));
       } else {
         String message = 'Không thể tải lịch sử';
         try {
-          final Map<String, dynamic> err = jsonDecode(res.body) as Map<String, dynamic>;
+          final Map<String, dynamic> err =
+              jsonDecode(res.body) as Map<String, dynamic>;
           if (err['message'] != null) message = err['message'].toString();
         } catch (_) {}
-        if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+        if (mounted)
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(message)));
       }
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Lỗi mạng, thử lại')));
+      if (mounted)
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Lỗi mạng, thử lại')));
     } finally {
       if (mounted) setState(() => _isHistoryLoading = false);
     }
@@ -135,7 +163,9 @@ class _StudentConfirmationScreenState extends State<StudentConfirmationScreen> {
     // Validation
     final purpose = _getPurposeText();
     if (_selectedReason == null || purpose.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Vui lòng chọn lý do xác nhận')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Vui lòng chọn lý do xác nhận')),
+      );
       return;
     }
 
@@ -148,13 +178,17 @@ class _StudentConfirmationScreenState extends State<StudentConfirmationScreen> {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
       };
-      if (token != null && token.isNotEmpty) headers['Authorization'] = 'Bearer $token';
+      if (token != null && token.isNotEmpty)
+        headers['Authorization'] = 'Bearer $token';
 
       final body = jsonEncode({'purpose': purpose});
-      final res = await http.post(uri, headers: headers, body: body).timeout(const Duration(seconds: 20));
+      final res = await http
+          .post(uri, headers: headers, body: body)
+          .timeout(const Duration(seconds: 20));
 
       if (res.statusCode >= 200 && res.statusCode < 300) {
-        final Map<String, dynamic> json = jsonDecode(res.body) as Map<String, dynamic>;
+        final Map<String, dynamic> json =
+            jsonDecode(res.body) as Map<String, dynamic>;
         final serial = json['serialNumber']?.toString() ?? '—';
         final expiry = json['expiryDate']?.toString() ?? '';
         final requestDate = _formatDate(DateTime.now());
@@ -163,7 +197,11 @@ class _StudentConfirmationScreenState extends State<StudentConfirmationScreen> {
         await showDialog<void>(
           context: context,
           builder: (ctx) => AlertDialog(
-            title: Text(AppLocalizations.of(context).t('student_confirmation_success_title')),
+            title: Text(
+              AppLocalizations.of(
+                context,
+              ).t('student_confirmation_success_title'),
+            ),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -178,7 +216,10 @@ class _StudentConfirmationScreenState extends State<StudentConfirmationScreen> {
               ],
             ),
             actions: [
-              TextButton(onPressed: () => Navigator.of(ctx).pop(), child: Text(AppLocalizations.of(context).t('close'))),
+              TextButton(
+                onPressed: () => Navigator.of(ctx).pop(),
+                child: Text(AppLocalizations.of(context).t('close')),
+              ),
             ],
           ),
         );
@@ -188,17 +229,24 @@ class _StudentConfirmationScreenState extends State<StudentConfirmationScreen> {
       } else if (res.statusCode == 401) {
         // unauthorized
         await auth.deleteToken();
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Yêu cầu đăng nhập lại')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Yêu cầu đăng nhập lại')));
       } else {
         String message = 'Đăng ký thất bại';
         try {
-          final Map<String, dynamic> err = jsonDecode(res.body) as Map<String, dynamic>;
+          final Map<String, dynamic> err =
+              jsonDecode(res.body) as Map<String, dynamic>;
           if (err['message'] != null) message = err['message'].toString();
         } catch (_) {}
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(message)));
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Lỗi mạng, thử lại')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Lỗi mạng, thử lại')));
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
     }
@@ -222,7 +270,7 @@ class _StudentConfirmationScreenState extends State<StudentConfirmationScreen> {
           AppLocalizations.of(context).t('student_confirmation_title'),
           style: TextStyle(
             color: Colors.white,
-            fontSize: 18,
+            fontSize: 16.sp,
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -240,18 +288,34 @@ class _StudentConfirmationScreenState extends State<StudentConfirmationScreen> {
       // Add endDrawer to show history
       endDrawer: Drawer(
         // semi-transparent drawer background (adapts to light/dark for contrast)
-        backgroundColor: isDark ? Colors.black.withOpacity(0.8) : Colors.white.withOpacity(0.92),
+        backgroundColor: isDark
+            ? Colors.black.withOpacity(0.8)
+            : Colors.white.withOpacity(0.92),
         elevation: 0,
         child: SafeArea(
           child: Column(
             children: [
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(AppLocalizations.of(context).t('student_confirmation_history_title'), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
-                    IconButton(icon: Icon(Icons.close, color: isDark ? Colors.white : Colors.black87), onPressed: () => Navigator.of(context).maybePop()),
+                    Text(
+                      AppLocalizations.of(
+                        context,
+                      ).t('student_confirmation_history_title'),
+                      style: TextStyle(
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    IconButton(
+                      icon: Icon(
+                        Icons.close,
+                        color: isDark ? Colors.white : Colors.black87,
+                      ),
+                      onPressed: () => Navigator.of(context).maybePop(),
+                    ),
                   ],
                 ),
               ),
@@ -260,32 +324,52 @@ class _StudentConfirmationScreenState extends State<StudentConfirmationScreen> {
                 child: _isHistoryLoading
                     ? const Center(child: CircularProgressIndicator())
                     : (_history.isEmpty
-                        ? Center(child: Text(AppLocalizations.of(context).t('no_history')))
-                        : ListView.separated(
-                            padding: const EdgeInsets.symmetric(vertical: 8),
-                            itemCount: _history.length,
-                            separatorBuilder: (_, __) => const Divider(height: 1),
-                            itemBuilder: (ctx, idx) {
-                              final item = _history[idx];
-                              return ListTile(
-                                title: Text('Số seri: ${item.serialNumber}'),
-                                subtitle: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const SizedBox(height: 4),
-                                    Text('Lý do: ${item.purpose}'),
-                                    const SizedBox(height: 4),
-                                    Text('Yêu cầu: ${item.requestedAt}'),
-                                  ],
-                                ),
-                                trailing: Text(item.expiryDate),
-                                onTap: () {
-                                  // Optionally close drawer and show details / copy serial
-                                  Navigator.of(context).pop();
-                                },
-                              );
-                            },
-                          )),
+                          ? Center(
+                              child: Text(
+                                AppLocalizations.of(context).t('no_history'),
+                              ),
+                            )
+                          : ListView.separated(
+                              padding: EdgeInsets.symmetric(vertical: 8.h),
+                              itemCount: _history.length,
+                              separatorBuilder: (_, __) =>
+                                  const Divider(height: 1),
+                              itemBuilder: (ctx, idx) {
+                                final item = _history[idx];
+                                return ListTile(
+                                  title: Text(
+                                    'Số seri: ${item.serialNumber}',
+                                    style: TextStyle(fontSize: 14.sp),
+                                  ),
+                                  subtitle: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      SizedBox(height: 4.h),
+                                      Text(
+                                        'Lý do: ${item.purpose}',
+                                        style: TextStyle(fontSize: 12.sp),
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      SizedBox(height: 4.h),
+                                      Text(
+                                        'Yêu cầu: ${item.requestedAt}',
+                                        style: TextStyle(fontSize: 12.sp),
+                                      ),
+                                    ],
+                                  ),
+                                  trailing: Text(
+                                    item.expiryDate,
+                                    style: TextStyle(fontSize: 12.sp),
+                                  ),
+                                  onTap: () {
+                                    // Optionally close drawer and show details / copy serial
+                                    Navigator.of(context).pop();
+                                  },
+                                );
+                              },
+                            )),
               ),
             ],
           ),
@@ -295,69 +379,69 @@ class _StudentConfirmationScreenState extends State<StudentConfirmationScreen> {
       body: Stack(
         children: [
           // Use the shared AnimatedBackground widget for the animated backdrop
-          Positioned.fill(
-            child: AnimatedBackground(isDark: isDark),
-          ),
+          Positioned.fill(child: AnimatedBackground(isDark: isDark)),
 
           // Safe area for content; container has min height and submit button is fixed at bottom
           SafeArea(
             child: Padding(
               // add extra bottom padding so the fixed button doesn't cover content
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+              padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 12.h),
               child: Stack(
                 children: [
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const SizedBox(height: 8),
+                      SizedBox(height: 8.h),
 
                       // Label for language selection (localized)
                       Text(
                         AppLocalizations.of(context).t('language'),
                         style: TextStyle(
                           color: Colors.white,
-                          fontSize: 14,
+                          fontSize: 14.sp,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                      const SizedBox(height: 8),
+                      SizedBox(height: 8.h),
 
                       // Language chips row
                       Row(
                         children: [
                           _buildLanguageChip(context, 'vi'),
-                          const SizedBox(width: 12),
+                          SizedBox(width: 12.w),
                           _buildLanguageChip(context, 'en'),
                         ],
                       ),
 
-                      const SizedBox(height: 20),
+                      SizedBox(height: 16.h),
 
                       // Title
                       Text(
-                        AppLocalizations.of(context).t('student_confirmation_reason_title'),
+                        AppLocalizations.of(
+                          context,
+                        ).t('student_confirmation_reason_title'),
                         style: TextStyle(
                           color: Colors.white,
-                          fontSize: 16,
+                          fontSize: 15.sp,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
 
-                      const SizedBox(height: 12),
+                      SizedBox(height: 10.h),
 
                       // Glassmorphism container with radios — min height provided
                       Flexible(
                         fit: FlexFit.loose,
                         child: ConstrainedBox(
-                          constraints: BoxConstraints(minHeight: 300),
+                          constraints: BoxConstraints(minHeight: 280.h),
                           child: Container(
                             width: double.infinity,
-                            padding: const EdgeInsets.all(12),
+                            padding: EdgeInsets.all(12.w),
                             decoration: BoxDecoration(
                               color: isDark
                                   ? Color.fromRGBO(255, 255, 255, 0.1)
                                   : Color.fromRGBO(255, 255, 255, 0.8),
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(12.r),
                               border: Border.all(
                                 color: isDark
                                     ? Color.fromRGBO(255, 255, 255, 0.10)
@@ -368,13 +452,13 @@ class _StudentConfirmationScreenState extends State<StudentConfirmationScreen> {
                                   color: isDark
                                       ? Color.fromRGBO(0, 0, 0, 0.1)
                                       : Color.fromRGBO(0, 0, 0, 0.05),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 4),
+                                  blurRadius: 8.r,
+                                  offset: Offset(0, 4.h),
                                 ),
                               ],
                             ),
                             child: ClipRRect(
-                              borderRadius: BorderRadius.circular(10),
+                              borderRadius: BorderRadius.circular(10.r),
                               child: SingleChildScrollView(
                                 child: Column(
                                   children: _buildReasonList(context, isDark),
@@ -386,32 +470,60 @@ class _StudentConfirmationScreenState extends State<StudentConfirmationScreen> {
                       ),
 
                       // spacer so content doesn't butt into the bottom fixed button area
-                      const SizedBox(height: 12),
+                      SizedBox(height: 12.h),
 
                       // Small explanatory notes directly under the reasons card
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 4.w,
+                          vertical: 8.h,
+                        ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              AppLocalizations.of(context).t('student_confirmation_other_section_title'),
-                              style: TextStyle(color: isDark ? Colors.white : Colors.black87, fontWeight: FontWeight.w600),
+                              AppLocalizations.of(
+                                context,
+                              ).t('student_confirmation_other_section_title'),
+                              style: TextStyle(
+                                color: isDark ? Colors.white : Colors.black87,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 14.sp,
+                              ),
                             ),
-                            const SizedBox(height: 6),
+                            SizedBox(height: 6.h),
                             Text(
-                              AppLocalizations.of(context).t('student_confirmation_other_section_instruction'),
-                              style: TextStyle(color: isDark ? Colors.white70 : Colors.black87, fontSize: 14),
+                              AppLocalizations.of(context).t(
+                                'student_confirmation_other_section_instruction',
+                              ),
+                              style: TextStyle(
+                                color: isDark ? Colors.white70 : Colors.black87,
+                                fontSize: 12.sp,
+                              ),
                             ),
-                            const SizedBox(height: 4),
+                            SizedBox(height: 4.h),
                             Text(
-                              AppLocalizations.of(context).t('student_confirmation_other_section_example'),
-                              style: TextStyle(color: isDark ? Colors.white70 : Colors.black87, fontSize: 14, fontStyle: FontStyle.italic),
+                              AppLocalizations.of(
+                                context,
+                              ).t('student_confirmation_other_section_example'),
+                              style: TextStyle(
+                                color: isDark ? Colors.white70 : Colors.black87,
+                                fontSize: 12.sp,
+                                fontStyle: FontStyle.italic,
+                              ),
                             ),
-                            const SizedBox(height: 4),
+                            SizedBox(height: 4.h),
                             Text(
-                              AppLocalizations.of(context).t('student_confirmation_other_section_format_warning'),
-                              style: TextStyle(color: isDark ? Colors.red[400] : Colors.limeAccent, fontSize: 15, fontWeight: FontWeight.w600),
+                              AppLocalizations.of(context).t(
+                                'student_confirmation_other_section_format_warning',
+                              ),
+                              style: TextStyle(
+                                color: isDark
+                                    ? Colors.red[400]
+                                    : Colors.limeAccent,
+                                fontSize: 13.sp,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
                           ],
                         ),
@@ -425,22 +537,37 @@ class _StudentConfirmationScreenState extends State<StudentConfirmationScreen> {
                     right: 0,
                     bottom: 0,
                     child: SizedBox(
-                      height: 56,
+                      height: 50.h,
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppTheme.bluePrimary,
-                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          padding: EdgeInsets.symmetric(vertical: 12.h),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
+                            borderRadius: BorderRadius.circular(10.r),
                           ),
                           elevation: 4,
                         ),
                         onPressed: _isSubmitting ? null : _submitConfirmation,
                         child: _isSubmitting
-                            ? const CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Colors.white))
+                            ? SizedBox(
+                                width: 24.w,
+                                height: 24.h,
+                                child: const CircularProgressIndicator(
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    Colors.white,
+                                  ),
+                                  strokeWidth: 2,
+                                ),
+                              )
                             : Text(
-                                AppLocalizations.of(context).t('student_confirmation_submit'),
-                                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white),
+                                AppLocalizations.of(
+                                  context,
+                                ).t('student_confirmation_submit'),
+                                style: TextStyle(
+                                  fontSize: 15.sp,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.white,
+                                ),
                               ),
                       ),
                     ),
@@ -448,15 +575,20 @@ class _StudentConfirmationScreenState extends State<StudentConfirmationScreen> {
 
                   // Localized review warning (separate, above the submit button)
                   Positioned(
-                    left: 16,
-                    right: 16,
-                    bottom: 68, // place above the fixed button (button height 56 + spacing)
+                    left: 16.w,
+                    right: 16.w,
+                    bottom: 58.h, // place above the fixed button
                     child: Padding(
-                      padding: const EdgeInsets.only(bottom: 6),
+                      padding: EdgeInsets.only(bottom: 6.h),
                       child: Text(
-                        AppLocalizations.of(context).t('student_confirmation_review_warning'),
+                        AppLocalizations.of(
+                          context,
+                        ).t('student_confirmation_review_warning'),
                         textAlign: TextAlign.center,
-                        style: TextStyle(color: isDark ? Colors.white70 : Colors.black87, fontSize: 13),
+                        style: TextStyle(
+                          color: isDark ? Colors.white70 : Colors.black87,
+                          fontSize: 11.sp,
+                        ),
                       ),
                     ),
                   ),
@@ -472,20 +604,39 @@ class _StudentConfirmationScreenState extends State<StudentConfirmationScreen> {
   Widget _buildLanguageChip(BuildContext context, String code) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final isSelected = _selectedLang == code;
-    final label = AppLocalizations.of(context).t(code == 'vi' ? 'vietnamese' : 'english');
+    final label = AppLocalizations.of(
+      context,
+    ).t(code == 'vi' ? 'vietnamese' : 'english');
     return ChoiceChip(
-      label: Text(label, style: TextStyle(color: isSelected ? Colors.white : isDark ? Colors.white : Colors.black87)),
+      label: Text(
+        label,
+        style: TextStyle(
+          color: isSelected
+              ? Colors.white
+              : isDark
+              ? Colors.white
+              : Colors.black87,
+          fontSize: 13.sp,
+        ),
+      ),
       selected: isSelected,
       onSelected: (_) => setState(() => _selectedLang = code),
       backgroundColor: Colors.transparent,
       selectedColor: AppTheme.bluePrimary,
       shape: RoundedRectangleBorder(
-        side: BorderSide(color: isSelected ? AppTheme.bluePrimary : isDark ? Colors.white54 : Color.fromRGBO(0, 0, 0, 0.8)),
-        borderRadius: BorderRadius.circular(20),
+        side: BorderSide(
+          color: isSelected
+              ? AppTheme.bluePrimary
+              : isDark
+              ? Colors.white54
+              : Color.fromRGBO(0, 0, 0, 0.8),
+        ),
+        borderRadius: BorderRadius.circular(20.r),
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
     );
   }
+
   // TODO: Sửa lại cấu trúc request khi backend đã sửa thành language và purpose riêng biệt
   List<Widget> _buildReasonList(BuildContext context, bool isDark) {
     // Localized labels for the reasons (local, independent from AppLocalizations)
@@ -514,11 +665,13 @@ class _StudentConfirmationScreenState extends State<StudentConfirmationScreen> {
     for (var i = 0; i < items.length; i++) {
       final key = items[i];
       final label = _selectedLang == 'en' ? en[key]! : vi[key]!;
-      final hint = _selectedLang == 'en' ? en['other_hint']! : vi['other_hint']!;
+      final hint = _selectedLang == 'en'
+          ? en['other_hint']!
+          : vi['other_hint']!;
 
       widgets.add(
         ListTile(
-          contentPadding: const EdgeInsets.symmetric(horizontal: 0),
+          contentPadding: EdgeInsets.symmetric(horizontal: 0, vertical: 2.h),
           leading: Radio<String>(
             value: key,
             groupValue: _selectedReason,
@@ -527,10 +680,16 @@ class _StudentConfirmationScreenState extends State<StudentConfirmationScreen> {
               if (v != 'other') _otherController.clear();
             }),
             fillColor: MaterialStateProperty.all(AppTheme.bluePrimary),
+            visualDensity: VisualDensity.compact,
           ),
           title: Text(
             label,
-            style: TextStyle(color: isDark ? Colors.white : Colors.black87),
+            style: TextStyle(
+              color: isDark ? Colors.white : Colors.black87,
+              fontSize: 13.sp,
+            ),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
           ),
           onTap: () => setState(() {
             _selectedReason = key;
@@ -540,28 +699,38 @@ class _StudentConfirmationScreenState extends State<StudentConfirmationScreen> {
       );
 
       if (i != items.length - 1) {
-        widgets.add(Divider(color: isDark ? Color.fromRGBO(255, 255, 255, 0.5) : Color.fromRGBO(0, 0, 0, 0.5), height: 1));
+        widgets.add(
+          Divider(
+            color: isDark
+                ? Color.fromRGBO(255, 255, 255, 0.5)
+                : Color.fromRGBO(0, 0, 0, 0.5),
+            height: 1,
+          ),
+        );
       }
 
       // If 'other' and selected, render TextField directly under that option
       if (key == 'other' && _selectedReason == 'other') {
         widgets.add(
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
             child: TextField(
               controller: _otherController,
               maxLines: 3,
-              style: TextStyle(color: Colors.white, fontSize: 14),
+              style: TextStyle(color: Colors.white, fontSize: 13.sp),
               decoration: InputDecoration(
                 hintText: hint,
-                hintStyle: TextStyle(color: isDark ? Colors.white : Colors.black87),
+                hintStyle: TextStyle(
+                  color: isDark ? Colors.white60 : Colors.black54,
+                  fontSize: 12.sp,
+                ),
                 filled: true,
                 fillColor: Color.fromRGBO(0, 0, 0, isDark ? 0.3 : 0.1),
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(8.r),
                   borderSide: BorderSide.none,
                 ),
-                contentPadding: const EdgeInsets.all(12),
+                contentPadding: EdgeInsets.all(12.w),
               ),
             ),
           ),
