@@ -50,7 +50,7 @@ class _MainScreenState extends State<MainScreen> {
     });
     _pageController.animateToPage(
       index,
-      duration: const Duration(milliseconds: 250),
+      duration: const Duration(milliseconds: 200),
       curve: Curves.easeInOut,
     );
   }
@@ -84,7 +84,7 @@ class _MainScreenState extends State<MainScreen> {
             // Nội dung các tab (PageView)
             PageView(
               controller: _pageController,
-              physics: const BouncingScrollPhysics(),
+              physics: const ClampingScrollPhysics(),
               onPageChanged: (index) {
                 if (index != _selectedIndex) {
                   setState(() {
@@ -262,7 +262,7 @@ class _NavItem extends StatelessWidget {
     // Each item expands evenly; bubble size depends on distance from selectedIndex: nearer => larger.
     return Expanded(
       child: TweenAnimationBuilder<double>(
-        duration: const Duration(milliseconds: 200),
+        duration: const Duration(milliseconds: 150),
         tween: Tween(begin: 1.0, end: selectedIndex == index ? 1.03 : 1.0),
         curve: Curves.easeInOut,
         builder: (context, scale, child) {
@@ -286,7 +286,7 @@ class _NavItem extends StatelessWidget {
                   child: BackdropFilter(
                     filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
                     child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
+                      duration: const Duration(milliseconds: 150),
                       // Size interpolates based on distance from selectedIndex
                       // sizes range from maxSize (48) to minSize (36)
                       width: _computeBubbleSize(index, selectedIndex),
@@ -324,7 +324,7 @@ class _NavItem extends StatelessWidget {
                       ),
                       child: Center(
                         child: TweenAnimationBuilder<Color?>(
-                          duration: const Duration(milliseconds: 200),
+                          duration: const Duration(milliseconds: 150),
                           tween: ColorTween(
                             begin: Colors.grey.shade600,
                             end: selectedIndex == index
@@ -351,7 +351,7 @@ class _NavItem extends StatelessWidget {
                 SizedBox(height: 4.h),
                 // Label under the bubble
                 TweenAnimationBuilder<Color?>(
-                  duration: const Duration(milliseconds: 200),
+                  duration: const Duration(milliseconds: 150),
                   tween: ColorTween(
                     begin: Colors.grey.shade600,
                     end: selectedIndex == index

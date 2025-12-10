@@ -73,12 +73,6 @@ class _LecturerHomeScreenState extends State<LecturerHomeScreen>
       case 'lecturer_exam_schedule':
         Navigator.pushNamed(context, '/lecturer_exam_schedule');
         break;
-      case 'lecturer_confirmation_letter':
-        Navigator.pushNamed(context, '/lecturer_confirmation_letter');
-        break;
-      case 'lecturer_tuition':
-        Navigator.pushNamed(context, '/lecturer_tuition');
-        break;
       case 'lecturer_absences':
         Navigator.pushNamed(context, '/lecturer_absences');
         break;
@@ -89,6 +83,7 @@ class _LecturerHomeScreenState extends State<LecturerHomeScreen>
         break;
     }
   }
+
 
   Future<void> _tryOpenRegulationsOrShowDialog() async {
     final urlStr = 'https://daa.uit.edu.vn/qui-che-qui-dinh-qui-trinh';
@@ -251,7 +246,7 @@ class _LecturerHomeScreenState extends State<LecturerHomeScreen>
                       const SizedBox(height: 16),
 
                       // Quick Actions
-                      _buildSectionTitle('Truy cập nhanh', isDark),
+                      _buildSectionTitleWithCustomize('Truy cập nhanh', isDark),
                       const SizedBox(height: 12),
                       _buildQuickActionsGrid(provider, isDark),
                       const SizedBox(height: 24),
@@ -409,6 +404,34 @@ class _LecturerHomeScreenState extends State<LecturerHomeScreen>
       ),
     );
   }
+
+  Widget _buildSectionTitleWithCustomize(String title, bool isDark) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          title,
+          style: TextStyle(
+            color: isDark ? Colors.white : Colors.black87,
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        GestureDetector(
+          onTap: _openCustomizeQuickActions,
+          child: Text(
+            'Tùy chỉnh',
+            style: TextStyle(
+              color: AppTheme.bluePrimary,
+              fontWeight: FontWeight.w600,
+              fontSize: 14,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
 
   Widget _buildNextClassCard(
     LecturerProvider provider,
@@ -736,16 +759,17 @@ class _LecturerHomeScreenState extends State<LecturerHomeScreen>
   }
 
   Widget _buildQuickActionsGrid(LecturerProvider provider, bool isDark) {
-    final actions = provider.quickActions;
-
-    return Wrap(
-      spacing: 12,
-      runSpacing: 16,
-      children: actions.asMap().entries.map((entry) {
-        return _buildSquircleActionButton(entry.value, isDark, entry.key);
-      }).toList(),
+    return Center(
+      child: Wrap(
+        spacing: 12,
+        runSpacing: 16,
+        children: provider.quickActions.asMap().entries.map((entry) {
+          return _buildSquircleActionButton(entry.value, isDark, entry.key);
+        }).toList(),
+      ),
     );
   }
+
 
   Widget _buildSquircleActionButton(dynamic action, bool isDark, int index) {
     final gradients = [
@@ -784,6 +808,9 @@ class _LecturerHomeScreenState extends State<LecturerHomeScreen>
         break;
       case 'description_outlined':
         icon = Icons.description_outlined;
+        break;
+      case 'folder_outlined':
+        icon = Icons.folder_outlined;
         break;
       case 'event_note':
         icon = Icons.event_note;
@@ -1209,6 +1236,100 @@ class _LecturerHomeScreenState extends State<LecturerHomeScreen>
           borderRadius: BorderRadius.circular(16),
         ),
       ),
+    );
+  }
+
+  void _openCustomizeQuickActions() {
+    final provider = context.read<LecturerProvider>();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return DraggableScrollableSheet(
+          expand: false,
+          initialChildSize: 0.7,
+          maxChildSize: 0.95,
+          minChildSize: 0.4,
+          builder: (_, controller) {
+            final allActions = provider.allQuickActions;
+            final enabled = provider.quickActions.map((e) => e.type).toSet();
+
+            return StatefulBuilder(
+              builder: (context, setState) {
+                return Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: isDark ? AppTheme.darkCard : Colors.white,
+                    borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+                  ),
+                  child: Column(
+                    children: [
+                      Container(
+                        width: 40,
+                        height: 5,
+                        margin: const EdgeInsets.only(bottom: 16),
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade400,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                      ),
+                      Text(
+                        "Tùy chỉnh truy cập nhanh",
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: isDark ? Colors.white : Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      Expanded(
+                        child: ListView.builder(
+                          controller: controller,
+                          itemCount: allActions.length,
+                          itemBuilder: (_, i) {
+                            final action = allActions[i];
+                            final checked = enabled.contains(action.type);
+
+                            return SwitchListTile(
+                              title: Text(
+                                action.label,
+                                style: TextStyle(
+                                  color: isDark ? Colors.white : Colors.black87,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              subtitle: Text(
+                                action.type,
+                                style: TextStyle(
+                                  color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
+                                  fontSize: 12,
+                                ),
+                              ),
+                              value: checked,
+                              onChanged: (value) {
+                                setState(() {
+                                  if (value) {
+                                    provider.enableQuickAction(action.type);
+                                  } else {
+                                    provider.disableQuickAction(action.type);
+                                  }
+                                });
+                              },
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            );
+          },
+        );
+      },
     );
   }
 }
