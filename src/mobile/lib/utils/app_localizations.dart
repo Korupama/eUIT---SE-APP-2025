@@ -9,12 +9,10 @@ class AppLocalizations {
     return Localizations.of<AppLocalizations>(context, AppLocalizations)!;
   }
 
-  static const LocalizationsDelegate<AppLocalizations> delegate = _AppLocalizationsDelegate();
+  static const LocalizationsDelegate<AppLocalizations> delegate =
+      _AppLocalizationsDelegate();
 
-  static const List<Locale> supportedLocales = [
-    Locale('vi'),
-    Locale('en'),
-  ];
+  static const List<Locale> supportedLocales = [Locale('vi'), Locale('en')];
 
   // Simple key-value mock (normally use ARB & code-gen)
   static final Map<String, Map<String, String>> _localizedValues = {
@@ -83,6 +81,25 @@ class AppLocalizations {
       'home': 'Trang chủ',
       'schedule': 'Lịch trình',
       'settings': 'Cài đặt',
+      // Quick action labels
+      'quick_action_results': 'Kết quả học tập',
+      'quick_action_tuition': 'Học phí',
+      'quick_action_schedule': 'Lịch học',
+      'quick_action_parking': 'Gửi xe',
+      'quick_action_regrade': 'Phúc khảo',
+      'quick_action_gxn': 'Đăng ký GXN',
+      'quick_action_reference': 'Giấy giới thiệu',
+      'quick_action_certificate': 'Chứng chỉ',
+      // Schedule screen
+      'schedule_title': 'Lịch',
+      'today': 'Hôm nay',
+      'month': 'Tháng',
+      'class_tab': 'Lên lớp',
+      'exam_tab': 'Kiểm tra',
+      'personal_tab': 'Cá nhân',
+      'no_schedule_today': 'Không có lịch hôm nay',
+      'no_exam_schedule': 'Không có lịch kiểm tra',
+      'no_personal_schedule': 'Không có lịch cá nhân',
       // Header for Navigation / Search screen
       'search_title': 'Tra cứu thông tin',
       'search_subtitle': 'Tìm kiếm thông tin sinh viên',
@@ -131,7 +148,8 @@ class AppLocalizations {
       'close': 'Đóng',
       'digital_student_card_preview': 'Xem trước thẻ sinh viên số',
       'gpa_details_soon': 'Chi tiết GPA sẽ có trong bản cập nhật sau',
-      'profile_preview_coming_soon': 'Xem trước hồ sơ sinh viên sẽ có trong bản cập nhật sau',
+      'profile_preview_coming_soon':
+          'Xem trước hồ sơ sinh viên sẽ có trong bản cập nhật sau',
       // Services screen
       'services_description': 'Cung cấp các dịch vụ trực tuyến cho sinh viên',
       'waiting_integration': 'Đang chờ tích hợp dịch vụ',
@@ -148,8 +166,10 @@ class AppLocalizations {
       'student_confirmation_reason_title': 'Lý do xác nhận',
       'student_confirmation_reason_military_defer': 'Tạm hoãn nghĩa vụ quân sự',
       'student_confirmation_reason_dorm_extend': 'Xin gia hạn ở Ký túc xá',
-      'student_confirmation_reason_tax_reduction': 'Bổ sung hồ sơ giảm thuế thu nhập cá nhân cho gia đình',
-      'student_confirmation_reason_military_education': 'Đăng ký học Giáo dục Quốc phòng',
+      'student_confirmation_reason_tax_reduction':
+          'Bổ sung hồ sơ giảm thuế thu nhập cá nhân cho gia đình',
+      'student_confirmation_reason_military_education':
+          'Đăng ký học Giáo dục Quốc phòng',
       'student_confirmation_reason_other': 'Khác',
       'student_confirmation_reason_other_hint': 'Nhập lý do khác...',
       'student_confirmation_other_required': 'Vui lòng nhập lý do khác',
@@ -165,10 +185,14 @@ class AppLocalizations {
       'certificate_confirmation_history_title': 'Lịch sử xác nhận chứng chỉ',
       // Notes for student confirmation screen
       'student_confirmation_other_section_title': 'Lý do khác',
-      'student_confirmation_other_section_instruction': 'Nhập theo mẫu bổ sung hồ sơ',
-      'student_confirmation_other_section_example': 'Ví dụ mẫu: Bổ sung hồ sơ học bổng ở địa phương, ...',
-      'student_confirmation_other_section_format_warning': 'Nếu sai mẫu này giấy xác nhận sẽ bị huỷ.',
-      'student_confirmation_review_warning': 'Vui lòng kiểm tra thật kỹ thông tin trước khi yêu cầu.\nNếu sai liên hệ phòng CTSV để làm lại.',
+      'student_confirmation_other_section_instruction':
+          'Nhập theo mẫu bổ sung hồ sơ',
+      'student_confirmation_other_section_example':
+          'Ví dụ mẫu: Bổ sung hồ sơ học bổng ở địa phương, ...',
+      'student_confirmation_other_section_format_warning':
+          'Nếu sai mẫu này giấy xác nhận sẽ bị huỷ.',
+      'student_confirmation_review_warning':
+          'Vui lòng kiểm tra thật kỹ thông tin trước khi yêu cầu.\nNếu sai liên hệ phòng CTSV để làm lại.',
       // Certificate confirmation / registration screen
       'certificate_registration_title': 'Đăng ký xác nhận chứng chỉ',
       'certificate_type_label': 'Loại chứng chỉ',
@@ -199,7 +223,8 @@ class AppLocalizations {
       'bcu_speaking_hint': 'Nhập điểm Nói',
       'bcu_writing_label': 'Điểm Viết (BCU-EPT)',
       'bcu_writing_hint': 'Nhập điểm Viết',
-      'apply_uit_global_scholarship': 'Đăng ký xét Học bổng ngoại ngữ UIT Global',
+      'apply_uit_global_scholarship':
+          'Đăng ký xét Học bổng ngoại ngữ UIT Global',
       'view_regulations': 'Xem qui định',
       'save': 'Lưu',
       'saved_success': 'Đã lưu (mô phỏng). Đồng bộ với backend sau.',
@@ -225,9 +250,11 @@ class AppLocalizations {
 
       // New keys for introduction letter form
       'introduction_letter': 'Đăng ký Giấy giới thiệu',
-      'intro_recipient_label': 'Nội dung Kính gửi (Nội dung đánh số 1 trong mẫu): *',
+      'intro_recipient_label':
+          'Nội dung Kính gửi (Nội dung đánh số 1 trong mẫu): *',
       'intro_destination_label': 'Nơi đến (Nội dung đánh số 2 trong mẫu): *',
-      'intro_contact_label': 'Nội dung để liên hệ về việc (Nội dung đánh số 3 trong mẫu): *',
+      'intro_contact_label':
+          'Nội dung để liên hệ về việc (Nội dung đánh số 3 trong mẫu): *',
       'intro_from_label': 'Từ ngày (Nội dung đánh số 4 trong mẫu): *',
       'intro_to_label': 'Đến ngày (Nội dung đánh số 5 trong mẫu): *',
       'submit_introduction_request': 'Đăng ký Xin cấp giấy giới thiệu',
@@ -240,13 +267,17 @@ class AppLocalizations {
       'transcript_type_label': 'Loại bảng điểm / GCN',
       'transcript_type_placeholder': '- Chọn loại -',
       'transcript_type_required': 'Vui lòng chọn loại bảng điểm',
-      'transcript_type_option_cumulative': 'Bảng điểm tích luỹ (10,000/30,000 VND)',
+      'transcript_type_option_cumulative':
+          'Bảng điểm tích luỹ (10,000/30,000 VND)',
       'transcript_type_option_semester': 'Bảng điểm học kỳ (10,000/30,000 VND)',
-      'transcript_type_option_schoolyear': 'Bảng điểm năm học (10,000/30,000 VND)',
-      'transcript_type_option_completion_certificate': 'Giấy xác nhận hoàn thành chương trình học (15,000/35,000 VND)',
+      'transcript_type_option_schoolyear':
+          'Bảng điểm năm học (10,000/30,000 VND)',
+      'transcript_type_option_completion_certificate':
+          'Giấy xác nhận hoàn thành chương trình học (15,000/35,000 VND)',
       'transcript_language_label': 'Ngôn ngữ',
       'transcript_quantity_label': 'Số lượng',
-      'transcript_registered_success': 'Yêu cầu đăng ký bảng điểm đã được gửi (mô phỏng).',
+      'transcript_registered_success':
+          'Yêu cầu đăng ký bảng điểm đã được gửi (mô phỏng).',
       'choose': '- Chọn -',
       // Regrade / Phúc khảo
       'regrade_title': 'Đăng ký Phúc khảo',
@@ -260,15 +291,18 @@ class AppLocalizations {
       'services_student_confirmation_title': 'Đăng ký giấy xác nhận sinh viên',
       'services_student_confirmation_subtitle': 'Phòng Công tác Sinh viên',
       'services_parking_monthly_title': 'Đăng ký Vé tháng gửi xe máy',
-      'services_parking_monthly_subtitle': 'Phòng Dữ liệu & Công nghệ thông tin',
+      'services_parking_monthly_subtitle':
+          'Phòng Dữ liệu & Công nghệ thông tin',
       'services_certificate_confirmation_title': 'Đăng ký Xác nhận chứng chỉ',
-      'services_certificate_confirmation_subtitle': 'Phòng Đào tạo Đại học / VPCCTĐB',
+      'services_certificate_confirmation_subtitle':
+          'Phòng Đào tạo Đại học / VPCCTĐB',
       'services_regrade_title': 'Đăng ký Phúc khảo',
       'services_regrade_subtitle': 'Phòng Đào tạo Đại học / VPCCTĐB',
       'services_transcript_title': 'Đăng ký Bảng điểm',
       'services_transcript_subtitle': 'Phòng Đào tạo Đại học / VPCCTĐB',
       'services_introduction_letter_title': 'Đăng ký Giấy giới thiệu',
-      'services_introduction_letter_subtitle': 'Phòng Đào tạo Đại học / VPCCTĐB',
+      'services_introduction_letter_subtitle':
+          'Phòng Đào tạo Đại học / VPCCTĐB',
 
       // Parking monthly
       'parking_monthly_title': 'Đăng ký Vé tháng gửi xe máy',
@@ -276,7 +310,8 @@ class AppLocalizations {
       'parking_monthly_select_months_hint': 'Chọn số tháng',
       'parking_monthly_plate_label': 'Biển số xe đăng ký',
       'parking_monthly_plate_hint': 'Biển số xe Đăng ký',
-      'parking_monthly_example': 'Ví dụ: 47E1-123.45\nNếu là xe đạp thì nhập Mã số sinh viên',
+      'parking_monthly_example':
+          'Ví dụ: 47E1-123.45\nNếu là xe đạp thì nhập Mã số sinh viên',
       'parking_monthly_select_months_required': 'Vui lòng chọn số tháng',
       'parking_monthly_plate_required': 'Vui lòng nhập biển số xe',
 
@@ -301,12 +336,14 @@ class AppLocalizations {
       'tuition_action_pay': 'Thanh toán học phí {semester}',
 
       // Training point descriptions
-      'training_point_additional_description': 'Điểm rèn luyện được đánh giá dựa trên sự tham gia vào các hoạt động của trường, lớp, và các thành tích khác. Điểm số này ảnh hưởng đến việc xét học bổng và các danh hiệu thi đua.',
+      'training_point_additional_description':
+          'Điểm rèn luyện được đánh giá dựa trên sự tham gia vào các hoạt động của trường, lớp, và các thành tích khác. Điểm số này ảnh hưởng đến việc xét học bổng và các danh hiệu thi đua.',
 
       // Progress screen
       'progress_title': 'Kết quả đào tạo (Tiến độ)',
       'progress_overview_title': 'Tổng quan tín chỉ',
-      'progress_overview_subtitle': 'Theo dõi tiến độ hoàn thành chương trình đào tạo của bạn.',
+      'progress_overview_subtitle':
+          'Theo dõi tiến độ hoàn thành chương trình đào tạo của bạn.',
       'progress_no_group_data': 'Chưa có dữ liệu nhóm tín chỉ',
       'progress_by_group_title': 'Tiến độ theo nhóm tín chỉ',
       'progress_completed_credits_label': 'Tín chỉ đã hoàn thành',
@@ -390,6 +427,25 @@ class AppLocalizations {
       'home': 'Home',
       'schedule': 'Schedule',
       'settings': 'Settings',
+      // Quick action labels
+      'quick_action_results': 'Academic Results',
+      'quick_action_tuition': 'Tuition',
+      'quick_action_schedule': 'Schedule',
+      'quick_action_parking': 'Parking',
+      'quick_action_regrade': 'Regrade',
+      'quick_action_gxn': 'Student Confirmation',
+      'quick_action_reference': 'Introduction Letter',
+      'quick_action_certificate': 'Certificate',
+      // Schedule screen
+      'schedule_title': 'Schedule',
+      'today': 'Today',
+      'month': '',
+      'class_tab': 'Classes',
+      'exam_tab': 'Exams',
+      'personal_tab': 'Personal',
+      'no_schedule_today': 'No schedule today',
+      'no_exam_schedule': 'No exam schedule',
+      'no_personal_schedule': 'No personal schedule',
       // Header for Navigation / Search screen
       'search_title': 'Search Information',
       'search_subtitle': 'Find student information',
@@ -438,7 +494,8 @@ class AppLocalizations {
       'close': 'Close',
       'digital_student_card_preview': 'Digital student card preview',
       'gpa_details_soon': 'GPA details will be available in a future update',
-      'profile_preview_coming_soon': 'Student profile preview will be available in a future update',
+      'profile_preview_coming_soon':
+          'Student profile preview will be available in a future update',
       // Services screen
       'services_description': 'Providing online services for students',
       'waiting_integration': 'Waiting for service integration',
@@ -453,14 +510,19 @@ class AppLocalizations {
       // Student confirmation screen
       'student_confirmation_title': 'Student confirmation certificate request',
       'student_confirmation_reason_title': 'Reason for confirmation',
-      'student_confirmation_reason_military_defer': 'Postponement of military service',
-      'student_confirmation_reason_dorm_extend': 'Dormitory stay extension request',
-      'student_confirmation_reason_tax_reduction': 'Family personal income tax reduction documents',
-      'student_confirmation_reason_military_education': 'Registration for National Defense Education',
+      'student_confirmation_reason_military_defer':
+          'Postponement of military service',
+      'student_confirmation_reason_dorm_extend':
+          'Dormitory stay extension request',
+      'student_confirmation_reason_tax_reduction':
+          'Family personal income tax reduction documents',
+      'student_confirmation_reason_military_education':
+          'Registration for National Defense Education',
       'student_confirmation_reason_other': 'Other',
       'student_confirmation_reason_other_hint': 'Enter other reason...',
       'student_confirmation_other_required': 'Please enter the other reason',
-      'student_confirmation_reason_required': 'Please select a confirmation reason',
+      'student_confirmation_reason_required':
+          'Please select a confirmation reason',
       'student_confirmation_submit': 'Request certificate',
       'student_confirmation_success_title': 'Request created successfully',
       'student_confirmation_serial_number': 'Serial number',
@@ -469,13 +531,18 @@ class AppLocalizations {
       'student_confirmation_history_title': 'Request history',
       'no_history': 'No history',
       // Certificate confirmation history title
-      'certificate_confirmation_history_title': 'Certificate confirmation history',
+      'certificate_confirmation_history_title':
+          'Certificate confirmation history',
       // Notes for student confirmation screen
       'student_confirmation_other_section_title': 'Other reason',
-      'student_confirmation_other_section_instruction': 'Enter following supplementary document format',
-      'student_confirmation_other_section_example': 'Example format: Supplement scholarship documents from local authorities, ...',
-      'student_confirmation_other_section_format_warning': 'If this format is incorrect, the confirmation letter will be cancelled.',
-      'student_confirmation_review_warning': 'Please check all information carefully before submitting.\nIf incorrect, contact the Student Affairs Office to have it reissued.',
+      'student_confirmation_other_section_instruction':
+          'Enter following supplementary document format',
+      'student_confirmation_other_section_example':
+          'Example format: Supplement scholarship documents from local authorities, ...',
+      'student_confirmation_other_section_format_warning':
+          'If this format is incorrect, the confirmation letter will be cancelled.',
+      'student_confirmation_review_warning':
+          'Please check all information carefully before submitting.\nIf incorrect, contact the Student Affairs Office to have it reissued.',
       // Certificate confirmation / registration screen
       'certificate_registration_title': 'Certificate confirmation registration',
       'certificate_type_label': 'Certificate type',
@@ -506,7 +573,8 @@ class AppLocalizations {
       'bcu_speaking_hint': 'Enter speaking score',
       'bcu_writing_label': 'Writing score (BCU-EPT)',
       'bcu_writing_hint': 'Enter writing score',
-      'apply_uit_global_scholarship': 'Apply for UIT Global language scholarship',
+      'apply_uit_global_scholarship':
+          'Apply for UIT Global language scholarship',
       'view_regulations': 'View regulations',
       'save': 'Save',
       'saved_success': 'Saved (simulated). Will integrate with backend later.',
@@ -547,13 +615,18 @@ class AppLocalizations {
       'transcript_type_label': 'Transcript type / Certificate',
       'transcript_type_placeholder': '- Choose type -',
       'transcript_type_required': 'Please select transcript type',
-      'transcript_type_option_cumulative': 'Cumulative transcript (10,000/30,000 VND)',
-      'transcript_type_option_semester': 'Semester transcript (10,000/30,000 VND)',
-      'transcript_type_option_schoolyear': 'School-year transcript (10,000/30,000 VND)',
-      'transcript_type_option_completion_certificate': 'Certificate of program completion (15,000/35,000 VND)',
+      'transcript_type_option_cumulative':
+          'Cumulative transcript (10,000/30,000 VND)',
+      'transcript_type_option_semester':
+          'Semester transcript (10,000/30,000 VND)',
+      'transcript_type_option_schoolyear':
+          'School-year transcript (10,000/30,000 VND)',
+      'transcript_type_option_completion_certificate':
+          'Certificate of program completion (15,000/35,000 VND)',
       'transcript_language_label': 'Language',
       'transcript_quantity_label': 'Quantity',
-      'transcript_registered_success': 'Transcript request submitted (simulated).',
+      'transcript_registered_success':
+          'Transcript request submitted (simulated).',
       'choose': '- Choose -',
       // Regrade / Phúc khảo
       'regrade_title': 'Regrade request',
@@ -566,16 +639,22 @@ class AppLocalizations {
       // Services tiles (specific titles/subtitles)
       'services_student_confirmation_title': 'Student confirmation request',
       'services_student_confirmation_subtitle': 'Student Affairs Office',
-      'services_parking_monthly_title': 'Motorbike monthly parking registration',
+      'services_parking_monthly_title':
+          'Motorbike monthly parking registration',
       'services_parking_monthly_subtitle': 'Data & IT Office',
-      'services_certificate_confirmation_title': 'Certificate confirmation registration',
-      'services_certificate_confirmation_subtitle': 'Undergraduate Office / Special Training Office',
+      'services_certificate_confirmation_title':
+          'Certificate confirmation registration',
+      'services_certificate_confirmation_subtitle':
+          'Undergraduate Office / Special Training Office',
       'services_regrade_title': 'Regrade request',
-      'services_regrade_subtitle': 'Undergraduate Office / Special Training Office',
+      'services_regrade_subtitle':
+          'Undergraduate Office / Special Training Office',
       'services_transcript_title': 'Transcript registration',
-      'services_transcript_subtitle': 'Undergraduate Office / Special Training Office',
+      'services_transcript_subtitle':
+          'Undergraduate Office / Special Training Office',
       'services_introduction_letter_title': 'Introduction letter request',
-      'services_introduction_letter_subtitle': 'Undergraduate Office / Special Training Office',
+      'services_introduction_letter_subtitle':
+          'Undergraduate Office / Special Training Office',
 
       // Parking monthly
       'parking_monthly_title': 'Motorbike monthly parking registration',
@@ -583,8 +662,10 @@ class AppLocalizations {
       'parking_monthly_select_months_hint': 'Select months',
       'parking_monthly_plate_label': 'License plate',
       'parking_monthly_plate_hint': 'Enter license plate',
-      'parking_monthly_example': 'E.g.: 47E1-123.45\nIf bicycle, enter Student ID',
-      'parking_monthly_select_months_required': 'Please select number of months',
+      'parking_monthly_example':
+          'E.g.: 47E1-123.45\nIf bicycle, enter Student ID',
+      'parking_monthly_select_months_required':
+          'Please select number of months',
       'parking_monthly_plate_required': 'Please enter license plate',
 
       // Plan screen
@@ -608,7 +689,8 @@ class AppLocalizations {
       'tuition_action_pay': 'Pay tuition for {semester}',
 
       // Training point descriptions
-      'training_point_additional_description': 'Training points are evaluated based on participation in school and class activities and other achievements. These scores affect scholarship eligibility and awards.',
+      'training_point_additional_description':
+          'Training points are evaluated based on participation in school and class activities and other achievements. These scores affect scholarship eligibility and awards.',
       // Training point (English translations missing previously)
       'training_point_title': 'Training Points',
       'training_point_total_label': 'Total Training Points',
@@ -636,7 +718,8 @@ class AppLocalizations {
   }
 }
 
-class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
+class _AppLocalizationsDelegate
+    extends LocalizationsDelegate<AppLocalizations> {
   const _AppLocalizationsDelegate();
 
   @override
@@ -649,5 +732,6 @@ class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> 
   }
 
   @override
-  bool shouldReload(covariant LocalizationsDelegate<AppLocalizations> old) => false;
+  bool shouldReload(covariant LocalizationsDelegate<AppLocalizations> old) =>
+      false;
 }

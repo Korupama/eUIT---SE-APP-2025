@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mobile/screens/schedule/schedule_main_screen.dart';
 import '../utils/app_localizations.dart';
 import '../theme/app_theme.dart';
@@ -112,14 +113,14 @@ class _MainScreenState extends State<MainScreen> {
   Widget _buildCustomBottomNav(AppLocalizations loc, bool isDark) {
     // Bottom nav background: frosted schedule-card-like look but slightly more transparent.
     // Fix the background height so it doesn't change when children animate.
-    final double baseHeight = 75.0; // base bar height (content)
+    final double baseHeight = 75.h; // base bar height (content)
     final double bottomInset = MediaQuery.of(context).padding.bottom; // device inset
     final double barHeight = baseHeight + bottomInset;
 
     // We want the background to be visually lower than the nav items.
     // We'll render a fixed-height container (barHeight) as the background and shift it down by bgShift.
     // The foreground (nav items) will remain in the original position.
-    final double bgShift = 12.0; // how many pixels to push the background down
+    final double bgShift = 12.h; // how many pixels to push the background down
 
     // Outer height must accommodate the shifted background so it doesn't clip.
     final double outerHeight = barHeight + bgShift;
@@ -135,7 +136,7 @@ class _MainScreenState extends State<MainScreen> {
             left: 0,
             right: 0,
             child: ClipRRect(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+              borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
               child: BackdropFilter(
                 filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
                 child: Container(
@@ -154,7 +155,7 @@ class _MainScreenState extends State<MainScreen> {
                               Colors.white.withAlpha(220),
                             ],
                           ),
-                    borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                    borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
                     border: Border(
                       top: BorderSide(
                         color: isDark
@@ -168,8 +169,8 @@ class _MainScreenState extends State<MainScreen> {
                         color: isDark
                             ? AppTheme.bluePrimary.withAlpha(18)
                             : Colors.black.withAlpha(10),
-                        blurRadius: 16,
-                        offset: const Offset(0, -6),
+                        blurRadius: 16.r,
+                        offset: Offset(0, -6.h),
                       ),
                     ],
                   ),
@@ -182,7 +183,7 @@ class _MainScreenState extends State<MainScreen> {
           Positioned.fill(
             child: SafeArea(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -272,16 +273,16 @@ class _NavItem extends StatelessWidget {
         },
         child: InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(12.r),
           child: Container(
             // Reduce top padding so bubbles sit closer to the top of the navbar
-            padding: const EdgeInsets.only(top: 1, bottom: 2, left: 4, right: 4),
+            padding: EdgeInsets.only(top: 1.h, bottom: 2.h, left: 4.w, right: 4.w),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 // Use the 'Next Schedule' card visual style (small frosted gradient with border)
                 ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(12.r),
                   child: BackdropFilter(
                     filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
                     child: AnimatedContainer(
@@ -290,7 +291,7 @@ class _NavItem extends StatelessWidget {
                       // sizes range from maxSize (48) to minSize (36)
                       width: _computeBubbleSize(index, selectedIndex),
                       height: _computeBubbleSize(index, selectedIndex),
-                      padding: const EdgeInsets.all(0),
+                      padding: EdgeInsets.zero,
                       decoration: BoxDecoration(
                         // Default background (frosted card look). No special-case background for Home.
                         gradient: isDark
@@ -306,7 +307,7 @@ class _NavItem extends StatelessWidget {
                                   Colors.white.withAlpha(230),
                                 ],
                               ),
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(12.r),
                         border: Border.all(
                           color: selectedIndex == index
                               ? (isDark ? AppTheme.bluePrimary.withAlpha(200) : AppTheme.bluePrimary)
@@ -316,8 +317,8 @@ class _NavItem extends StatelessWidget {
                         boxShadow: [
                           BoxShadow(
                             color: isDark ? AppTheme.bluePrimary.withAlpha(20) : Colors.black.withAlpha(10),
-                            blurRadius: selectedIndex == index ? 12 : 6,
-                            offset: const Offset(0, 3),
+                            blurRadius: selectedIndex == index ? 12.r : 6.r,
+                            offset: Offset(0, 3.h),
                           ),
                         ],
                       ),
@@ -347,7 +348,7 @@ class _NavItem extends StatelessWidget {
                   ),
                 ),
 
-                const SizedBox(height: 4),
+                SizedBox(height: 4.h),
                 // Label under the bubble
                 TweenAnimationBuilder<Color?>(
                   duration: const Duration(milliseconds: 200),
@@ -363,7 +364,7 @@ class _NavItem extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       maxLines: 1,
                       style: TextStyle(
-                        fontSize: 11,
+                        fontSize: 11.sp,
                         fontWeight: selectedIndex == index ? FontWeight.w600 : FontWeight.normal,
                         color: color,
                         height: 0.7,
@@ -390,7 +391,7 @@ class _NavItem extends StatelessWidget {
     final int primarySteps = distance.clamp(0, 2);
     final int extraSteps = (distance > 2) ? (distance - 2) : 0;
     final double size = maxSize - primarySteps * primaryStep - extraSteps * secondaryStep;
-    // Clamp to avoid too small values
-    return size.clamp(24.0, maxSize);
+    // Clamp to avoid too small values, apply .r for responsive scaling
+    return size.clamp(24.0, maxSize).r;
   }
 }

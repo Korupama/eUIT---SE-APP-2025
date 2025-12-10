@@ -1,6 +1,7 @@
 // ignore_for_file: deprecated_member_use
 // TODO: Refactor API calling due to changing of backend structure
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 

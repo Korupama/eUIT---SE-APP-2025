@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../utils/app_localizations.dart';
 import '../../theme/app_theme.dart';
 import 'lecturer_home_screen.dart';

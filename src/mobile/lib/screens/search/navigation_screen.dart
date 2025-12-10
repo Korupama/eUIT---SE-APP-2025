@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mobile/screens/search/plan_screen.dart';
 import 'package:mobile/screens/search/trainingprogram_screen.dart';
 import 'package:mobile/screens/search/trainingregulations_screen.dart';

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'screens/modern_login_screen.dart';
 import 'screens/main_screen.dart';
@@ -109,77 +110,85 @@ class MyApp extends StatelessWidget {
       fontFamily: null,
     );
 
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'eUIT In Development',
-      theme: lightTheme,
-      darkTheme: darkTheme,
-      themeMode: isDark ? ThemeMode.dark : ThemeMode.light,
-      locale: languageController.locale,
-      localizationsDelegates: const [
-        AppLocalizations.delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      supportedLocales: AppLocalizations.supportedLocales,
-      // Use a dedicated AuthGate widget as home so we don't recreate MaterialApp when token changes
-      home: const AuthGate(),
-      routes: {
-        // Removed '/' as it is now handled by home
-        '/services': (context) => const ServicesScreen(),
-        '/home': (context) => const MainScreen(),
-        '/lecturer_loading': (context) => const LecturerLoadingScreen(),
-        '/lecturer_home': (context) => const LecturerMainScreen(),
-        '/lecturer_profile': (context) => const LecturerProfileScreen(),
-        '/lecturer_grade_management': (context) =>
-            const LecturerGradeManagementScreen(),
-        '/lecturer_appeals': (context) => const LecturerAppealsScreen(),
-        '/lecturer_documents': (context) => const LecturerDocumentsScreen(),
-        '/lecturer_exam_schedule': (context) =>
-            const LecturerExamScheduleScreen(),
-        '/lecturer_edit_profile': (context) =>
-            const LecturerEditProfileScreen(),
-        '/lecturer_change_password': (context) =>
-            const LecturerChangePasswordScreen(),
-        '/lecturer_regulations': (context) => const RegulationsListScreen(),
-        '/lecturer_confirmation_letter': (context) =>
-            const LecturerConfirmationLetterScreen(),
-        '/lecturer_tuition': (context) => const LecturerTuitionScreen(),
-        '/lecturer_absences': (context) => const LecturerAbsencesScreen(),
-        '/lecturer_makeup_classes': (context) =>
-            const LecturerMakeupClassesScreen(),
-        '/lecturer_debug': (context) => const LecturerDebugScreen(),
-        '/chatbot': (context) => const ChatbotScreen(),
-        '/notifications': (context) => const NotificationsScreen(),
-        '/settings': (context) => const SettingsScreen(),
-        '/profile': (context) => const ProfileScreen(),
-        '/notification_preferences': (context) =>
-            const NotificationPreferencesScreen(),
-      },
-      onGenerateRoute: (settings) {
-        // Routes with showBackButton parameter
-        if (settings.name == '/lecturer_class_list') {
-          return MaterialPageRoute(
-            builder: (context) =>
-                const LecturerClassListScreen(showBackButton: true),
-          );
-        }
-        if (settings.name == '/lecturer_schedule') {
-          return MaterialPageRoute(
-            builder: (context) =>
-                const LecturerScheduleScreen(showBackButton: true),
-          );
-        }
-        // Route with custom arguments
-        if (settings.name == '/lecturer_class_detail') {
-          final classInfo = settings.arguments as TeachingClass;
-          return MaterialPageRoute(
-            builder: (context) =>
-                LecturerClassDetailScreen(classInfo: classInfo),
-          );
-        }
-        return null;
+    return ScreenUtilInit(
+      // Design size based on a medium phone (e.g., iPhone 12/13)
+      designSize: const Size(400, 844),
+      minTextAdapt: true,
+      splitScreenMode: true,
+      builder: (context, child) {
+        return MaterialApp(
+          debugShowCheckedModeBanner: false,
+          title: 'eUIT In Development',
+          theme: lightTheme,
+          darkTheme: darkTheme,
+          themeMode: isDark ? ThemeMode.dark : ThemeMode.light,
+          locale: languageController.locale,
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: AppLocalizations.supportedLocales,
+          // Use a dedicated AuthGate widget as home so we don't recreate MaterialApp when token changes
+          home: const AuthGate(),
+          routes: {
+            // Removed '/' as it is now handled by home
+            '/services': (context) => const ServicesScreen(),
+            '/home': (context) => const MainScreen(),
+            '/lecturer_loading': (context) => const LecturerLoadingScreen(),
+            '/lecturer_home': (context) => const LecturerMainScreen(),
+            '/lecturer_profile': (context) => const LecturerProfileScreen(),
+            '/lecturer_grade_management': (context) =>
+                const LecturerGradeManagementScreen(),
+            '/lecturer_appeals': (context) => const LecturerAppealsScreen(),
+            '/lecturer_documents': (context) => const LecturerDocumentsScreen(),
+            '/lecturer_exam_schedule': (context) =>
+                const LecturerExamScheduleScreen(),
+            '/lecturer_edit_profile': (context) =>
+                const LecturerEditProfileScreen(),
+            '/lecturer_change_password': (context) =>
+                const LecturerChangePasswordScreen(),
+            '/lecturer_regulations': (context) => const RegulationsListScreen(),
+            '/lecturer_confirmation_letter': (context) =>
+                const LecturerConfirmationLetterScreen(),
+            '/lecturer_tuition': (context) => const LecturerTuitionScreen(),
+            '/lecturer_absences': (context) => const LecturerAbsencesScreen(),
+            '/lecturer_makeup_classes': (context) =>
+                const LecturerMakeupClassesScreen(),
+            '/lecturer_debug': (context) => const LecturerDebugScreen(),
+            '/chatbot': (context) => const ChatbotScreen(),
+            '/notifications': (context) => const NotificationsScreen(),
+            '/settings': (context) => const SettingsScreen(),
+            '/profile': (context) => const ProfileScreen(),
+            '/notification_preferences': (context) =>
+                const NotificationPreferencesScreen(),
+          },
+          onGenerateRoute: (settings) {
+            // Routes with showBackButton parameter
+            if (settings.name == '/lecturer_class_list') {
+              return MaterialPageRoute(
+                builder: (context) =>
+                    const LecturerClassListScreen(showBackButton: true),
+              );
+            }
+            if (settings.name == '/lecturer_schedule') {
+              return MaterialPageRoute(
+                builder: (context) =>
+                    const LecturerScheduleScreen(showBackButton: true),
+              );
+            }
+            // Route with custom arguments
+            if (settings.name == '/lecturer_class_detail') {
+              final classInfo = settings.arguments as TeachingClass;
+              return MaterialPageRoute(
+                builder: (context) =>
+                    LecturerClassDetailScreen(classInfo: classInfo),
+              );
+            }
+            return null;
+          },
+        );
       },
     );
   }

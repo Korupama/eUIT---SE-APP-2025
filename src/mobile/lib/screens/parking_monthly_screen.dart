@@ -1,6 +1,7 @@
 // filepath: d:/SourceCodes/SEAPP_eUIT/eUIT---SE-APP-2025/src/mobile/lib/screens/parking_monthly_screen.dart
 
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../widgets/animated_background.dart';
 import '../theme/app_theme.dart';
 import '../utils/app_localizations.dart';

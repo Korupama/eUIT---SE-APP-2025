@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -355,12 +356,12 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
                     ),
                     child: IntrinsicHeight(
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                        padding: EdgeInsets.symmetric(horizontal: 24.w),
                         child: FadeTransition(
                           opacity: _fadeAnimation,
                           child: Column(
                             children: [
-                              const SizedBox(height: 16), // Reduced from 20
+                              SizedBox(height: 16.h), // Reduced from 20
 
                               // Control buttons (Top Right)
                               Row(
@@ -370,7 +371,7 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
                                     isVietnamese: isVietnamese,
                                     onToggle: () => languageController.toggleLanguage(),
                                   ),
-                                  const SizedBox(width: 12),
+                                  SizedBox(width: 12.w),
                                   ThemeSwitch(
                                     isDark: isDark,
                                     onToggle: () => themeController.toggleTheme(),
@@ -378,12 +379,12 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
                                 ],
                               ),
 
-                              const SizedBox(height: 24), // Reduced from 40
+                              SizedBox(height: 24.h), // Reduced from 40
 
                               // Logo & Title
                               _buildLogoSection(textColor, secondaryTextColor, loc, isDark),
 
-                              const SizedBox(height: 24), // Reduced from 40
+                              SizedBox(height: 24.h), // Reduced from 40
 
                               // Login Form
                               _buildLoginForm(
@@ -395,7 +396,7 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
                                 loc: loc,
                               ),
 
-                              const SizedBox(height: 24), // Reduced from 32
+                              SizedBox(height: 24.h), // Reduced from 32
                             ],
                           ),
                         ),
@@ -415,15 +416,15 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
     return Column(
       children: [
         Container(
-          width: 80, // Reduced from 100
-          height: 80, // Reduced from 100
+          width: 80.r, // Reduced from 100
+          height: 80.r, // Reduced from 100
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             color: Colors.white,
             boxShadow: AppTheme.glowShadow,
           ),
           child: Padding(
-            padding: const EdgeInsets.all(16), // Reduced from 20
+            padding: EdgeInsets.all(16.r), // Reduced from 20
             child: SvgPicture.asset(
               'assets/icons/logo-uit.svg',
               colorFilter: const ColorFilter.mode(
@@ -433,16 +434,17 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
             ),
           ),
         ),
-        const SizedBox(height: 20), // Reduced from 24
+        SizedBox(height: 20.h), // Reduced from 24
         Text(
           'UIT',
-          style: AppTheme.headingLarge.copyWith(color: textColor),
+          style: AppTheme.headingLarge.copyWith(color: textColor, fontSize: 32.sp),
         ),
-        const SizedBox(height: 6), // Reduced from 8
+        SizedBox(height: 6.h), // Reduced from 8
         Text(
           loc.t('university_name'),
           style: AppTheme.bodyMedium.copyWith(
             color: isDark ? secondaryTextColor : Colors.black, // Black in light mode
+            fontSize: 14.sp,
           ),
           textAlign: TextAlign.center,
         ),
@@ -459,10 +461,10 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
     required AppLocalizations loc,
   }) {
     return Container(
-      padding: const EdgeInsets.all(28), // Reduced from 32
+      padding: EdgeInsets.all(28.r), // Reduced from 32
       decoration: BoxDecoration(
         color: cardColor.withAlpha(127),
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(24.r),
         border: Border.all(color: borderColor.withAlpha(51)),
         boxShadow: AppTheme.cardShadow,
       ),
@@ -473,10 +475,10 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
           children: [
             Text(
               loc.t('login'),
-              style: AppTheme.headingMedium.copyWith(color: textColor),
+              style: AppTheme.headingMedium.copyWith(color: textColor, fontSize: 24.sp),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 28), // Reduced from 32
+            SizedBox(height: 28.h), // Reduced from 32
 
             // Username Field with Enter key navigation
             ShakeWrapper(
@@ -504,7 +506,7 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
                 },
               ),
             ),
-            const SizedBox(height: 18), // Reduced from 20
+            SizedBox(height: 18.h), // Reduced from 20
 
             // Password Field with Enter key to login
             ShakeWrapper(
@@ -545,27 +547,27 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
 
             // Error Message
             if (_errorKey != null || _errorMessage != null) ...[
-              const SizedBox(height: 10),
+              SizedBox(height: 10.h),
               Text(
                 _errorKey != null
                     ? loc.t(_errorKey!) // dynamic localization
                     : _errorMessage!,
-                style: const TextStyle(
+                style: TextStyle(
                   color: AppTheme.error,
-                  fontSize: 14,
+                  fontSize: 14.sp,
                 ),
                 textAlign: TextAlign.center,
               ),
             ],
 
-            const SizedBox(height: 20), // Reduced from 24
+            SizedBox(height: 20.h), // Reduced from 24
 
             // Remember Me & Forgot Password
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 InkWell(
-                  borderRadius: BorderRadius.circular(4),
+                  borderRadius: BorderRadius.circular(4.r),
                   onTap: () {
                     // Toggle remember only
                     setState(() {
@@ -575,8 +577,8 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
                   child: Row(
                     children: [
                       SizedBox(
-                        width: 24,
-                        height: 24,
+                        width: 24.r,
+                        height: 24.r,
                         child: Checkbox(
                           value: _rememberMe,
                           onChanged: (value) {
@@ -587,14 +589,14 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
                           },
                           activeColor: AppTheme.bluePrimary,
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(4),
+                            borderRadius: BorderRadius.circular(4.r),
                           ),
                         ),
                       ),
-                      const SizedBox(width: 8),
+                      SizedBox(width: 8.w),
                       Text(
                         loc.t('remember_me'),
-                        style: AppTheme.bodyMedium.copyWith(color: secondaryTextColor),
+                        style: AppTheme.bodyMedium.copyWith(color: secondaryTextColor, fontSize: 14.sp),
                       ),
                     ],
                   ),
@@ -606,13 +608,14 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
                     style: AppTheme.bodyMedium.copyWith(
                       color: AppTheme.bluePrimary,
                       fontWeight: FontWeight.w600,
+                      fontSize: 14.sp,
                     ),
                   ),
                 ),
               ],
             ),
 
-            const SizedBox(height: 28), // Reduced from 32
+            SizedBox(height: 28.h), // Reduced from 32
 
             // Login Button
             _buildLoginButton(textColor, loc),
@@ -637,30 +640,31 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
       labelText: label,
       labelStyle: TextStyle(
         color: isDark ? AppTheme.darkTextSecondary : AppTheme.lightTextSecondary,
+        fontSize: 14.sp,
       ),
-      prefixIcon: Icon(icon, color: AppTheme.bluePrimary),
+      prefixIcon: Icon(icon, color: AppTheme.bluePrimary, size: 24.r),
       suffixIcon: suffixIcon,
       filled: true,
       fillColor: fillColor,
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(12.r),
         borderSide: BorderSide(color: borderColor),
       ),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(12.r),
         borderSide: BorderSide(color: borderColor),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: AppTheme.bluePrimary, width: 2),
+        borderRadius: BorderRadius.circular(12.r),
+        borderSide: BorderSide(color: AppTheme.bluePrimary, width: 2.r),
       ),
       errorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: AppTheme.error, width: 2),
+        borderRadius: BorderRadius.circular(12.r),
+        borderSide: BorderSide(color: AppTheme.error, width: 2.r),
       ),
       focusedErrorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: AppTheme.error, width: 2),
+        borderRadius: BorderRadius.circular(12.r),
+        borderSide: BorderSide(color: AppTheme.error, width: 2.r),
       ),
       floatingLabelBehavior: FloatingLabelBehavior.auto,
     );
@@ -668,7 +672,7 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
 
   Widget _buildLoginButton(Color textColor, AppLocalizations loc) {
     return SizedBox(
-      height: 56,
+      height: 56.h,
       child: ElevatedButton(
         onPressed: _isLoading ? null : _handleLogin,
         style: ElevatedButton.styleFrom(
@@ -676,18 +680,18 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
           shadowColor: Colors.transparent,
           padding: EdgeInsets.zero,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(12.r),
           ),
         ),
         child: Ink(
           decoration: BoxDecoration(
             gradient: AppTheme.primaryGradient,
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(12.r),
             boxShadow: [
               BoxShadow(
                 color: AppTheme.bluePrimary.withAlpha(76),
-                blurRadius: 12,
-                offset: const Offset(0, 4),
+                blurRadius: 12.r,
+                offset: Offset(0, 4.h),
               ),
             ],
           ),
@@ -697,20 +701,20 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
                 ? Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const SizedBox(
-                        width: 20,
-                        height: 20,
+                      SizedBox(
+                        width: 20.r,
+                        height: 20.r,
                         child: CircularProgressIndicator(
                           color: Colors.white,
-                          strokeWidth: 2,
+                          strokeWidth: 2.r,
                         ),
                       ),
-                      const SizedBox(width: 12),
+                      SizedBox(width: 12.w),
                       Text(
                         loc.t('logging_in'),
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: Colors.white,
-                          fontSize: 16,
+                          fontSize: 16.sp,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -719,13 +723,13 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
                 : Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(Icons.login, color: Colors.white),
-                      const SizedBox(width: 8),
+                      Icon(Icons.login, color: Colors.white, size: 24.r),
+                      SizedBox(width: 8.w),
                       Text(
                         loc.t('login'),
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: Colors.white,
-                          fontSize: 16,
+                          fontSize: 16.sp,
                           fontWeight: FontWeight.w600,
                         ),
                       ),

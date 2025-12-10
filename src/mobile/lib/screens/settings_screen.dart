@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -136,7 +137,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         top: true,
         bottom: false,
         child: ListView(
-          padding: const EdgeInsets.only(left: 20, right: 20, top: 12, bottom: 84),
+          padding: EdgeInsets.only(left: 20.w, right: 20.w, top: 12.h, bottom: 84.h),
           children: [
             // Header (profile card)
             GestureDetector(
@@ -155,17 +156,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 });
               },
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(16.r),
                 child: BackdropFilter(
                   filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
                   child: Container(
-                    margin: const EdgeInsets.symmetric(vertical: 8),
-                    padding: const EdgeInsets.all(16),
+                    margin: EdgeInsets.symmetric(vertical: 8.h),
+                    padding: EdgeInsets.all(16.r),
                     decoration: BoxDecoration(
                       color: isDark
                           ? AppTheme.darkBackground.withAlpha(242)
                           : Colors.white.withAlpha(229),
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(16.r),
                       border: Border.all(
                         color: isDark
                             ? Colors.white.withAlpha(26)
@@ -176,17 +177,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     child: Row(
                       children: [
                         Container(
-                          width: 48,
-                          height: 48,
+                          width: 48.r,
+                          height: 48.r,
                           decoration: const BoxDecoration(
                             shape: BoxShape.circle,
                             gradient: LinearGradient(
                               colors: [AppTheme.bluePrimary, AppTheme.blueLight],
                             ),
                           ),
-                          child: const Icon(Icons.person, color: Colors.white, size: 28),
+                          child: Icon(Icons.person, color: Colors.white, size: 28.r),
                         ),
-                        const SizedBox(width: 12),
+                        SizedBox(width: 12.w),
                         Expanded(
                           child: Builder(
                             builder: (context) {
@@ -210,13 +211,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                               style: TextStyle(
                                                 color: textColor,
                                                 fontWeight: FontWeight.bold,
-                                                fontSize: 16,
+                                                fontSize: 16.sp,
                                               ),
                                             ),
-                                            const SizedBox(height: 4),
+                                            SizedBox(height: 4.h),
                                             Text(
                                               'Mã GV: ${profile.maGv}',
-                                              style: TextStyle(color: secondary, fontSize: 12),
+                                              style: TextStyle(color: secondary, fontSize: 12.sp),
                                             ),
                                           ],
                                         );
@@ -233,13 +234,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                           style: TextStyle(
                                             color: textColor,
                                             fontWeight: FontWeight.bold,
-                                            fontSize: 16,
+                                            fontSize: 16.sp,
                                           ),
                                         ),
-                                        const SizedBox(height: 4),
+                                        SizedBox(height: 4.h),
                                         Text(
                                           loc.t('loading_profile'),
-                                          style: TextStyle(color: secondary, fontSize: 12),
+                                          style: TextStyle(color: secondary, fontSize: 12.sp),
                                         ),
                                       ],
                                     );
@@ -253,13 +254,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                           style: TextStyle(
                                             color: textColor,
                                             fontWeight: FontWeight.bold,
-                                            fontSize: 16,
+                                            fontSize: 16.sp,
                                           ),
                                         ),
-                                        const SizedBox(height: 4),
+                                        SizedBox(height: 4.h),
                                         Text(
                                           '${loc.t('id')}: ${provider.studentCard?.mssv?.toString()}',
-                                          style: TextStyle(color: secondary, fontSize: 12),
+                                          style: TextStyle(color: secondary, fontSize: 12.sp),
                                         ),
                                       ],
                                     );
@@ -269,7 +270,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             },
                           ),
                         ),
-                        Icon(Icons.chevron_right_rounded, color: secondary),
+                        Icon(Icons.chevron_right_rounded, color: secondary, size: 24.r),
                       ],
                     ),
                   ),
@@ -277,19 +278,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ),
 
-            const SizedBox(height: 8),
+            SizedBox(height: 8.h),
 
             // Group 1: Interface & Language
             _buildSectionTitle(loc.t('interface_language'), isDark),
             ClipRRect(
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(16.r),
               child: BackdropFilter(
                 filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
                 child: Container(
-                  margin: const EdgeInsets.symmetric(vertical: 6),
+                  margin: EdgeInsets.symmetric(vertical: 6.h),
                   decoration: BoxDecoration(
                     color: isDark ? AppTheme.darkBackground.withAlpha(229) : Colors.white.withAlpha(242),
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(16.r),
                     border: Border.all(
                       color: isDark ? Colors.white.withAlpha(26) : Colors.grey.shade200,
                       width: 1,
@@ -303,11 +304,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           style: TextStyle(
                             color: isDark ? Colors.white : Colors.black87,
                             fontWeight: FontWeight.w600,
+                            fontSize: 14.sp,
                           ),
                         ),
                         subtitle: Text(
                           themeController.isDark ? loc.t('dark_mode') : loc.t('light_mode'),
-                          style: TextStyle(color: secondary, fontSize: 12),
+                          style: TextStyle(color: secondary, fontSize: 12.sp),
                         ),
                         trailing: ThemeSwitch(
                           isDark: themeController.isDark,
@@ -322,11 +324,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           style: TextStyle(
                             color: isDark ? Colors.white : Colors.black87,
                             fontWeight: FontWeight.w600,
+                            fontSize: 14.sp,
                           ),
                         ),
                         subtitle: Text(
                           languageController.locale.languageCode == 'vi' ? loc.t('vietnamese') : loc.t('english'),
-                          style: TextStyle(color: secondary, fontSize: 12),
+                          style: TextStyle(color: secondary, fontSize: 12.sp),
                         ),
                         trailing: LanguageSwitch(
                           isVietnamese: languageController.locale.languageCode == 'vi',
@@ -343,14 +346,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
             // Group 2: Notifications
             _buildSectionTitle(loc.t('notifications'), isDark),
             ClipRRect(
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(16.r),
               child: BackdropFilter(
                 filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
                 child: Container(
-                  margin: const EdgeInsets.symmetric(vertical: 6),
+                  margin: EdgeInsets.symmetric(vertical: 6.h),
                   decoration: BoxDecoration(
                     color: isDark ? AppTheme.darkBackground.withAlpha(229) : Colors.white.withAlpha(242),
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(16.r),
                     border: Border.all(
                       color: isDark ? Colors.white.withAlpha(26) : Colors.grey.shade200,
                       width: 1,
@@ -359,14 +362,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   child: Column(
                     children: [
                       SwitchListTile(
-                        title: Text(loc.t('push_notifications'), style: TextStyle(color: isDark ? Colors.white : Colors.black87, fontWeight: FontWeight.w600)),
+                        title: Text(loc.t('push_notifications'), style: TextStyle(color: isDark ? Colors.white : Colors.black87, fontWeight: FontWeight.w600, fontSize: 14.sp)),
                         value: _pushNotifications,
                         onChanged: (v) => _setPushPref(v),
                       ),
                       const Divider(height: 1),
                       ListTile(
-                        title: Text(loc.t('notification_customization'), style: TextStyle(color: isDark ? Colors.white : Colors.black87, fontWeight: FontWeight.w600)),
-                        trailing: const Icon(Icons.chevron_right_rounded),
+                        title: Text(loc.t('notification_customization'), style: TextStyle(color: isDark ? Colors.white : Colors.black87, fontWeight: FontWeight.w600, fontSize: 14.sp)),
+                        trailing: Icon(Icons.chevron_right_rounded, size: 24.r),
                         onTap: () => Navigator.pushNamed(context, '/notification_preferences'),
                       ),
                     ],
@@ -378,14 +381,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
             // Group 3: Account & Security
             _buildSectionTitle(loc.t('account_security'), isDark),
             ClipRRect(
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(16.r),
               child: BackdropFilter(
                 filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
                 child: Container(
-                  margin: const EdgeInsets.symmetric(vertical: 6),
+                  margin: EdgeInsets.symmetric(vertical: 6.h),
                   decoration: BoxDecoration(
                     color: isDark ? AppTheme.darkBackground.withAlpha(229) : Colors.white.withAlpha(242),
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(16.r),
                     border: Border.all(
                       color: isDark ? Colors.white.withAlpha(26) : Colors.grey.shade200,
                       width: 1,
@@ -394,8 +397,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   child: Column(
                     children: [
                       ListTile(
-                        title: Text(loc.t('change_password'), style: TextStyle(color: isDark ? Colors.white : Colors.black87, fontWeight: FontWeight.w600)),
-                        trailing: const Icon(Icons.open_in_new_rounded),
+                        title: Text(loc.t('change_password'), style: TextStyle(color: isDark ? Colors.white : Colors.black87, fontWeight: FontWeight.w600, fontSize: 14.sp)),
+                        trailing: Icon(Icons.open_in_new_rounded, size: 24.r),
                         onTap: () async {
                           final url = Uri.parse('https://auth.uit.edu.vn/');
                           try {
@@ -416,8 +419,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ),
                       const Divider(height: 1),
                       ListTile(
-                        title: Text(loc.t('logout'), style: TextStyle(color: isDark ? Colors.white : Colors.black87, fontWeight: FontWeight.w600)),
-                        trailing: const Icon(Icons.exit_to_app_rounded),
+                        title: Text(loc.t('logout'), style: TextStyle(color: isDark ? Colors.white : Colors.black87, fontWeight: FontWeight.w600, fontSize: 14.sp)),
+                        trailing: Icon(Icons.exit_to_app_rounded, size: 24.r),
                         onTap: _confirmLogout,
                       ),
                     ],
@@ -429,14 +432,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
             // Group 4: About
             _buildSectionTitle(loc.t('about_app'), isDark),
             ClipRRect(
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(16.r),
               child: BackdropFilter(
                 filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
                 child: Container(
-                  margin: const EdgeInsets.symmetric(vertical: 6),
+                  margin: EdgeInsets.symmetric(vertical: 6.h),
                   decoration: BoxDecoration(
                     color: isDark ? AppTheme.darkBackground.withAlpha(229) : Colors.white.withAlpha(242),
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(16.r),
                     border: Border.all(
                       color: isDark ? Colors.white.withAlpha(26) : Colors.grey.shade200,
                       width: 1,
@@ -445,13 +448,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   child: Column(
                     children: [
                       ListTile(
-                        title: Text(loc.t('version'), style: TextStyle(color: isDark ? Colors.white : Colors.black87, fontWeight: FontWeight.w600)),
-                        subtitle: const Text('1.0.0'),
+                        title: Text(loc.t('version'), style: TextStyle(color: isDark ? Colors.white : Colors.black87, fontWeight: FontWeight.w600, fontSize: 14.sp)),
+                        subtitle: Text('1.0.0', style: TextStyle(fontSize: 12.sp)),
                       ),
                       const Divider(height: 1),
                       ListTile(
-                        title: Text(loc.t('send_feedback'), style: TextStyle(color: isDark ? Colors.white : Colors.black87, fontWeight: FontWeight.w600)),
-                        trailing: const Icon(Icons.chevron_right_rounded),
+                        title: Text(loc.t('send_feedback'), style: TextStyle(color: isDark ? Colors.white : Colors.black87, fontWeight: FontWeight.w600, fontSize: 14.sp)),
+                        trailing: Icon(Icons.chevron_right_rounded, size: 24.r),
                         onTap: () async {
                           final Uri emailUri = Uri(
                             scheme: 'mailto',
@@ -470,8 +473,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ),
                       const Divider(height: 1),
                       ListTile(
-                        title: Text(loc.t('privacy_policy'), style: TextStyle(color: isDark ? Colors.white : Colors.black87, fontWeight: FontWeight.w600)),
-                        trailing: const Icon(Icons.open_in_new_rounded),
+                        title: Text(loc.t('privacy_policy'), style: TextStyle(color: isDark ? Colors.white : Colors.black87, fontWeight: FontWeight.w600, fontSize: 14.sp)),
+                        trailing: Icon(Icons.open_in_new_rounded, size: 24.r),
                         onTap: () async {
                           final url = Uri.parse('https://example.com/privacy');
                           try {
@@ -488,7 +491,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ),
 
-            const SizedBox(height: 24),
+            SizedBox(height: 24.h),
           ],
         ),
       ),
@@ -497,16 +500,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   PreferredSizeWidget _buildSettingsHeader(AppLocalizations loc, bool isDark) {
     return PreferredSize(
-      preferredSize: const Size.fromHeight(56),
+      preferredSize: Size.fromHeight(56.h),
       child: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        titleSpacing: 20,
+        titleSpacing: 20.w,
         title: Text(
           loc.t('settings'),
           style: TextStyle(
             color: isDark ? Colors.white : Colors.black87,
-            fontSize: 20,
+            fontSize: 20.sp,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -517,12 +520,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
   // Section title that matches HomeScreen style
   Widget _buildSectionTitle(String title, bool isDark) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
+      padding: EdgeInsets.only(bottom: 12.h),
       child: Text(
         title,
         style: TextStyle(
           color: isDark ? Colors.white : Colors.black87,
-          fontSize: 18,
+          fontSize: 18.sp,
           fontWeight: FontWeight.bold,
         ),
       ),

@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../providers/home_provider.dart';
@@ -13,6 +14,8 @@ import '../screens/search/tuition_screen.dart';
 import '../screens/parking_monthly_screen.dart';
 import '../screens/student_confirmation_screen.dart';
 import '../screens/certificate_confirmation_screen.dart';
+import '../screens/regrade_screen.dart';
+import '../screens/introduction_letter_screen.dart';
 
 /// HomeScreen - Trang chủ Light Theme với bố cục mới
 class HomeScreen extends StatefulWidget {
@@ -87,35 +90,35 @@ class _HomeScreenState extends State<HomeScreen>
                 physics: const AlwaysScrollableScrollPhysics(
                   parent: BouncingScrollPhysics(),
                 ),
-                padding: const EdgeInsets.only(
-                  left: 20,
-                  right: 20,
-                  top: 20,
-                  bottom:
-                      84, // Updated from 88 to match new bottom nav height (68 + 16)
+                padding: EdgeInsets.only(
+                  left: 20.w,
+                  right: 20.w,
+                  top: 20.h,
+                  bottom: 84
+                      .h, // Updated from 88 to match new bottom nav height (68 + 16)
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Header mới (Scrollable)
                     _buildScrollableHeader(provider, isDark, loc),
-                    const SizedBox(height: 24),
+                    SizedBox(height: 24.h),
 
                     // Next Schedule Section
                     _buildSectionTitle(loc.t('next_schedule'), isDark),
-                    const SizedBox(height: 12),
+                    SizedBox(height: 12.h),
                     _buildNextScheduleCard(provider, loc, isDark),
-                    const SizedBox(height: 24),
+                    SizedBox(height: 24.h),
 
                     // Student card + GPA placed before Notifications
                     _buildStudentInfoCards(loc, isDark, provider),
-                    const SizedBox(height: 24),
+                    SizedBox(height: 24.h),
 
                     // Notifications Section (show single item + View all)
                     _buildSectionTitle(loc.t('new_notifications'), isDark),
-                    const SizedBox(height: 12),
+                    SizedBox(height: 12.h),
                     _buildNotificationsList(provider, isDark, loc, maxItems: 1),
-                    const SizedBox(height: 16),
+                    SizedBox(height: 16.h),
 
                     // Quick Actions Section (SQUIRCLE)
                     Row(
@@ -126,6 +129,7 @@ class _HomeScreenState extends State<HomeScreen>
                           icon: Icon(
                             Icons.settings,
                             color: isDark ? Colors.white : Colors.black87,
+                            size: 24.r,
                           ),
                           tooltip: 'Tùy chỉnh thao tác nhanh',
                           onPressed: () {
@@ -148,9 +152,9 @@ class _HomeScreenState extends State<HomeScreen>
                         ),
                       ],
                     ),
-                    const SizedBox(height: 12),
+                    SizedBox(height: 12.h),
                     _buildQuickActionsGrid(provider, isDark),
-                    const SizedBox(height: 24),
+                    SizedBox(height: 24.h),
                   ],
                 ),
               ),
@@ -170,19 +174,19 @@ class _HomeScreenState extends State<HomeScreen>
     final unreadCount = provider.notifications.where((n) => n.isUnread).length;
 
     return ClipRRect(
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(16.r),
       child: BackdropFilter(
         filter: ImageFilter.blur(
           sigmaX: 6,
           sigmaY: 6,
         ), // nhẹ, hiển thị nền động phía sau
         child: Container(
-          padding: const EdgeInsets.all(16),
+          padding: EdgeInsets.all(16.r),
           decoration: BoxDecoration(
             color: isDark
                 ? AppTheme.darkCard.withAlpha(160)
                 : Colors.white.withAlpha(200),
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(16.r),
             border: Border.all(
               color: isDark ? Colors.white.withAlpha(18) : AppTheme.lightBorder,
               width: 1,
@@ -197,8 +201,8 @@ class _HomeScreenState extends State<HomeScreen>
                   GestureDetector(
                     onTap: () => Navigator.pushNamed(context, '/profile'),
                     child: Container(
-                      width: 48,
-                      height: 48,
+                      width: 48.r,
+                      height: 48.r,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         // White circular background with blue logo
@@ -210,13 +214,13 @@ class _HomeScreenState extends State<HomeScreen>
                         boxShadow: [
                           BoxShadow(
                             color: Colors.black12,
-                            blurRadius: 6,
-                            offset: const Offset(0, 3),
+                            blurRadius: 6.r,
+                            offset: Offset(0, 3.h),
                           ),
                         ],
                       ),
                       child: Padding(
-                        padding: const EdgeInsets.all(6.0),
+                        padding: EdgeInsets.all(6.r),
                         child: SvgPicture.asset(
                           'assets/icons/logo-uit.svg',
                           // Force the logo to render in the primary blue color
@@ -228,7 +232,7 @@ class _HomeScreenState extends State<HomeScreen>
                       ),
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  SizedBox(width: 12.w),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -236,7 +240,7 @@ class _HomeScreenState extends State<HomeScreen>
                         provider.studentCard?.hoTen ?? loc.t('student_name'),
                         style: TextStyle(
                           color: isDark ? Colors.white : Colors.black87,
-                          fontSize: 16,
+                          fontSize: 16.sp,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -246,7 +250,7 @@ class _HomeScreenState extends State<HomeScreen>
                           color: isDark
                               ? Colors.grey.shade400
                               : Colors.grey.shade600,
-                          fontSize: 12,
+                          fontSize: 12.sp,
                         ),
                       ),
                     ],
@@ -257,16 +261,16 @@ class _HomeScreenState extends State<HomeScreen>
               Row(
                 children: [
                   Padding(
-                    padding: const EdgeInsets.only(right: 8),
+                    padding: EdgeInsets.only(right: 8.w),
                     child: GestureDetector(
                       onTap: () {
                         Navigator.pushNamed(context, '/chatbot');
                       },
                       child: Container(
-                        width: 40,
-                        height: 40,
+                        width: 40.r,
+                        height: 40.r,
                         decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(12.r),
                           border: Border.all(
                             color: Colors.white.withOpacity(0.18),
                             width: 1,
@@ -274,14 +278,14 @@ class _HomeScreenState extends State<HomeScreen>
                           boxShadow: [
                             BoxShadow(
                               color: Colors.blueAccent.withOpacity(0.25),
-                              blurRadius: 20,
+                              blurRadius: 20.r,
                               spreadRadius: 1,
-                              offset: const Offset(0, 6),
+                              offset: Offset(0, 6.h),
                             ),
                           ],
                         ),
                         child: ClipRRect(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(12.r),
                           child: BackdropFilter(
                             filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
                             child: Container(
@@ -295,11 +299,11 @@ class _HomeScreenState extends State<HomeScreen>
                                   end: Alignment.bottomRight,
                                 ),
                               ),
-                              child: const Center(
+                              child: Center(
                                 child: Icon(
                                   Icons.smart_toy,
                                   color: Colors.white,
-                                  size: 20,
+                                  size: 20.r,
                                 ),
                               ),
                             ),
@@ -317,28 +321,29 @@ class _HomeScreenState extends State<HomeScreen>
                         icon: Icon(
                           Icons.notifications_outlined,
                           color: isDark ? Colors.white : Colors.black87,
+                          size: 24.r,
                         ),
                       ),
                       if (unreadCount > 0)
                         Positioned(
-                          top: 8,
-                          right: 8,
+                          top: 8.h,
+                          right: 8.w,
                           child: Container(
-                            padding: const EdgeInsets.all(4),
+                            padding: EdgeInsets.all(4.r),
                             decoration: const BoxDecoration(
                               color: Colors.red,
                               shape: BoxShape.circle,
                             ),
-                            constraints: const BoxConstraints(
-                              minWidth: 18,
-                              minHeight: 18,
+                            constraints: BoxConstraints(
+                              minWidth: 18.r,
+                              minHeight: 18.r,
                             ),
                             child: Center(
                               child: Text(
                                 unreadCount > 9 ? '9+' : '$unreadCount',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   color: Colors.white,
-                                  fontSize: 10,
+                                  fontSize: 10.sp,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
@@ -361,7 +366,7 @@ class _HomeScreenState extends State<HomeScreen>
       title,
       style: TextStyle(
         color: isDark ? Colors.white : Colors.black87,
-        fontSize: 18,
+        fontSize: 18.sp,
         fontWeight: FontWeight.bold,
       ),
     );
@@ -381,7 +386,7 @@ class _HomeScreenState extends State<HomeScreen>
         filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
         child: Container(
           width: double.infinity,
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             // Reduced opacity so animated background shows through
             gradient: isDark
@@ -445,7 +450,7 @@ class _HomeScreenState extends State<HomeScreen>
                           schedule.courseCode,
                           style: TextStyle(
                             color: isDark ? Colors.white : Colors.black87,
-                            fontSize: 18,
+                            fontSize: 16,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -456,7 +461,7 @@ class _HomeScreenState extends State<HomeScreen>
                           builder: (context, constraints) {
                             final courseStyle = TextStyle(
                               color: isDark ? Colors.white : Colors.black87,
-                              fontSize: 22,
+                              fontSize: 18,
                               fontWeight: FontWeight.bold,
                             );
                             return _EllipsizeAtWord(
@@ -481,7 +486,7 @@ class _HomeScreenState extends State<HomeScreen>
                           color: isDark
                               ? Colors.grey.shade400
                               : Colors.grey.shade600,
-                          fontSize: 13,
+                          fontSize: 11,
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -491,7 +496,7 @@ class _HomeScreenState extends State<HomeScreen>
                           color: isDark
                               ? AppTheme.bluePrimary
                               : AppTheme.bluePrimary,
-                          fontSize: 24,
+                          fontSize: 20,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -568,8 +573,8 @@ class _HomeScreenState extends State<HomeScreen>
     final actions = provider.quickActions;
 
     return Wrap(
-      spacing: 12,
-      runSpacing: 16,
+      spacing: 12.w,
+      runSpacing: 16.h,
       children: actions.asMap().entries.map((entry) {
         return _buildSquircleActionButton(
           entry.value,
@@ -587,6 +592,7 @@ class _HomeScreenState extends State<HomeScreen>
     int index,
     void Function(int)? onSelectPage,
   ) {
+    final loc = AppLocalizations.of(context);
     // Định nghĩa gradients cho từng action
     final gradients = [
       [
@@ -643,7 +649,7 @@ class _HomeScreenState extends State<HomeScreen>
     }
 
     return SizedBox(
-      width: 80,
+      width: 80.w,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -686,7 +692,7 @@ class _HomeScreenState extends State<HomeScreen>
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => const StudentConfirmationScreen(),
+                      builder: (_) => const IntroductionLetterScreen(),
                     ),
                   );
                   break;
@@ -696,6 +702,22 @@ class _HomeScreenState extends State<HomeScreen>
                     context,
                     MaterialPageRoute(
                       builder: (_) => const CertificateConfirmationScreen(),
+                    ),
+                  );
+                  break;
+
+                case 'regrade':
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const RegradeScreen()),
+                  );
+                  break;
+
+                case 'gxn':
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const StudentConfirmationScreen(),
                     ),
                   );
                   break;
@@ -719,20 +741,20 @@ class _HomeScreenState extends State<HomeScreen>
             },
 
             child: Container(
-              width: 64,
-              height: 64,
+              width: 64.r,
+              height: 64.r,
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: gradient,
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(16.r),
                 boxShadow: [
                   BoxShadow(
                     color: gradient[0].withAlpha(76),
-                    blurRadius: 8,
-                    offset: const Offset(0, 4),
+                    blurRadius: 8.r,
+                    offset: Offset(0, 4.h),
                   ),
                 ],
               ),
@@ -740,27 +762,27 @@ class _HomeScreenState extends State<HomeScreen>
                 child: action.textIcon != null
                     ? Text(
                         action.textIcon!,
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: Colors.white,
-                          fontSize: 24,
+                          fontSize: 24.sp,
                           fontWeight: FontWeight.bold,
                         ),
                       )
-                    : Icon(icon, color: Colors.white, size: 28),
+                    : Icon(icon, color: Colors.white, size: 28.r),
               ),
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8.h),
 
           // Label
           Text(
-            action.label,
+            loc.t(action.label),
             textAlign: TextAlign.center,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
               color: isDark ? Colors.grey.shade300 : Colors.black87,
-              fontSize: 11,
+              fontSize: 11.sp,
               fontWeight: FontWeight.w600,
               height: 1.2,
             ),
@@ -788,18 +810,18 @@ class _HomeScreenState extends State<HomeScreen>
         children: [
           if (hasOne)
             Container(
-              margin: const EdgeInsets.only(bottom: 12),
+              margin: EdgeInsets.only(bottom: 12.h),
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(16.r),
                 child: BackdropFilter(
                   filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    padding: EdgeInsets.symmetric(horizontal: 8.w),
                     decoration: BoxDecoration(
                       color: isDark
                           ? const Color(0xFF1E293B).withAlpha(153)
                           : Colors.white.withAlpha(204),
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(16.r),
                       border: Border.all(
                         color: isDark
                             ? Colors.white.withAlpha(13)
@@ -807,10 +829,10 @@ class _HomeScreenState extends State<HomeScreen>
                       ),
                     ),
                     child: ListTile(
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 8),
+                      contentPadding: EdgeInsets.symmetric(horizontal: 8.w),
                       leading: Container(
-                        width: 44,
-                        height: 44,
+                        width: 44.r,
+                        height: 44.r,
                         decoration: BoxDecoration(
                           gradient: notifications[0].isUnread
                               ? const LinearGradient(
@@ -825,14 +847,14 @@ class _HomeScreenState extends State<HomeScreen>
                                     Colors.grey.shade200,
                                   ],
                                 ),
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(12.r),
                         ),
                         child: Icon(
                           Icons.notifications_outlined,
                           color: notifications[0].isUnread
                               ? Colors.white
                               : Colors.grey.shade600,
-                          size: 22,
+                          size: 22.r,
                         ),
                       ),
                       title: Text(
@@ -840,20 +862,21 @@ class _HomeScreenState extends State<HomeScreen>
                         style: TextStyle(
                           color: isDark ? Colors.white : Colors.black87,
                           fontWeight: FontWeight.w600,
+                          fontSize: 14.sp,
                         ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
                       subtitle: notifications[0].body != null
                           ? Padding(
-                              padding: const EdgeInsets.only(top: 4),
+                              padding: EdgeInsets.only(top: 4.h),
                               child: Text(
                                 notifications[0].body!,
                                 style: TextStyle(
                                   color: isDark
                                       ? Colors.grey.shade400
                                       : Colors.grey.shade600,
-                                  fontSize: 12,
+                                  fontSize: 12.sp,
                                 ),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
@@ -862,8 +885,8 @@ class _HomeScreenState extends State<HomeScreen>
                           : null,
                       trailing: notifications[0].isUnread
                           ? Container(
-                              width: 10,
-                              height: 10,
+                              width: 10.r,
+                              height: 10.r,
                               decoration: const BoxDecoration(
                                 color: AppTheme.bluePrimary,
                                 shape: BoxShape.circle,
@@ -885,7 +908,7 @@ class _HomeScreenState extends State<HomeScreen>
               onPressed: () => Navigator.pushNamed(context, '/notifications'),
               icon: Icon(
                 Icons.arrow_forward_rounded,
-                size: 18,
+                size: 18.r,
                 color: AppTheme.bluePrimary,
               ),
               label: Text(
@@ -893,11 +916,12 @@ class _HomeScreenState extends State<HomeScreen>
                 style: TextStyle(
                   color: AppTheme.bluePrimary,
                   fontWeight: FontWeight.w600,
+                  fontSize: 14.sp,
                 ),
               ),
               style: TextButton.styleFrom(
                 foregroundColor: AppTheme.bluePrimary,
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
               ),
             ),
@@ -912,9 +936,9 @@ class _HomeScreenState extends State<HomeScreen>
         // map each notification to a ListTile wrapped in blurred card
         ...notifications.map(
           (notification) => Container(
-            margin: const EdgeInsets.only(bottom: 12),
+            margin: EdgeInsets.only(bottom: 12.h),
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(16.r),
               child: BackdropFilter(
                 filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
                 child: Container(
@@ -922,7 +946,7 @@ class _HomeScreenState extends State<HomeScreen>
                     color: isDark
                         ? const Color(0xFF1E293B).withAlpha(153)
                         : Colors.white.withAlpha(204),
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(16.r),
                     border: Border.all(
                       color: isDark
                           ? Colors.white.withAlpha(13)
@@ -930,13 +954,13 @@ class _HomeScreenState extends State<HomeScreen>
                     ),
                   ),
                   child: ListTile(
-                    contentPadding: const EdgeInsets.symmetric(
-                      vertical: 8,
-                      horizontal: 16,
+                    contentPadding: EdgeInsets.symmetric(
+                      vertical: 8.h,
+                      horizontal: 16.w,
                     ),
                     leading: Container(
-                      width: 44,
-                      height: 44,
+                      width: 44.r,
+                      height: 44.r,
                       decoration: BoxDecoration(
                         gradient: notification.isUnread
                             ? const LinearGradient(
@@ -951,14 +975,14 @@ class _HomeScreenState extends State<HomeScreen>
                                   Colors.grey.shade200,
                                 ],
                               ),
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(12.r),
                       ),
                       child: Icon(
                         Icons.notifications_outlined,
                         color: notification.isUnread
                             ? Colors.white
                             : Colors.grey.shade600,
-                        size: 22,
+                        size: 22.r,
                       ),
                     ),
                     title: Text(
@@ -966,20 +990,21 @@ class _HomeScreenState extends State<HomeScreen>
                       style: TextStyle(
                         color: isDark ? Colors.white : Colors.black87,
                         fontWeight: FontWeight.w600,
+                        fontSize: 14.sp,
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
                     subtitle: notification.body != null
                         ? Padding(
-                            padding: const EdgeInsets.only(top: 4),
+                            padding: EdgeInsets.only(top: 4.h),
                             child: Text(
                               notification.body!,
                               style: TextStyle(
                                 color: isDark
                                     ? Colors.grey.shade400
                                     : Colors.grey.shade600,
-                                fontSize: 12,
+                                fontSize: 12.sp,
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
@@ -988,8 +1013,8 @@ class _HomeScreenState extends State<HomeScreen>
                         : null,
                     trailing: notification.isUnread
                         ? Container(
-                            width: 10,
-                            height: 10,
+                            width: 10.r,
+                            height: 10.r,
                             decoration: const BoxDecoration(
                               color: AppTheme.bluePrimary,
                               shape: BoxShape.circle,
@@ -1009,21 +1034,22 @@ class _HomeScreenState extends State<HomeScreen>
           alignment: Alignment.centerLeft,
           child: TextButton.icon(
             onPressed: () => Navigator.pushNamed(context, '/notifications'),
-            icon: const Icon(
+            icon: Icon(
               Icons.arrow_forward_rounded,
-              size: 18,
+              size: 18.r,
               color: AppTheme.bluePrimary,
             ),
             label: Text(
               loc.t('view_all'),
-              style: const TextStyle(
+              style: TextStyle(
                 color: AppTheme.bluePrimary,
                 fontWeight: FontWeight.w600,
+                fontSize: 14.sp,
               ),
             ),
             style: TextButton.styleFrom(
               foregroundColor: AppTheme.bluePrimary,
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
             ),
           ),
@@ -1034,27 +1060,30 @@ class _HomeScreenState extends State<HomeScreen>
 
   Widget _buildShimmerLoading(bool isDark) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(20.r),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _shimmerBox(200, 48, isDark),
-          const SizedBox(height: 24),
-          _shimmerBox(double.infinity, 200, isDark),
-          const SizedBox(height: 24),
-          _shimmerBox(150, 24, isDark),
-          const SizedBox(height: 12),
+          _shimmerBox(200.w, 48.h, isDark),
+          SizedBox(height: 24.h),
+          _shimmerBox(double.infinity, 200.h, isDark),
+          SizedBox(height: 24.h),
+          _shimmerBox(150.w, 24.h, isDark),
+          SizedBox(height: 12.h),
           Wrap(
-            spacing: 12,
-            runSpacing: 16,
-            children: List.generate(8, (index) => _shimmerBox(80, 100, isDark)),
+            spacing: 12.w,
+            runSpacing: 16.h,
+            children: List.generate(
+              8,
+              (index) => _shimmerBox(80.w, 100.h, isDark),
+            ),
           ),
-          const SizedBox(height: 24),
-          _shimmerBox(150, 24, isDark),
-          const SizedBox(height: 12),
-          _shimmerBox(double.infinity, 80, isDark),
-          const SizedBox(height: 12),
-          _shimmerBox(double.infinity, 80, isDark),
+          SizedBox(height: 24.h),
+          _shimmerBox(150.w, 24.h, isDark),
+          SizedBox(height: 12.h),
+          _shimmerBox(double.infinity, 80.h, isDark),
+          SizedBox(height: 12.h),
+          _shimmerBox(double.infinity, 80.h, isDark),
         ],
       ),
     );
@@ -1069,7 +1098,7 @@ class _HomeScreenState extends State<HomeScreen>
         height: height,
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(16.r),
         ),
       ),
     );
@@ -1089,7 +1118,7 @@ class _HomeScreenState extends State<HomeScreen>
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Expanded(child: card1),
-          const SizedBox(width: 12),
+          SizedBox(width: 12.w),
           Expanded(child: card2),
         ],
       ),
@@ -1106,10 +1135,10 @@ class _HomeScreenState extends State<HomeScreen>
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
-            width: 48,
-            height: 48,
+            width: 48.r,
+            height: 48.r,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(12.r),
               color: isDark ? Colors.white.withAlpha(13) : AppTheme.lightCard,
               border: Border.all(
                 color: _hoverStudentCard
@@ -1119,18 +1148,19 @@ class _HomeScreenState extends State<HomeScreen>
                           : AppTheme.lightBorder),
               ),
             ),
-            child: const Icon(
+            child: Icon(
               Icons.badge_outlined,
               color: AppTheme.bluePrimary,
+              size: 24.r,
             ),
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: 12.w),
           Expanded(
             child: Text(
               loc.t('student_card'),
               style: TextStyle(
                 color: isDark ? Colors.white : Colors.black87,
-                fontSize: 16,
+                fontSize: 16.sp,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -1173,26 +1203,26 @@ class _HomeScreenState extends State<HomeScreen>
                   loc.t('gpa'),
                   style: TextStyle(
                     color: secondary,
-                    fontSize: 12,
+                    fontSize: 12.sp,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-                const SizedBox(height: 6),
+                SizedBox(height: 6.h),
                 Text(
                   gpaText,
                   style: TextStyle(
                     color: isDark ? Colors.white : Colors.black87,
-                    fontSize: 21,
+                    fontSize: 21.sp,
                     fontWeight: FontWeight.bold,
                     letterSpacing: 0.2,
                   ),
                 ),
-                const SizedBox(height: 6),
+                SizedBox(height: 6.h),
                 Text(
                   creditsText,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppTheme.bluePrimary,
-                    fontSize: 12,
+                    fontSize: 12.sp,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -1241,24 +1271,24 @@ class _HomeScreenState extends State<HomeScreen>
         curve: Curves.easeOut,
         decoration: BoxDecoration(
           color: isDark ? AppTheme.darkCard.withAlpha(191) : Colors.white,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(16.r),
           border: Border.all(color: borderColor, width: 1),
           boxShadow: [
             BoxShadow(
               color: boxShadowColor,
-              blurRadius: isHover ? 16 : 8,
-              offset: const Offset(0, 6),
+              blurRadius: isHover ? 16.r : 8.r,
+              offset: Offset(0, 6.h),
             ),
           ],
         ),
         child: Material(
           type: MaterialType.transparency,
           child: InkWell(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(16.r),
             onTap: onTap,
             splashColor: AppTheme.bluePrimary.withAlpha(38),
             highlightColor: AppTheme.bluePrimary.withAlpha(20),
-            child: Padding(padding: const EdgeInsets.all(16), child: child),
+            child: Padding(padding: EdgeInsets.all(16.r), child: child),
           ),
         ),
       ),
@@ -1274,13 +1304,10 @@ class _HomeScreenState extends State<HomeScreen>
       builder: (context) {
         final screenWidth = MediaQuery.of(context).size.width;
         return Dialog(
-          insetPadding: const EdgeInsets.symmetric(
-            horizontal: 12,
-            vertical: 24,
-          ),
+          insetPadding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 24.h),
           backgroundColor: Colors.transparent,
           child: ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: screenWidth - 24),
+            constraints: BoxConstraints(maxWidth: screenWidth - 24.w),
             child: StudentIdCard(
               studentName: provider.studentCard?.hoTen ?? '{Họ và tên}',
               studentId: provider.studentCard?.mssv?.toString() ?? '{MSSV}',
@@ -1306,28 +1333,31 @@ class _HomeScreenState extends State<HomeScreen>
         return AlertDialog(
           backgroundColor: isDark ? AppTheme.darkCard : Colors.white,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(16.r),
           ),
           title: Text(
             loc.t('gpa'),
-            style: TextStyle(color: isDark ? Colors.white : Colors.black87),
+            style: TextStyle(
+              color: isDark ? Colors.white : Colors.black87,
+              fontSize: 18.sp,
+            ),
           ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(
+              Icon(
                 Icons.assessment_outlined,
-                size: 48,
+                size: 48.r,
                 color: AppTheme.bluePrimary,
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: 12.h),
               if (gpa != null)
                 Text(
                   '${gpa.toStringAsFixed(2)}/10.0',
                   style: TextStyle(
                     color: isDark ? Colors.white : Colors.black87,
                     fontWeight: FontWeight.w600,
-                    fontSize: 18,
+                    fontSize: 18.sp,
                   ),
                 )
               else
@@ -1336,16 +1366,17 @@ class _HomeScreenState extends State<HomeScreen>
                   style: TextStyle(
                     color: isDark ? Colors.white : Colors.black87,
                     fontWeight: FontWeight.w600,
+                    fontSize: 14.sp,
                   ),
                 ),
-              const SizedBox(height: 8),
+              SizedBox(height: 8.h),
               Text(
                 gpa != null
                     ? '${loc.t('credits')}: ${credits ?? 0}'
                     : loc.t('gpa_details_soon'),
                 style: TextStyle(
                   color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
-                  fontSize: 12,
+                  fontSize: 12.sp,
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -1354,7 +1385,7 @@ class _HomeScreenState extends State<HomeScreen>
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: Text(loc.t('close')),
+              child: Text(loc.t('close'), style: TextStyle(fontSize: 14.sp)),
             ),
           ],
         );

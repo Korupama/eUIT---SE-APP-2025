@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import '../providers/academic_provider.dart';
 import '../theme/app_theme.dart';
@@ -65,23 +66,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 children: [
                   Icon(
                     Icons.error_outline,
-                    size: 64,
+                    size: 64.r,
                     color: isDark ? Colors.grey.shade600 : Colors.grey.shade400,
                   ),
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16.h),
                   Text(
                     'Không thể tải thông tin hồ sơ',
                     style: TextStyle(
                       color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
-                      fontSize: 16,
+                      fontSize: 16.sp,
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16.h),
                   ElevatedButton(
                     onPressed: () {
                       provider.fetchStudentProfile(forceRefresh: true);
                     },
-                    child: const Text('Thử lại'),
+                    child: Text('Thử lại', style: TextStyle(fontSize: 14.sp)),
                   ),
                 ],
               ),
@@ -89,14 +90,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
           }
 
           return SingleChildScrollView(
-            padding: const EdgeInsets.all(20),
+            padding: EdgeInsets.all(20.r),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // ⭐ HEADER CARD ĐƯỢC CENTER GIỮA MÀN HÌNH
                 Center(
                   child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 500),
+                    constraints: BoxConstraints(maxWidth: 500.w),
                     child: _buildHeaderCard(profile, isDark, card, textColor),
                   ),
                 ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/quick_action.dart';
 import '../theme/app_theme.dart';
+import '../utils/app_localizations.dart';
 
 class QuickActionsSettingsModal extends StatefulWidget {
   final List<QuickAction> enabledActions;
@@ -137,7 +138,7 @@ class _QuickActionsSettingsModalState extends State<QuickActionsSettingsModal> {
                       value: isEnabled,
                       onChanged: (_) => _toggleAction(action),
                       title: Text(
-                        action.label,
+                        AppLocalizations.of(context).t(action.label),
                         style: TextStyle(
                           color: isDark ? Colors.white : Colors.black87,
                           fontWeight: FontWeight.w500,

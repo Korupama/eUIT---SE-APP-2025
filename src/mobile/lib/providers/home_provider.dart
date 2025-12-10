@@ -64,38 +64,42 @@ class HomeProvider extends ChangeNotifier {
   List<NotificationItem> _notifications = [];
   List<QuickAction> _quickActions = [
     QuickAction(
-      label: 'Kết quả học tập',
+      label: 'quick_action_results',
       type: 'results',
       iconName: 'school_outlined',
     ),
     QuickAction(
-      label: 'Học phí',
+      label: 'quick_action_tuition',
       type: 'tuition',
       iconName: 'monetization_on_outlined',
     ),
     QuickAction(
-      label: 'Lịch học',
+      label: 'quick_action_schedule',
       type: 'schedule',
       iconName: 'calendar_today_outlined',
     ),
     QuickAction(
-      label: 'Gửi xe',
+      label: 'quick_action_parking',
       type: 'parking',
       iconName: 'directions_car_outlined',
     ),
-    QuickAction(label: 'Phúc khảo', type: 'regrade', iconName: 'edit_document'),
     QuickAction(
-      label: 'Đăng ký GXN',
+      label: 'quick_action_regrade',
+      type: 'regrade',
+      iconName: 'edit_document',
+    ),
+    QuickAction(
+      label: 'quick_action_gxn',
       type: 'gxn',
       iconName: 'check_box_outlined',
     ),
     QuickAction(
-      label: 'Giấy giới thiệu',
+      label: 'quick_action_reference',
       type: 'reference',
       iconName: 'description_outlined',
     ),
     QuickAction(
-      label: 'Chứng chỉ',
+      label: 'quick_action_certificate',
       type: 'certificate',
       iconName: 'workspace_premium_outlined',
     ),
@@ -121,38 +125,42 @@ class HomeProvider extends ChangeNotifier {
   /// Get all available quick actions (for customization modal)
   List<QuickAction> get allAvailableQuickActions => [
     QuickAction(
-      label: 'Kết quả học tập',
+      label: 'quick_action_results',
       type: 'results',
       iconName: 'school_outlined',
     ),
     QuickAction(
-      label: 'Học phí',
+      label: 'quick_action_tuition',
       type: 'tuition',
       iconName: 'monetization_on_outlined',
     ),
     QuickAction(
-      label: 'Lịch học',
+      label: 'quick_action_schedule',
       type: 'schedule',
       iconName: 'calendar_today_outlined',
     ),
     QuickAction(
-      label: 'Gửi xe',
+      label: 'quick_action_parking',
       type: 'parking',
       iconName: 'directions_car_outlined',
     ),
-    QuickAction(label: 'Phúc khảo', type: 'regrade', iconName: 'edit_document'),
     QuickAction(
-      label: 'Đăng ký GXN',
+      label: 'quick_action_regrade',
+      type: 'regrade',
+      iconName: 'edit_document',
+    ),
+    QuickAction(
+      label: 'quick_action_gxn',
       type: 'gxn',
       iconName: 'check_box_outlined',
     ),
     QuickAction(
-      label: 'Giấy giới thiệu',
+      label: 'quick_action_reference',
       type: 'reference',
       iconName: 'description_outlined',
     ),
     QuickAction(
-      label: 'Chứng chỉ',
+      label: 'quick_action_certificate',
       type: 'certificate',
       iconName: 'workspace_premium_outlined',
     ),

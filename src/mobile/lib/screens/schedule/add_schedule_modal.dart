@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'schedule_item.dart';
 
 class AddScheduleModal extends StatefulWidget {
