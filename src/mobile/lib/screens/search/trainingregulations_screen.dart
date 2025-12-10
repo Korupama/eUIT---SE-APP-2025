@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter/services.dart';
 import '../../widgets/animated_background.dart';
 import '../../theme/app_theme.dart';
 
@@ -400,30 +401,18 @@ class _TrainingRegulationsScreenState extends State<TrainingRegulationsScreen> {
 
   Future<void> _openUrl(BuildContext context, String urlStr) async {
     // Replace localhost → emulator IP
-    String fixedUrl = urlStr.replaceFirst("http://localhost", BACKEND_BASE_URL);
+    // String fixedUrl = urlStr.replaceFirst("http://localhost", BACKEND_BASE_URL);
 
-    // Encode space + unicode
-    final uri = Uri.parse(Uri.encodeFull(fixedUrl));
-
+    const platform = MethodChannel('com.example.mobile/browser');
+    final url = urlStr;
     try {
-      final launched = await launchUrl(
-        uri,
-        mode: LaunchMode.externalApplication,
-      );
-      if (!launched && context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Không thể mở trang quy định'),
-            backgroundColor: Color(0xFFEF4444),
-          ),
-        );
-      }
+      await platform.invokeMethod('openUrl', {'url': url});
     } catch (e) {
-      if (context.mounted) {
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Lỗi: ${e.toString()}'),
-            backgroundColor: const Color(0xFFEF4444),
+            content: Text('Could not open browser: $e'),
+            backgroundColor: AppTheme.error,
           ),
         );
       }

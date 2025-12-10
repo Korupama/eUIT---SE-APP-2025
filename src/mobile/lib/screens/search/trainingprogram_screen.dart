@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../utils/app_localizations.dart';
 import '../../widgets/animated_background.dart';
+import 'package:flutter/services.dart';
 
 class TrainingProgramScreen extends StatefulWidget {
   const TrainingProgramScreen({super.key});
@@ -136,33 +137,21 @@ class _TrainingProgramScreenState extends State<TrainingProgramScreen> {
     ],
   };
 
+  
+
   String? expandedYear;
 
   Future<void> _launchURL(String urlStr) async {
-    final uri = Uri.parse(urlStr);
+    const platform = MethodChannel('com.example.mobile/browser');
     try {
-      final launched = await launchUrl(
-        uri,
-        mode: LaunchMode.externalApplication,
-      );
-      if (!launched && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(AppLocalizations.of(context).t('link_open_failed')),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
+      await platform.invokeMethod('openUrl', {'url': urlStr});
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              '${AppLocalizations.of(context).t('error_prefix')}${e.toString()}',
-            ),
-            backgroundColor: Colors.red,
-          ),
-        );
+      // Fallback to url_launcher if platform channel fails
+      final uri = Uri.parse(urlStr);
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } else {
+        throw 'Could not launch $urlStr';
       }
     }
   }
