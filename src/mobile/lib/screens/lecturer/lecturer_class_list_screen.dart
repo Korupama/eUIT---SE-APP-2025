@@ -401,7 +401,6 @@ class _LecturerClassListScreenState extends State<LecturerClassListScreen> {
     }
 
     if (classes.isEmpty) {
-      print('Classes is empty - showing empty state');
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -418,15 +417,6 @@ class _LecturerClassListScreenState extends State<LecturerClassListScreen> {
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
                 color: isDark ? AppTheme.darkText : AppTheme.lightText,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Provider: ${provider.teachingClasses.length} lớp\nNăm: $_selectedYear\nHK: $_selectedSemester',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 14,
-                color: isDark ? AppTheme.darkTextSecondary : AppTheme.lightTextSecondary,
               ),
             ),
           ],
