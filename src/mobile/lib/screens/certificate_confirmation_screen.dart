@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:convert';
+import 'dart:io';
 import 'package:http/http.dart' as http;
+import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../widgets/animated_background.dart';
 import '../utils/app_localizations.dart';
@@ -101,7 +103,8 @@ class _CertificateConfirmationScreenState extends State<CertificateConfirmationS
   final TextEditingController _examDateController = TextEditingController();
 
   // File
-  PlatformFile? _selectedFile;
+  File? _selectedFile;
+  String? _selectedFileName;
 
   // TODO: Add API to get newest link for UIT Global scholarship regulation
   // For now use a placeholder URL; the API should provide the current regulation link.
@@ -153,23 +156,62 @@ class _CertificateConfirmationScreenState extends State<CertificateConfirmationS
 
   Future<void> _pickFile() async {
     try {
-      final result = await FilePicker.platform.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: ['jpg', 'png', 'gif', 'jpeg'],
-        withData: false,
+      // Show dialog to choose between camera and gallery
+      final ImageSource? source = await showDialog<ImageSource>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: Text(AppLocalizations.of(context).t('choose_file')),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: Icon(Icons.camera_alt),
+                title: Text('Chụp ảnh'),
+                onTap: () => Navigator.pop(ctx, ImageSource.camera),
+              ),
+              ListTile(
+                leading: Icon(Icons.photo_library),
+                title: Text('Chọn từ thư viện'),
+                onTap: () => Navigator.pop(ctx, ImageSource.gallery),
+              ),
+            ],
+          ),
+        ),
       );
 
-      if (result != null && result.files.isNotEmpty) {
-        setState(() {
-          _selectedFile = result.files.first;
-        });
+      if (source != null) {
+        final ImagePicker picker = ImagePicker();
+        final XFile? image = await picker.pickImage(source: source);
+        
+        if (image != null) {
+          final file = File(image.path);
+          // Check file size (max 5MB)
+          final fileSize = await file.length();
+          if (fileSize > 5 * 1024 * 1024) {
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('File quá lớn. Kích thước tối đa 5MB'))
+              );
+            }
+            return;
+          }
+          
+          setState(() {
+            _selectedFile = file;
+            _selectedFileName = image.name;
+          });
+        }
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context).t('file_pick_error'))));
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(AppLocalizations.of(context).t('file_pick_error')))
+        );
+      }
     }
   }
 
-  void _submit() {
+  Future<void> _submit() async {
     final loc = AppLocalizations.of(context);
     if (!_formKey.currentState!.validate()) return;
 
@@ -179,23 +221,193 @@ class _CertificateConfirmationScreenState extends State<CertificateConfirmationS
     }
 
     // Validate extension
-    final ext = (_selectedFile!.extension ?? '').toLowerCase();
+    final ext = _selectedFile!.path.split('.').last.toLowerCase();
     if (!['jpg', 'png', 'gif', 'jpeg'].contains(ext)) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(loc.t('invalid_file_type'))));
       return;
     }
 
-    // For now, we only simulate saving. Integrate with API later.
-    showDialog<void>(
+    // Validate that we have score information
+    bool hasScore = false;
+    if (_certificateType != 'Chứng chỉ GDQP&AN' && 
+        _certificateType != 'Bằng TN THPT' && 
+        _certificateType != 'Giấy Khai sinh' && 
+        _certificateType != 'Bằng đại học ngoại ngữ' && 
+        _certificateType != 'Bằng cao đẳng') {
+      if (_totalScoreController.text.isNotEmpty) {
+        hasScore = true;
+      } else if (_certificateType == 'Chứng chỉ TOEIC (Nghe-Đọc)' && 
+                 (_toeicListeningController.text.isNotEmpty || _toeicReadingController.text.isNotEmpty)) {
+        hasScore = true;
+      } else if (_certificateType == 'Chứng chỉ TOEIC (Nói-Viết)' && 
+                 (_toeicSpeakingController.text.isNotEmpty || _toeicWritingController.text.isNotEmpty)) {
+        hasScore = true;
+      } else if (_certificateType == 'Chứng chỉ BCU-EPT' && 
+                 (_bcuListeningController.text.isNotEmpty || _bcuReadingController.text.isNotEmpty || 
+                  _bcuSpeakingController.text.isNotEmpty || _bcuWritingController.text.isNotEmpty)) {
+        hasScore = true;
+      }
+      
+      if (!hasScore) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Vui lòng nhập điểm số'))
+        );
+        return;
+      }
+    }
+
+    // Show loading indicator
+    showDialog(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(loc.t('save')),
-        content: Text(loc.t('saved_success')),
-        actions: [
-          TextButton(onPressed: () => Navigator.of(ctx).pop(), child: Text(loc.t('close'))),
-        ],
-      ),
+      barrierDismissible: false,
+      builder: (ctx) => Center(child: CircularProgressIndicator()),
     );
+
+    try {
+      final auth = AuthService();
+      final token = await auth.getToken();
+      final uri = auth.buildUri('/api/service/language-certificate');
+      
+      // Create multipart request
+      final request = http.MultipartRequest('POST', uri);
+      
+      // Add authorization header
+      if (token != null && token.isNotEmpty) {
+        request.headers['Authorization'] = 'Bearer $token';
+      }
+      
+      // Add file
+      request.files.add(await http.MultipartFile.fromPath(
+        'file',
+        _selectedFile!.path,
+        filename: _selectedFileName ?? 'certificate.jpg',
+      ));
+      
+      // Add form fields matching backend API
+      request.fields['certificate_type'] = _certificateType;
+      
+      // Calculate score based on certificate type
+      double score = 0.0;
+      if (_totalScoreController.text.isNotEmpty) {
+        score = double.tryParse(_totalScoreController.text.replaceAll(',', '.')) ?? 0.0;
+      } else if (_certificateType == 'Chứng chỉ TOEIC (Nghe-Đọc)') {
+        // Sum of listening and reading for TOEIC
+        double listening = double.tryParse(_toeicListeningController.text.replaceAll(',', '.')) ?? 0.0;
+        double reading = double.tryParse(_toeicReadingController.text.replaceAll(',', '.')) ?? 0.0;
+        score = listening + reading;
+      } else if (_certificateType == 'Chứng chỉ TOEIC (Nói-Viết)') {
+        // Sum of speaking and writing
+        double speaking = double.tryParse(_toeicSpeakingController.text.replaceAll(',', '.')) ?? 0.0;
+        double writing = double.tryParse(_toeicWritingController.text.replaceAll(',', '.')) ?? 0.0;
+        score = speaking + writing;
+      } else if (_certificateType == 'Chứng chỉ BCU-EPT') {
+        // Average of all 4 skills for BCU-EPT
+        double listening = double.tryParse(_bcuListeningController.text.replaceAll(',', '.')) ?? 0.0;
+        double reading = double.tryParse(_bcuReadingController.text.replaceAll(',', '.')) ?? 0.0;
+        double speaking = double.tryParse(_bcuSpeakingController.text.replaceAll(',', '.')) ?? 0.0;
+        double writing = double.tryParse(_bcuWritingController.text.replaceAll(',', '.')) ?? 0.0;
+        score = (listening + reading + speaking + writing) / 4;
+      }
+      
+      request.fields['score'] = score.toString();
+      
+      // Parse and format dates from DD/MM/YYYY to ISO format (YYYY-MM-DD)
+      DateTime? issueDate;
+      if (_examDateController.text.isNotEmpty) {
+        final parts = _examDateController.text.split('/');
+        if (parts.length == 3) {
+          issueDate = DateTime(int.parse(parts[2]), int.parse(parts[1]), int.parse(parts[0]));
+        }
+      }
+      
+      DateTime? expiryDate;
+      // Calculate expiry date (typically 2 years from issue date for most certificates)
+      if (issueDate != null) {
+        expiryDate = issueDate.add(Duration(days: 730)); // 2 years
+      }
+      
+      if (issueDate != null) {
+        request.fields['issue_date'] = issueDate.toIso8601String().split('T')[0];
+      } else {
+        // Default to today if no exam date provided
+        request.fields['issue_date'] = DateTime.now().toIso8601String().split('T')[0];
+      }
+      
+      if (expiryDate != null) {
+        request.fields['expiry_date'] = expiryDate.toIso8601String().split('T')[0];
+      }
+      
+      // Send request
+      final response = await request.send().timeout(const Duration(seconds: 30));
+      final responseBody = await response.stream.bytesToString();
+      
+      // Close loading dialog
+      if (mounted) Navigator.of(context).pop();
+      
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        // Success
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(loc.t('saved_success')))
+          );
+          
+          // Clear form
+          setState(() {
+            _certificateType = '';
+            _selectedFile = null;
+            _applyUitGlobalScholarship = false;
+            _jlptLevel = '';
+            _dateOfBirth = null;
+            _examDate = null;
+          });
+          
+          _dobController.clear();
+          _idNumberController.clear();
+          _totalScoreController.clear();
+          _toeicListeningController.clear();
+          _toeicReadingController.clear();
+          _toeicSpeakingController.clear();
+          _toeicWritingController.clear();
+          _regNumberController.clear();
+          _testPlaceController.clear();
+          _trfNumberController.clear();
+          _examDateController.clear();
+          _bcuListeningController.clear();
+          _bcuReadingController.clear();
+          _bcuSpeakingController.clear();
+          _bcuWritingController.clear();
+          
+          // Reload history
+          _loadHistory();
+        }
+      } else if (response.statusCode == 401) {
+        await auth.deleteToken();
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Yêu cầu đăng nhập lại'))
+          );
+        }
+      } else {
+        String message = 'Không thể tải lên chứng chỉ';
+        try {
+          final Map<String, dynamic> err = jsonDecode(responseBody) as Map<String, dynamic>;
+          if (err['message'] != null) message = err['message'].toString();
+        } catch (_) {}
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(message))
+          );
+        }
+      }
+    } catch (e) {
+      // Close loading dialog
+      if (mounted) Navigator.of(context).pop();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Lỗi khi tải lên: ${e.toString()}'))
+        );
+      }
+    }
   }
 
   // Load certificate history from API
@@ -729,7 +941,7 @@ class _CertificateConfirmationScreenState extends State<CertificateConfirmationS
                               const SizedBox(width: 12),
                               Expanded(
                                 child: Text(
-                                  _selectedFile?.name ?? loc.t('no_file_selected'),
+                                  _selectedFileName ?? loc.t('no_file_selected'),
                                   style: TextStyle(color: isDark ? Colors.white70 : Colors.black87),
                                   overflow: TextOverflow.ellipsis,
                                 ),
