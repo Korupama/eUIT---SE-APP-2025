@@ -1,76 +1,135 @@
 ##############################################
-# DOTNET / C# BUILD ARTIFACTS
+# GLOBAL PROJECT IGNORES FOR EUIT MONOREPO
 ##############################################
+
+# Temp folder
+temp/
+temp.*
+*.tmp
+
+# Logs
+*.log
+logs/
+**/logs/
+
+# Cache
+.cache/
+**/.cache/
+*.swp
+*.swo
+
+##############################################
+# DOTNET / C# BUILD ARTIFACTS (Backend + Tools)
+##############################################
+
 bin/
 obj/
 out/
 *.exe
 *.dll
 *.pdb
+*.mdb
+*.cache
+*.db
+*.bak
+*.ldf
+
+# EF Core
+Migrations/
+**/Migrations/
+
+# Rider / ReSharper caches
+_ReSharper*/
+*.[Rr]e[Ss]harper
+*.DotSettings.user
 
 ##############################################
-# IDE & EDITOR SETTINGS
+# ASP.NET CONFIG FILES (DO NOT COMMIT SECRETS)
 ##############################################
 
-# Visual Studio
+appsettings.json
+appsettings.*.json
+**/appsettings.json
+**/appsettings.*.json
+
+# Environment variables
+.env
+.env*.local
+**/*.env
+**/*.local.json
+**/*.Development.json
+**/*.secret
+**/*.key
+**/*.pem
+
+##############################################
+# JETBRAINS / RIDER / INTELLIJ
+##############################################
+
+.idea/
+.idea/**/*
+.shelf/
+*.iml
+workspace.xml
+
+##############################################
+# VISUAL STUDIO
+##############################################
+
 .vs/
 *.user
 *.suo
 *.userosscache
 *.sln.docstates
 
-# Rider / JetBrains
-.idea/
-shelf/
-workspace.xml
+##############################################
+# VISUAL STUDIO CODE
+##############################################
 
-# VS Code
 .vscode/
+.history/
 
 ##############################################
-# ENVIRONMENT / CONFIG FILES
+# FLUTTER (Android / iOS / Web)
 ##############################################
-appsettings.json
 
-# Ignore all environment config files everywhere
-**/appsettings.Development.json
-**/appsettings.Local.json
-**/*.Development.json
-**/*.Local.json
-**/*.env
-**/*.secret
-**/*.key
-**/*.pem
+# Generated files
+build/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+pubspec.lock
+.flutter-versions
 
-# Local-only env files
-.env
-.env*.local
+# Dart
+.dart_tool/
+**/.dart_tool/
 
-# Ignore all config folders globally
-**/config/
-config/
+# iOS
+ios/Pods/
+ios/.generated/
+ios/.symlinks/
+ios/Flutter/App.framework
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+Runner.xcworkspace/
+**/xcuserdata/
 
-##############################################
-# LOGS
-##############################################
-*.log
-logs/
+# Android
+android/.gradle/
+android/captures/
+android/app/release/
+android/local.properties
+android/key.properties
 
-##############################################
-# DATABASE / DOCKER ARTIFACTS
-##############################################
-*.db
-docker-compose.override.yml
-docker-compose.*
-
-##############################################
-# EF CORE
-##############################################
-Migrations/
+# Web
+web/.dart_tool/
 
 ##############################################
-# NODE / JS / TS
+# NODE / JS / TS (if used for mini admin pages)
 ##############################################
+
 node_modules/
 dist/
 npm-debug.*
@@ -79,17 +138,9 @@ yarn-error.*
 *.tsbuildinfo
 
 ##############################################
-# FLUTTER
+# REACT NATIVE (in case future modules added)
 ##############################################
-build/
-.flutter-plugins
-.flutter-plugins-dependencies
-.packages
-pubspec.lock
 
-##############################################
-# REACT NATIVE
-##############################################
 .expo/
 *.keystore
 *.jks
@@ -99,31 +150,62 @@ pubspec.lock
 *.orig.*
 
 ##############################################
-# EXPO
+# DATABASE / DOCKER
 ##############################################
-web-build/
-expo-env.d.ts
-.metro-health-check*
 
-##############################################
-# NATIVE MOBILE
-##############################################
-.kotlin/
+*.db
+*.sql
+docker-compose.override.yml
+docker-compose*.yml
+pgdata/
+**/pgdata/
 
 ##############################################
 # COVERAGE / TEST OUTPUT
 ##############################################
+
 coverage/
 TestResults/
-.fake
+*.coverage
+*.coveragexml
+.fake/
 
 ##############################################
 # OS ARTIFACTS
 ##############################################
+
 # macOS
 .DS_Store
 
-# temp 
-temp.*
+# Windows
+Thumbs.db
+ehthumbs.db
+desktop.ini
 
+# Linux
+*~
+
+##############################################
+# CUSTOM EUIT PROJECT IGNORES
+##############################################
+
+# SQL exports
+exports/
+**/exports/
+
+# Auto-generated report files
+reports/
+**/reports/
+
+# Your rerun scripts
 src/rerun.sh
+
+# Build outputs for desktop utilities
+WinForms/obj/
+WinForms/bin/
+WPFApp/bin/
+WPFApp/obj/
+
+# API test files
+http_results/
+**/*.http_results.json
