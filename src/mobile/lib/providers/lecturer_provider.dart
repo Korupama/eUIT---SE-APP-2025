@@ -770,23 +770,38 @@ class LecturerProvider extends ChangeNotifier {
   }
 
   // GET /api/lecturer/tuition - Thông tin học phí
-  Future<List<Map<String, dynamic>>> fetchTuition({String? studentId, String? semester}) async {
+  Future<List<Map<String, dynamic>>> fetchTuition({
+    String? studentId,
+    String? semester,
+  }) async {
     try {
       developer.log('Fetching tuition info...', name: 'LecturerProvider');
-      var queryParams = <String, String>{};
-      if (studentId != null) queryParams['studentId'] = studentId;
-      if (semester != null) queryParams['semester'] = semester;
-      
-      final data = await _client.get('/api/lecturer/tuition', queryParameters: queryParams);
 
-      if (data != null && data is List) {
+      var queryParams = <String, String>{};
+      if (studentId != null) queryParams['mssv'] = studentId;  // ✔ backend yêu cầu mssv
+      if (semester != null) queryParams['hocKy'] = semester;   // ✔ backend yêu cầu hocKy
+
+      final data = await _client.get(
+        '/api/lecturer/tuition',
+        queryParameters: queryParams,
+      );
+
+      // ✔ data phải là Map
+      if (data == null || data is! Map<String, dynamic>) return [];
+
+      // ✔ lấy danh sách chiTietHocPhi
+      final details = data['chiTietHocPhi'];
+
+      if (details is List) {
         developer.log('Tuition info fetched successfully', name: 'LecturerProvider');
-        return List<Map<String, dynamic>>.from(data);
+        return List<Map<String, dynamic>>.from(details.reversed);
       }
+
+      return [];
     } catch (e) {
       developer.log('Error fetching tuition: $e', name: 'LecturerProvider');
+      return [];
     }
-    return [];
   }
 
   // PUT /api/lecturer/notifications/{id}/read - Đánh dấu thông báo đã đọc

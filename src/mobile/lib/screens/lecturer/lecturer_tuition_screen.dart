@@ -20,6 +20,7 @@ class _LecturerTuitionScreenState extends State<LecturerTuitionScreen> {
   final TextEditingController _semesterController = TextEditingController();
   List<Map<String, dynamic>> _tuitionData = [];
   bool _isLoading = false;
+    bool _useMock = false; // allow quick mock testing
 
   @override
   void dispose() {
@@ -298,19 +299,12 @@ class _LecturerTuitionScreenState extends State<LecturerTuitionScreen> {
 
   Widget _buildTuitionCard(Map<String, dynamic> tuition, bool isDark) {
     final hocKy = tuition['hocKy']?.toString() ?? 'N/A';
-    final tongHocPhi = tuition['tongHocPhi'] is num
-        ? tuition['tongHocPhi'] as num
-        : num.tryParse(tuition['tongHocPhi']?.toString() ?? '0') ?? 0;
-    final daDong = tuition['daDong'] is num
-        ? tuition['daDong'] as num
-        : num.tryParse(tuition['daDong']?.toString() ?? '0') ?? 0;
-    final conLai = tongHocPhi - daDong;
-    final trangThai = tuition['trangThai']?.toString() ?? '';
 
-    // Không hiển thị nếu thiếu thông tin học kỳ hoặc không có số tiền
-    if (hocKy == 'N/A' || (tongHocPhi == 0 && daDong == 0)) {
-      return const SizedBox.shrink();
-    }
+    final soTinChi = tuition['soTinChi'] ?? 0;
+    final hocPhi = tuition['hocPhi'] ?? 0;
+    final daDong = tuition['daDong'] ?? 0;
+    final conLai = tuition['soTienConLai'] ?? (hocPhi - daDong);
+    final noTruoc = tuition['noHocKyTruoc'] ?? 0;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -318,8 +312,8 @@ class _LecturerTuitionScreenState extends State<LecturerTuitionScreen> {
         color: (isDark ? AppTheme.darkCard : Colors.white).withOpacity(0.7),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color:
-              (isDark ? AppTheme.darkBorder : AppTheme.lightBorder).withOpacity(0.3),
+          color: (isDark ? AppTheme.darkBorder : AppTheme.lightBorder)
+              .withOpacity(0.3),
         ),
       ),
       child: ClipRRect(
@@ -331,13 +325,11 @@ class _LecturerTuitionScreenState extends State<LecturerTuitionScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Header
                 Row(
                   children: [
                     Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 6,
-                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
                         gradient: AppTheme.primaryGradient,
                         borderRadius: BorderRadius.circular(8),
@@ -350,39 +342,27 @@ class _LecturerTuitionScreenState extends State<LecturerTuitionScreen> {
                         ),
                       ),
                     ),
-                    const Spacer(),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 6,
-                      ),
-                      decoration: BoxDecoration(
-                        color: _getStatusColor(trangThai).withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        trangThai,
-                        style: AppTheme.bodySmall.copyWith(
-                          color: _getStatusColor(trangThai),
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
                   ],
                 ),
+
                 const SizedBox(height: 16),
-                _buildInfoRow('Tổng học phí', _formatCurrency(tongHocPhi), isDark),
+
+                _buildInfoRow('Số tín chỉ', '$soTinChi', isDark),
                 const SizedBox(height: 8),
+
+                _buildInfoRow('Học phí', _formatCurrency(hocPhi), isDark),
+                const SizedBox(height: 8),
+
+                if (noTruoc != 0)
+                  _buildInfoRow('Nợ học kỳ trước', _formatCurrency(noTruoc), isDark),
+                const SizedBox(height: 8),
+
                 _buildInfoRow('Đã đóng', _formatCurrency(daDong), isDark,
                     valueColor: Colors.green),
                 const SizedBox(height: 8),
+
                 _buildInfoRow('Còn lại', _formatCurrency(conLai), isDark,
                     valueColor: conLai > 0 ? Colors.red : Colors.green),
-                if (tuition['hanDong'] != null) ...[
-                  const SizedBox(height: 8),
-                  _buildInfoRow('Hạn đóng', tuition['hanDong'].toString(), isDark,
-                      valueColor: Colors.orange),
-                ],
               ],
             ),
           ),
