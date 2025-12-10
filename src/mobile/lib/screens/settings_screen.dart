@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -400,18 +401,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         title: Text(loc.t('change_password'), style: TextStyle(color: isDark ? Colors.white : Colors.black87, fontWeight: FontWeight.w600, fontSize: 14.sp)),
                         trailing: Icon(Icons.open_in_new_rounded, size: 24.r),
                         onTap: () async {
-                          final url = Uri.parse('https://auth.uit.edu.vn/');
+                          const platform = MethodChannel('com.example.mobile/browser');
+                          final url = 'https://auth.uit.edu.vn/';
                           try {
-                            final launched = await launchUrl(url, mode: LaunchMode.externalApplication);
-                            if (!launched && mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text(AppLocalizations.of(context).t('link_open_failed')), backgroundColor: AppTheme.error),
-                              );
-                            }
+                            await platform.invokeMethod('openUrl', {'url': url});
                           } catch (e) {
                             if (mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text('${AppLocalizations.of(context).t('error_prefix')}${e.toString()}'), backgroundColor: AppTheme.error),
+                                SnackBar(
+                                  content: Text('Could not open browser: $e'),
+                                  backgroundColor: AppTheme.error,
+                                ),
                               );
                             }
                           }
