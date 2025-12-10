@@ -398,7 +398,8 @@ class HomeProvider extends ChangeNotifier {
           final dayName = dayNames[dt.weekday % 7]; // weekday: 1=Monday, 7=Sunday
 
           final startTime = _getPeriodStartTime(tietBatDau);
-          timeRange = '$dayName • $startTime';
+          final endTime = _getPeriodEndTime(tietKetThuc ?? tietBatDau);
+          timeRange = '$dayName $startTime - $endTime';
         } catch (_) {
           timeRange = _periodsToTimeRange(tietBatDau, tietKetThuc ?? tietBatDau);
         }
@@ -545,5 +546,21 @@ class HomeProvider extends ChangeNotifier {
       0: '16:15',
     };
     return startMap[period] ?? '$period';
+  }
+
+  String _getPeriodEndTime(int period) {
+    const Map<int, String> endMap = {
+      1: '8:15',
+      2: '9:00',
+      3: '9:45',
+      4: '10:45',
+      5: '11:30',
+      6: '13:45',
+      7: '14:30',
+      8: '15:15',
+      9: '16:15',
+      0: '17:00',
+    };
+    return endMap[period] ?? '$period';
   }
 }

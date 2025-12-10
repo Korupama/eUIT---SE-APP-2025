@@ -1346,11 +1346,13 @@ class _LecturerHomeScreenState extends State<LecturerHomeScreen>
     final dayNames = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
     final dayName = dayNames[classDate.weekday % 7]; // weekday: 1=Monday, 7=Sunday
 
-    // Get start time
+    // Get start and end time
     final startPeriod = int.tryParse(nextClass.tietBatDau ?? '1') ?? 1;
+    final endPeriod = int.tryParse(nextClass.tietKetThuc ?? '3') ?? 3;
     final startTime = _getPeriodStartTime(startPeriod);
+    final endTime = _getPeriodEndTime(endPeriod);
 
-    return '$dayName • $startTime';
+    return '$dayName $startTime - $endTime';
   }
 
   String _getPeriodStartTime(int period) {
@@ -1367,5 +1369,21 @@ class _LecturerHomeScreenState extends State<LecturerHomeScreen>
       0: '16:15',
     };
     return startMap[period] ?? '$period';
+  }
+
+  String _getPeriodEndTime(int period) {
+    const Map<int, String> endMap = {
+      1: '8:15',
+      2: '9:00',
+      3: '9:45',
+      4: '10:45',
+      5: '11:30',
+      6: '13:45',
+      7: '14:30',
+      8: '15:15',
+      9: '16:15',
+      0: '17:00',
+    };
+    return endMap[period] ?? '$period';
   }
 }
