@@ -5,7 +5,6 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -15,6 +14,7 @@ import 'package:provider/provider.dart';
 import '../utils/app_localizations.dart';
 import '../providers/home_provider.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
+import '../widgets/animated_background.dart';
 
 /// Chatbot screen for UIT Assistant
 /// - Uses provider for local state
@@ -102,33 +102,20 @@ class _ChatbotScreenState extends State<ChatbotScreen> with TickerProviderStateM
         // Bottom navigation included to show active tab; you can tie this to app nav
         //bottomNavigationBar: _BottomNavBar(activeIndex: 1), // 1 => Chatbot
         body: SafeArea(
-          child: Column(
+          child: Stack(
             children: [
-              _buildHeader(context, loc, isDark),
-              const SizedBox(height: 8),
-              Expanded(
-                child: Stack(
-                  children: [
-                    // Background (light: gradient, dark: solid)
-                    Container(
-                      decoration: isDark
-                          ? const BoxDecoration(color: Color(0xFF0A0E27))
-                          : const BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            Color(0xFF2F6BFF),
-                            Color(0xFFA355F7),
-                          ],
-                        ),
-                      ),
-                    ),
+              // Full-screen animated background so it shows behind header and input area
+              Positioned.fill(child: AnimatedBackground(isDark: isDark)),
 
-                    // Chat content area
-                    Column(
+              // Foreground content
+              Column(
+                children: [
+                  _buildHeader(context, loc, isDark),
+                  const SizedBox(height: 8),
+                  Expanded(
+                    child: Column(
                       children: [
-                        // Messages area
+                        // Messages area (same contents as before, scrim kept)
                         Expanded(
                           child: ClipRRect(
                             borderRadius: const BorderRadius.only(
@@ -136,9 +123,8 @@ class _ChatbotScreenState extends State<ChatbotScreen> with TickerProviderStateM
                               topRight: Radius.circular(18),
                             ),
                             child: Container(
-                              color: isDark
-                                  ? Colors.transparent
-                                  : const Color(0x0FFFFFFF),
+                              // Make chat area fully transparent so animated background shows through
+                              color: Colors.transparent,
                               child: Consumer<ChatbotProvider>(
                                 builder: (context, provider, _) {
                                   if (provider.messages.isEmpty && !provider.isAiTyping) {
@@ -193,12 +179,12 @@ class _ChatbotScreenState extends State<ChatbotScreen> with TickerProviderStateM
                         ),
                       ],
                     ),
-                  ],
-                ),
-              ),
+                  ),
 
-              // Input area (fixed above bottom nav)
-              _buildInputArea(isDark),
+                  // Input area (fixed above bottom nav). Keep a subtle translucent white in light mode
+                  _buildInputArea(isDark),
+                ],
+              ),
             ],
           ),
         ),
@@ -208,7 +194,8 @@ class _ChatbotScreenState extends State<ChatbotScreen> with TickerProviderStateM
 
   PreferredSizeWidget _buildHeader(BuildContext context, AppLocalizations loc, bool isDark) {
     return AppBar(
-      backgroundColor: isDark ? Colors.transparent : Colors.white,
+      // Make AppBar transparent so animated background shows behind header in both themes
+      backgroundColor: Colors.transparent,
       elevation: 0,
       centerTitle: true,
       leading: IconButton(
@@ -279,15 +266,16 @@ class _ChatbotScreenState extends State<ChatbotScreen> with TickerProviderStateM
               width: 120,
               height: 120,
               decoration: BoxDecoration(
-                // Replaced deprecated withOpacity -> explicit ARGB (0.12*255 ≈ 31 -> 0x1F)
-                color: isDark ? Colors.white12 : const Color(0x1FFFFFFF),
+                // Make empty-state background transparent so animated background shows
+                color: Colors.transparent,
                 borderRadius: BorderRadius.circular(24),
               ),
               child: Center(
                 child: Icon(
                   Icons.smart_toy,
                   size: 64,
-                  color: isDark ? Colors.white : Colors.white,
+                  // keep icon white for contrast against various backgrounds
+                  color: Colors.white,
                 ),
               ),
             ),
@@ -312,7 +300,8 @@ class _ChatbotScreenState extends State<ChatbotScreen> with TickerProviderStateM
     // final provider = Provider.of<ChatbotProvider>(context, listen: false);
 
     return Container(
-      color: isDark ? const Color(0xFF0A0E27) : Colors.white,
+      // Fully transparent input area so animated background is visible behind controls
+      color: Colors.transparent,
       padding: const EdgeInsets.fromLTRB(12, 8, 12, 12), // bottom padding to sit above bottom nav
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -321,15 +310,6 @@ class _ChatbotScreenState extends State<ChatbotScreen> with TickerProviderStateM
           Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              // Attach button
-              IconButton(
-                onPressed: () {
-                  // implement attach -> open file or record voice
-                  _showAttachOptions(context);
-                },
-                icon: Icon(Icons.attach_file, color: isDark ? Colors.white70 : Colors.black54),
-              ),
-
               // Expanded textarea
               Expanded(
                 child: ConstrainedBox(
@@ -337,10 +317,11 @@ class _ChatbotScreenState extends State<ChatbotScreen> with TickerProviderStateM
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8),
                     decoration: BoxDecoration(
-                      color: isDark ? Colors.white10 : Colors.grey.shade100,
+                      // Make inner input background transparent as well
+                      color: Colors.transparent,
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                        color: isDark ? Colors.white12 : Colors.grey.shade200,
+                        color: isDark ? const Color(0x1FFFFFFF) : const Color(0x1FFFFFFF),
                       ),
                     ),
                     child: Scrollbar(
@@ -402,38 +383,6 @@ class _ChatbotScreenState extends State<ChatbotScreen> with TickerProviderStateM
             ],
           ),
         ],
-      ),
-    );
-  }
-
-  void _showAttachOptions(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: isDark ? const Color(0xFF0A0E27) : Colors.white,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(12))),
-      builder: (_) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: const Icon(Icons.attach_file),
-              title: const Text('Đính kèm tệp'),
-              onTap: () {
-                Navigator.pop(context);
-                // TODO: open file picker
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.mic),
-              title: const Text('Gửi ghi âm'),
-              onTap: () {
-                Navigator.pop(context);
-                // TODO: start voice recording
-              },
-            ),
-          ],
-        ),
       ),
     );
   }
@@ -652,11 +601,12 @@ class _MessageTileState extends State<MessageTile> with SingleTickerProviderStat
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
               decoration: BoxDecoration(
+                // Make bubbles semi-transparent so animated background shows through
                 color: isUser
-                    ? const Color(0xFF2F6BFF)
+                    ? const Color(0xE52F6BFF) // ~90% opacity
                     : (isDark
-                    ? Colors.white10
-                    : const Color.fromRGBO(47, 107, 255, 0.06)), // ai bubble bg for light
+                        ? const Color(0x0FFFFFFF) // subtle dark overlay for dark mode
+                        : const Color(0xBFFFFFFF)), // AI bubble background in light mode: white @ 10% opacity
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(isUser ? 16 : 6),
                   topRight: Radius.circular(isUser ? 6 : 16),
@@ -666,8 +616,8 @@ class _MessageTileState extends State<MessageTile> with SingleTickerProviderStat
                 border: isUser
                     ? null
                     : Border.all(
-                  color: const Color.fromRGBO(47, 107, 255, 0.3),
-                ),
+                        color: isDark ? const Color(0x14FFFFFF) : const Color(0x2E2F6BFF),
+                      ),
                 boxShadow: isDark && isUser
                     ? [
                   BoxShadow(
@@ -731,7 +681,8 @@ class _MessageTileState extends State<MessageTile> with SingleTickerProviderStat
               padding: const EdgeInsets.only(right: 8, left: 4),
               child: CircleAvatar(
                 radius: 18,
-                backgroundColor: widget.isDark ? Colors.white12 : Colors.white,
+                // Make avatar background transparent so animated background shows through
+                backgroundColor: Colors.transparent,
                 child: Icon(Icons.smart_toy, color: widget.isDark ? Colors.white : const Color(0xFF2F6BFF)),
               ),
             ),
@@ -744,7 +695,8 @@ class _MessageTileState extends State<MessageTile> with SingleTickerProviderStat
               padding: const EdgeInsets.only(left: 8, right: 4),
               child: CircleAvatar(
                 radius: 18,
-                child: Icon(Icons.person),
+                backgroundColor: Colors.transparent,
+                child: Icon(Icons.person, color: isDark ? Colors.white : Colors.black87),
               ),
             ),
           ],
@@ -801,7 +753,7 @@ class _AiTypingIndicatorState extends State<_AiTypingIndicator> with SingleTicke
 
   @override
   Widget build(BuildContext context) {
-    final bg = widget.isDark ? Colors.white12 : const Color(0x14FFFFFF);
+    final bg = widget.isDark ? const Color(0x1FFFFFFF) : const Color(0x14FFFFFF);
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
