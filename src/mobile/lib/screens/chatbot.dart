@@ -310,15 +310,6 @@ class _ChatbotScreenState extends State<ChatbotScreen> with TickerProviderStateM
           Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              // Attach button
-              IconButton(
-                onPressed: () {
-                  // implement attach -> open file or record voice
-                  _showAttachOptions(context);
-                },
-                icon: Icon(Icons.attach_file, color: isDark ? Colors.white70 : Colors.black54),
-              ),
-
               // Expanded textarea
               Expanded(
                 child: ConstrainedBox(
@@ -392,38 +383,6 @@ class _ChatbotScreenState extends State<ChatbotScreen> with TickerProviderStateM
             ],
           ),
         ],
-      ),
-    );
-  }
-
-  void _showAttachOptions(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: isDark ? const Color(0xFF0A0E27) : Colors.white,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(12))),
-      builder: (_) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: const Icon(Icons.attach_file),
-              title: const Text('Đính kèm tệp'),
-              onTap: () {
-                Navigator.pop(context);
-                // TODO: open file picker
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.mic),
-              title: const Text('Gửi ghi âm'),
-              onTap: () {
-                Navigator.pop(context);
-                // TODO: start voice recording
-              },
-            ),
-          ],
-        ),
       ),
     );
   }
